@@ -8,33 +8,33 @@ open ArrangementService.Repo
 
 module Models =
     type DomainModel =
-        { Email: string 
+        { Email: string
           EventId: Guid
           RegistrationTime: int64 }
 
     type ViewModel =
-        { Email: string 
+        { Email: string
           EventId: Guid
           RegistrationTime: int64 }
 
     // Empty for now
-    type WriteModel = 
+    type WriteModel =
         { NothingToSeeHere: string }
-    
-    type Key = Guid * string 
+
+    type Key = Guid * string
 
     type TableModel = ArrangementDbContext.dboSchema.``dbo.Participants``
 
     type DbModel = ArrangementDbContext.``dbo.ParticipantsEntity``
 
-   
+
     let dbToDomain (dbRecord: DbModel): DomainModel =
         { Email = dbRecord.Email
-          EventId = dbRecord.EventId 
+          EventId = dbRecord.EventId
           RegistrationTime = dbRecord.RegistrationTime }
 
     let writeToDomain ((id, email): Key) (_: WriteModel): DomainModel =
-        { Email = email 
+        { Email = email
           EventId = id
           RegistrationTime = DateTimeOffset(DateTime.Now).ToUnixTimeMilliseconds() }
 
@@ -45,18 +45,18 @@ module Models =
         db
 
     let domainToView (domainModel: DomainModel): ViewModel =
-      { Email = domainModel.Email
-        EventId = domainModel.EventId
-        RegistrationTime = domainModel.RegistrationTime }
+        { Email = domainModel.Email
+          EventId = domainModel.EventId
+          RegistrationTime = domainModel.RegistrationTime }
 
-    let models: Models<DbModel, DomainModel, ViewModel, WriteModel, Key, TableModel> = 
-      { key = fun record -> (record.EventId, record.Email)
-        table = fun ctx -> ctx.GetService<ArrangementDbContext>().Dbo.Participants
+    let models: Models<DbModel, DomainModel, ViewModel, WriteModel, Key, TableModel> =
+        { key = fun record -> (record.EventId, record.Email)
+          table = fun ctx -> ctx.GetService<ArrangementDbContext>().Dbo.Participants
 
-        create = fun table -> table.Create()
-        delete = fun record -> record.Delete()
+          create = fun table -> table.Create()
+          delete = fun record -> record.Delete()
 
-        dbToDomain = dbToDomain
-        updateDbWithDomain = updateDbWithDomain
-        domainToView = domainToView
-        writeToDomain = writeToDomain }
+          dbToDomain = dbToDomain
+          updateDbWithDomain = updateDbWithDomain
+          domainToView = domainToView
+          writeToDomain = writeToDomain }

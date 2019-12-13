@@ -24,9 +24,7 @@ module Service =
         >> withError (eventNotFound id)
         >> Result.map models.dbToDomain
 
-    let createEvent writemodel =
-        repo.create (fun id -> models.writeToDomain id writemodel)
-        >> Ok
+    let createEvent writemodel = repo.create (fun id -> models.writeToDomain id writemodel) >> Ok
 
     let updateEvent id event =
         repo.read

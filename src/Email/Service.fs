@@ -17,14 +17,10 @@ module Service =
         let byteBody = UTF8Encoding().GetBytes(jsonBody)
         async {
             let! _ = Http.AsyncRequestString
-                         (  options.SendgridUrl, 
-                            httpMethod = "POST",
-                            headers =
-                              [ "Authorization", 
-                                (sprintf "Bearer %s" options.ApiKey)
-                                "Content-Type", 
-                                "application/json" ], 
-                                body = BinaryUpload byteBody )
+                         (options.SendgridUrl, httpMethod = "POST",
+                          headers =
+                              [ "Authorization", (sprintf "Bearer %s" options.ApiKey)
+                                "Content-Type", "application/json" ], body = BinaryUpload byteBody)
             ()
         }
         |> Async.Start
@@ -33,8 +29,7 @@ module Service =
         let sendgridConfig = context.GetService<SendgridOptions>()
 
         let mailFunction =
-            if context.GetService<AppConfig>().isProd then sendMailProd sendgridConfig
-            else printfn "%s"
+            if context.GetService<AppConfig>().isProd then sendMailProd sendgridConfig else printfn "%s"
 
         let serializerSettings =
             let settings = JsonSerializerSettings()

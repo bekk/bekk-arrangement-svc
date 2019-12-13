@@ -45,5 +45,4 @@ module Handlers =
               //                            routef "/events/employee/%i" (handle << getEventsForEmployee) ]
               DELETE >=> choose [ routef "/events/%O" (handle << deleteEvent) ]
               PUT >=> choose [ routef "/events/%O" (handle << updateEvent) ]
-              POST >=> choose
-                           [ route "/events" >=> handle createEvent ] ]
+              POST >=> choose [ route "/events" >=> handle createEvent ] ]

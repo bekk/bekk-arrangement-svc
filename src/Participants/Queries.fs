@@ -4,11 +4,11 @@ open Models
 open System.Linq
 
 module Queries =
-    
+
     let queryParticipantByKey (email, id) (participants: DbModel IQueryable) =
         query {
             for participant in participants do
-                where (participant.Email = email && participant.EventId = id) 
+                where (participant.Email = email && participant.EventId = id)
                 select (Some participant)
                 exactlyOneOrDefault
         }
@@ -18,4 +18,4 @@ module Queries =
             for participant in participants do
                 where (participant.Email = email)
                 select participant
-        } // |> Seq.toList 
+        } // |> Seq.toList

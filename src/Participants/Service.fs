@@ -8,11 +8,11 @@ open ArrangementService.Email.Service
 open Queries
 open ErrorMessages
 
-module Service = 
+module Service =
 
     let models = Models.models
     let repo = Repo.from Models.models
-    
+
     let createEmail participants (event: Events.Models.DomainModel) =
         { Subject = event.Title
           Message = event.Description
@@ -27,23 +27,20 @@ module Service =
     let registerParticipant (registration: Models.DomainModel) =
         repo.create (fun _ -> registration)
         >> Ok
-        >>= Http.sideEffect
-            (fun registration context -> 
+        >>= Http.sideEffect (fun registration context ->
                 Events.Service.getEvent registration.EventId context
-                |> Result.map 
-                    (fun event -> sendEventEmail registration.Email event context))
+                |> Result.map (fun event -> sendEventEmail registration.Email event context))
 
-    let getParticipants = 
-        repo.read >> Seq.map models.dbToDomain
-    
-    let getParticipantEvents email = 
+    let getParticipants = repo.read >> Seq.map models.dbToDomain
+
+    let getParticipantEvents email =
         repo.read
         >> queryParticipantBy email
         >> Seq.map models.dbToDomain
         >> Ok
 
 
-    let deleteParticipant email id = 
+    let deleteParticipant email id =
         repo.read
         >> queryParticipantByKey (email, id)
         >> withError (participationNotFound email id)

@@ -125,6 +125,3 @@ module Models =
           updateDbWithDomain = updateDbWithDomain
           domainToView = domainToView
           writeToDomain = writeToDomain }
-
-   
-        
