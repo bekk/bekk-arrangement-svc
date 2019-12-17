@@ -29,7 +29,10 @@ module Service =
         let sendgridConfig = context.GetService<SendgridOptions>()
 
         let mailFunction =
-            if context.GetService<AppConfig>().isProd then sendMailProd sendgridConfig else printfn "%s"
+            if context.GetService<AppConfig>().isProd then
+                sendMailProd sendgridConfig
+            else
+                printfn "%s"
 
         let serializerSettings =
             let settings = JsonSerializerSettings()

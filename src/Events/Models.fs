@@ -77,7 +77,8 @@ module Models =
           OrganizerEmail = dbRecord.OrganizerEmail
           StartDate = toCustomDateTime dbRecord.StartDate dbRecord.StartTime
           EndDate = toCustomDateTime dbRecord.EndDate dbRecord.EndTime
-          OpenForRegistrationDate = toCustomDateTime dbRecord.OpenForRegistrationDate dbRecord.OpenForRegistrationTime }
+          OpenForRegistrationDate =
+              toCustomDateTime dbRecord.OpenForRegistrationDate dbRecord.OpenForRegistrationTime }
 
     let updateDbWithDomain (db: DbModel) (event: DomainModel) =
         db.Title <- event.Title

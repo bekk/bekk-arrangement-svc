@@ -9,7 +9,7 @@ open Fantomas.FormatConfig
 
 let fantomasConfig =
     { IndentSpaceNum = 4
-      PageWidth = 120
+      PageWidth = 100
       SemicolonAtEndOfLine = false
       SpaceBeforeArgument = true
       SpaceBeforeColon = false

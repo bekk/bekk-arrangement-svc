@@ -25,12 +25,14 @@ module Handlers =
         >> Result.map (Seq.map models.domainToView)
         >> Ok
 
-    let deleteParticipant (email, id) = Service.deleteParticipant email id >>= sideEffect commitTransaction
+    let deleteParticipant (email, id) =
+        Service.deleteParticipant email id >>= sideEffect commitTransaction
 
     let routes: HttpHandler =
         choose
             [ GET >=> choose
                           [ route "/participants" >=> handle getParticipants
                             routef "/participant/%s" (handle << getParticipantEvents) ]
-              DELETE >=> choose [ routef "/participant/%s/events/%O" (handle << deleteParticipant) ]
+              DELETE
+              >=> choose [ routef "/participant/%s/events/%O" (handle << deleteParticipant) ]
               POST >=> choose [ routef "/participant/%s/events/%O" (handle << registerForEvent) ] ]
