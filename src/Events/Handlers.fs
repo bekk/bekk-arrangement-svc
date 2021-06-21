@@ -8,7 +8,6 @@ open Models
 open ArrangementService.DomainModels
 open ArrangementService.Config
 open ArrangementService.Email
-open Validation
 open Authorization
 
 open Giraffe
@@ -54,7 +53,6 @@ module Handlers =
             let! writeModel = getBody<WriteModel>
             let! domainModel = writeToDomain id writeModel |> ignoreContext
 
-            do! assertNumberOfParticipantsLessThanOrEqualMax domainModel
             
             let! updatedEvent = Service.updateEvent (Id id) domainModel
             return domainToView updatedEvent
