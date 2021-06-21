@@ -52,3 +52,14 @@ module Queries =
                }
         |> Database.runSelectQuery ctx
         |> Seq.map Models.dbToDomain
+    
+    let getNumberOfParticipants (eventId: Event.Id) (ctx: HttpContext) =
+        select { table participantsTable
+                 count "*" "Value"
+                 where (eq "EventId" eventId.Unwrap)
+               }
+        |> Database.runSelectQuery<{| Value : int |}> ctx
+        |> Seq.tryHead
+        |> function
+        | Some count -> Ok count.Value
+        | None -> Error [UserMessages.getParticipantsCountFailed eventId]

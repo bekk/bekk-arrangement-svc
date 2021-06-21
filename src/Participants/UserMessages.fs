@@ -10,3 +10,5 @@ module UserMessages =
         $"Kan ikke finne deltaker {email} for arrangement {eventId}" |> NotFound
     let participationSuccessfullyDeleted (eventId, email): string =
         $"Deltakelse for {email} på arrangement {eventId} ble slettet"
+    let getParticipantsCountFailed (eventId): UserMessage =
+        $"Henting av antall deltakere for {eventId} feilet" |> InternalErrorMessage
