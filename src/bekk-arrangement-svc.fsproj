@@ -74,6 +74,8 @@
     <Compile Include="Events\Authorization.fs" />
     <Compile Include="Participants\Authorization.fs" />
 
+    <Compile Include="Events\Validation.fs" />
+
     <Compile Include="Events\Handlers.fs" />
     <Compile Include="Participants\Handlers.fs" />
 

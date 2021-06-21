@@ -58,16 +58,9 @@ module Service =
             return newEvent
         }
 
-    let assertNumberOfParticipantsLessThanOrEqualMax (event:Event) =
-        result {
-            let! numberOfParticipants = Participant.Queries.getNumberOfParticipants event.Id
-            if numberOfParticipants <= event.MaxParticipants.Unwrap then return ()
-            else return! Error [UserMessages.invalidMaxParticipantValue]
-        }
 
     let updateEvent id event =
         result {
-            do! assertNumberOfParticipantsLessThanOrEqualMax event 
             do! Queries.updateEvent id event
             return event 
         }
