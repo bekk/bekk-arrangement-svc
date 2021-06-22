@@ -98,8 +98,8 @@ module Handlers =
                       [ routef "/events/%O/participants" (fun eventId ->
                             check (userCanSeeParticipants eventId)
                             >=> (handle << getParticipantsForEvent) eventId)
-                        routef "/events/%O/participants/count" (fun eventId ->
-                            (handle << getNumberOfParticipantsForEvent) eventId)
+                        routef "/events/%O/participants/count" 
+                            (handle << getNumberOfParticipantsForEvent)
                         routef "/participants/%s/events"
                             (handle << getParticipationsForParticipant) ]
               DELETE
