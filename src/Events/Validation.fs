@@ -9,7 +9,7 @@ open ArrangementService.ResultComputationExpression
 module Validation =
     let assertNumberOfParticipantsLessThanOrEqualMax (event:Event) =
         result {
-            let! numberOfParticipants = Participant.Queries.getNumberOfParticipants event.Id
+            let! numberOfParticipants = Participant.Queries.getNumberOfParticipantsByEvent event.Id
             if numberOfParticipants <= event.MaxParticipants.Unwrap then return () 
             else return! Error [UserMessages.invalidMaxParticipantValue] 
         }

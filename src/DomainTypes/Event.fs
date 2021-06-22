@@ -93,3 +93,10 @@ type ParticipantQuestion =
         [ validateMaxLength 500
               (BadInput "Spørsmål til deltaker kan ha maks 500 tegn") ]
         |> validateAll ParticipantQuestion participantQuestion
+
+type NumberOfParticipants = 
+    | NumberOfParticipants of int
+
+    member this.Unwrap =
+        match this with
+        | NumberOfParticipants count -> count

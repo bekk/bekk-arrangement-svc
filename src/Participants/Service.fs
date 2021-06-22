@@ -4,6 +4,7 @@ open ArrangementService
 
 open ResultComputationExpression
 open ArrangementService.Email
+open ArrangementService.Event
 open CalendarInvite
 open UserMessages
 open Models
@@ -218,3 +219,9 @@ module Service =
         participants |> Seq.iter sendMailToParticipant
 
         Ok()
+    
+    let getNumberOfParticipants eventID =
+        result {
+            let! count = Queries.getNumberOfParticipantsByEvent eventID
+            return NumberOfParticipants count
+        }
