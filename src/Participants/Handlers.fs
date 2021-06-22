@@ -12,6 +12,7 @@ open System.Web
 open System
 open ArrangementService.DomainModels
 open ArrangementService.Config
+open ArrangementService.Event.Authorization
 
 module Handlers =
 
@@ -88,8 +89,9 @@ module Handlers =
         choose
             [ GET
               >=> choose
-                      [ routef "/events/%O/participants"
-                            (handle << getParticipantsForEvent)
+                      [ routef "/events/%O/participants" (fun eventId ->
+                            check (userCanSeeParticipants eventId)
+                            >=> (handle << getParticipantsForEvent) eventId)
                         routef "/participants/%s/events"
                             (handle << getParticipationsForParticipant) ]
               DELETE

@@ -26,6 +26,8 @@ module Authorization =
             else
                 return! [ AccessDenied $"You are trying to edit an event (id {eventId}) which you did not create"] |> Error
         }
+    
+    let userCanSeeParticipants = userCreatedEvent
 
     let userCanEditEvent eventId =
         anyOf
