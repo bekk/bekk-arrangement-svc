@@ -53,7 +53,7 @@ module Queries =
         |> Database.runSelectQuery ctx
         |> Seq.map Models.dbToDomain
     
-    let getNumberOfParticipantsByEvent (eventId: Event.Id) (ctx: HttpContext) =
+    let getNumberOfParticipantsForEvent (eventId: Event.Id) (ctx: HttpContext) =
         select { table participantsTable
                  count "*" "Value"
                  where (eq "EventId" eventId.Unwrap)

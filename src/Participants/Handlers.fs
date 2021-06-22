@@ -85,9 +85,9 @@ module Handlers =
                              None }
         }
     
-    let getNumberOfParticipantsByEvent id =
+    let getNumberOfParticipantsForEvent id =
         result {
-            let! count = Service.getNumberOfParticipants (Event.Id id)
+            let! count = Service.getNumberOfParticipantsForEvent (Event.Id id)
             return count.Unwrap
         }
 
@@ -99,7 +99,7 @@ module Handlers =
                             check (userCanSeeParticipants eventId)
                             >=> (handle << getParticipantsForEvent) eventId)
                         routef "/events/%O/participants/count" (fun eventId ->
-                            (handle << getNumberOfParticipantsByEvent) eventId)
+                            (handle << getNumberOfParticipantsForEvent) eventId)
                         routef "/participants/%s/events"
                             (handle << getParticipationsForParticipant) ]
               DELETE

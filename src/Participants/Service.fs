@@ -220,8 +220,8 @@ module Service =
 
         Ok()
     
-    let getNumberOfParticipants eventID =
+    let getNumberOfParticipantsForEvent eventId =
         result {
-            let! count = Queries.getNumberOfParticipantsByEvent eventID
+            let! count = Queries.getNumberOfParticipantsForEvent eventId
             return NumberOfParticipants count
         }
