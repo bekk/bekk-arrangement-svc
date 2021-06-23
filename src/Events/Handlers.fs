@@ -48,13 +48,10 @@ module Handlers =
             return result
         }
 
-    let updateEvent id =
+    let updateEvent (id:Key) =
         result {
             let! writeModel = getBody<WriteModel>
-            let! domainModel = writeToDomain id writeModel |> ignoreContext
-
-            
-            let! updatedEvent = Service.updateEvent (Id id) domainModel
+            let! updatedEvent = Service.updateEvent (Id id) writeModel
             return domainToView updatedEvent
         }
 

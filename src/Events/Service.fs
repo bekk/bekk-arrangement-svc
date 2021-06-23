@@ -7,6 +7,7 @@ open UserMessages
 open Validation
 open ArrangementService.DomainModels
 open Http
+open Models
 
 module Service =
 
@@ -59,11 +60,14 @@ module Service =
         }
 
 
-    let updateEvent id event =
+    let updateEvent (id:Event.Id) writeModel =
         result {
-            do! assertNumberOfParticipantsLessThanOrEqualMax event
-            do! Queries.updateEvent id event
-            return event 
+            let! editToken = Queries.queryEditTokenByEventId id
+            let! newEvent = writeToDomain id.Unwrap writeModel editToken |> ignoreContext
+
+            do! assertNumberOfParticipantsLessThanOrEqualMax newEvent
+            do! Queries.updateEvent newEvent
+            return newEvent 
         }
     
     let deleteEvent id =

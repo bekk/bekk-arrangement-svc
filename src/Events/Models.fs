@@ -72,6 +72,7 @@ module Models =
     let writeToDomain
         (id: Key)
         (writeModel: WriteModel)
+        (editToken: Guid)
         : Result<Event, UserMessage list>
         =
         Ok Event.Create 
@@ -84,7 +85,7 @@ module Models =
         <*> MaxParticipants.Parse writeModel.MaxParticipants
         <*> validateDateRange writeModel.StartDate writeModel.EndDate
         <*> OpenForRegistrationTime.Parse writeModel.OpenForRegistrationTime
-        <*> (Guid.NewGuid() |> Ok)
+        <*> Ok editToken
         <*> ParticipantQuestion.Parse writeModel.ParticipantQuestion
         <*> (writeModel.HasWaitingList |> Ok)
 

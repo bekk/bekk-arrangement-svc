@@ -17,7 +17,7 @@ module Queries =
 
     let createEvent (event: WriteModel) =
         result {
-            let! event = Models.writeToDomain (Guid.NewGuid()) event |> ignoreContext
+            let! event = Models.writeToDomain (Guid.NewGuid()) event (Guid.NewGuid()) |> ignoreContext
             let dbModel = Models.domainToDb event
             do! insert { table eventsTable
                          value dbModel
@@ -39,11 +39,11 @@ module Queries =
         |> ignore
         Ok ()
 
-    let updateEvent (id: Event.Id) (newEvent: Event) (ctx: HttpContext): Result<Unit, UserMessage list> =
-        let newEvent = Models.domainToDb newEvent
+    let updateEvent (newEvent: Event) (ctx: HttpContext): Result<Unit, UserMessage list> =
+        let newEventDb = Models.domainToDb newEvent
         update { table eventsTable
-                 set newEvent
-                 where (eq "Id" id.Unwrap)
+                 set newEventDb
+                 where (eq "Id" newEvent.Id.Unwrap)
                }
         |> Database.runUpdateQuery ctx
         |> ignore
@@ -58,6 +58,12 @@ module Queries =
        |> function
        | Some event -> Ok <| Models.dbToDomain event
        | None -> Error [ UserMessages.eventNotFound eventId ]
+
+    let queryEditTokenByEventId (id:Event.Id) =
+        result {
+            let! event = queryEventByEventId id
+            return event.EditToken
+        }
 
     let queryEventsOrganizedByEmail (organizerEmail: EmailAddress) ctx: Event seq =
         select { table eventsTable
