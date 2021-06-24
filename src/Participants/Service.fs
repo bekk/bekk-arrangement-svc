@@ -242,5 +242,5 @@ module Service =
             return! match (waitingListIndex,isAttending) with
                     | (Some x, _) -> Ok (x+1) 
                     | (None, true) -> Ok 0 
-                    | (None , false) -> Error [ UserMessages.participantNotFound email ]
+                    | (None , false) -> Error [participantNotFound email ]
         }
