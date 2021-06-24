@@ -121,12 +121,10 @@ module Service =
         result {
             let! participantsForEvent =
                 Queries.queryParticipantsByEventId event.Id
-                >> Seq.sortBy
-                    (fun participant -> participant.RegistrationTime)
                 >> Ok
             
             match event.MaxParticipants.Unwrap with
-            //Max participants = 0 means participants = infinity 
+            // Max participants = 0 means participants = infinity 
             | 0 -> return {
                 attendees =
                     participantsForEvent
@@ -224,4 +222,25 @@ module Service =
         result {
             let! count = Queries.getNumberOfParticipantsForEvent eventId
             return NumberOfParticipants count
+        }
+    
+    let getWaitinglistSpot eventId email =
+        result {
+            let! event = Service.getEvent eventId
+
+            let! { attendees = attendees
+                   waitingList = waitingList } = getParticipantsForEvent event
+
+            let isAttending = 
+                attendees 
+                |> Seq.exists (fun y -> y.Email = email)
+
+            let waitingListIndex = 
+                waitingList 
+                |> Seq.tryFindIndex (fun y -> y.Email = email)
+
+            return! match (waitingListIndex,isAttending) with
+                    | (Some x, _) -> Ok (x+1) 
+                    | (None, true) -> Ok 0 
+                    | (None , false) -> Error [ UserMessages.participantNotFound email ]
         }

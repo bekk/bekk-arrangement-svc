@@ -49,6 +49,7 @@ module Queries =
     let queryParticipantsByEventId (eventId: Event.Id) ctx: Participant seq =
         select { table participantsTable
                  where (eq "EventId" eventId.Unwrap)
+                 orderBy "RegistrationTime" Asc
                }
         |> Database.runSelectQuery ctx
         |> Seq.map Models.dbToDomain

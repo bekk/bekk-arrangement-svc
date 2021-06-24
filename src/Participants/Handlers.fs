@@ -90,6 +90,8 @@ module Handlers =
             let! count = Service.getNumberOfParticipantsForEvent (Event.Id id)
             return count.Unwrap
         }
+    
+    let getWaitinglistSpot (eventId, email) = Service.getWaitinglistSpot (Event.Id eventId) (EmailAddress email) 
 
     let routes: HttpHandler =
         choose
@@ -100,6 +102,8 @@ module Handlers =
                             >=> (handle << getParticipantsForEvent) eventId)
                         routef "/events/%O/participants/count" 
                             (handle << getNumberOfParticipantsForEvent)
+                        routef "/events/%O/participants/%s/waitinglist-spot" (fun (eventId, email) ->
+                            (handle << getWaitinglistSpot) (eventId, email))
                         routef "/participants/%s/events"
                             (handle << getParticipationsForParticipant) ]
               DELETE
