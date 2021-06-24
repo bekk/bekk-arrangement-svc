@@ -231,16 +231,19 @@ module Service =
             let! { attendees = attendees
                    waitingList = waitingList } = getParticipantsForEvent event
 
-            let isAttending = 
-                attendees 
+            let isParticipant =  
+                Seq.append attendees waitingList 
                 |> Seq.exists (fun y -> y.Email = email)
 
-            let waitingListIndex = 
-                waitingList 
-                |> Seq.tryFindIndex (fun y -> y.Email = email)
+            if not isParticipant then
+                return! Error [ participantNotFound email ]
 
-            return! match (waitingListIndex,isAttending) with
-                    | (Some x, _) -> Ok (x+1) 
-                    | (None, true) -> Ok 0 
-                    | (None , false) -> Error [participantNotFound email ]
+            else
+                let waitingListIndex = 
+                    waitingList 
+                    |> Seq.tryFindIndex (fun participant -> participant.Email = email)
+                
+                return waitingListIndex 
+                    |> Option.map (fun index -> index + 1) 
+                    |> Option.defaultValue 0 
         }
