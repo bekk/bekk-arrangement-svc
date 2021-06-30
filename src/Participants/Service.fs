@@ -116,33 +116,37 @@ module Service =
 
             return participant
         }
-
-    let getParticipantsForEvent (event: Event): Handler<ParticipantsWithWaitingList> =
-        result {
-            let! participantsForEvent =
-                Queries.queryParticipantsByEventId event.Id
-                >> Ok
-            
+    
+    let getParticipantsForEventPure (event:Event) (participants:seq<Participant>): ParticipantsWithWaitingList = 
             match event.MaxParticipants.Unwrap with
             // Max participants = 0 means participants = infinity 
-            | 0 -> return {
+            | 0 -> {
                 attendees =
-                    participantsForEvent
+                    participants
 
                 waitingList =
                     [] 
                 }
 
-            | maxParticipants -> return { 
+            | maxParticipants -> { 
                 attendees =
                     Seq.truncate maxParticipants
-                        participantsForEvent
+                        participants
 
                 waitingList =
                     Seq.safeSkip maxParticipants
-                        participantsForEvent }
-                }
+                        participants }
 
+    let getParticipantsForEvent (event: Event): Handler<ParticipantsWithWaitingList> =
+        result {
+            //IO
+            let! participantsForEvent =
+                Queries.queryParticipantsByEventId event.Id
+                >> Ok
+            // Pure
+            return getParticipantsForEventPure event participantsForEvent
+        }
+            
     let getParticipationsForParticipant email =
         result {
             
@@ -224,26 +228,33 @@ module Service =
             return NumberOfParticipants count
         }
     
+    let getWaitinglistSpotPure (event:Event) email (participantsWithWaitingList:ParticipantsWithWaitingList) =
+        let attendees = participantsWithWaitingList.attendees
+        let waitingList = participantsWithWaitingList.waitingList
+
+        let isParticipant =  
+            Seq.append attendees waitingList 
+            |> Seq.exists (fun y -> y.Email = email)
+
+        if not isParticipant then
+            Error [ participantNotFound email ]
+
+        else
+            let waitingListIndex = 
+                waitingList 
+                |> Seq.tryFindIndex (fun participant -> participant.Email = email)
+            
+            waitingListIndex 
+                |> Option.map (fun index -> index + 1) 
+                |> Option.defaultValue 0 
+                |> Ok
+    
     let getWaitinglistSpot eventId email =
         result {
+            // IO
             let! event = Service.getEvent eventId
+            let! participantsWithWaitingList = getParticipantsForEvent event
 
-            let! { attendees = attendees
-                   waitingList = waitingList } = getParticipantsForEvent event
-
-            let isParticipant =  
-                Seq.append attendees waitingList 
-                |> Seq.exists (fun y -> y.Email = email)
-
-            if not isParticipant then
-                return! Error [ participantNotFound email ]
-
-            else
-                let waitingListIndex = 
-                    waitingList 
-                    |> Seq.tryFindIndex (fun participant -> participant.Email = email)
-                
-                return waitingListIndex 
-                    |> Option.map (fun index -> index + 1) 
-                    |> Option.defaultValue 0 
+            // Pure
+            return getWaitinglistSpotPure event email participantsWithWaitingList
         }

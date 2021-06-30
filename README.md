@@ -35,6 +35,9 @@ An F# service for collecting and maintaining data about events.
 - The service runs at  `http://localhost:5000/` (currently no Swagger docs)
 - If everything works, `http://localhost:5000/health` should return 200 OK.
 
+### Run the tests
+- In the src folder run `$ dotnet watch run`
+
 #### 🔥Hot tip🔥
 
 Brew yourself some `tmux`, navigate to the root folder and run

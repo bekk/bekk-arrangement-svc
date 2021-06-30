@@ -4,6 +4,7 @@ open Giraffe
 open Microsoft.AspNetCore.Http
 
 open ArrangementService
+open ArrangementService.DomainModels
 open Auth
 open ResultComputationExpression
 open UserMessage
@@ -34,15 +35,23 @@ module Authorization =
             [ userHasCancellationToken eventIdAndEmail
               isAdmin ]
 
+    
+    let eventHasAvailableSpotsPure (event:Event) (numberOfParticipants:Event.NumberOfParticipants) = 
+        let hasWaitingList = event.HasWaitingList
+        let maxParticipants = event.MaxParticipants.Unwrap
+
+        hasWaitingList  
+        || (maxParticipants = 0)  // Infinite participants
+        || numberOfParticipants.Unwrap < maxParticipants // Number of attendees less than the max
+
     let eventHasAvailableSpots eventId =
         result {
+            //IO
             let! event = Event.Service.getEvent (Event.Id eventId)
+            let! numberOfParticipants = Service.getNumberOfParticipantsForEvent event.Id
             
-            let hasWaitingList = event.HasWaitingList
-            let maxParticipants = event.MaxParticipants.Unwrap
-            let! participants = Service.getParticipantsForEvent event
-            
-            if hasWaitingList || maxParticipants = 0 || participants.attendees |> Seq.length < maxParticipants
+            //Pure
+            if eventHasAvailableSpotsPure event numberOfParticipants
             then
                 return ()
             else
