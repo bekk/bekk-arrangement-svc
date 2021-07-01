@@ -46,7 +46,7 @@ module Http =
     let withRetry (handler: HttpHandler) (next: HttpFunc) (ctx: HttpContext): HttpFuncResult =
         let seed = Guid.NewGuid().GetHashCode()
         let rnd = Random(seed)
-        let rec retry delay =
+        let rec retry delay amount =
             try
                 handler next ctx
             with _ ->
@@ -63,9 +63,13 @@ module Http =
                 Async.Sleep (int delayWithJitter)
                 |> Async.RunSynchronously
 
-                retry delayWithJitter 
+                if amount > 0 then
+                    retry delayWithJitter (amount-1) 
+                else
+                    ServerErrors.internalError (text "Beklager, noe gikk galt") next ctx
+                    
 
-        retry 50.0
+        retry 50.0 5 // retry 5 times with a inital delay seed 50ms
 
     let parseBody<'T> (ctx: HttpContext) =
         let body = 
