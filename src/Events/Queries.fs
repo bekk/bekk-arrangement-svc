@@ -15,16 +15,14 @@ open ArrangementService.ResultComputationExpression
 module Queries =
     let eventsTable = "Events"
 
-    let createEvent (event: WriteModel) =
-        result {
-            let! event = Models.writeToDomain (Guid.NewGuid()) event (Guid.NewGuid()) |> ignoreContext
-            let dbModel = Models.domainToDb event
-            do! insert { table eventsTable
-                         value dbModel
-                       }
-                |> Database.runInsertQuery
-            return Models.dbToDomain dbModel
-        }
+    let createEvent (event: Event) (ctx:HttpContext)=
+        let dbModel = Models.domainToDb event
+        insert { table eventsTable
+                 value dbModel
+                }
+        |> Database.runInsertQuery ctx
+        |> ignore
+        Ok <| Models.dbToDomain dbModel 
 
     let getEvents (ctx: HttpContext): Event seq =
         select { table eventsTable }

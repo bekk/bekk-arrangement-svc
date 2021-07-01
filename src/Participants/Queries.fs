@@ -8,18 +8,25 @@ open ArrangementService.Email
 open ArrangementService.DomainModels
 open ResultComputationExpression
 open ArrangementService.UserMessage
+open System.Data.SqlClient
 
 module Queries =
     let participantsTable = "Participants"
 
-    let createParticipant (participant: Participant) =
-        result {
-            do! insert { table participantsTable
-                         value (Models.domainToDb participant)
-                       }
-                |> Database.runInsertQuery
-            return ()
-        }
+    let createParticipant (participant: Participant) (ctx:HttpContext) =
+      try
+        insert { table participantsTable
+                 value (Models.domainToDb participant)
+                }
+                |> Database.runInsertQuery ctx
+                |> Ok
+      with  
+      | :?SqlException as ex ->    
+        match ex.Number with
+        | 2601 | 2627 ->          // handle constraint error
+            Error <| [UserMessages.participantDuplicate participant.Email]
+        | _ ->                    // don't handle any other cases, Deadlock will still be raised so it can be catched by withRetry
+            reraise()
 
     let deleteParticipant (participant: Participant) (ctx: HttpContext): Result<unit, UserMessage list> =
         delete { table participantsTable

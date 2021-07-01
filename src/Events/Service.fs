@@ -1,5 +1,6 @@
 namespace ArrangementService.Event
 
+open System
 open ArrangementService
 open ArrangementService.Email
 open ResultComputationExpression
@@ -50,8 +51,9 @@ module Service =
             yield Service.sendMail mail
         }
 
-    let createEvent createEditUrl event =
+    let createEvent createEditUrl eventWriteModel =
         result {
+            let! event = Models.writeToDomain (Guid.NewGuid()) eventWriteModel (Guid.NewGuid()) |> ignoreContext
             let! newEvent = Queries.createEvent event
 
             yield sendNewlyCreatedEventMail createEditUrl newEvent
