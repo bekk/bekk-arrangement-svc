@@ -13,13 +13,12 @@ open System.Data.SqlClient
 module Queries =
     let participantsTable = "Participants"
 
-    let createParticipant (participant: Participant) (ctx:HttpContext) =
+    let createParticipant (participant: Participant) (ctx:HttpContext):Result<unit, UserMessage list> =
       try
         insert { table participantsTable
                  value (Models.domainToDb participant)
                 }
                 |> Database.runInsertQuery ctx
-                |> Ok
       with  
       | :?SqlException as ex ->    
         match ex.Number with
