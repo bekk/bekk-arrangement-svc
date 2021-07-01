@@ -37,6 +37,7 @@
     <Compile Include="LanguageExtensions\ResultComputationExpression.fs" />
     <Compile Include="LanguageExtensions\Seq.fs" />
     <Compile Include="LanguageExtensions\Option.fs" /> 
+    <Compile Include="LanguageExtensions\Tools.fs" /> 
 
     <Compile Include="Common\UserMessage.fs" />
 
