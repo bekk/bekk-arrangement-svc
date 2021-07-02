@@ -76,6 +76,12 @@ module Service =
             do! Queries.updateEvent newEvent
             return newEvent 
         }
+
+    let cancelEvent event =
+        result {
+            do! Queries.updateEvent {event with IsCancelled=true}
+            return eventSuccessfullyDeleted id
+        }
     
     let deleteEvent id =
         result {

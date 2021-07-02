@@ -10,5 +10,7 @@ module UserMessages =
         $"Kan ikke oppdatere event {id}" |> NotFound
     let eventSuccessfullyDeleted id: string =
         $"Event {id} blei sletta"
+    let eventSuccessfullyCancelled title: string =
+        $"Arrangement: '{title}' blei avlyst. Epost har blitt sendt til alle deltagere"
     let invalidMaxParticipantValue : UserMessage = 
         $"Du kan ikke sette maks deltagere til lavere enn antall som allerede deltar" |> BadInput

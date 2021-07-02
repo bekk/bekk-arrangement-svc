@@ -10,10 +10,15 @@ open ArrangementService.Config
 open ArrangementService.Email
 open Authorization
 
+open Microsoft.AspNetCore.Http
 open Giraffe
 open System.Web
 
 module Handlers =
+
+    type RemoveEvent = 
+        | Cancel
+        | Delete
 
     let getEvents: Handler<ViewModel list> =
         result {
@@ -33,18 +38,21 @@ module Handlers =
             return domainToView event
         }
 
-    let deleteEvent id =
+        
+    let deleteOrCancelEvent (removeEventType:RemoveEvent) id : (HttpContext -> Result<string,UserMessage.UserMessage list>)=
         result {
             let! messageToParticipants = getBody<string>
             let! event = Service.getEvent (Id id)
             let! participants = Participant.Service.getParticipantsForEvent event
-            
+
             let! config = getConfig >> Ok
 
             yield Participant.Service.sendCancellationMailToParticipants
                       messageToParticipants (EmailAddress config.noReplyEmail) participants.attendees event
 
-            let! result = Service.deleteEvent (Id id)
+            let! result =  match removeEventType with 
+                            | Cancel -> Service.cancelEvent event
+                            | Delete -> Service.deleteEvent (Id id)
             return result
         }
 
@@ -73,6 +81,9 @@ module Handlers =
             return domainToViewWithEditInfo newEvent
         }
 
+    let deleteEvent = deleteOrCancelEvent Delete
+    let cancelEvent = deleteOrCancelEvent Cancel
+
     let routes: HttpHandler =
         choose
             [ GET
@@ -85,7 +96,11 @@ module Handlers =
               >=> choose
                       [ routef "/events/%O" (fun id ->
                             check (userCanEditEvent id)
-                            >=> (handle << deleteEvent) id) ]
+                            >=> (handle << deleteEvent) id)
+                        routef "/events/%O/cancel" (fun id -> 
+                            check (userCanEditEvent id)
+                            >=> (handle << cancelEvent) id)
+                        ]
               PUT
               >=> choose
                       [ routef "/events/%O" (fun id ->
