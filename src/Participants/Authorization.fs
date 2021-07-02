@@ -44,11 +44,11 @@ module Authorization =
             then
                 return ()
             else
-                return! [ AccessDenied "The event is full" ] |> Error
+                return! [ AccessDenied "Arrangementet er fullt" ] |> Error
         }
     let eventIsNotCancelled (event:DomainModels.Event) =  
         if event.IsCancelled then
-            Error [AccessDenied "The event is cancelled"]
+            Error [AccessDenied "Arrangementet er avlyst"]
         else
             Ok ()
 
