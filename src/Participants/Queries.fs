@@ -23,7 +23,7 @@ module Queries =
       | :?SqlException as ex ->    
         match ex.Number with
         | 2601 | 2627 ->          // handle constraint error
-            Error <| [UserMessages.participantDuplicate participant.Email]
+            Error [UserMessages.participantDuplicate participant.Email]
         | _ ->                    // don't handle any other cases, Deadlock will still be raised so it can be catched by withRetry
             reraise()
 

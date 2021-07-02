@@ -24,7 +24,7 @@ module Queries =
             do! insert { table eventsTable
                          value dbModel
                        }
-                |> (flip Database.runInsertQuery)
+                |> flip Database.runInsertQuery
             return Models.dbToDomain dbModel
         }
 
