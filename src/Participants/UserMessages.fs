@@ -13,4 +13,4 @@ module UserMessages =
     let getParticipantsCountFailed (eventId): UserMessage =
         $"Henting av antall deltakere for {eventId} feilet" |> InternalErrorMessage
     let participantDuplicate (email): UserMessage =
-        $"Du er allerede påmeldt med eposten ${email}" |> BadInput
+        $"Du er allerede påmeldt med eposten {email}" |> BadInput

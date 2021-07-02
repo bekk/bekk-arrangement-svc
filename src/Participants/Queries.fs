@@ -1,5 +1,6 @@
 namespace ArrangementService.Participant
 
+open System
 open Microsoft.AspNetCore.Http
 open Dapper.FSharp
 
@@ -13,6 +14,17 @@ open System.Data.SqlClient
 module Queries =
     let participantsTable = "Participants"
 
+    let handleAggregateToSqlException (exn:Exception) userMessage = 
+          let innerException = exn.InnerException
+          match innerException with 
+            | :? SqlException as sqlEx ->
+                match sqlEx.Number with
+                  | 2601 | 2627 ->          // handle constraint error
+                      Error [userMessage]
+                  | _ ->                    // don't handle any other cases, Deadlock will still be raised so it can be catched by withRetry
+                      raise sqlEx
+            | ex -> raise ex
+
     let createParticipant (participant: Participant) (ctx:HttpContext):Result<unit, UserMessage list> =
       try
         insert { table participantsTable
@@ -20,12 +32,9 @@ module Queries =
                 }
                 |> Database.runInsertQuery ctx
       with  
-      | :?SqlException as ex ->    
-        match ex.Number with
-        | 2601 | 2627 ->          // handle constraint error
-            Error [UserMessages.participantDuplicate participant.Email]
-        | _ ->                    // don't handle any other cases, Deadlock will still be raised so it can be catched by withRetry
-            reraise()
+      | :? AggregateException as ex  -> 
+        handleAggregateToSqlException ex (UserMessages.participantDuplicate participant.Email.Unwrap)
+      | ex -> reraise()
 
     let deleteParticipant (participant: Participant) (ctx: HttpContext): Result<unit, UserMessage list> =
         delete { table participantsTable
