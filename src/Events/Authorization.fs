@@ -35,9 +35,8 @@ module Authorization =
 
     let userCanSeeParticipants = userCanEditEvent
 
-    let eventHasOpenedForRegistration eventId =
+    let eventHasOpenedForRegistration (event:DomainModels.Event) =
         result {
-            let! event = Service.getEvent (Id eventId)
             let openDateTime =
                 DateTimeOffset.FromUnixTimeMilliseconds
                     event.OpenForRegistrationTime.Unwrap
@@ -48,9 +47,8 @@ module Authorization =
                 return! [ AccessDenied $"Arrangementet åpner for påmelding {openDateTime.ToLocalTime}" ] |> Error
         }
 
-    let eventHasNotPassed eventId =
+    let eventHasNotPassed (event:DomainModels.Event) =
         result {
-            let! event = Service.getEvent (Id eventId)
             if event.EndDate > now() then
                 return ()
             else

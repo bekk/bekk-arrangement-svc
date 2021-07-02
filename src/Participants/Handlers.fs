@@ -115,8 +115,6 @@ module Handlers =
               POST
               >=> choose
                       [ routef "/events/%O/participants/%s" (fun (eventId: Guid, email) ->
-                            (check (eventHasAvailableSpots eventId)
-                            >=> check (eventHasNotPassed eventId)
-                            >=> check (eventHasOpenedForRegistration eventId)
+                            (check (oneCanParticipateOnEvent eventId)
                             >=> (handle << registerForEvent) (eventId, email))
                             |> withRetry) ] ]

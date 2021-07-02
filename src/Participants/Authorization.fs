@@ -34,10 +34,8 @@ module Authorization =
             [ userHasCancellationToken eventIdAndEmail
               isAdmin ]
 
-    let eventHasAvailableSpots eventId =
+    let eventHasAvailableSpots (event:DomainModels.Event) =
         result {
-            let! event = Event.Service.getEvent (Event.Id eventId)
-            
             let hasWaitingList = event.HasWaitingList
             let maxParticipants = event.MaxParticipants.Unwrap
             let! participants = Service.getParticipantsForEvent event
@@ -47,4 +45,19 @@ module Authorization =
                 return ()
             else
                 return! [ AccessDenied "The event is full" ] |> Error
+        }
+    let eventIsNotCancelled (event:DomainModels.Event) =  
+        if event.IsCancelled then
+            Error [AccessDenied "The event is cancelled"]
+        else
+            Ok ()
+
+    let oneCanParticipateOnEvent eventIdKey =
+        let eventId = Event.Id eventIdKey
+        result {
+            let! event = Event.Service.getEvent eventId
+            do! eventHasAvailableSpots event
+            do! Event.Authorization.eventHasNotPassed event
+            do! Event.Authorization.eventHasOpenedForRegistration event
+            do! eventIsNotCancelled event |> ignoreContext
         }
