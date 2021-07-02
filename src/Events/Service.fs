@@ -80,7 +80,7 @@ module Service =
     let cancelEvent event =
         result {
             do! Queries.updateEvent {event with IsCancelled=true}
-            return eventSuccessfullyDeleted id
+            return eventSuccessfullyCancelled event.Title
         }
     
     let deleteEvent id =
