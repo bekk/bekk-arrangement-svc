@@ -24,9 +24,10 @@ type Event =
       EditToken: Guid
       ParticipantQuestion: Event.ParticipantQuestion
       HasWaitingList: bool
+      IsCancelled: bool
     }
     static member Create =
-        fun id title description location organizerName organizerEmail maxParticipants (startDate, endDate) openForRegistrationTime editToken participantQuestion hasWaitingList ->
+        fun id title description location organizerName organizerEmail maxParticipants (startDate, endDate) openForRegistrationTime editToken participantQuestion hasWaitingList isCancelled->
             { Id = id
               Title = title
               Description = description
@@ -40,6 +41,7 @@ type Event =
               EditToken = editToken
               ParticipantQuestion = participantQuestion
               HasWaitingList = hasWaitingList
+              IsCancelled = isCancelled
             }
 
 type Participant =
