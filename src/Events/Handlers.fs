@@ -96,10 +96,10 @@ module Handlers =
               >=> choose
                       [ routef "/events/%O" (fun id ->
                             check (userCanEditEvent id)
-                            >=> (handle << deleteEvent) id)
-                        routef "/events/%O/cancel" (fun id -> 
-                            check (userCanEditEvent id)
                             >=> (handle << cancelEvent) id)
+                        routef "/events/%O/delete" (fun id -> 
+                            check (userCanEditEvent id)
+                            >=> (handle << deleteEvent) id)
                         ]
               PUT
               >=> choose
