@@ -66,7 +66,7 @@ module Http =
                 if amount > 0 then
                     retry delayWithJitter (amount-1) 
                 else
-                    ServerErrors.internalError (text "Beklager, noe gikk galt") next ctx
+                    convertUserMessagesToHttpError [] next ctx // Default is 500 Internal Server Error
                     
 
         retry 50.0 5 // retry 5 times with a inital delay seed 50ms
