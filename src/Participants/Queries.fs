@@ -14,7 +14,7 @@ open System.Data.SqlClient
 module Queries =
     let participantsTable = "Participants"
 
-    let handleAggregateToSqlException (exn:Exception) userMessage = 
+    let handleAggregateToSqlException (exn:AggregateException) userMessage = 
           let innerException = exn.InnerException
           match innerException with 
             | :? SqlException as sqlEx ->

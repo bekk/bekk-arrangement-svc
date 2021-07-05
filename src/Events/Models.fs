@@ -67,7 +67,6 @@ type WriteModel =
       editUrlTemplate: string
       ParticipantQuestion: string 
       HasWaitingList: bool 
-      IsCancelled: bool 
     }
 
 module Models =
@@ -76,6 +75,7 @@ module Models =
         (id: Key)
         (writeModel: WriteModel)
         (editToken: Guid)
+        (isCancelled: bool)
         : Result<Event, UserMessage list>
         =
         Ok Event.Create 
@@ -91,7 +91,7 @@ module Models =
         <*> Ok editToken
         <*> ParticipantQuestion.Parse writeModel.ParticipantQuestion
         <*> (writeModel.HasWaitingList |> Ok)
-        <*> (writeModel.IsCancelled |> Ok)
+        <*> Ok isCancelled
 
     let dbToDomain (dbRecord: DbModel): Event =
         { Id = Id dbRecord.Id
