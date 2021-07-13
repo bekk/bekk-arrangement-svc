@@ -386,3 +386,30 @@ module Service =
             let! event = Event.Queries.queryEventByShortname shortname
             return event
         }
+    
+    let participantToRow (participant:Participant) = $"{participant.Name.Unwrap},{participant.Email.Unwrap},{participant.Comment.Unwrap}"
+
+    let createExportEventString (event:Event) (participants:Participant.ParticipantsWithWaitingList) =
+        let attendees = participants.attendees 
+                        |> Seq.map participantToRow 
+                        |>String.concat "\n" 
+        let waitingList = participants.waitingList 
+                          |> Seq.map participantToRow 
+                          |> String.concat "\n"
+        let eventName = $"{event.Title.Unwrap}"
+        let attendeesTitle = "Attendees"
+        let waitinglistTitle = "Waitinglist"
+
+        eventName + "\n"
+        + attendeesTitle + "\n"
+        + attendees + "\n"
+        + waitinglistTitle + "\n"
+        + waitingList + "\n"
+
+    let exportParticipationsDataForEvent (id: Event.Id) =
+        result {
+            let! event = Event.Queries.queryEventByEventId id
+            let! participants = getParticipantsForEvent event
+            let str = createExportEventString event participants
+            return str
+        }
