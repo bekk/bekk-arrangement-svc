@@ -19,17 +19,20 @@ module Http =
         | Error errorMessage ->
             convertUserMessagesToHttpError errorMessage next context
 
-    let handle (endpoint: Handler<'t>) (next: HttpFunc) (context: HttpContext) =
+    let generalHandle (responseBodyFunc: ('t -> HttpHandler)) (endpoint: Handler<'t>) (next: HttpFunc) (context: HttpContext) =
         let conn, transaction = Database.createConnection context
         match endpoint context with
         | Ok result ->
             transaction.Commit()
             conn.Close()
-            json result next context
+            responseBodyFunc result next context
         | Error errorMessage ->
             transaction.Rollback()
             conn.Close()
             convertUserMessagesToHttpError errorMessage next context
+
+    let csvhandle (endpoint: Handler<string>) = generalHandle setBodyFromString endpoint
+    let handle (endpoint: Handler<'t>)= generalHandle json endpoint
 
     let getBody<'WriteModel> (context: HttpContext): Result<'WriteModel, UserMessage list>
         =
