@@ -6,6 +6,9 @@ on:
     branches: [ deployTest ]
   pull_request:
     branches: [ master ]
+    
+env:
+  ECR_REPOSITORY: "bekk-arrangement-svc"
 
 jobs:
 
@@ -30,6 +33,8 @@ jobs:
 #        run: 
 #          cd TestInvoiceSvc/
 #          dotnet test
+  
+
 
   build:
     name: build
@@ -55,7 +60,7 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
-        run: 
+        run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
