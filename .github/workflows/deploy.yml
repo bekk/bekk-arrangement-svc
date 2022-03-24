@@ -10,7 +10,7 @@ on:
 env:
   AWS_REGION: "eu-central-1"
   ECR_REPOSITORY: "arrangement-svc"
-  ECS_SERVICE: "arrangement-svc-dev"
+  ECS_SERVICE: "nye-invoice-svc-dev"
   ECS_CLUSTER: "ecs-cluster-dev"
   ECS_TASK_DEFINITION: ".github/taskdefinition.development.json"
   CONTAINER_NAME: nye-invoice-svc-dev
