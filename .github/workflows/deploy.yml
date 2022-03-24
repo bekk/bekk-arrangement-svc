@@ -1,0 +1,111 @@
+name: Bekk-Deployment
+
+# Begge disse burde være master
+on:
+  push:
+    branches: [ deployTest ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+# Hvordan får vi env variabler inn til docker bildene?
+
+# Hvis vi har en service som trenger noen tester så kan dette brukes
+# Tok utgangspunnkt i faktura-svc for denne
+#  test:
+#    name: Test
+#    runs-on: ubuntu-latest
+#    environment: production
+#
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v2
+#      - name: Setup .NET
+#        uses: actions/setup-dotnet@v1
+#        with:
+#          dotnet-version: 6.0.x
+#      - name: Run tests
+#        working-directory: /test
+#        run: 
+#          cd TestInvoiceSvc/
+#          dotnet test
+
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: "eu-central-1"
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: 
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+        
+# Om vi ønsker å ikke bruke TF
+# Dersom vi går for dette, må vi lage TDene
+#      - name: Fill in the new image ID in the Amazon ECS task definition
+#        id: task-def
+#        uses: aws-actions/amazon-ecs-render-task-definition@v1
+#        with:
+#          task-definition: ${{ env.ECS_TASK_DEFINITION }}
+#          container-name: ${{ env.CONTAINER_NAME }}
+#          image: ${{ steps.build-image.outputs.image }}
+#
+#      - name: Deploy Amazon ECS task definition
+#        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+#        with:
+#          task-definition: ${{ steps.task-def.outputs.task-definition }}
+#          service: ${{ env.ECS_SERVICE }}
+#          cluster: ${{ env.ECS_CLUSTER }}
+#          wait-for-service-stability: true
+  
+  # Hvis vi skal bruke kan vi gjøre noe slikt
+  # Men trenger en kobling fra forrige steg?
+  deploy:
+    name: deploy
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        shell: bash
+        
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+#      - name: Setup Terraform
+#        uses: hashicorp/setup-terraform@v1
+#        # Kanskje vi ikke trenger denne, men må tilpass til vår backend
+#        with:
+#          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Format
+        run: terraform fmt -check
+
+      - name: Terraform Plan
+        run: terraform plan
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
