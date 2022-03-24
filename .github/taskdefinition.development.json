@@ -1,3 +1,4 @@
+
 {
   "containerDefinitions": [
     {
@@ -12,10 +13,10 @@
           "containerPort": 80
         }
       ],
-      "name": "nye-invoice-svc-dev"
+      "name": "arrangement-svc-dev"
     }
   ],
-  "memory": "512",
-  "family": "nye-invoice-svc-dev",
+  "memory": "256",
+  "family": "arrangement-svc-dev",
   "networkMode": "bridge"
 }
