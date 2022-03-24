@@ -1,0 +1,21 @@
+{
+  "containerDefinitions": [
+    {
+      "logConfiguration": {
+        "logDriver": "json-file",
+        "options": null
+      },
+      "portMappings": [
+        {
+          "hostPort": 0,
+          "protocol": "tcp",
+          "containerPort": 80
+        }
+      ],
+      "name": "nye-invoice-svc-dev"
+    }
+  ],
+  "memory": "512",
+  "family": "nye-invoice-svc-dev",
+  "networkMode": "bridge"
+}
