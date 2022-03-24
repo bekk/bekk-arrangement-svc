@@ -13,7 +13,7 @@ env:
   ECS_SERVICE: "arrangement-svc-dev"
   ECS_CLUSTER: "ecs-cluster-dev"
   ECS_TASK_DEFINITION: ".github/taskdefinition.development.json"
-  CONTAINER_NAME: nye-invoice-svc-dev
+  CONTAINER_NAME: "arrangement-svc-dev"
   
 jobs:
 
