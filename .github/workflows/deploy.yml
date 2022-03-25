@@ -58,17 +58,8 @@ jobs:
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
         env:
-          # Bedre måte å deale med disse på?
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
-          ASPNETCORE_ENVIRONMENT: "Development"
-          PORT: 80
-          Serilog__MinimumLevel: "Warning"
-          VIRTUAL_PATH: "/arrangement-svc"
-          AUTH0__AUDIENCE: ${{ secrets.AUTH0__AUDIENCE }}
-          AUTH0__ISSUER_DOMAIN: ${{ secrets.AUTH0__ISSUER_DOMAIN }}
-          AUTH0__PERMISSION_CLAIM_TYPE: ${{ secrets.AUTH0__PERMISSION_CLAIM_TYPE }}
-          CONNECTIONSTRINGS__EVENTDB: ${{ secrets.CONNECTIONSTRINGS__EVENTDB }}
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
