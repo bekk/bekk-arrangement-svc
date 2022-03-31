@@ -42,38 +42,38 @@ jobs:
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
         
 # Om vi ønsker å ikke bruke TF
-# Dersom vi går for dette, må vi lage TDene
-#      - name: Fill in the new image ID in the Amazon ECS task definition
-#        id: task-def
-#        uses: aws-actions/amazon-ecs-render-task-definition@v1
-#        with:
-#          task-definition: ${{ env.ECS_TASK_DEFINITION }}
-#          container-name: ${{ env.CONTAINER_NAME }}
-#          image: ${{ steps.build-image.outputs.image }}
+## Dersom vi går for dette, må vi lage TDene
+##      - name: Fill in the new image ID in the Amazon ECS task definition
+##        id: task-def
+##        uses: aws-actions/amazon-ecs-render-task-definition@v1
+##        with:
+##          task-definition: ${{ env.ECS_TASK_DEFINITION }}
+##          container-name: ${{ env.CONTAINER_NAME }}
+##          image: ${{ steps.build-image.outputs.image }}
+##
+##      - name: Deploy Amazon ECS task definition
+##        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+##        with:
+##          task-definition: ${{ steps.task-def.outputs.task-definition }}
+##          service: ${{ env.ECS_SERVICE }}
+##          cluster: ${{ env.ECS_CLUSTER }}
+##          wait-for-service-stability: false
+#  
+#  deploy:
+#    name: deploy
+#    runs-on: ubuntu-latest
+#    environment: development
 #
-#      - name: Deploy Amazon ECS task definition
-#        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-#        with:
-#          task-definition: ${{ steps.task-def.outputs.task-definition }}
-#          service: ${{ env.ECS_SERVICE }}
-#          cluster: ${{ env.ECS_CLUSTER }}
-#          wait-for-service-stability: false
-  
-  deploy:
-    name: deploy
-    runs-on: ubuntu-latest
-    environment: development
-
-    defaults:
-      run:
-        shell: bash
-
-    steps:
+#    defaults:
+#      run:
+#        shell: bash
+#
+#    steps:
       - name: Checkout
         uses: actions/checkout@v2
         
       - name: Terraform Init
-        run: terraform -chdir=terrraform init
+        run: terraform -chdir=terraform init
 
       - name: Terraform Format
         run: terraform -chdir=terraform fmt -check
