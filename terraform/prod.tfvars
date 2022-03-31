@@ -16,16 +16,16 @@ container_environment = [
     "value" = "bekk.eu.auth0.com"
   },
   {
+    "name" = "Auth0__Audience"
+    "value" = "QHQy75S7tmnhDdBGYSnszzlhMPul0fAE"
+  },
+  {
     "name"  = "PORT"
     "value" = "80"
   },
   {
     "name"  = "Logging__Console__LogLevel__Default"
     "value" = "Warning"
-  },
-  {
-    "name"  = "SendGrid__AdminArrangementSvc"
-    "value" = "bjorn.ivar.strom@bekk.no"
   },
   {
     "name"  = "Serilog__MinimumLevel"

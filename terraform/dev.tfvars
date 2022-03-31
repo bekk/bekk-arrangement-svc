@@ -17,6 +17,10 @@ container_environment = [
     "value" = "bekk-dev.eu.auth0.com"
   },
   {
+    "name" = "Auth0__Audience"
+    "value" = "QHQy75S7tmnhDdBGYSnszzlhMPul0fAE"
+  },
+  {
     "name"  = "PORT"
     "value" = "80"
   },
