@@ -9,6 +9,7 @@ on:
 env:
   AWS_REGION: "eu-central-1"
   ECR_REPOSITORY: "bekk-arrangement-svc"
+  IMAGE_TAG: ${{ github.sha }}
   
 jobs:
   build:
@@ -35,7 +36,6 @@ jobs:
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
@@ -81,8 +81,9 @@ jobs:
       - name: Terraform plan for debug
         run: terraform -chdir=terraform plan -var-file=dev.tfvars
         with:
-          TF_VAR database="foo"
-          TF_VAR key="nla"
+          TF_VAR Sendgrid__Apikey: ${{ secrets.SENDGRID__APIKEY }}
+          TF_VAR ConnectionStrings__EventDb: ${{ secrets.CONNECTIONSTRINGS__EVENTDB }}
+          TF_VAR task_image_tag: $IMAGE_TAG
 
 
 #      - name: Terraform Apply
