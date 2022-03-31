@@ -30,7 +30,7 @@ container_environment = [
   },
   {
     "name"  = "VIRTUAL_PATH"
-    "value" = "/arrangement-svc"
+    "value" = "/api"
   },
   {
     "name"  = "Auth0__PERMISSION_CLAIM_TYPE"

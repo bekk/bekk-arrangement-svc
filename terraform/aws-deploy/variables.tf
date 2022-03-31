@@ -55,7 +55,7 @@ variable "task_health_check_path" {
 variable "aws_lb_listener_arn" {
   type = map(string)
   default = {
-    "dev"  = "arn:aws:elasticloadbalancing:eu-central-1:882089634282:listener/app/bekk-lb-ecs-dev/0252314628537d69/1aaae3420eaade33"
+    "dev"  = "arn:aws:elasticloadbalancing:eu-central-1:882089634282:listener/app/bekk-lb-ecs-dev/6d410fcf59ca9e6f/da09c5a7670ad5a8"
     "prod" = "not ready yet"
   }
 }

@@ -5,7 +5,6 @@ data "aws_vpc" "selected" {
   }
 }
 
-
 resource "aws_lb_target_group" "main" {
   name        = "${var.base_name}-${var.app_name}-${var.environment}"
   port        = var.container_port
