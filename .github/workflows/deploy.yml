@@ -1,44 +1,20 @@
 name: Bekk-Deployment
 
-# Begge disse burde være master
 on:
   push:
-    branches: [ deployTest ]
+    branches: [ master ]
   pull_request:
     branches: [ master ]
     
 env:
   AWS_REGION: "eu-central-1"
   ECR_REPOSITORY: "arrangement-svc"
-  ECS_SERVICE: "arrangement-svc-dev"
-  ECS_CLUSTER: "ecs-cluster-dev"
-  ECS_TASK_DEFINITION: ".github/taskdefinition.development.json"
-  CONTAINER_NAME: "arrangement-svc-dev"
   
 jobs:
-
-# Hvis vi har en service som trenger noen tester så kan dette brukes
-# Tok utgangspunnkt i faktura-svc for denne
-#  test:
-#    name: Test
-#    runs-on: ubuntu-latest
-#    environment: production
-#
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v2
-#      - name: Setup .NET
-#        uses: actions/setup-dotnet@v1
-#        with:
-#          dotnet-version: 6.0.x
-#      - name: Run tests
-#        working-directory: /test
-#        run: 
-#          cd TestInvoiceSvc/
-#          dotnet test
   build:
     name: build
     runs-on: ubuntu-latest
+    environment: development
     
     steps:
       - name: Checkout
@@ -67,50 +43,43 @@ jobs:
         
 # Om vi ønsker å ikke bruke TF
 # Dersom vi går for dette, må vi lage TDene
-      - name: Fill in the new image ID in the Amazon ECS task definition
-        id: task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ${{ env.ECS_TASK_DEFINITION }}
-          container-name: ${{ env.CONTAINER_NAME }}
-          image: ${{ steps.build-image.outputs.image }}
-
-      - name: Deploy Amazon ECS task definition
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: ${{ env.ECS_SERVICE }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          wait-for-service-stability: false
+#      - name: Fill in the new image ID in the Amazon ECS task definition
+#        id: task-def
+#        uses: aws-actions/amazon-ecs-render-task-definition@v1
+#        with:
+#          task-definition: ${{ env.ECS_TASK_DEFINITION }}
+#          container-name: ${{ env.CONTAINER_NAME }}
+#          image: ${{ steps.build-image.outputs.image }}
+#
+#      - name: Deploy Amazon ECS task definition
+#        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+#        with:
+#          task-definition: ${{ steps.task-def.outputs.task-definition }}
+#          service: ${{ env.ECS_SERVICE }}
+#          cluster: ${{ env.ECS_CLUSTER }}
+#          wait-for-service-stability: false
   
-  # Hvis vi skal bruke kan vi gjøre noe slikt
-  # Men trenger en kobling fra forrige steg?
-#  deploy:
-#    name: deploy
-#    runs-on: ubuntu-latest
-#    
-#    defaults:
-#      run:
-#        shell: bash
-#        
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v2
-#
-##      - name: Setup Terraform
-##        uses: hashicorp/setup-terraform@v1
-##        # Kanskje vi ikke trenger denne, men må tilpass til vår backend
-##        with:
-##          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-#
-#      - name: Terraform Init
-#        run: terraform init
-#
-#      - name: Terraform Format
-#        run: terraform fmt -check
-#
-#      - name: Terraform Plan
-#        run: terraform plan
-#
-#      - name: Terraform Apply
-#        run: terraform apply -auto-approve
+  deploy:
+    name: deploy
+    runs-on: ubuntu-latest
+    environment: development
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Format
+        run: terraform fmt -check
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        env:
+          CONNECTIONSTRINGS__EVENTDB: ${{ secrets.CONNECTIONSTRINGS__EVENTDB }}
+          SENDGRID__APIKEY: ${{ secrets.SENDGRID__APIKEY }}
