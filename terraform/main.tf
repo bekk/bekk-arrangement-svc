@@ -23,7 +23,17 @@ provider "aws" {
 }
 
 locals {
-  container_environment = concat(var.container_environment, var.container_secrets)
+  secrets = [
+    {
+      "name" : "Sendgrid__Apikey",
+      "value" : var.Sendgrid__Apikey
+    },
+    {
+      "name": "ConnectionStrings__EventDb",
+      "value": var.ConnectionStrings__EventDb
+    }
+  ]
+  container_environment = concat(var.container_environment, local.secrets)
 }
 
 module "aws-deploy" {

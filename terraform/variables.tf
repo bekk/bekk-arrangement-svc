@@ -55,6 +55,13 @@ variable "container_environment" {
   type = list(map(string))
 }
 
-variable "container_secrets" {
-  type = list(map(string))
+# Custom secrets
+variable "Sendgrid__Apikey" {
+  type = string
+  sensitive = true
+}
+
+variable "ConnectionStrings__EventDb" {
+  type = string
+  sensitive = true
 }
