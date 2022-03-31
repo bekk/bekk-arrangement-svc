@@ -83,9 +83,9 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          TF_VAR Sendgrid__Apikey: ${{ secrets.SENDGRID__APIKEY }}
-          TF_VAR ConnectionStrings__EventDb: ${{ secrets.CONNECTIONSTRINGS__EVENTDB }}
-          TF_VAR task_image_tag: $IMAGE_TAG
+          TF_VAR_Sendgrid__Apikey: ${{ secrets.SENDGRID__APIKEY }}
+          TF_VAR_ConnectionStrings__EventDb: ${{ secrets.CONNECTIONSTRINGS__EVENTDB }}
+          TF_VAR_task_image_tag: $IMAGE_TAG
 
 
 #      - name: Terraform Apply
