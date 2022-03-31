@@ -2,13 +2,13 @@ name: Bekk-Deployment
 
 on:
   push:
-    branches: [ master ]
+    branches: [ terraform-managed ]
   pull_request:
-    branches: [ master ]
+    branches: [ terraform-managed ]
     
 env:
   AWS_REGION: "eu-central-1"
-  ECR_REPOSITORY: "arrangement-svc"
+  ECR_REPOSITORY: "bekk-arrangement-svc"
   
 jobs:
   build:
@@ -71,15 +71,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
+        
       - name: Terraform Init
-        run: terraform init
+        run: terraform -chdir=terrraform init
 
       - name: Terraform Format
-        run: terraform fmt -check
+        run: terraform -chdir=terraform fmt -check
+        
+      - name: Terraform plan for debug
+        run: terraform -chdir=terraform plan -var-file=dev.tfvars
+        with:
+          TF_VAR database="foo"
+          TF_VAR key="nla"
 
-      - name: Terraform Apply
-        run: terraform apply -auto-approve
-        env:
-          CONNECTIONSTRINGS__EVENTDB: ${{ secrets.CONNECTIONSTRINGS__EVENTDB }}
-          SENDGRID__APIKEY: ${{ secrets.SENDGRID__APIKEY }}
+
+#      - name: Terraform Apply
+#        run: terraform apply -auto-approve
+#        env:
+#          CONNECTIONSTRINGS__EVENTDB: ${{ secrets.CONNECTIONSTRINGS__EVENTDB }}
+#          SENDGRID__APIKEY: ${{ secrets.SENDGRID__APIKEY }}
