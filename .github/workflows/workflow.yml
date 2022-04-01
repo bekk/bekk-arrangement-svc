@@ -54,10 +54,11 @@ jobs:
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ input.TF_VAR_task_image_tag }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$TF_VAR_task_image_tag .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$TF_VAR_task_image_tag
-          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$TF_VAR_task_image_tag"
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
           
       - name: Terraform Init
         run: terraform -chdir=terraform init
