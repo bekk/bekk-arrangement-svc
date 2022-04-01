@@ -11,7 +11,7 @@ jobs:
     name: Deploy arrangement-svc to dev
     uses: ./.github/workflows/workflow.yml
     with:
-      environment: development
+      GITHUB_ENV: development
       # For prod
       # TF_VAR_task_image_tag: "latest"
       # TERRAFORM_VAR_FILE: "prod.tfvars"

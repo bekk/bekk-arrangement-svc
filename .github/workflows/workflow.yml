@@ -4,7 +4,7 @@ on:
   workflow_call: 
     # Legg til descriptions
     inputs:
-      environment:
+      GITHUB_ENV:
         required: true
         type: string
       TF_VAR_task_image_tag:
