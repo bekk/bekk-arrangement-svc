@@ -4,7 +4,7 @@ on:
   workflow_call: 
     # Legg til descriptions
     inputs:
-      GITHUB_ENV:
+      ENVIRONMENT:
         required: true
         type: string
       TF_VAR_task_image_tag:
@@ -33,6 +33,7 @@ jobs:
   build:
     name: build
     runs-on: ubuntu-latest
+    environment: ${{ inputs.ENVIRONMENT }}
 
     steps:
       - name: Checkout
