@@ -4,19 +4,19 @@ on:
   workflow_call: 
     inputs:
       TF_VAR_task_image_tag:
-        required: true
+        required: false
         type: string
         default:  ${{ github.sha }}
       TERRAFORM_VAR_FILE:
-        required: true
+        required: false
         type: string
         default: "dev.tfvars"
       AWS_REGION:
-        required: true
+        required: false
         type: string
         default: "eu-central-1"
       ECR_REPOSITORY:
-        required: true
+        required: false
         type: string
         default: "bekk-arrangement-svc"
     secrets:
