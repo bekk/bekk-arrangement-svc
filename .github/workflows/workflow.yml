@@ -60,9 +60,14 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
           
+      - name: experiment
+        env:
+          test: ${{ sectets.foo }}
+        run: echo $test
+          
       - name: Terraform Init
         run: terraform -chdir=terraform init
-
+        
       # Bytt ut denne med en apply
       - name: Terraform plan for debug
         run: terraform -chdir=terraform plan -var-file=dev.tfvars
