@@ -20,9 +20,9 @@ on:
         type: string
         default: "bekk-arrangement-svc"
     secrets:
-      aws-access-key-id:
+      AWS_ACCESS_KEY_ID:
         required: true
-      aws-secret-access-key:
+      AWS_SECRET_ACCESS_KEY:
         required: true
       # Secrets for Terraform
       TF_VAR_Sendgrid__Apikey:
