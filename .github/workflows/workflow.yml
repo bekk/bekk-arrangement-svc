@@ -2,7 +2,11 @@ name: Bekk reusable Arrangement-svc workflow
 
 on:
   workflow_call: 
+    # Legg til descriptions
     inputs:
+      environment:
+        required: true
+        type: string
       TF_VAR_task_image_tag:
         required: false
         type: string
@@ -23,11 +27,6 @@ on:
       AWS_ACCESS_KEY_ID:
         required: true
       AWS_SECRET_ACCESS_KEY:
-        required: true
-      # Secrets for Terraform
-      TF_VAR_Sendgrid__Apikey:
-        required: true
-      TF_VAR_ConnectionStrings__EventDb:
         required: true
 
 jobs:
