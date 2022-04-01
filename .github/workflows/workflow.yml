@@ -62,7 +62,7 @@ jobs:
           
       - name: experiment
         env:
-          test: ${{ sectets.foo }}
+          test: ${{ secrets.foo }}
         run: echo $test
           
       - name: Terraform Init
