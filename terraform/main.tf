@@ -1,13 +1,13 @@
 terraform {
   backend "s3" {
-    region                  = "eu-central-1"
-    bucket                  = "bekk-terraform-states"
-    shared_credentials_file = "~/.aws/creds"
-    key                     = "bekk-arrangement-svc.tfstate"
-    kms_key_id              = "063512b0-1833-462b-9250-f1c080d09c63"
-    encrypt                 = true
+    region     = "eu-central-1"
+    bucket     = "bekk-terraform-app-states"
+    profile    = "deploy"
+    key        = "bekk-arrangement-svc.tfstate"
+    kms_key_id = "870a3c58-7201-4334-8c32-b257d38e9a12"
+    encrypt    = true
     # Table to store lock in
-    dynamodb_table = "bekk-terraform-state-lock"
+    dynamodb_table = "bekk-terraform-state-lock-apps"
   }
   required_providers {
     aws = {
@@ -18,8 +18,8 @@ terraform {
 }
 
 provider "aws" {
-  shared_credentials_files = ["~/.aws/creds"]
-  region                   = var.aws_region
+  region  = var.aws_region
+  profile = "deploy"
 }
 
 locals {
