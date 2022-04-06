@@ -22,20 +22,6 @@ provider "aws" {
   profile = "deploy"
 }
 
-locals {
-  secrets = [
-    {
-      "name" : "Sendgrid__Apikey",
-      "value" : var.Sendgrid__Apikey
-    },
-    {
-      "name": "ConnectionStrings__EventDb",
-      "value": var.ConnectionStrings__EventDb
-    }
-  ]
-  container_environment = concat(var.container_environment, local.secrets)
-}
-
 module "aws-deploy" {
   source                 = "./aws-deploy"
   aws_region             = var.aws_region
@@ -48,6 +34,7 @@ module "aws-deploy" {
   ecr_endpoint           = var.ecr_endpoint
   task_image             = var.task_image
   task_image_tag         = var.task_image_tag
-  container_environment  = local.container_environment
+  task_environment       = var.container_environment
+  task_secrets           = var.task_secrets
 }
 

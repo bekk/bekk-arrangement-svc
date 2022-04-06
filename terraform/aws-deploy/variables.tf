@@ -70,6 +70,11 @@ variable "container_port" {
   default = 80
 }
 
-variable "container_environment" {
+variable "task_environment" {
   type = list(map(string))
+}
+
+variable "task_secrets" {
+  type = map(string)
+  sensitive = true
 }

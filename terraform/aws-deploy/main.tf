@@ -70,6 +70,25 @@ data "aws_iam_role" "ecs_task_role" {
   name = "${var.base_name}-ecsTaskRole"
 }
 
+resource "aws_secretsmanager_secret" "main" {
+  name = "${var.base_name}-${var.app_name}-${var.environment}"
+}
+
+resource "aws_secretsmanager_secret_version" "main" {
+  secret_id = aws_secretsmanager_secret.main.id
+  secret_string = jsonencode(var.task_secrets)
+}
+
+locals {
+  # Create
+  secrets = [ for key, value in var.task_secrets :
+    {
+      name = key,
+      valueFrom = "${aws_secretsmanager_secret.main.arn}:${key}::"
+    }
+  ]
+}
+
 resource "aws_ecs_task_definition" "main" {
   family                   = "${var.base_name}-${var.app_name}-${var.environment}"
   network_mode             = "awsvpc"
@@ -91,7 +110,8 @@ resource "aws_ecs_task_definition" "main" {
           hostPort      = var.container_port
         }
       ]
-      environment = var.container_environment
+      environment = var.task_environment
+      secrets      = nonsensitive(local.secrets)
       mountPoints = []
       volumesFrom = []
       logConfiguration = {
