@@ -56,11 +56,11 @@ variable "container_environment" {
 }
 
 variable "sendgrid_apikey" {
-  type = string
+  type      = string
   sensitive = true
 }
 
 variable "connectionstring_eventdb" {
-  type = string
+  type      = string
   sensitive = true
 }
