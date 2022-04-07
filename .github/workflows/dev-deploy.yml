@@ -2,10 +2,10 @@ name: Dev Deploy Arrangement-svc
 
 on:
   push:
-    branches: [ terraform-managed ]
+    branches:
+      - master
   pull_request:
-    branches: [ terraform-managed ]
-    
+
 jobs:
   deploy-dev:
     name: Deploy arrangement-svc to dev
