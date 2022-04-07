@@ -30,6 +30,10 @@ on:
         required: true
       SSH_PRIVATE_KEY:
         required: true
+      CONNECTIONSTRINGS__EVENTDB:
+        required: true
+      SENDGRID__APIKEY:
+        required: true
 
 jobs:
   build:
@@ -80,8 +84,7 @@ jobs:
         id: plan
         run: terraform -chdir=terraform plan -var-file=dev.tfvars
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          TF_VAR_Sendgrid__Apikey: ${{ secrets.SENDGRID__APIKEY }}
-          TF_VAR_ConnectionStrings__EventDb: ${{ secrets.CONNECTIONSTRINGS__EVENTDB }}
+          TF_VAR_sendgrid_apikey: ${{ secrets.SENDGRID__APIKEY }}
+          TF_VAR_connectionstring_eventdb: ${{ secrets.CONNECTIONSTRINGS__EVENTDB }}
+          TF_VAR_task_image: $ECR_REGISTRY/$ECR_REPOSITORY
           TF_VAR_task_image_tag: $TF_VAR_task_image_tag

@@ -19,6 +19,8 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      CONNECTIONSTRINGS__EVENTDB: ${{ secrets.CONNECTIONSTRINGS__EVENTDB }}
+      SENDGRID__APIKEY: ${{ secrets.SENDGRID__APIKEY }}
 
 #name: Bekk-Deployment
 #
