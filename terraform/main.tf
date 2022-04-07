@@ -22,6 +22,13 @@ provider "aws" {
   profile = "deploy"
 }
 
+locals {
+  task_secrets = {
+    Sendgrid__Apikey           = var.sendgrid_apikey
+    ConnectionStrings__EventDb = var.connectionstring_eventdb
+  }
+}
+
 module "aws-deploy" {
   source                 = "git@github.com:bekk/bekk-terraform-aws-deploy.git"
   aws_region             = var.aws_region
@@ -35,7 +42,7 @@ module "aws-deploy" {
   task_image             = var.task_image
   task_image_tag         = var.task_image_tag
   task_environment       = var.container_environment
-  task_secrets           = var.task_secrets
+  task_secrets           = local.task_secrets
   create_dns_record      = true
 
 }

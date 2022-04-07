@@ -55,7 +55,12 @@ variable "container_environment" {
   type = list(map(string))
 }
 
-variable "task_secrets" {
-  type = map(string)
+variable "sendgrid_apikey" {
+  type = string
+  sensitive = true
+}
+
+variable "connectionstring_eventdb" {
+  type = string
   sensitive = true
 }
