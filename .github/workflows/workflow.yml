@@ -23,11 +23,11 @@ on:
         required: false
         type: string
         default: "bekk-arrangement-svc"
-    secrets:
-      AWS_ACCESS_KEY_ID:
-        required: true
-      AWS_SECRET_ACCESS_KEY:
-        required: true
+#    secrets:
+#      AWS_ACCESS_KEY_ID:
+#        required: true
+#      AWS_SECRET_ACCESS_KEY:
+#        required: true
 
 jobs:
   build:
@@ -62,19 +62,20 @@ jobs:
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
           
       - name: experiment
-        env:
-          test: ${{ secrets.foo }}
-        run: echo $test
+        run: echo ${{ secrets.TEST }}
+
       - name: Set up SSH key
         uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Terraform Init
+        id: init
         run: terraform -chdir=terraform init
 
       # Bytt ut denne med en apply
       - name: Terraform plan for debug
+        id: plan
         run: terraform -chdir=terraform plan -var-file=dev.tfvars
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
