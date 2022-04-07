@@ -15,9 +15,9 @@ jobs:
       # For prod
       # TF_VAR_task_image_tag: "latest"
       # TERRAFORM_VAR_FILE: "prod.tfvars"
-    #secrets:
-    #  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-    #  AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
 #name: Bekk-Deployment
 #
