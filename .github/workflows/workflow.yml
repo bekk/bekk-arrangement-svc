@@ -33,7 +33,7 @@ on:
 
 jobs:
   build:
-    name: build
+    name: build and terraform
     runs-on: ubuntu-latest
     environment: ${{ inputs.ENVIRONMENT }}
 
@@ -62,12 +62,9 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-  terraform:
-    runs-on: ubuntu-latest
-    environment: ${{ inputs.ENVIRONMENT }}
-    steps:
+
       - name: experiment
-        run: echo ${{ secrets.TEST }}
+        run: env
 
       - name: Set up SSH key
         uses: webfactory/ssh-agent@v0.5.4
