@@ -8,14 +8,10 @@ on:
     
 jobs:
   deploy-dev:
-    runs-on: ubuntu-latest
-    environment: development
-    steps:
-      - name: Deploy arrangement-svc to dev
-        uses: ./.github/workflows/workflow.yml
-
-    #with:
-    #  ENVIRONMENT: development
+    name: Deploy arrangement-svc to dev
+    uses: ./.github/workflows/workflow.yml
+    with:
+      ENVIRONMENT: development
       # For prod
       # TF_VAR_task_image_tag: "latest"
       # TERRAFORM_VAR_FILE: "prod.tfvars"
