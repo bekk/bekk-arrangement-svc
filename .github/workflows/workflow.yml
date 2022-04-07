@@ -65,10 +65,14 @@ jobs:
         env:
           test: ${{ secrets.foo }}
         run: echo $test
-          
+      - name: Set up SSH key
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
       - name: Terraform Init
         run: terraform -chdir=terraform init
-        
+
       # Bytt ut denne med en apply
       - name: Terraform plan for debug
         run: terraform -chdir=terraform plan -var-file=dev.tfvars
