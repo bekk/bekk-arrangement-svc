@@ -10,7 +10,7 @@ on:
       BRANCH:
         required: false
         type: string
-        default: ${GITHUB_REF##*/}
+        default: ${{ GITHUB_REF##*/ }}
       IMAGE_TAG:
         required: false
         type: string
@@ -22,11 +22,11 @@ on:
       ECR_REPOSITORY:
         required: false
         type: string
-        default: ${GITHUB_REPOSITORY##*/}
+        default: ${{ GITHUB_REPOSITORY##*/ }}
       TERRAFORM_WORKSPACE:
         required: false
         type: string
-        default: ${GITHUB_REF##*/}
+        default: ${{ GITHUB_REF##*/ }}
       TERRAFORM_VAR_FILE:
         required: false
         type: string
