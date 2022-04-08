@@ -35,6 +35,7 @@ variable "task_image" {
 
 variable "task_image_tag" {
   type = string
+  default = "latest"
 }
 
 variable "task_cpu" {
@@ -45,6 +46,11 @@ variable "task_cpu" {
 variable "task_memory" {
   type    = number
   default = 512
+}
+
+variable "create_dns_record" {
+  type = bool
+  default = false
 }
 
 variable "listener_path_patterns" {

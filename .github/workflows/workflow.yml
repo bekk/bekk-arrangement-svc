@@ -7,14 +7,14 @@ on:
       ENVIRONMENT:
         required: true
         type: string
-      TF_VAR_task_image_tag:
+      BRANCH:
+        required: false
+        type: string
+        default: ${GITHUB_REF##*/}
+      IMAGE_TAG:
         required: false
         type: string
         default:  ${{ github.sha }}
-      TERRAFORM_VAR_FILE:
-        required: false
-        type: string
-        default: "dev.tfvars"
       AWS_REGION:
         required: false
         type: string
@@ -22,7 +22,15 @@ on:
       ECR_REPOSITORY:
         required: false
         type: string
-        default: "bekk-arrangement-svc"
+        default: ${GITHUB_REPOSITORY##*/}
+      TERRAFORM_WORKSPACE:
+        required: false
+        type: string
+        default: ${GITHUB_REF##*/}
+      TERRAFORM_VAR_FILE:
+        required: false
+        type: string
+        default: "dev.tfvars"
     secrets:
       AWS_ACCESS_KEY_ID:
         required: true
@@ -63,11 +71,11 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ inputs.ECR_REPOSITORY }}
-          IMAGE_TAG: ${{ inputs.TF_VAR_task_image_tag }}
+          IMAGE: "$ECR_REGISTRY/$ECR_REPOSITORY"
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          docker build -t $IMAGE:${{ inputs.IMAGE_TAG }} .
+          docker push $IMAGE:${{ inputs.IMAGE_TAG }}
+          echo "::set-output name=image::$IMAGE"
 
       - name: Set up SSH key
         uses: webfactory/ssh-agent@v0.5.4
@@ -80,27 +88,44 @@ jobs:
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile deploy
 
       - name: Terraform Format
+        working-directory: terraform
         id: fmt
-        run: terraform fmt -recursive -check
+        run: terraform fmt -check
 
       - name: Terraform Init
+        working-directory: terraform
         id: init
-        run: terraform -chdir=terraform init
+        run: terraform init
 
       - name: Terraform Validate
+        working-directory: terraform
         id: validate
-        run: cd terraform && terraform validate -no-color
+        run: terraform validate -no-color
+
+      - name: Create and change Terraform workspace
+        working-directory: terraform
+        id: init
+        run: |
+          terraform terraform workspace list | grep $WORKSPACE
+          if [[ $? -eq 1 ]]; then \
+          terraform workspace new $WORKSPACE; \
+          else \
+          terraform workspace select $WORKSPACE; \
+          fi
 
       - name: Terraform plan for debug
+        working-directory: terraform
         id: plan
         if: github.event_name == 'pull_request'
-        run: terraform -chdir=terraform plan -var-file=dev.tfvars -no-color
+        run:
+          terraform plan -var-file=${{ inputs.TERRAFORM_VAR_FILE }} -no-color \
+          -var="sendgrid_apikey=${{ secrets.SENDGRID__APIKEY }}" \
+          -var="connectionstring_eventdb=${{ secrets.CONNECTIONSTRINGS__EVENTDB }}" \
+          -var="hostname=${{ inputs.WORKSPACE }}" \
+          -var="environment=${{ inputs.WORKSPACE }}" \
+          -var="task_image=${{ steps.build-image.outputs.image }}" \
+          -var="task_image_tag=${{ inputs.IMAGE_TAG }}"
         continue-on-error: true
-        env:
-          TF_VAR_sendgrid_apikey: ${{ secrets.SENDGRID__APIKEY }}
-          TF_VAR_connectionstring_eventdb: ${{ secrets.CONNECTIONSTRINGS__EVENTDB }}
-          TF_VAR_task_image: $ECR_REGISTRY/$ECR_REPOSITORY
-          TF_VAR_task_image_tag: $TF_VAR_task_image_tag
 
       - name: Update Pull Request
         uses: actions/github-script@v6
