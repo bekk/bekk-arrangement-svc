@@ -1,13 +1,12 @@
 base_name              = "bekk"
 environment            = "dev"
 sld_domain             = "bekk.dev"
-hostname               = "skjer"
+hostname               = "api"
 app_name               = "arrangement-svc"
 ecr_endpoint           = "882089634282.dkr.ecr.eu-central-1.amazonaws.com"
 task_image             = "arrangement-svc"
-task_image_tag         = "latest"
-listener_path_patterns = ["/api", "/api/*"]
-create_dns_record = true
+task_image_tag         = "38"
+listener_path_patterns = ["/arrangement-svc*"]
 container_environment = [
   {
     "name"  = "ASPNETCORE_ENVIRONMENT"
@@ -31,7 +30,7 @@ container_environment = [
   },
   {
     "name"  = "VIRTUAL_PATH"
-    "value" = "/api"
+    "value" = "/arrangement-svc"
   },
   {
     "name"  = "Auth0__PERMISSION_CLAIM_TYPE"

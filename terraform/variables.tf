@@ -48,11 +48,6 @@ variable "task_memory" {
   default = 512
 }
 
-variable "create_dns_record" {
-  type = bool
-  default = false
-}
-
 variable "listener_path_patterns" {
   type = list(string)
 }
