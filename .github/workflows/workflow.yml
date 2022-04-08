@@ -89,7 +89,6 @@ jobs:
         id: validate
         run: cd terraform && terraform validate -no-color
 
-      # Bytt ut denne med en apply
       - name: Terraform plan for debug
         id: plan
         if: github.event_name == 'pull_request'
@@ -102,7 +101,7 @@ jobs:
           TF_VAR_task_image_tag: $TF_VAR_task_image_tag
 
       - name: Update Pull Request
-        uses: actions/github-script@0.9.0
+        uses: actions/github-script@v6
         if: github.event_name == 'pull_request'
         env:
           PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
@@ -117,16 +116,19 @@ jobs:
             <details><summary>Show Plan</summary>
             
             \`\`\`\n
-            ${process.env.PLAN}
+            ${{ steps.plan.outputs.stdout }}
             \`\`\`
             
             </details>
             
             *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
             
-            github.issues.createComment({
+            github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: output
             })
+    - name: Terraform Plan Status
+      if: steps.plan.outcome == 'failure'
+      run: exit 1
