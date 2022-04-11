@@ -30,10 +30,6 @@ variable "hostname" {
   type = string
 }
 
-variable "ecr_endpoint" {
-  type = string
-}
-
 variable "task_image" {
   type = string
 }
