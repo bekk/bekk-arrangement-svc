@@ -30,6 +30,9 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     environment: ${{ inputs.ENVIRONMENT }}
+    outputs:
+      image: ${{ steps.build-image.outputs.image }}
+      image_tag: ${{ inputs.IMAGE_TAG }}
 
     steps:
       - name: Checkout
@@ -54,4 +57,3 @@ jobs:
           docker build -t $IMAGE:${{ inputs.IMAGE_TAG }} .
           docker push $IMAGE:${{ inputs.IMAGE_TAG }}
           echo "::set-output name=image::$IMAGE"
-          echo "::set-output name=tag::${{ inputs.IMAGE_TAG }}"

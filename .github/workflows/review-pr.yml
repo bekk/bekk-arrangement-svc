@@ -19,8 +19,8 @@ jobs:
     needs: build
     with:
       ENVIRONMENT: development
-      IMAGE: ${{ needs.build.outputs.IMAGE }}
-      IMAGE_TAG: ${{ needs.build.outputs.IMAGE_TAG }}
+      IMAGE: ${{ needs.build.outputs.image }}
+      IMAGE_TAG: ${{ needs.build.outputs.image_tag }}
       TERRAFORM_WORKSPACE: $GITHUB_HEAD_REF
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
