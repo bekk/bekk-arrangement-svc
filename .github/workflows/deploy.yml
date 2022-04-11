@@ -80,7 +80,7 @@ jobs:
         working-directory: terraform
         id: plan
         if: github.event_name == 'pull_request'
-        run:
+        run: |
           terraform plan -var-file "${{ inputs.TERRAFORM_VAR_FILE }}" -no-color \
             -var "sendgrid_apikey=${{ secrets.SENDGRID__APIKEY }}" \
             -var "connectionstring_eventdb=${{ secrets.CONNECTIONSTRINGS__EVENTDB }}" \
