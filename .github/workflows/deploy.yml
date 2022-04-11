@@ -16,7 +16,6 @@ on:
       TERRAFORM_WORKSPACE:
         required: false
         type: string
-        default: $GITHUB_REF_NAME
       TERRAFORM_VAR_FILE:
         required: false
         type: string
