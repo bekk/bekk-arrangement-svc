@@ -1,7 +1,7 @@
 name: Bekk reusable Arrangement-svc workflow
 
 on:
-  workflow_call: 
+  workflow_call:
     # Legg til descriptions
     inputs:
       ENVIRONMENT:
@@ -19,6 +19,10 @@ on:
         required: false
         type: string
         default:  ${{ github.sha }}
+    outputs:
+      image: ${{ jobs.build.outputs.image }}
+      image_tag: ${{ inputs.IMAGE_TAG }}
+
     secrets:
       AWS_ACCESS_KEY_ID:
         required: true
@@ -31,8 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.ENVIRONMENT }}
     outputs:
-      image: ${{ steps.build-image.outputs.image }}
-      image_tag: ${{ inputs.IMAGE_TAG }}
+      image: ${{ steps.build-image.outputs.IMAGE }}
 
     steps:
       - name: Checkout
