@@ -74,12 +74,8 @@ jobs:
         working-directory: terraform
         id: workspace
         run: |
-          terraform terraform workspace list | grep ${{ inputs.TERRAFORM_WORKSPACE }}
-          if [[ $? -eq 1 ]]; then \
-          terraform workspace new ${{ inputs.TERRAFORM_WORKSPACE }}; \
-          else \
-          terraform workspace select ${{ inputs.TERRAFORM_WORKSPACE }}; \
-          fi
+          terraform workspace select ${{ inputs.TERRAFORM_WORKSPACE }} \
+          || terraform workspace new ${{ inputs.TERRAFORM_WORKSPACE }}
 
       - name: Terraform plan
         working-directory: terraform
