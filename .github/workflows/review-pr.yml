@@ -1,9 +1,7 @@
 name: Build and deploy Arrangement-svc for review
 
 on:
-  push:
-    branches-ignore:
-      - master
+  pull_request:
 
 jobs:
   build:
