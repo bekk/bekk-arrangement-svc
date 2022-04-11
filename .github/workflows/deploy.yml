@@ -81,11 +81,11 @@ jobs:
         id: plan
         if: github.event_name == 'pull_request'
         run:
-          terraform plan -var-file "${{ inputs.TERRAFORM_VAR_FILE }}" -no-color \
-          -var "sendgrid_apikey=${{ secrets.SENDGRID__APIKEY }}" \
-          -var "connectionstring_eventdb=${{ secrets.CONNECTIONSTRINGS__EVENTDB }}" \
-          -var "preview_name=${{ inputs.TERRAFORM_WORKSPACE }}" \
-          -var "task_image=${{ inputs.IMAGE }}" \
+          terraform plan -var-file "${{ inputs.TERRAFORM_VAR_FILE }}" -no-color\
+          -var "sendgrid_apikey=${{ secrets.SENDGRID__APIKEY }}"\
+          -var "connectionstring_eventdb=${{ secrets.CONNECTIONSTRINGS__EVENTDB }}"\
+          -var "preview_name=${{ inputs.TERRAFORM_WORKSPACE }}"\
+          -var "task_image=${{ inputs.IMAGE }}"\
           -var "task_image_tag=${{ inputs.IMAGE_TAG }}"
         continue-on-error: true
 
