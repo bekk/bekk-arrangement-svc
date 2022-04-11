@@ -2,7 +2,6 @@ name: Bekk reusable Arrangement-svc workflow
 
 on:
   workflow_call:
-    # Legg til descriptions
     inputs:
       ENVIRONMENT:
         required: true
