@@ -1,4 +1,4 @@
-name: Dev Deploy Arrangement-svc
+name: Build and deploy Arrangement-svc for review
 
 on:
   push:
@@ -6,14 +6,23 @@ on:
       - master
 
 jobs:
-  deploy-review:
-    name: Deploy arrangement-svc for review
-    uses: ./.github/workflows/workflow.yml
+  build:
+    name: Build arrangement-svc
+    uses: ./.github/workflows/build.yml
     with:
       ENVIRONMENT: development
-      # For prod
-      # TASK_IMAGE_TAG: "latest"
-      # TERRAFORM_VAR_FILE: "prod.tfvars"
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+  deploy:
+    name: Deploy arrangement-svc
+    uses: ./.github/workflows/deploy.yml
+    needs: build
+    with:
+      ENVIRONMENT: development
+      IMAGE: ${{ needs.build.outputs.IMAGE }}
+      IMAGE_TAG: ${{ needs.build.outputs.IMAGE_TAG }}
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}

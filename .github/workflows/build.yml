@@ -1,0 +1,57 @@
+name: Bekk reusable Arrangement-svc workflow
+
+on:
+  workflow_call: 
+    # Legg til descriptions
+    inputs:
+      ENVIRONMENT:
+        required: true
+        type: string
+      AWS_REGION:
+        required: false
+        type: string
+        default: "eu-central-1"
+      ECR_REPOSITORY:
+        required: false
+        type: string
+        default: ${{ github.event.repository.name }}
+      IMAGE_TAG:
+        required: false
+        type: string
+        default:  ${{ github.sha }}
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.ENVIRONMENT }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ inputs.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
+        id: login-ecr
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          IMAGE: "${{ steps.login-ecr.outputs.registry }}/${{ inputs.ECR_REPOSITORY }}"
+        run: |
+          docker build -t $IMAGE:${{ inputs.IMAGE_TAG }} .
+          docker push $IMAGE:${{ inputs.IMAGE_TAG }}
+          echo "::set-output name=image::$IMAGE"
+          echo "::set-output name=tag::${{ inputs.IMAGE_TAG }}"
