@@ -39,7 +39,6 @@ module "aws-deploy" {
   hostname               = var.hostname
   sld_domain             = var.sld_domain
   listener_path_patterns = var.listener_path_patterns
-  ecr_endpoint           = var.ecr_endpoint
   task_image             = var.task_image
   task_image_tag         = var.task_image_tag
   task_environment       = var.container_environment
