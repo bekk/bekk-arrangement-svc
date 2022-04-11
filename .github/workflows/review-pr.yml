@@ -18,8 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: show needs output
-        run: |
-          echo ${{ needs }}
+        env: { CONTENT: "${{ toJson(needs) }}"}
+        run: "echo $CONTENT"
 #  deploy:
 #    name: Deploy arrangement-svc
 #    uses: ./.github/workflows/deploy.yml
