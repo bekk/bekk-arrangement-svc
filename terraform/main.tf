@@ -34,6 +34,7 @@ module "aws-deploy" {
   aws_region             = var.aws_region
   base_name              = var.base_name
   environment            = var.environment
+  preview_name           = var.preview_name
   app_name               = var.app_name
   hostname               = var.hostname
   sld_domain             = var.sld_domain

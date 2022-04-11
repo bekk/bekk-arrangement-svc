@@ -74,11 +74,11 @@ jobs:
         working-directory: terraform
         id: workspace
         run: |
-          terraform terraform workspace list | grep $WORKSPACE
+          terraform terraform workspace list | grep ${{ inputs.TERRAFORM_WORKSPACE }}
           if [[ $? -eq 1 ]]; then \
-          terraform workspace new $WORKSPACE; \
+          terraform workspace new ${{ inputs.TERRAFORM_WORKSPACE }}; \
           else \
-          terraform workspace select $WORKSPACE; \
+          terraform workspace select ${{ inputs.TERRAFORM_WORKSPACE }}; \
           fi
 
       - name: Terraform plan
@@ -89,8 +89,7 @@ jobs:
           terraform plan -var-file=${{ inputs.TERRAFORM_VAR_FILE }} -no-color \
           -var="sendgrid_apikey=${{ secrets.SENDGRID__APIKEY }}" \
           -var="connectionstring_eventdb=${{ secrets.CONNECTIONSTRINGS__EVENTDB }}" \
-          -var="hostname=${{ inputs.WORKSPACE }}" \
-          -var="environment=${{ inputs.WORKSPACE }}" \
+          -var="preview_name=${{ inputs.TERRAFORM_WORKSPACE }}" \
           -var="task_image=${{ inputs.IMAGE }}" \
           -var="task_image_tag=${{ inputs.IMAGE_TAG }}"
         continue-on-error: true

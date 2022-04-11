@@ -13,6 +13,11 @@ variable "environment" {
   default = "dev"
 }
 
+variable "preview_name" {
+  type    = string
+  default = ""
+}
+
 variable "sld_domain" {
   type    = string
   default = "bekk.dev"
