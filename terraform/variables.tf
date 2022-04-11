@@ -34,7 +34,7 @@ variable "task_image" {
 }
 
 variable "task_image_tag" {
-  type = string
+  type    = string
   default = "latest"
 }
 
