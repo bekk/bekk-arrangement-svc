@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: show needs output
-        env: { CONTENT: "${{ toJson(needs) }}"}
+        env: { CONTENT: "${{ toJson(needs.build.outputs) }}"}
         run: "echo $CONTENT"
 #  deploy:
 #    name: Deploy arrangement-svc

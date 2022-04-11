@@ -20,8 +20,12 @@ on:
         type: string
         default:  ${{ github.sha }}
     outputs:
-      image: ${{ jobs.build.outputs.image }}
-      image_tag: ${{ inputs.IMAGE_TAG }}
+      image:
+        description: "Image name"
+        value: ${{ jobs.build.outputs.image }}
+      image_tag:
+        description: "Image tag"
+        value: ${{ inputs.IMAGE_TAG }}
 
     secrets:
       AWS_ACCESS_KEY_ID:
@@ -35,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.ENVIRONMENT }}
     outputs:
-      image: ${{ steps.build-image.outputs.IMAGE }}
+      image: ${{ steps.build-image.outputs.image }}
 
     steps:
       - name: Checkout
