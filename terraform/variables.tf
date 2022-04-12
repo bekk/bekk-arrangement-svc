@@ -24,7 +24,7 @@ variable "sld_domain" {
 }
 
 variable "create_dns_record" {
-  type = bool
+  type    = bool
   default = false
 }
 
