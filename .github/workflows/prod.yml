@@ -1,0 +1,34 @@
+name: Build and deploy arrangement-svc to prod
+
+on:
+  release:
+    types:
+      - released
+
+jobs:
+  build:
+    name: Build and push docker image
+    uses: ./.github/workflows/common/build.yml
+    with:
+      ENVIRONMENT: production
+      IMAGE_TAG: ${{ github.event.release.tag_name }}
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+  deploy:
+    name: Deploy arrangement-svc to prod
+    uses: ./.github/workflows/common/deploy.yml
+    needs: build
+    with:
+      ENVIRONMENT: production
+      IMAGE: ${{ needs.build.outputs.image }}
+      IMAGE_TAG: ${{ needs.build.outputs.image_tag }}
+      TERRAFORM_WORKSPACE: prod
+      TERRAFORM_VAR_FILE: prod.tfvars
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      CONNECTIONSTRINGS__EVENTDB: ${{ secrets.CONNECTIONSTRINGS__EVENTDB }}
+      SENDGRID__APIKEY: ${{ secrets.SENDGRID__APIKEY }}

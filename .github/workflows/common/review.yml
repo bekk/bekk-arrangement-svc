@@ -1,4 +1,4 @@
-name: Bekk reusable Arrangement-svc workflow
+name: Deploy review environment
 
 on:
   workflow_call: 
@@ -79,7 +79,7 @@ jobs:
       - name: Deploy review environment
         working-directory: terraform
         id: deploy_review
-        if: github.event_name == 'pull_request' && github.event.pull_request.closed == false
+        if: github.event.pull_request.closed == false
         run: |
           terraform apply -auto-approve -var-file "${{ inputs.TERRAFORM_VAR_FILE }}" -no-color \
             -var "sendgrid_apikey=${{ secrets.SENDGRID__APIKEY }}" \
@@ -88,12 +88,12 @@ jobs:
             -var "create_dns_record=true" \
             -var "task_image=${{ inputs.IMAGE }}" \
             -var "task_image_tag=${{ inputs.IMAGE_TAG }}"
-          echo "::set-output name=preview_url::$(terraform output URL)"
+          echo "::set-output name=deploy_url::$(terraform output URL)"
 
       - name: Teardown review environment
         working-directory: terraform
         id: teardown_review
-        if: github.event_name == 'pull_request' && github.event.pull_request.closed == true
+        if: github.event.pull_request.closed == true
         run: |
           terraform destroy -auto-approve -var-file "${{ inputs.TERRAFORM_VAR_FILE }}" -no-color \
             -var "sendgrid_apikey=${{ secrets.SENDGRID__APIKEY }}" \
@@ -107,15 +107,15 @@ jobs:
       - name: Create and change Terraform workspace for dev
         working-directory: terraform
         id: workspace-dev
-        if: github.event_name == 'pull_request' && github.event.pull_request.closed == false
+        if: github.event.pull_request.closed == false
         run: |
           terraform workspace select dev \
           || terraform workspace new dev
 
-      - name: Terraform plan for merge
+      - name: Terraform plan for merge to master
         working-directory: terraform
         id: plan-merge
-        if: github.event_name == 'pull_request' && github.event.pull_request.closed == false
+        if: github.event.pull_request.closed == false
         run: |
           terraform plan -var-file "${{ inputs.TERRAFORM_VAR_FILE }}" -no-color \
             -var "sendgrid_apikey=${{ secrets.SENDGRID__APIKEY }}" \
@@ -129,7 +129,7 @@ jobs:
         if: github.event_name == 'pull_request' && github.event.pull_request.closed == false
         env:
           PLAN: "terraform\n${{ steps.plan-merge.outputs.stdout }}"
-          PREVIEW_URL: ${{ steps.deploy_review.outputs.preview_url }}
+          DEPLOY_URL: "${{ steps.deploy_review.outputs.deploy_url }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |

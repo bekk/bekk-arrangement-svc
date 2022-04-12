@@ -1,0 +1,89 @@
+name: Deploy to dev
+
+on:
+  workflow_call: 
+    inputs:
+      ENVIRONMENT:
+        required: true
+        type: string
+      IMAGE:
+        required: false
+        type: string
+      IMAGE_TAG:
+        required: false
+        type: string
+      TERRAFORM_WORKSPACE:
+        required: false
+        type: string
+      TERRAFORM_VAR_FILE:
+        required: false
+        type: string
+        default: "dev.tfvars"
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      SSH_PRIVATE_KEY:
+        required: true
+      CONNECTIONSTRINGS__EVENTDB:
+        required: true
+      SENDGRID__APIKEY:
+        required: true
+
+jobs:
+  terraform:
+    name: Run terraform
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.ENVIRONMENT }}
+
+    steps:
+      - name: Checkout git repo
+        uses: actions/checkout@v2
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Set up SSH key for custom terraform module
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add profile credentials to ~/.aws/credentials
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} --profile deploy
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile deploy
+
+      - name: Terraform Format
+        working-directory: terraform
+        id: fmt
+        run: terraform fmt -check
+
+      - name: Terraform Init
+        working-directory: terraform
+        id: init
+        run: terraform init
+
+      - name: Terraform Validate
+        working-directory: terraform
+        id: validate
+        run: terraform validate -no-color
+
+      - name: Create and change Terraform workspace
+        working-directory: terraform
+        id: workspace
+        run: |
+          terraform workspace select ${{ inputs.TERRAFORM_WORKSPACE }} \
+          || terraform workspace new ${{ inputs.TERRAFORM_WORKSPACE }}
+
+      - name: Deploy review environment
+        working-directory: terraform
+        id: deploy_review
+        run: |
+          terraform apply -auto-approve -var-file "${{ inputs.TERRAFORM_VAR_FILE }}" -no-color \
+            -var "sendgrid_apikey=${{ secrets.SENDGRID__APIKEY }}" \
+            -var "connectionstring_eventdb=${{ secrets.CONNECTIONSTRINGS__EVENTDB }}" \
+            -var "preview_name=${{ inputs.TERRAFORM_WORKSPACE }}" \
+            -var "task_image=${{ inputs.IMAGE }}" \
+            -var "task_image_tag=${{ inputs.IMAGE_TAG }}"
+          echo "::set-output name=deploy_url::$(terraform output URL)"
