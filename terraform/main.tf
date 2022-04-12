@@ -45,3 +45,7 @@ module "aws-deploy" {
   task_environment       = var.container_environment
   task_secrets           = local.task_secrets
 }
+
+output "URL" {
+  value = module.aws-deploy.url
+}

@@ -76,7 +76,28 @@ jobs:
           terraform workspace select ${{ inputs.TERRAFORM_WORKSPACE }} \
           || terraform workspace new ${{ inputs.TERRAFORM_WORKSPACE }}
 
-      - name: Terraform plan
+      - name: Terraform apply review app
+        working-directory: terraform
+        id: apply-review
+        if: github.event_name == 'pull_request'
+        run: |
+          terraform apply -auto-approve -var-file "${{ inputs.TERRAFORM_VAR_FILE }}" -no-color \
+            -var "sendgrid_apikey=${{ secrets.SENDGRID__APIKEY }}" \
+            -var "connectionstring_eventdb=${{ secrets.CONNECTIONSTRINGS__EVENTDB }}" \
+            -var "preview_name=${{ inputs.TERRAFORM_WORKSPACE }}" \
+            -var "create_dns_record=true" \
+            -var "task_image=${{ inputs.IMAGE }}" \
+            -var "task_image_tag=${{ inputs.IMAGE_TAG }}"
+          echo "::set-output name=preview_url::$(terraform output URL)"
+
+      - name: Create and change Terraform workspace for dev
+        working-directory: terraform
+        id: workspace-dev
+        run: |
+          terraform workspace select dev \
+          || terraform workspace new dev
+
+      - name: Terraform plan for merge
         working-directory: terraform
         id: plan
         if: github.event_name == 'pull_request'
@@ -84,9 +105,8 @@ jobs:
           terraform plan -var-file "${{ inputs.TERRAFORM_VAR_FILE }}" -no-color \
             -var "sendgrid_apikey=${{ secrets.SENDGRID__APIKEY }}" \
             -var "connectionstring_eventdb=${{ secrets.CONNECTIONSTRINGS__EVENTDB }}" \
-            -var "preview_name=${{ inputs.TERRAFORM_WORKSPACE }}" \
             -var "task_image=${{ inputs.IMAGE }}" \
-            -var "task_image_tag=${{ inputs.IMAGE_TAG }}"
+            -var "task_image_tag=latest"
         continue-on-error: true
 
       - name: Update Pull Request
@@ -102,7 +122,7 @@ jobs:
             #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
             #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
             
-            <details><summary>Show Plan</summary>
+            <details><summary>Show plan for apply after merge to master</summary>
             
             \`\`\`\n
             ${ process.env.PLAN }
@@ -118,6 +138,7 @@ jobs:
               repo: context.repo.repo,
               body: output
             })
+
       - name: Terraform Plan Status
         if: steps.plan.outcome == 'failure'
         run: exit 1
