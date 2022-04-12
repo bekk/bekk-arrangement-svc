@@ -23,7 +23,7 @@ jobs:
 
   deploy:
     name: Deploy arrangement-svc
-    uses: ./.github/workflows/common/deploy.yml
+    uses: ./.github/workflows/deploy.yml
     needs: build
     with:
       ENVIRONMENT: development
