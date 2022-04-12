@@ -38,6 +38,7 @@ module "aws-deploy" {
   app_name               = var.app_name
   hostname               = var.hostname
   sld_domain             = var.sld_domain
+  create_dns_record      = var.create_dns_record
   listener_path_patterns = var.listener_path_patterns
   task_image             = var.task_image
   task_image_tag         = var.task_image_tag
