@@ -22,8 +22,8 @@ jobs:
       AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
   deploy:
-    name: Deploy arrangement-svc
-    uses: ./.github/workflows/deploy.yml
+    name: Deploy arrangement-svc for review
+    uses: ./.github/workflows/review.yml
     needs: build
     with:
       ENVIRONMENT: development
