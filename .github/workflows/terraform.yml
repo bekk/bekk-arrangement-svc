@@ -2,7 +2,6 @@ name: Bekk reusable Arrangement-svc workflow
 
 on:
   workflow_call: 
-    # Legg til descriptions
     inputs:
       ENVIRONMENT:
         required: true
@@ -33,18 +32,19 @@ on:
         required: true
 
 jobs:
-  build:
-    name: build and terraform
+  terraform:
+    name: Run terraform
     runs-on: ubuntu-latest
     environment: ${{ inputs.ENVIRONMENT }}
 
     steps:
-      - name: Checkout
+      - name: Checkout git repo
         uses: actions/checkout@v2
+
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v1
 
-      - name: Set up SSH key
+      - name: Set up SSH key for custom terraform module
         uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -76,10 +76,10 @@ jobs:
           terraform workspace select ${{ inputs.TERRAFORM_WORKSPACE }} \
           || terraform workspace new ${{ inputs.TERRAFORM_WORKSPACE }}
 
-      - name: Terraform apply review app
+      - name: Deploy review environment
         working-directory: terraform
-        id: apply-review
-        if: github.event_name == 'pull_request'
+        id: deploy_review
+        if: github.event_name == 'pull_request' && github.event.pull_request.closed == false
         run: |
           terraform apply -auto-approve -var-file "${{ inputs.TERRAFORM_VAR_FILE }}" -no-color \
             -var "sendgrid_apikey=${{ secrets.SENDGRID__APIKEY }}" \
@@ -90,17 +90,32 @@ jobs:
             -var "task_image_tag=${{ inputs.IMAGE_TAG }}"
           echo "::set-output name=preview_url::$(terraform output URL)"
 
+      - name: Teardown review environment
+        working-directory: terraform
+        id: teardown_review
+        if: github.event_name == 'pull_request' && github.event.pull_request.closed == true
+        run: |
+          terraform destroy -auto-approve -var-file "${{ inputs.TERRAFORM_VAR_FILE }}" -no-color \
+            -var "sendgrid_apikey=${{ secrets.SENDGRID__APIKEY }}" \
+            -var "connectionstring_eventdb=${{ secrets.CONNECTIONSTRINGS__EVENTDB }}" \
+            -var "preview_name=${{ inputs.TERRAFORM_WORKSPACE }}" \
+            -var "create_dns_record=true" \
+            -var "task_image=${{ inputs.IMAGE }}" \
+            -var "task_image_tag=${{ inputs.IMAGE_TAG }}"
+          terraform workspace delete ${{ inputs.TERRAFORM_WORKSPACE }}
+
       - name: Create and change Terraform workspace for dev
         working-directory: terraform
         id: workspace-dev
+        if: github.event_name == 'pull_request' && github.event.pull_request.closed == false
         run: |
           terraform workspace select dev \
           || terraform workspace new dev
 
       - name: Terraform plan for merge
         working-directory: terraform
-        id: plan
-        if: github.event_name == 'pull_request'
+        id: plan-merge
+        if: github.event_name == 'pull_request' && github.event.pull_request.closed == false
         run: |
           terraform plan -var-file "${{ inputs.TERRAFORM_VAR_FILE }}" -no-color \
             -var "sendgrid_apikey=${{ secrets.SENDGRID__APIKEY }}" \
@@ -111,20 +126,24 @@ jobs:
 
       - name: Update Pull Request
         uses: actions/github-script@v6
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && github.event.pull_request.closed == false
         env:
-          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+          PLAN: "terraform\n${{ steps.plan-merge.outputs.stdout }}"
+          PREVIEW_URL: ${{ steps.deploy_review.outputs.preview_url }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
             #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+            #### Terraform Plan 📖\`${{ steps.plan-merge.outcome }}\`
             #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+            
+            #### Preview environment \
+            [${ process.env.PREVIEW_URL }](${ process.env.PREVIEW_URL })
             
             <details><summary>Show plan for apply after merge to master</summary>
             
-            \`\`\`\n
+            \`\`\`hcl\n
             ${ process.env.PLAN }
             \`\`\`
             
@@ -139,6 +158,6 @@ jobs:
               body: output
             })
 
-      - name: Terraform Plan Status
-        if: steps.plan.outcome == 'failure'
+      - name: Terraform Plan Status for merge
+        if: steps.plan-merge.outcome == 'failure'
         run: exit 1
