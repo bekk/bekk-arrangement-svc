@@ -79,7 +79,7 @@ jobs:
       - name: Deploy review environment
         working-directory: terraform
         id: deploy_review
-        if: github.event.pull_request.closed == false
+        if: github.event.action != 'closed' || github.event.pull_request.merged == false
         run: |
           terraform apply -auto-approve -var-file "${{ inputs.TERRAFORM_VAR_FILE }}" -no-color \
             -var "sendgrid_apikey=${{ secrets.SENDGRID__APIKEY }}" \
@@ -93,7 +93,7 @@ jobs:
       - name: Teardown review environment
         working-directory: terraform
         id: teardown_review
-        if: github.event.pull_request.closed == true
+        if: github.event.action == 'closed' || github.event.pull_request.merged == true
         run: |
           terraform destroy -auto-approve -var-file "${{ inputs.TERRAFORM_VAR_FILE }}" -no-color \
             -var "sendgrid_apikey=${{ secrets.SENDGRID__APIKEY }}" \
@@ -107,7 +107,7 @@ jobs:
       - name: Create and change Terraform workspace for dev
         working-directory: terraform
         id: workspace-dev
-        if: github.event.pull_request.closed == false
+        if: github.event.action != 'closed' || github.event.pull_request.merged == false
         run: |
           terraform workspace select dev \
           || terraform workspace new dev
@@ -115,7 +115,7 @@ jobs:
       - name: Terraform plan for merge to master
         working-directory: terraform
         id: plan-merge
-        if: github.event.pull_request.closed == false
+        if: github.event.action != 'closed' || github.event.pull_request.merged == false
         run: |
           terraform plan -var-file "${{ inputs.TERRAFORM_VAR_FILE }}" -no-color \
             -var "sendgrid_apikey=${{ secrets.SENDGRID__APIKEY }}" \
@@ -126,7 +126,7 @@ jobs:
 
       - name: Update Pull Request
         uses: actions/github-script@v6
-        if: github.event_name == 'pull_request' && github.event.pull_request.closed == false
+        if: github.event.action != 'closed' || github.event.pull_request.merged == false
         env:
           PLAN: "terraform\n${{ steps.plan-merge.outputs.stdout }}"
           DEPLOY_URL: "${{ steps.deploy_review.outputs.deploy_url }}"
