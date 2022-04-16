@@ -1,13 +1,3 @@
-variable "aws_region" {
-  type    = string
-  default = "eu-central-1"
-}
-
-variable "base_name" {
-  type    = string
-  default = "bekk"
-}
-
 variable "environment" {
   type    = string
   default = "dev"
