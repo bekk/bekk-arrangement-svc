@@ -59,16 +59,10 @@ variable "listener_path_patterns" {
   type = list(string)
 }
 
-variable "container_environment" {
-  type = list(map(string))
+variable "task_secrets" {
+  type = list(string)
 }
 
-variable "sendgrid_apikey" {
-  type      = string
-  sensitive = true
-}
-
-variable "connectionstring_eventdb" {
-  type      = string
-  sensitive = true
+variable "task_environment" {
+  type = map(string)
 }
