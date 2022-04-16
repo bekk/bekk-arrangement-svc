@@ -6,7 +6,7 @@ on:
       ENVIRONMENT:
         required: true
         type: string
-      IMAGE:
+      IMAGE_NAME:
         required: false
         type: string
       IMAGE_TAG:
@@ -26,10 +26,7 @@ on:
         required: true
       SSH_PRIVATE_KEY:
         required: true
-      CONNECTIONSTRINGS__EVENTDB:
-        required: true
-      SENDGRID__APIKEY:
-        required: true
+
 
 jobs:
   terraform:
@@ -82,8 +79,6 @@ jobs:
         if: github.event.action != 'closed' || github.event.pull_request.merged == false
         run: |
           terraform apply -auto-approve -var-file "${{ inputs.TERRAFORM_VAR_FILE }}" -no-color \
-            -var "sendgrid_apikey=${{ secrets.SENDGRID__APIKEY }}" \
-            -var "connectionstring_eventdb=${{ secrets.CONNECTIONSTRINGS__EVENTDB }}" \
             -var "preview_name=${{ inputs.TERRAFORM_WORKSPACE }}" \
             -var "create_dns_record=true" \
             -var "task_image=${{ inputs.IMAGE }}" \
@@ -96,8 +91,6 @@ jobs:
         if: github.event.action == 'closed' || github.event.pull_request.merged == true
         run: |
           terraform destroy -auto-approve -var-file "${{ inputs.TERRAFORM_VAR_FILE }}" -no-color \
-            -var "sendgrid_apikey=${{ secrets.SENDGRID__APIKEY }}" \
-            -var "connectionstring_eventdb=${{ secrets.CONNECTIONSTRINGS__EVENTDB }}" \
             -var "preview_name=${{ inputs.TERRAFORM_WORKSPACE }}" \
             -var "create_dns_record=true" \
             -var "task_image=${{ inputs.IMAGE }}" \
@@ -118,8 +111,6 @@ jobs:
         if: github.event.action != 'closed' || github.event.pull_request.merged == false
         run: |
           terraform plan -var-file "${{ inputs.TERRAFORM_VAR_FILE }}" -no-color \
-            -var "sendgrid_apikey=${{ secrets.SENDGRID__APIKEY }}" \
-            -var "connectionstring_eventdb=${{ secrets.CONNECTIONSTRINGS__EVENTDB }}" \
             -var "task_image=${{ inputs.IMAGE }}" \
             -var "task_image_tag=latest"
         continue-on-error: true
@@ -139,7 +130,7 @@ jobs:
             #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
             
             #### Preview environment \
-            [${ process.env.PREVIEW_URL }](${ process.env.PREVIEW_URL })
+            [${ process.env.DEPLOY_URL }](${ process.env.DEPLOY_URL })
             
             <details><summary>Show plan for apply after merge to master</summary>
             

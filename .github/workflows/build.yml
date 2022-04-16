@@ -1,4 +1,4 @@
-name: Bekk reusable Arrangement-svc workflow
+name: Build and push docker image
 
 on:
   workflow_call:
@@ -38,7 +38,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.ENVIRONMENT }}
     outputs:
-      image: ${{ steps.build-image.outputs.image }}
+      image_name: ${{ steps.set-outputs.outputs.image_name }}
+      image_tag: ${{ steps.set-outputs.outputs.image_tag }}
 
     steps:
       - name: Checkout
@@ -57,10 +58,18 @@ jobs:
         id: login-ecr
 
       - name: Build, tag, and push image to Amazon ECR
+        if: github.event.action != 'closed'
         id: build-image
         env:
           IMAGE: "${{ steps.login-ecr.outputs.registry }}/${{ inputs.ECR_REPOSITORY }}"
         run: |
           docker build -t $IMAGE:${{ inputs.IMAGE_TAG }} .
           docker push $IMAGE:${{ inputs.IMAGE_TAG }}
-          echo "::set-output name=image::$IMAGE"
+
+      - name: Set outputs
+        id: set-outputs
+        env:
+          IMAGE: "${{ steps.login-ecr.outputs.registry }}/${{ inputs.ECR_REPOSITORY }}"
+        run: |
+          echo "::set-output name=image_name::$IMAGE"
+          echo "::set-output name=image_tag::${{ inputs.IMAGE_TAG }}"

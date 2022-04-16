@@ -1,4 +1,4 @@
-name: Deploy to dev or prod
+name: Deploy
 
 on:
   workflow_call: 
@@ -6,7 +6,7 @@ on:
       ENVIRONMENT:
         required: true
         type: string
-      IMAGE:
+      IMAGE_NAME:
         required: false
         type: string
       IMAGE_TAG:
@@ -25,10 +25,6 @@ on:
       AWS_SECRET_ACCESS_KEY:
         required: true
       SSH_PRIVATE_KEY:
-        required: true
-      CONNECTIONSTRINGS__EVENTDB:
-        required: true
-      SENDGRID__APIKEY:
         required: true
 
 jobs:
@@ -76,14 +72,11 @@ jobs:
           terraform workspace select ${{ inputs.TERRAFORM_WORKSPACE }} \
           || terraform workspace new ${{ inputs.TERRAFORM_WORKSPACE }}
 
-      - name: Deploy review environment
+      - name: Deploy environment
         working-directory: terraform
         id: deploy_review
         run: |
           terraform apply -auto-approve -var-file "${{ inputs.TERRAFORM_VAR_FILE }}" -no-color \
-            -var "sendgrid_apikey=${{ secrets.SENDGRID__APIKEY }}" \
-            -var "connectionstring_eventdb=${{ secrets.CONNECTIONSTRINGS__EVENTDB }}" \
-            -var "preview_name=${{ inputs.TERRAFORM_WORKSPACE }}" \
             -var "task_image=${{ inputs.IMAGE }}" \
             -var "task_image_tag=${{ inputs.IMAGE_TAG }}"
           echo "::set-output name=deploy_url::$(terraform output URL)"
