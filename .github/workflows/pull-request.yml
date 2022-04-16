@@ -16,7 +16,7 @@ jobs:
     if: ${{ github.event.action != 'closed' }}
     with:
       ENVIRONMENT: development
-      ECR_REPOSITORY: "arrangement-svc"
+      ECR_REPOSITORY: "bekk-arrangement-svc"
       IMAGE_TAG: ${{ github.sha }}
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}

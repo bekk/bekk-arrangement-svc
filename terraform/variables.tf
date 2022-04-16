@@ -23,10 +23,6 @@ variable "create_dns_record" {
   default = false
 }
 
-variable "app_name" {
-  type = string
-}
-
 variable "hostname" {
   type = string
 }

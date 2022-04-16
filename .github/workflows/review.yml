@@ -81,7 +81,7 @@ jobs:
           terraform apply -auto-approve -var-file "${{ inputs.TERRAFORM_VAR_FILE }}" -no-color \
             -var "preview_name=${{ inputs.TERRAFORM_WORKSPACE }}" \
             -var "create_dns_record=true" \
-            -var "task_image=${{ inputs.IMAGE }}" \
+            -var "task_image=${{ inputs.IMAGE_NAME }}" \
             -var "task_image_tag=${{ inputs.IMAGE_TAG }}"
           echo "::set-output name=deploy_url::$(terraform output URL)"
 
@@ -93,7 +93,7 @@ jobs:
           terraform destroy -auto-approve -var-file "${{ inputs.TERRAFORM_VAR_FILE }}" -no-color \
             -var "preview_name=${{ inputs.TERRAFORM_WORKSPACE }}" \
             -var "create_dns_record=true" \
-            -var "task_image=${{ inputs.IMAGE }}" \
+            -var "task_image=${{ inputs.IMAGE_NAME }}" \
             -var "task_image_tag=${{ inputs.IMAGE_TAG }}"
           terraform workspace delete ${{ inputs.TERRAFORM_WORKSPACE }}
 
@@ -111,7 +111,7 @@ jobs:
         if: github.event.action != 'closed' || github.event.pull_request.merged == false
         run: |
           terraform plan -var-file "${{ inputs.TERRAFORM_VAR_FILE }}" -no-color \
-            -var "task_image=${{ inputs.IMAGE }}" \
+            -var "task_image=${{ inputs.IMAGE_NAME }}" \
             -var "task_image_tag=latest"
         continue-on-error: true
 
