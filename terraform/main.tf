@@ -24,9 +24,9 @@ provider "aws" {
 
 module "aws-deploy" {
   source                 = "git@github.com:bekk/bekk-terraform-aws-deploy.git"
-  aws_region             = "eu-central-1"
   base_name              = "bekk"
   app_name               = "arrangement-svc"
+  aws_region             = var.aws_region
   environment            = var.environment
   preview_name           = var.preview_name
   hostname               = var.hostname
