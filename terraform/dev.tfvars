@@ -1,8 +1,6 @@
-base_name              = "bekk"
 environment            = "dev"
 sld_domain             = "bekk.dev"
 hostname               = "api"
-app_name               = "arrangement-svc"
 task_image             = "882089634282.dkr.ecr.eu-central-1.amazonaws.com/arrangement-svc"
 task_image_tag         = "38"
 listener_path_patterns = ["/arrangement-svc*"]
