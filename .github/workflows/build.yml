@@ -21,10 +21,10 @@ on:
     outputs:
       image_name:
         description: "Image name"
-        value: ${{ jobs.build-results.outputs.image }}
+        value: ${{ jobs.build.outputs.image }}
       image_tag:
         description: "Image tag"
-        value: ${{ jobs.build-results.outputs.tag }}
+        value: ${{ jobs.build.outputs.tag }}
 
     secrets:
       AWS_ACCESS_KEY_ID:
@@ -38,8 +38,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.ENVIRONMENT }}
     outputs:
-      image_name: ${{ steps.set-outputs.outputs.image_name }}
-      image_tag: ${{ steps.set-outputs.outputs.image_tag }}
+      image: ${{ steps.build-results.outputs.image }}
+      tag: ${{ steps.build-results.outputs.tag }}
 
     steps:
       - name: Checkout
