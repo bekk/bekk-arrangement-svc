@@ -13,7 +13,6 @@ jobs:
   build:
     name: Build and push docker image
     uses: ./.github/workflows/build.yml
-    if: ${{ github.event.action != 'closed' }}
     with:
       ENVIRONMENT: development
       ECR_REPOSITORY: "bekk-arrangement-svc"
