@@ -1,4 +1,4 @@
-name: Build and deplo PR review
+name: Build and deploy PR for review
 
 on:
   pull_request:
@@ -12,7 +12,7 @@ on:
 jobs:
   build:
     name: Build and push docker image
-    uses: ./.github/workflows/build.yml
+    uses: bekk/bekk-ci-workflows/.github/workflows/build.yml
     with:
       ENVIRONMENT: development
     secrets:
@@ -21,7 +21,7 @@ jobs:
 
   deploy:
     name: Deploy arrangement-svc for review
-    uses: ./.github/workflows/review.yml
+    uses: bekk/bekk-ci-workflows/.github/workflows/review.yml
     needs: build
     with:
       ENVIRONMENT: development

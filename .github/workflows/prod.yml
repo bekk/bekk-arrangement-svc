@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     name: Build and push docker image
-    uses: ./.github/workflows/build.yml
+    uses: bekk/bekk-ci-workflows/.github/workflows/build.yml
     with:
       ENVIRONMENT: production
       IMAGE_TAG: ${{ github.event.release.tag_name }}
@@ -18,7 +18,7 @@ jobs:
 
   deploy:
     name: Deploy arrangement-svc to prod
-    uses: ./.github/workflows/deploy.yml
+    uses: bekk/bekk-ci-workflows/.github/workflows/deploy.yml
     needs: build
     with:
       ENVIRONMENT: production
