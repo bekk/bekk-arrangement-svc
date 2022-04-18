@@ -83,8 +83,13 @@ jobs:
             -var "create_dns_record=true" \
             -var "task_image=${{ inputs.IMAGE_NAME }}" \
             -var "task_image_tag=${{ inputs.IMAGE_TAG }}"
-          url=$(terraform output URL)
-          echo "::set-output name=deploy_url::$url"
+
+      - name: Get deployment url for review environment
+        working-directory: terraform
+        id: deploy-url
+        if: github.event.action != 'closed' || github.event.pull_request.merged == false
+        run: | 
+          terraform output URL
 
       - name: Teardown review environment
         working-directory: terraform
@@ -121,13 +126,13 @@ jobs:
         if: github.event.action != 'closed' || github.event.pull_request.merged == false
         env:
           PLAN: "terraform\n${{ steps.plan-merge.outputs.stdout }}"
-          DEPLOY_URL: "${{ steps.deploy-review.outputs.deploy_url }}"
+          DEPLOY_URL: "${{ steps.deploy-url.outputs.stdout }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
             #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-            #### Terraform Validtion 🤖\`${{ steps.validate.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
             #### Terraform Plan 📖\`${{ steps.plan-merge.outcome }}\`
             
             #### Preview environment 🔗

@@ -79,4 +79,3 @@ jobs:
           terraform apply -auto-approve -var-file "${{ inputs.TERRAFORM_VAR_FILE }}" -no-color \
             -var "task_image=${{ inputs.IMAGE_NAME }}" \
             -var "task_image_tag=${{ inputs.IMAGE_TAG }}"
-          echo "::set-output name=deploy_url::$(terraform output URL)"
