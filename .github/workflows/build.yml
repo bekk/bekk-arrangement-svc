@@ -19,12 +19,12 @@ on:
         type: string
         default:  ${{ github.sha }}
     outputs:
-      image:
+      image_name:
         description: "Image name"
-        value: ${{ jobs.build.outputs.image }}
+        value: ${{ jobs.build-results.outputs.image }}
       image_tag:
         description: "Image tag"
-        value: ${{ inputs.IMAGE_TAG }}
+        value: ${{ jobs.build-results.outputs.tag }}
 
     secrets:
       AWS_ACCESS_KEY_ID:
@@ -67,9 +67,9 @@ jobs:
           docker push $IMAGE:${{ inputs.IMAGE_TAG }}
 
       - name: Set outputs
-        id: set-outputs
+        id: build-results
         env:
           IMAGE: "${{ steps.login-ecr.outputs.registry }}/${{ inputs.ECR_REPOSITORY }}"
         run: |
-          echo "::set-output name=image_name::$IMAGE"
-          echo "::set-output name=image_tag::${{ inputs.IMAGE_TAG }}"
+          echo "::set-output name=image::$IMAGE"
+          echo "::set-output name=tag::${{ inputs.IMAGE_TAG }}"

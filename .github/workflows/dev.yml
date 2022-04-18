@@ -11,7 +11,6 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       ENVIRONMENT: development
-      ECR_REPOSITORY: "bekk-arrangement-svc"
       IMAGE_TAG: latest
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
