@@ -75,7 +75,7 @@ jobs:
 
       - name: Deploy review environment
         working-directory: terraform
-        id: deploy_review
+        id: deploy-review
         if: github.event.action != 'closed' || github.event.pull_request.merged == false
         run: |
           terraform apply -auto-approve -var-file "${{ inputs.TERRAFORM_VAR_FILE }}" -no-color \
@@ -83,11 +83,12 @@ jobs:
             -var "create_dns_record=true" \
             -var "task_image=${{ inputs.IMAGE_NAME }}" \
             -var "task_image_tag=${{ inputs.IMAGE_TAG }}"
-          echo "::set-output name=deploy_url::$(terraform output URL)"
+          url=$(terraform output URL)
+          echo "::set-output name=deploy_url::$url"
 
       - name: Teardown review environment
         working-directory: terraform
-        id: teardown_review
+        id: teardown-review
         if: github.event.action == 'closed' || github.event.pull_request.merged == true
         run: |
           terraform destroy -auto-approve -var-file "${{ inputs.TERRAFORM_VAR_FILE }}" -no-color \
@@ -120,16 +121,16 @@ jobs:
         if: github.event.action != 'closed' || github.event.pull_request.merged == false
         env:
           PLAN: "terraform\n${{ steps.plan-merge.outputs.stdout }}"
-          DEPLOY_URL: "${{ steps.deploy_review.outputs.deploy_url }}"
+          DEPLOY_URL: "${{ steps.deploy-review.outputs.deploy_url }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
             #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Validtion 🤖\`${{ steps.validate.outcome }}\`
             #### Terraform Plan 📖\`${{ steps.plan-merge.outcome }}\`
-            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
             
-            #### Preview environment \
+            #### Preview environment 🔗
             [${ process.env.DEPLOY_URL }](${ process.env.DEPLOY_URL })
             
             <details><summary>Show plan for apply after merge to master</summary>
