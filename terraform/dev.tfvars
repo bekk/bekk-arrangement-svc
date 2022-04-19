@@ -1,8 +1,8 @@
 environment            = "dev"
 sld_domain             = "bekk.dev"
 hostname               = "api"
-task_image             = "882089634282.dkr.ecr.eu-central-1.amazonaws.com/arrangement-svc"
-task_image_tag         = "38"
+task_image             = "882089634282.dkr.ecr.eu-central-1.amazonaws.com/bekk-arrangement-svc"
+task_image_tag         = "latest"
 listener_path_patterns = ["/arrangement-svc*"]
 task_environment = {
   ASPNETCORE_ENVIRONMENT       = "Development"
