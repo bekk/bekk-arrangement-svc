@@ -14,8 +14,6 @@ jobs:
   build:
     name: Build and push docker image
     uses: bekk/bekk-ci-workflows/.github/workflows/build.yml@master
-    with:
-      ENVIRONMENT: development
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -25,7 +23,6 @@ jobs:
     uses: bekk/bekk-ci-workflows/.github/workflows/review.yml@master
     needs: build
     with:
-      ENVIRONMENT: development
       IMAGE_NAME: ${{ needs.build.outputs.image_name }}
       IMAGE_TAG: ${{ needs.build.outputs.image_tag }}
       TERRAFORM_WORKSPACE: $GITHUB_HEAD_REF
