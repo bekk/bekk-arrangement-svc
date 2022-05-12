@@ -36,58 +36,44 @@
 
   <ItemGroup>
     <Compile Include="Config.fs" />
-
     <Compile Include="LanguageExtensions\Validation.fs" />
     <Compile Include="LanguageExtensions\Task.fs" />
     <Compile Include="LanguageExtensions\Seq.fs" />
     <Compile Include="LanguageExtensions\Option.fs" /> 
-    <Compile Include="LanguageExtensions\Tools.fs" />
-      
-    <Compile Include="Logging.fs" />
+    <Compile Include="LanguageExtensions\Tools.fs" /> 
+    <Compile Include="Common\Logging.fs" />
     <Compile Include="Common\UserMessage.fs" />
     <Compile Include="Common\ResultComputationExpression.fs" />
-
     <Compile Include="Common\Database.fs" /> 
     <Compile Include="Common\Http.fs" /> 
     <Compile Include="Common\Auth.fs" />
-
-    <Compile Include="DomainTypes\DateTime.fs" />
-    <Compile Include="DomainTypes\TimeStamp.fs" />
-    <Compile Include="DomainTypes\Utils.fs" />
-    <Compile Include="DomainTypes\Email.fs" />
-    <Compile Include="DomainTypes\Event.fs" />
-    <Compile Include="DomainTypes\Participant.fs" /> 
-    <Compile Include="DomainTypes\DomainModels.fs" />
-
-    <Compile Include="Email\SendgridApiModels.fs" />
-    <Compile Include="Email\Models.fs" />
-    <Compile Include="Email\Service.fs" />
-    <Compile Include="Email\CalendarInvite.fs" />
-
-    <Compile Include="Events\UserMessages.fs" />
-    <Compile Include="Participants\UserMessages.fs" />
-
-    <Compile Include="Events\Models.fs" />
-    <Compile Include="Participants\Models.fs" />
-
-    <Compile Include="Events\Queries.fs" />
-    <Compile Include="Participants\Queries.fs" />
-
-    <Compile Include="Events\Validation.fs" />
-
-    <Compile Include="Events\Service.fs" />
-
-    <Compile Include="Events\Authorization.fs" />
-    <Compile Include="Participants\Authorization.fs" />
-    
-    <Compile Include="V2\Queries.fs" />
-    <Compile Include="V2\Handlers.fs" />
-
-    <Compile Include="Events\Handlers.fs" />
-    <Compile Include="Participants\Handlers.fs" />
-
-    <Compile Include="Health\Health.fs" />
+    <Compile Include="Types\DateTime.fs" />
+    <Compile Include="Types\TimeStamp.fs" />
+    <Compile Include="Types\Utils.fs" />
+    <Compile Include="Types\Email.fs" />
+    <Compile Include="Types\Event.fs" />
+    <Compile Include="Types\ParticipantTypes.fs" /> 
+    <Compile Include="Models\EventModels.fs" /> 
+    <Compile Include="Models\ParticipantModels.fs" />
+    <Compile Include="Models\SendgridApiModels.fs" />
+    <Compile Include="Models\EmailModels.fs" />
+    <Compile Include="Models\CalendarInvite.fs" />
+    <Compile Include="UserMessages\EventUserMessages.fs" />
+    <Compile Include="UserMessages\ParticipantUserMessages.fs" />
+    <Compile Include="Queries\Tables.fs" />
+    <Compile Include="Queries\V2Queries.fs" />
+    <Compile Include="Queries\EventQueries.fs" />
+    <Compile Include="Queries\ParticipantQueries.fs" />
+    <Compile Include="Validation\EventValidation.fs" />
+    <Compile Include="Service\EmailService.fs" />
+    <Compile Include="Service\EventService.fs" />
+    <Compile Include="Authorization\EventAuthorization.fs" />
+    <Compile Include="Authorization\ParticipantAuthorization.fs" />
     <Compile Include="Middleware\RequestLogging.fs" />
+    <Compile Include="Handlers\Health.fs" />
+    <Compile Include="Handlers\V2Handlers.fs" />
+    <Compile Include="Handlers\EventHandlers.fs" />
+    <Compile Include="Handlers\ParticipantHandlers.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>

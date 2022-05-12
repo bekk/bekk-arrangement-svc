@@ -8,7 +8,7 @@ An F# service for collecting and maintaining data about events.
 
 ## Requirements
 
-- .NET Core SDK 3.0
+- .NET Core SDK 6.0
 - SQL server
 
 ### Recommended tools
@@ -34,15 +34,7 @@ An F# service for collecting and maintaining data about events.
 - In the src folder run `$ dotnet watch run`
 - The service runs at `http://localhost:5000/` (currently no Swagger docs)
 - If everything works, `http://localhost:5000/health` should return 200 OK.
-
-#### 🔥Hot tip🔥
-
-Brew yourself some `tmux`, navigate to the root folder and run
-
-```
-./tmux.sh
-```
-
+- 
 ## Deploy app
 
 ### Deploy to development
@@ -66,14 +58,15 @@ TODO.
 ## Migrating the database
 
 - Create a new .sql file with a number prefix (increment the highest existing prefix) with your new migration
-- Make sure the table has at least one row of valid data (it's used to generate the `DbSchema`)
-- Delete the `obj` and `bin` folders
-- Delete the file `DbSchema.json`
 - Run `$ dotnet run`
-- The migration should be performed, and generate a new `DbSchema`. If it does not, try to delete the obj and bin folders again, and run or build it one more time.
 
+## Shortnames
+Shortnames is a way to change the URL of an event.
+Events are unique in the database, so only 1 row can have a specific shortname at any given time.
 
-## Tekniske detaljer vedrørende påmelding
-
-Det er en liten semafor-lås på påmeldingsendepunktet for å begrense contention rundt påmelding.
-Denne låsen er prosess-spesifikk selvfølgelig, så to instanser i prod vil kunne deadlocke mot hverandre (og føre til ytelsesproblem ved påmelding, men ikke feil pga retry-mekanismen, så det er ikke krise). Derfor har vi skrudd ned til bare en backend-instans i AWS. Dette ser ut til å fungere bedre og ser ikke ut til å være et problem.
+A typical event URL is `https://skjer.bekk.no/events/84427e54-54cd-4a74-8a53-cb0e4cc97004` with a shortname however you can replace the GUID with a string -> `https://skjer-dev.bekk.no/events/my-event`.
+Shortnames are added when creating or editing an event.
+A shortname can only be taken if:
+- It is not currently used by an active event.
+- The event that has it has ended (`endDate` in the past).
+- The event that has it is cancelled.

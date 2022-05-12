@@ -6,8 +6,6 @@ open System.Diagnostics
 open Bekk.Canonical.Logger
 open Microsoft.AspNetCore.Http
 
-open ArrangementService
-
 type RequestLogging(next: RequestDelegate) =
     member this.Invoke(ctx: HttpContext, logger: Logger) =
         task {

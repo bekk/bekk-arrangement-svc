@@ -1,8 +1,8 @@
-namespace ArrangementService
+module Config
 
-open Microsoft.AspNetCore.Http
 open Giraffe
 open System.Data
+open Microsoft.AspNetCore.Http
 
 type AppConfig =
     { isProd: bool
@@ -18,10 +18,9 @@ type AppConfig =
       mutable currentTransaction: IDbTransaction
       mutable log: (string * string) seq
     }
-
-module Config =
-    let getConfig (context: HttpContext) =
-        context.GetService<AppConfig>()
+    
+let getConfig (context: HttpContext) =
+    context.GetService<AppConfig>()
 
 
 
