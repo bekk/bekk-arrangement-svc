@@ -1,0 +1,21 @@
+{
+  "containerDefinitions": [
+    {
+      "logConfiguration": {
+        "logDriver": "json-file",
+        "options": null
+      },
+      "portMappings": [
+        {
+          "hostPort": 0,
+          "protocol": "tcp",
+          "containerPort": 80
+        }
+      ],
+      "name": "arrangement-svc-prod"
+    }
+  ],
+  "memory": "512",
+  "family": "arrangement-svc-prod",
+  "networkMode": "bridge"
+}

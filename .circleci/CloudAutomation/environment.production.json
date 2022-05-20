@@ -1,0 +1,50 @@
+[
+  {
+    "name": "ASPNETCORE_ENVIRONMENT",
+    "value": "Production"
+  },
+  {
+    "name": "Auth0__Audience",
+    "value": "HuH7oGHSgymn4mYLzEClyE2bhQSM1iTC"
+  },
+  {
+    "name": "Auth0__Issuer_Domain",
+    "value": "bekk.eu.auth0.com"
+  },
+  {
+    "name": "Auth0__Scheduled_Tasks_Audience",
+    "value": "https://api.bekk.no"
+  },
+  {
+    "name": "ConnectionStrings__EventDb",
+    "value": "<SECRET>"
+  },
+  {
+    "name": "Logging__Console__LogLevel__Default",
+    "value": "Warning"
+  },
+  {
+    "name": "Sendgrid__Apikey",
+    "value": "<SECRET>"
+  },
+  {
+    "name": "SendGrid__AdminArrangementSvc",
+    "value": "bjorn.ivar.strom@bekk.no"
+  },
+  {
+    "name": "Serilog__MinimumLevel",
+    "value": "Warning"
+  },
+  {
+    "name": "PORT",
+    "value": "80"
+  },
+  {
+    "name": "VIRTUAL_PATH",
+    "value": "/arrangement-svc"
+  },
+  {
+    "name": "Auth0__PERMISSION_CLAIM_TYPE",
+    "value": "https://api.bekk.no/claims/permission"
+  }
+]
