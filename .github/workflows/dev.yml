@@ -1,0 +1,29 @@
+name: Build and deploy arrangement-svc
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: Build and push docker image
+    uses: bekk/bekk-ci-workflows/.github/workflows/build.yml@master
+    with:
+      IMAGE_TAG: latest
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.BEKK_BASEN_ACCESS_KEY_ID_DEV }}
+      AWS_SECRET_ACCESS_KEY:  ${{ secrets.BEKK_BASEN_SECRET_ACCESS_KEY_DEV }}
+
+  deploy:
+    name: Deploy arrangement-svc to dev
+    uses: bekk/bekk-ci-workflows/.github/workflows/deploy.yml@master
+    needs: build
+    with:
+      IMAGE_NAME: ${{ needs.build.outputs.image_name }}
+      IMAGE_TAG: ${{ needs.build.outputs.image_tag }}
+      TERRAFORM_WORKSPACE: dev
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.BEKK_BASEN_ACCESS_KEY_ID_DEV }}
+      AWS_SECRET_ACCESS_KEY:  ${{ secrets.BEKK_BASEN_SECRET_ACCESS_KEY_DEV }}
+      SSH_PRIVATE_KEY: ${{ secrets.BEKK_BASEN_TERRAFORM_SSH_PRIVATE_KEY }}

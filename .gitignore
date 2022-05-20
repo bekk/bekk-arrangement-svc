@@ -66,3 +66,7 @@ Temporary Items
 src/.vscode
 
 .fake
+
+# Terraform
+.terraform*
+*secrets.tfvars
