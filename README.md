@@ -59,15 +59,22 @@ As we are using MSSQL database and that does not support an in-memory variant, a
 We did consider using an Sqlite in-memory database, but we went with the docker image so the test and production system use the same database.
 
 If you have a running database on your system, you could use that, but we recommend starting one just for testing, and deleting it after.
+Running the tests will create a new image and database just for testing, and reuse that instance for later test sessions for performance reasons.
 
 To run tests:
 ```
-export token=<INSERT A TOKEN HERE>
-podman run --name TestContainer -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=<YourStrong!Passw0rd>' -p 1433:1433 -d mcr.microsoft.com/mssql/server:2017-latest
-       && dotnet run
-       && podman kill TestContainer 
-       && podman rm TestContainer 
+$ ARRANGEMENT_SVC_TEST_JWT_TOKEN=MYTOKEN dotnet run --project Tests
 ```
+
+Alternatively, you can export the variable to avoid typing it each time
+
+```
+$ export ARRANGEMENT_SVC_TEST_JWT_TOKEN=MYTOKEN
+$ dotnet run --project Tests
+```
+
+Running tests on changes is also supported by running `dotnet watch run --project Tests`
+
 
 ## Migrating the database
 
