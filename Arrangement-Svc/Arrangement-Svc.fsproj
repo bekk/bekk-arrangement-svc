@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+﻿
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -8,6 +8,7 @@
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <LangVersion>preview</LangVersion>
     <RootNamespace>bekk-arrangement-svc</RootNamespace>
+    <UserSecretsId>e4d8717e-0bed-4c41-9024-81b49b7c96b4</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

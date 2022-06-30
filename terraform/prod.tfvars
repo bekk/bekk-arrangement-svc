@@ -15,5 +15,9 @@ task_environment = {
 }
 task_secrets = [
   "ConnectionStrings__EventDb",
-  "Sendgrid__Apikey"
+  "Sendgrid__Apikey",
+  "OfficeEvents__TenantId",
+  "OfficeEvents__Mailbox",
+  "OfficeEvents__ClientId",
+  "OfficeEvents__ClientSecret"
 ]
