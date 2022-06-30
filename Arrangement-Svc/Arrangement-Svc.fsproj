@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <DebugType>portable</DebugType>
+    <AssemblyName>arrangementSvc</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <EnableDefaultContentItems>false</EnableDefaultContentItems>
+    <LangVersion>preview</LangVersion>
+    <RootNamespace>bekk-arrangement-svc</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\migration\Migration.csproj">
+      <Name>migrator</Name>
+    </ProjectReference>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Azure.Identity" Version="1.6.0" />
+    <PackageReference Include="Bekk.Canonical.Logger" Version="4.1.0" />
+    <PackageReference Include="dapper" Version="2.0.123" />
+    <PackageReference Include="FifteenBelow.Json.Core" Version="1.0.0" />
+    <PackageReference Include="FSharp.Control.AsyncSeq" Version="3.2.1" />
+    <PackageReference Include="FSharp.Data" Version="4.2.8" />
+    <PackageReference Include="FsToolkit.ErrorHandling.TaskResult" Version="3.0.0-beta007" />
+    <PackageReference Include="Giraffe.SerilogExtensions" Version="2.0.0" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.43" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.5" />
+    <PackageReference Include="Microsoft.Graph" Version="4.32.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Giraffe" Version="5.0.0" />
+    <PackageReference Include="Thoth.Json.Giraffe" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="2.0.0" />
+    <PackageReference Update="FSharp.Core" Version="6.0.4" />
+    <PackageReference Include="Thoth.Json.Net" Version="8.0.0" />
+    <PackageReference Include="WebEssentials.AspNetCore.OutputCaching" Version="1.0.43" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="Config.fs" />
+    <Compile Include="LanguageExtensions\Seq.fs" />
+    <Compile Include="LanguageExtensions\Task.fs" />
+    <Compile Include="Common\DateTime.fs" />
+    <Compile Include="Common\Auth.fs" /> 
+    <Compile Include="Common\UserMessage.fs" />
+    <Compile Include="Common\DatabaseContext.fs" />
+    <Compile Include="Models\Models.fs" />
+    <Compile Include="Models\SendgridApiModels.fs" />
+    <Compile Include="Models\EmailModels.fs" />
+    <Compile Include="Models\CalendarInvite.fs" />
+    <Compile Include="Queries\Queries.fs" />
+    <Compile Include="Service\EmailService.fs" />
+    <Compile Include="Middleware\RequestLogging.fs" />
+    <Compile Include="OfficeEvents.fs" />
+    <Compile Include="Handlers\Health.fs" />
+    <Compile Include="Handlers\Handlers.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+</Project>

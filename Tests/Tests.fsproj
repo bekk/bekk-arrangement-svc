@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <IsPackable>false</IsPackable>
+        <GenerateProgramFile>false</GenerateProgramFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="Generator.fs" />
+        <Compile Include="Utils.fs" />
+        <Compile Include="General.fs" />
+        <Compile Include="CreateEvent.fs" />
+        <Compile Include="RegisterToEvent.fs" />
+        <Compile Include="UpdateEvent.fs" />
+        <Compile Include="DeleteEvent.fs" />
+        <Compile Include="GetEvent.fs" />
+        <Compile Include="OfficeEvents.fs" />
+        <Compile Include="Tests.fs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Bogus" Version="34.0.2" />
+        <PackageReference Include="Expecto" Version="9.0.4" />
+        <PackageReference Include="Giraffe" Version="5.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="6.0.5" />
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="2.0.0" />
+        <PackageReference Include="Microsoft.Data.Sqlite" Version="6.0.5" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
+        <PackageReference Include="coverlet.collector" Version="3.1.0">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+        <PackageReference Update="FSharp.Core" Version="6.0.4" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Arrangement-Svc\Arrangement-Svc.fsproj" />
+      <ProjectReference Include="..\migration\Migration.csproj" />
+    </ItemGroup>
+
+</Project>

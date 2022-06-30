@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>migrator</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="Migrations\**">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <!--<ItemGroup>
+    <None Remove="Migrations\1-createEvent.sql" />
+    <None Remove="Migrations\doStuff.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Migrations\1-createEvent.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Migrations\doStuff.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>-->
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.7.0" />
+  </ItemGroup>
+
+</Project>

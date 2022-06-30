@@ -11,15 +11,9 @@ An F# service for collecting and maintaining data about events.
 - .NET Core SDK 6.0
 - SQL server
 
-### Recommended tools
-
-- Ionide in Visual Studio Code IDE (or Rider)
-- Azure Data studio (works on all OS)
-- Docker
-
 ## Start local
 
-### Your first Fsharp project?
+### Your first F# project?
 
 - Take a look at https://fsharp.org/use/mac/ to setup your develop environment.
 
@@ -32,28 +26,55 @@ An F# service for collecting and maintaining data about events.
 ### Run the app
 
 - In the src folder run `$ dotnet watch run`
-- The service runs at `http://localhost:5000/` (currently no Swagger docs)
+- The service runs at `http://localhost:5000/`
 - If everything works, `http://localhost:5000/health` should return 200 OK.
-- 
+
 ## Deploy app
 
 ### Deploy to development
 
 Push to the master branch will automatically deploy the app to development.
-If you are on a branch the app will not be deployed **_Unless_** the branch name contains DEVELOPMENT.
+If you want a preview of the service then append `-preview` to the title of any PR you make.
 
 ### Deployment to production
 
 Create a release from the master branch, and it should deploy to production.
 
-### Deployment configuration
+## Technologies we use
+- [Giraffe](https://github.com/giraffe-fsharp/Giraffe) is the framework we use to setup the web application. It is an easy to use library which builds functional components on top of Kestrel. It also has extensive documentation.
+- [Dapper](https://github.com/DapperLib/Dapper) is the ORM we are using. We went with plain Dapper here as we want to write SQL and escape any heavier ORM. This has some pros and cons, but has been working well for us.
+- [FsToolkit.ErrorHandling](https://github.com/demystifyfp/FsToolkit.ErrorHandling) Is a library we use to better deal with Task and Result types. It allows us to remove some rightward drift (match case pyramids) and also simplify our error handling.
 
-Deployment configuration can be found in the folder `.circleci`.
-App deployment is done by the `aws-robot.js` which is found at `.circleci/CloudAutomation/aws-robot.js`.
+## Tests
+The testing framework we use is [Expecto](https://github.com/haf/expecto).
 
-## Architecture graph
+Mock data is created using [Bogus](https://github.com/bchavez/Bogus).
 
-TODO.
+As this system has some endpoints under authentication, some which are open and others which can only be accessed with special tokens or based on certain event characteristics (if it is an external event, for example) the tests in this system test the endpoints and the database themselves.
+
+This is done to try and ensure that the constraints we have set are actually upheld.
+
+In order to do this the tests need a running database and a token in order to be run.
+As we are using MSSQL database and that does not support an in-memory variant, a docker image is needed.
+We did consider using an Sqlite in-memory database, but we went with the docker image so the test and production system use the same database.
+
+If you have a running database on your system, you could use that, but we recommend starting one just for testing, and deleting it after.
+Running the tests will create a new image and database just for testing, and reuse that instance for later test sessions for performance reasons.
+
+To run tests:
+```
+$ ARRANGEMENT_SVC_TEST_JWT_TOKEN=MYTOKEN dotnet run --project Tests
+```
+
+Alternatively, you can export the variable to avoid typing it each time
+
+```
+$ export ARRANGEMENT_SVC_TEST_JWT_TOKEN=MYTOKEN
+$ dotnet run --project Tests
+```
+
+Running tests on changes is also supported by running `dotnet watch run --project Tests`
+
 
 ## Migrating the database
 
