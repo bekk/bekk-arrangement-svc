@@ -55,6 +55,7 @@
     <Compile Include="Middleware\RequestLogging.fs" />
     <Compile Include="OfficeEvents.fs" />
     <Compile Include="Handlers\Health.fs" />
+    <Compile Include="Handlers\Auth.fs" />
     <Compile Include="Handlers\Handlers.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

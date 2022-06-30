@@ -1,13 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { getConfig, setConfig } from 'src/config';
 import { App } from 'src/components/App/App';
 import 'src/extension-methods/array';
 import 'src/index.css';
 import { NotificationHandler } from './components/NotificationHandler/NotificationHandler';
+import {getConfig, setConfig} from "src/config";
 
 const init = async () => {
-  const config = await getConfig();
+  const config = await getConfig()
   setConfig(config);
   ReactDOM.render(
     <NotificationHandler>

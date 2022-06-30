@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect } from 'react';
 import { UserNotification } from 'src/components/NotificationHandler/NotificationHandler';
-import { getScopes, getIssuerDomain, getAudience } from 'src/config';
+import {getAudience, getIssuerDomain, getScopes } from "src/config";
 const EmployeeIdClaimType = 'https://api.bekk.no/claims/employeeId';
 
 function parseHash(hash: string): any {
@@ -63,7 +63,7 @@ function getCurrentState(): string {
   return encodeURIComponent(state);
 }
 
-function getAuth0Url(): string {
+async function getAuth0Url(): Promise<string> {
   const encodedCallback = encodeURIComponent(
     getApplicationRoot() + '/redirect'
   );
@@ -73,8 +73,7 @@ function getAuth0Url(): string {
 }
 
 export function redirectToAuth0(): void {
-  const url = getAuth0Url();
-  window.location.replace(url);
+  getAuth0Url().then(url => window.location.replace(url));
 }
 
 function getStateFromHash(): string {
