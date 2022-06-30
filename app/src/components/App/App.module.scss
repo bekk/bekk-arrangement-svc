@@ -1,0 +1,21 @@
+@import 'src/style/constants';
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: fit-content;
+  min-height: 100vh;
+  @include regularText;
+  font-family: $fontRegular;
+  padding-bottom: 100px;
+}
+
+.lightBackground {
+  background-color: white;
+}
+
+.darkBackground {
+  background-color: var(--backgroundColor);
+}

@@ -1,0 +1,156 @@
+@import 'src/style/constants';
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  @media #{$desktop} {
+    display: grid;
+    column-gap: 80px;
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.startDateContainer {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-areas:
+    'sd sd sd sd'
+    'st st et et';
+  gap: 15px;
+  @media #{$desktop} {
+    grid-template-areas: 'sd sd sd sd st et';
+  }
+}
+
+.startEndDateContainer {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-areas:
+    'sd sd sd sd st'
+    'ed ed ed ed et';
+  gap: 20px;
+  @media #{$desktop} {
+    grid-column: 1;
+    grid-row: 3 / span 2;
+  }
+}
+
+.startDate {
+  grid-area: sd;
+  width: 100%;
+  min-width: 150px;
+}
+
+.endDate {
+  grid-area: ed;
+}
+
+.startTime {
+  grid-area: st;
+}
+
+.endTime {
+  grid-area: et;
+}
+
+.dateError {
+  margin-top: -15px;
+  grid-column: 1/-1;
+}
+
+.limitSpots {
+  position: relative;
+  top: -18px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  & > div {
+    flex-grow: 1;
+    &:not(:first-child) {
+      margin-left: 10px;
+    }
+  }
+  @media #{$desktop} {
+    margin-top: 0;
+  }
+}
+
+.unlimitedSpots {
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+
+.waitListCheckBox {
+  margin-bottom: 5px;
+}
+
+.removeQButton {
+  margin-top: 10px;
+}
+
+.helpTextCheckBox {
+  @include smallText;
+  color: var(--svart60);
+  margin: 0;
+  margin-left: 31px;
+  margin-top: 10px;
+  line-height: 18px;
+}
+
+.helpTextCheckBoxRed {
+  @extend .helpTextCheckBox;
+  color: red;
+}
+
+.shortName {
+  margin-top: 5px;
+}
+
+.origin {
+  max-width: min-content;
+  @include smallText;
+  color: var(--svart60);
+  margin-right: 0.2em;
+  padding-bottom: 3px;
+}
+
+.chooseColor {
+  max-width: max-content;
+  @include smallText;
+  color: var(--svart60);
+  margin-right: 0.2em;
+  padding-bottom: 3px;
+}
+
+.flex {
+  display: flex;
+  align-items: flex-end;
+}
+
+.pathBox {
+  flex-grow: 1;
+  margin-left: 2px;
+}
+.participantQuestion {
+  align-self: flex-start;
+}
+
+.textAreaContainer {
+  margin-bottom: 10px;
+}
+
+.listStyle {
+  & > li {
+    color: var(--svart);
+    font-family: $fontRegular;
+    font-weight: 400;
+    font-size: 14px;
+  }
+}

@@ -1,0 +1,255 @@
+@import 'src/style/constants';
+@import 'src/style/fonts';
+
+.card {
+  border: solid 1px white;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 340px;
+  justify-content: space-between;
+  color: var(--lightTextColor);
+  text-decoration: none;
+  @media #{$desktop} {
+    min-height: 300px;
+  }
+  &:hover {
+    color: black;
+  }
+  &:hover .locationIcon path {
+    fill: black;
+  }
+
+  &:hover .stateIcon path {
+    fill: black;
+  }
+
+  &:hover .externalIcon path:first-of-type {
+    stroke: black;
+  }
+  &:hover .externalIcon path:not(:first-of-type) {
+    fill: black;
+  }
+  &:hover .externalIcon circle {
+    stroke: black;
+  }
+  &:hover .hidden {
+    color: var(--nattKontrast);
+  }
+}
+
+.hav {
+  &:hover {
+    background-color: var(--hav);
+    border-color: var(--hav);
+  }
+}
+.kveld {
+  &:hover {
+    background-color: var(--kveld);
+    border-color: var(--kveld);
+  }
+}
+
+.regn {
+  &:hover {
+    background-color: var(--regn);
+    border-color: var(--regn);
+  }
+}
+
+.skyfritt {
+  &:hover {
+    background-color: var(--skyfritt);
+    border-color: var(--skyfritt);
+  }
+}
+.sol {
+  &:hover {
+    background-color: var(--sol);
+    border-color: var(--sol);
+  }
+}
+.solnedgang {
+  &:hover {
+    background-color: var(--solnedgang);
+    border-color: var(--solnedgang);
+  }
+}
+.solnedgangKontrast {
+  &:hover {
+    background-color: var(--solnedgangKontrast);
+    border-color: var(--solnedgangKontrast);
+  }
+}
+.christmas {
+  &:hover {
+    background-color: #d6001c;
+    border-color: #d6001c;
+  }
+  &:hover {
+    color: white;
+  }
+  &:hover .locationIcon path {
+    fill: white;
+  }
+
+  &:hover .stateIcon path {
+    fill: white;
+  }
+
+  &:hover .externalIcon path:first-of-type {
+    stroke: white;
+  }
+  &:hover .externalIcon path:not(:first-of-type) {
+    fill: white;
+  }
+  &:hover .externalIcon circle {
+    stroke: white;
+  }
+  & button:hover {
+    background-color: darkgreen;
+    border-color: darkgreen;
+  }
+}
+.halloween {
+  &:hover {
+    background-color: #ff7518;
+    border-color: #ff7518;
+  }
+  & button:hover {
+    background-color: red;
+    border-color: red;
+  }
+}
+.kittens {
+  &:hover {
+    background-color: #f59fce;
+    border-color: #f59fce;
+  }
+  & button:hover {
+    background-color: #b63afc;
+    border-color: #b63afc;
+  }
+}
+.soloppgang {
+  &:hover {
+    background-color: var(--soloppgang);
+    border-color: var(--soloppgang);
+  }
+}
+
+.cardFaded {
+  border-color: var(--svart20);
+  color: var(--svart20);
+}
+
+.link {
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.cardContent  {
+  justify-content: space-between;
+}
+
+.title {
+  font-family: $serifFontRegular;
+  margin: 8px 0 13px 0;
+  word-wrap: break-word;
+}
+
+.shortTitle {
+  font-size: 35px;
+  line-height: 40px;
+  @media #{$desktop} {
+    font-size: 30;
+  }
+}
+
+.longTitle {
+  font-size: 30px;
+  line-height: 35px;
+  @media #{$desktop} {
+    font-size: 26;
+  }
+}
+
+.smallFont {
+  font-size: 16px;
+}
+
+.hidden {
+  font-size: 16px;
+  color: var(--havKontrast);
+}
+
+.location {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  text-align: center;
+}
+
+.iconText {
+  margin-right: 10px;
+  font-size: 16px;
+  margin-left: 5px;
+  text-align: left;
+}
+
+.locationIcon {
+  min-width: 20px;
+  min-height: 20px;
+}
+
+.external {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding-top: 10px;
+  text-align: center;
+}
+
+.externalIcon {
+  width: 20px;
+  height: 20px;
+}
+
+.cardFooter {
+  align-self: center;
+  margin-top: auto;
+  padding-top: 67px;
+  display: flex;
+  justify-content: center;
+}
+
+.stateContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stateText {
+  margin-bottom: 8px;
+  font-size: 16px;
+  text-align: center;
+}
+
+.stateIconContainer {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 8px;
+  align-items: center;
+}
+
+.stateIcon {
+  min-width: 25px;
+  min-height: 25px;
+  margin-right: 8px;
+}

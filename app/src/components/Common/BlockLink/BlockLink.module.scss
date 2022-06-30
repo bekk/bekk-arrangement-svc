@@ -1,0 +1,12 @@
+@import 'src/style/constants';
+
+.link {
+  @include regularText;
+  display: block;
+  text-decoration: underline;
+  margin-top: 20px;
+}
+
+.darkText {
+  color: black;
+}

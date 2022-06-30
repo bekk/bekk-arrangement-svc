@@ -1,0 +1,20 @@
+@import 'src/style/constants';
+
+.previewContainer {
+  border: 1px dashed var(--disabled);
+  padding: 30px;
+  position: relative;
+  pointer-events: none;
+}
+
+.header {
+  @include headerText;
+  color: black;
+  margin-top: 130px;
+}
+
+.buttonContainer {
+  margin-top: 30px;
+  display: flex;
+  justify-content: space-between;
+}

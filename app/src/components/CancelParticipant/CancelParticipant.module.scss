@@ -1,0 +1,21 @@
+@import 'src/style/constants';
+
+.header {
+  @include headerText;
+  color: black;
+  margin-top: 130px;
+}
+
+.text {
+  @include regularText;
+  margin: 20px 0;
+  line-height: 1.5;
+  color: black;
+}
+
+.buttonContainer {
+  margin-top: 50px;
+  max-width: 500px;
+  display: flex;
+  justify-content: space-between;
+}

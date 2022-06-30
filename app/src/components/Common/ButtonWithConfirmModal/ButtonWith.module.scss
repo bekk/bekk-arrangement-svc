@@ -1,0 +1,17 @@
+@import 'src/style/constants';
+
+.textArea {
+  margin-bottom: 15px;
+  @include regularText;
+  color: black;
+  outline: 0;
+  resize: vertical;
+  width: 100%;
+}
+
+.groupedButtons {
+  display: flex;
+  justify-content: space-between;
+  align-content: center;
+  margin-top: 10px;
+}

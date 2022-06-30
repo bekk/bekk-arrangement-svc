@@ -1,0 +1,101 @@
+@import 'src/style/constants';
+@import 'src/style/colors';
+
+.p {
+  @include regularText;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.subHeader {
+  @include subHeaderText;
+  margin-top: 50px;
+}
+
+.registrationContainer {
+  @media #{$desktop} {
+    width: 50%;
+  }
+}
+
+.fourOhFour {
+  display: flex;
+  align-items: center;
+  height: 100vh;
+
+  span {
+    font-family: $fontMedium;
+  }
+}
+.addParticipantContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.attendeesTitleContainer {
+  display: flex;
+  justify-content: space-between;
+}
+
+.downloadIcon {
+  margin-top: 41px;
+  &:hover rect {
+    fill: white;
+  }
+  &:hover path {
+    fill: black;
+  }
+}
+
+.closedEventText {
+  font-family: $fontLight;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+.registrationDeadlineText {
+  font-family: $fontLight;
+  font-size: 16px;
+}
+
+@keyframes snurr {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingSpinner {
+  position: relative;
+  animation: snurr infinite 1s;
+  animation-delay: 200ms;
+}
+
+.påmeldt {
+  display: flex;
+}
+
+.numberOfParticipants {
+  font-size: 14px;
+  color: var(--morgendis);
+  margin-top: 50px;
+  margin-left: 20px;
+}
+
+.boxHolder {
+  min-height: 100px;
+  max-height: 120px;
+  position: relative;
+  margin-top: 25px;
+}
+
+.marginKiller {
+  margin-top: 0;
+}
+
+.content {
+  max-width: 800px;
+}

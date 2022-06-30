@@ -1,0 +1,158 @@
+@import 'src/style/constants';
+@import 'src/style/fonts';
+
+.dateInput {
+  outline: none;
+  background-color: var(--overskyet50);
+  display: block;
+  width: 100%;
+  text-align: right;
+  align-self: center;
+  @include regularText;
+  color: black;
+  height: 39px;
+  @media #{$desktop} {
+    height: 42px;
+  }
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  border-bottom: solid 1px var(--svart60);
+  padding: 10px;
+}
+
+.datePickerContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.datepicker {
+  position: absolute;
+  top: 50px;
+  min-height: 300px;
+  width: 300px;
+  max-width: 100vw;
+  @media #{$mobile} {
+    position: absolute;
+    //left: -12.5vw;
+  }
+  background-color: var(--overskyet50);
+  border: 1px solid var(--svart60);
+  cursor: initial;
+  z-index: 12;
+}
+
+.header {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+
+  max-width: 250px;
+
+  margin: 0 auto;
+  margin-top: 40px;
+
+  font-family: $fontLight;
+  font-size: 20px;
+  color: var(--svart60);
+
+  & > button {
+    margin-top: 0;
+  }
+}
+
+.button {
+  cursor: pointer;
+  user-select: none;
+}
+
+.textLabel {
+  display: block;
+  @include labelText;
+  color: var(--svart60);
+}
+
+.displayMonth {
+  min-width: 150px;
+  text-align: center;
+  user-select: none;
+  vertical-align: middle;
+}
+
+.grid {
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
+  font-size: 14px;
+  font-family: $fontLight;
+
+  display: grid;
+  grid-template-columns: repeat(7, 30px);
+  grid-template-rows: repeat(6, 30px);
+
+  column-gap: 4px;
+  row-gap: 4px;
+
+  margin: 0 auto;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.today {
+  background-color: lightgray;
+  border-radius: 20px;
+}
+
+.date {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  user-select: none;
+  color: black;
+}
+
+.activeDate {
+  cursor: pointer;
+  &:hover {
+    color: black;
+    border: solid 1px black;
+    border-radius: 20px;
+  }
+}
+
+.inactiveDate {
+  color: var(--svart20);
+  cursor: pointer;
+  &:hover {
+    color: black;
+    border: solid 1px black;
+    border-radius: 20px;
+  }
+}
+
+.selectedActiveDate {
+  color: white;
+  background-color: black;
+  border-radius: 20px;
+}
+
+.selectedInactiveDate {
+  color: var(--svart60);
+  background-color: var(--svart20);
+  border-radius: 20px;
+}
+
+.dayInWeek {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: var(--svart40);
+}

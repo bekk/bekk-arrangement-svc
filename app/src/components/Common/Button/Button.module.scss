@@ -1,0 +1,102 @@
+@import 'src/style/constants';
+
+.button {
+  @include buttonText;
+  border-radius: 20px;
+  height: 39px;
+  min-width: 150px;
+  padding: 0 25px;
+  transition: background-color $transitionLength, color $transitionLength,
+    border $transitionLength;
+  @media #{$desktop} {
+    min-width: 200px;
+    width: max-content;
+  }
+
+  &:hover {
+    background-color: var(--nattKontrast);
+    border: 1px solid var(--nattKontrast);
+    color: var(--lightTextColor);
+    cursor: pointer;
+  }
+  &:focus {
+    background-color: var(--nattKontrast);
+    color: var(--lightTextColor);
+    border: 1px solid var(--gulKontrast);
+  }
+  &:active  {
+    background-color: var(--natt);
+    color: var(--lightTextColor);
+    border: 1px solid var(--natt);
+  }
+  &:disabled {
+    background-color: var(--overskyetKontrast);
+    border: 1px solid var(--overskyetKontrast);
+    color: var(--svart70);
+    cursor: initial;
+  }
+}
+
+.primaryButton {
+  background-color: var(--backgroundColor);
+  border: 1px solid var(--lightTextColor);
+  color: var(--lightTextColor);
+}
+
+.secondaryButton {
+  background-color: transparent;
+  border: 1px solid var(--svart);
+  color: var(--svart);
+  &:disabled {
+    background-color: var(--hvit);
+  }
+}
+
+.link {
+  @include regularText;
+  display: block;
+  text-decoration: underline;
+  border: none;
+  background-color: transparent;
+  padding: 0;
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.tooltipHover {
+  position: relative;
+  .tooltip {
+    opacity: 0;
+  }
+  &:hover .tooltip {
+    opacity: 1;
+    transition: opacity 0.3s;
+  }
+}
+
+.tooltip {
+  position: absolute;
+  top: -10px;
+  right: 0;
+  transform: translateY(-100%);
+
+  font-size: 14px;
+  text-align: left;
+  padding: 15px;
+  padding-left: 0;
+  padding-right: 30px;
+  min-width: max-content;
+
+  color: white;
+  background-color: black;
+  border: solid 1px white;
+
+  & ::marker {
+    color: var(--error);
+  }
+}
+
+.darkLink {
+  color: black;
+}

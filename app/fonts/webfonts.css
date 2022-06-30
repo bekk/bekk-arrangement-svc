@@ -1,0 +1,71 @@
+/**
+ * @license
+ * MyFonts Webfont Build ID 3320826, 2016-12-14T07:45:25-0500
+ * 
+ * The fonts listed in this notice are subject to the End User License
+ * Agreement(s) entered into by the website owner. All other parties are 
+ * explicitly restricted from using the Licensed Webfonts(s).
+ * 
+ * You may obtain a valid license at the URLs below.
+ * 
+ * Webfont: FF DIN Web Pro Light by FontFont
+ * URL: http://www.myfonts.com/fonts/fontfont/ff-din/pro-light/
+ * Copyright: 2009 Albert-Jan Pool published by FSI FontShop International GmbH
+ * Licensed pageviews: 50,000
+ * 
+ * 
+ * License: http://www.myfonts.com/viewlicense?type=web&buildid=3320826
+ * 
+ * © 2016 MyFonts Inc
+*/
+
+/* @import must be at top of file, otherwise CSS will not work */
+@import url('//hello.myfonts.net/count/32abfa');
+
+@font-face {
+  font-family: 'FFDINWebProLight';
+  src: url('32ABFA_0_0.eot');
+  src: url('32ABFA_0_0.eot?#iefix') format('embedded-opentype'),
+    url('32ABFA_0_0.woff2') format('woff2'),
+    url('32ABFA_0_0.woff') format('woff'),
+    url('32ABFA_0_0.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'NewZaldBook';
+  src: url('NewzaldWeb-Book.eot');
+  src: url('NewzaldWeb-Book.eot?#iefix') format('embedded-opentype'),
+    url('NewzaldWeb-Book.woff2') format('woff2'),
+    url('NewzaldWeb-Book.woff') format('woff'),
+    url('NewzaldWeb-Book.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'DINW01LightItalic';
+  src: url('5590883/e0df2bb1-32d4-4f28-a889-9e712e9e5032.eot?#iefix');
+  src: url('5590883/e0df2bb1-32d4-4f28-a889-9e712e9e5032.eot?#iefix')
+      format('eot'),
+    url('5590883/8eb3ea4e-7431-45c4-a6c2-bb2e29a35912.woff2') format('woff2'),
+    url('5590883/947e980c-a314-46ff-9686-a2ac4fc5ef87.woff') format('woff'),
+    url('5590883/514ab38e-17f7-4b83-8cfe-78eac11c1de3.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'DINW01Regular';
+  src: url('5591097/9b63158c-0e74-4751-966c-d749c5d31cce.eot?#iefix');
+  src: url('5591097/9b63158c-0e74-4751-966c-d749c5d31cce.eot?#iefix')
+      format('eot'),
+    url('5591097/6ceed230-b2b3-4422-b048-4aa11687430a.woff2') format('woff2'),
+    url('5591097/80b0143f-6f0d-4dce-aafd-f3c81b85d177.woff') format('woff'),
+    url('5591097/247437df-66d2-4605-ac03-1be0e07c31a7.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'DINW01Medium';
+  src: url('5591111/90744ee6-df8b-4daf-924d-e84a33fa139c.eot?#iefix');
+  src: url('5591111/90744ee6-df8b-4daf-924d-e84a33fa139c.eot?#iefix')
+      format('eot'),
+    url('5591111/398e3e8c-3bf0-4af1-9791-f426a7992711.woff2') format('woff2'),
+    url('5591111/4ba8e512-e6fb-494f-afd3-a7b68b2e5efb.woff') format('woff'),
+    url('5591111/d988fb64-309d-4c7f-9ded-4e9663aa6061.ttf') format('truetype');
+}

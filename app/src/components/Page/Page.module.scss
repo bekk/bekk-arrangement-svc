@@ -1,0 +1,10 @@
+@import 'src/style/constants';
+
+.content {
+  margin-bottom: 50px;
+  width: $pageMobileWidth;
+  @media #{$desktop} {
+    width: $pageDesktopWidth;
+    height: fit-content;
+  }
+}

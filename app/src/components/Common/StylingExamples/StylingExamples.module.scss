@@ -1,0 +1,17 @@
+@import 'src/style/constants';
+
+.title {
+  @include titleText;
+}
+
+.header {
+  @include headerText;
+}
+
+.subHeader {
+  @include subHeaderText;
+}
+
+.regularText {
+  @include regularText;
+}

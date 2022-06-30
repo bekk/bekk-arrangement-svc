@@ -1,0 +1,49 @@
+@import 'src/style/constants';
+@import 'src/style/colors';
+
+.textLabel {
+  display: block;
+  @include labelText;
+}
+
+.textLabelLightBackground {
+  color: var(--svart60);
+}
+
+.textInput {
+  @include regularText;
+  width: 100%;
+  line-height: 1.5;
+  outline: none;
+  border: none;
+  border-radius: 0;
+  border-bottom: solid 1px;
+  display: block;
+  padding: 10px 10px 0 10px;
+  color: black;
+  &:focus {
+    border-color: var(--nattKontrast);
+  }
+}
+
+input::-webkit-input-placeholder {
+  line-height: 1.5;
+}
+
+.onDarkBackground {
+  background-color: white;
+  border-color: var(--svart20);
+}
+
+.onLightBackground {
+  background-color: var(--overskyet50);
+  border-color: var(--svart60);
+}
+
+.visited {
+  border-color: var(--textColor);
+}
+
+.error {
+  border-color: var(--error);
+}

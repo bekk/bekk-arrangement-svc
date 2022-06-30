@@ -97,4 +97,3 @@ module.exports.getSecret = getSecret;
 module.exports.registerTaskDefinition = registerTaskDefinition;
 module.exports.createTaskDefinition = createTaskDefinition;
 module.exports.updateService = updateService;
-

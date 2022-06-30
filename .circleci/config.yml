@@ -26,11 +26,11 @@ jobs:
       - deploy:
           name: Push application Docker image
           command: |
+<<<<<<< HEAD
             if [ "$CIRCLE_TAG" = "" ]; then #if there is no git tag
+=======
+            if [[ "$CIRCLE_TAG" = "" ]]; then #if there is no git tag
               login="$(aws ecr get-login)"
-              ${login}
-              echo "pushing latest"
-              docker tag app "${ECR_ENDPOINT}/${APP_NAME}:${CIRCLE_SHA1}"
               docker push "${ECR_ENDPOINT}/${APP_NAME}:${CIRCLE_SHA1}"
             elif [ -n "$CIRCLE_TAG" ]; then
               login="$(aws ecr get-login)"

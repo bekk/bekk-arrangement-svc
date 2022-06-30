@@ -1,0 +1,69 @@
+:root {
+  --svart: #0e0e0e;
+  --svart70: #4f4f4f;
+  --svart60: #646464;
+  --svart40: #8f8f8f;
+  --svart20: #bababa;
+  --hvit: #ffffff;
+  --overskyet: #e7e7e7;
+  --overskyet50: #f3f3f3;
+  --overskyetKontrast: #cecece;
+  --sol: #fff2ad;
+  --solKontrast: #fff02b;
+  --soloppgang: #ffb88d;
+  --soloppgangKontrast: #ff8034;
+  --skyfritt: #b1e8ff;
+  --skyfrittKontrast: #43cbff;
+  --solnedgang: #ff9999;
+  --solnedgangKontrast: #ff5b5b;
+  --kveld: #e5b1ff;
+  --kveldKontrast: #8e24c9;
+  --natt: #6d7abb;
+  --nattKontrast: #162365;
+  --regn: #bccedd;
+  --regnKontrast: #7e9cb9;
+  --gul: #fff2ad;
+  --gulKontrast: #fff02b;
+  --hav: #a1f5e3;
+  --havKontrast: #16dbc4;
+  --grey: #b3b3b3;
+  --morgendis: #707070;
+
+  /* Define default color scheme for users without support for 'prefers-color-scheme' */
+  --backgroundColor: var(--svart);
+  --textColor: var(--overskyet);
+  --lightTextColor: var(--hvit);
+  --linkColor: var(--morgendis);
+  --linkColorHover: var(--hvit);
+  --fadedColor: var(--morgendis);
+  --coolColor: var(--nattKontrast);
+  --coolColorContrast: var(--hvit);
+  --active: var(--regnKontrast);
+  --disabled: var(--grey);
+  --error: var(--solnedgangKontrast);
+  --warning: var(--soloppgang);
+
+  /* no-preference and perfers dark should use dark mode version */
+  @media (prefers-color-scheme: no-preference), (prefers-color-scheme: dark) {
+    --backgroundColor: var(--svart);
+    --lightTextColor: var(--hvit);
+    --textColor: var(--overskyet);
+    --linkColor: var(--morgendis);
+    --linkColorHover: var(--hvit);
+    --fadedColor: var(--morgendis);
+    --coolColor: var(--nattKontrast);
+    --coolColorContrast: var(--hvit);
+    --active: var(--regnKontrast);
+  }
+
+  /* USer has to specifically choose light to get the light theme */
+  // @media (prefers-color-scheme: light) {
+  //   --backgroundColor: var(--hvit);
+  //   --textColor: var(--svart);
+  //   --linkColor: var(--morgendis);
+  //   --linkColorHover: var(--svart);
+  //   --fadedColor: var(--morgendis);
+  //   --coolColor: var(--skyfritt);
+  //   --coolColorContrast: var(--svart);
+  // }
+}
