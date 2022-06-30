@@ -13,4 +13,3 @@ let tests =
           Expect.equal content "\"Health check: dette gikk fint\"" "Health check works"
       }
   ]
-  

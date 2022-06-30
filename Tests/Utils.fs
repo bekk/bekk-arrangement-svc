@@ -49,7 +49,7 @@ let getTestHost() =
         .UseTestServer()
         .Configure(App.configureApp)
         .ConfigureServices(App.configureServices)
-        
+
 let testRequest (request : HttpRequestMessage) =
     let resp = task {
         use server = new TestServer(getTestHost())
@@ -61,18 +61,18 @@ let testRequest (request : HttpRequestMessage) =
     async {
         do! Async.Sleep(1000)
     } |> Async.RunSynchronously
-    result 
-    
-let request method jsonBody (url: string) token = 
+    result
+
+let request method jsonBody (url: string) token =
     let request = new HttpRequestMessage()
     request.Method <- method
     request.RequestUri <- Uri(url)
     request.Content <- new StringContent(jsonBody, Encoding.UTF8, MediaTypeNames.Application.Json)
     request.Headers.Add("Authorization", $"Bearer {token}")
-    
+
     let response = testRequest request
     response, response.Content.ReadAsStringAsync().Result
-    
+
 let getRequest (url: string) = request HttpMethod.Get "" url ""
 let getRequestWithBody jsonBody (url: string) = request HttpMethod.Get jsonBody url ""
 let getRequestAuthenticated (url: string) token = request HttpMethod.Get "" url token
@@ -98,37 +98,37 @@ let toJson data = Encode.Auto.toString(4, data, caseStrategy = CamelCase)
 
 let decodeForsideEvent content =
     Decode.Auto.fromString<{| id: string |}>(content)
-    
+
 let decodeAttendeesAndWaitlist content =
     Decode.Auto.fromString<{| attendees: {| email: string |} list; waitingList : {| email: string  |} list  |}>(content)
     |> function
     | Error _ -> failwith $"Error: {content}"
     | Ok created -> created
-    
+
 let decodeParticipant content =
     Decode.Auto.fromString<{| email: string |} list>(content)
     |> function
     | Error _ -> failwith $"Error: {content}"
     | Ok created -> created
-    
+
 let decodeParticipantWithCancellationToken content =
     Decode.Auto.fromString<{| cancellationToken: string |}>(content)
     |> function
     | Error _ -> failwith $"Error: {content}"
     | Ok created -> created
-    
+
 let decodeEvent content =
     Decode.Auto.fromString<{| isCancelled: bool |}>(content)
     |> function
         | Error _ -> failwith $"Error: {content}"
         | Ok created -> created
-        
+
 let decodeUserMessage content =
     Decode.Auto.fromString<{| userMessage: string |}>(content)
     |> function
         | Error _ -> failwith $"Error: {content}"
         | Ok created -> created
-    
+
 let postEvent event =
     let eventJson = event |> toJson
     let _, content = postRequestAuthenticatedWithBody eventJson "/events" token
