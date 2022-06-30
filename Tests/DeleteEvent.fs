@@ -17,7 +17,7 @@ let tests =
         Expect.equal deleteResponse.StatusCode HttpStatusCode.OK "Deleting with token should work"
         Expect.equal getResponse.StatusCode HttpStatusCode.NotFound "After the event has been deleted we cannot find it"
       }
-      
+
       test "Delete event with edit-token only should work" {
         let event = Generator.generateEvent()
         let created = postEvent event
@@ -40,7 +40,7 @@ let tests =
         Expect.equal getResponse.StatusCode HttpStatusCode.OK "After the event has been cancelled we can still find it"
         Expect.equal event.isCancelled true "After cancelling the event is actually cancelled"
       }
-      
+
       test "Cancel event with edit-token only should work" {
         let event = Generator.generateEvent()
         let created = postEvent event
@@ -55,7 +55,7 @@ let tests =
         Expect.equal getResponse.StatusCode HttpStatusCode.OK "After the event has been cancelled we can still find it"
         Expect.equal event.isCancelled true "After cancelling the event is actually cancelled"
       }
-      
+
       test "Delete participant using admin token" {
         let event = { Generator.generateEvent() with IsExternal = true; HasWaitingList = true; MaxParticipants = Some 1 }
         let created = postEvent event
@@ -69,7 +69,7 @@ let tests =
         Expect.equal response.StatusCode HttpStatusCode.OK "Can delete participant as admin"
         Expect.equal numberOfParticipants "0" "Zero participants after deleting the only one"
       }
-      
+
       test "Delete participant using cancellation token" {
         let event = { Generator.generateEvent() with IsExternal = true; HasWaitingList = true; MaxParticipants = Some 1 }
         let created = postEvent event
@@ -88,7 +88,7 @@ let tests =
         Expect.equal response.StatusCode HttpStatusCode.OK "Can delete participant as admin"
         Expect.equal numberOfParticipants "0" "Zero participants after deleting the only one"
       }
-     
+
       test "Waitlist should be updated when deleting participant" {
         let event = { Generator.generateEvent() with IsExternal = true; HasWaitingList = true; MaxParticipants = Some 1 }
         let created = postEvent event

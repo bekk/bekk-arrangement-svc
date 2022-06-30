@@ -15,21 +15,21 @@ type RequestLogging(next: RequestDelegate) =
             let consumer =
                 ctx.Request.Headers["X-From"].ToArray()
                 |> String.concat "; "
-                
+
             logger.log([
                 "method", method
                 "request_path", path
             ])
-            
+
             if loggedInEmployee.IsSome then
                logger.log("logged_in_employee", loggedInEmployee.Value)
-               
+
             if String.IsNullOrEmpty consumer |> not then
                 logger.log("request_sent_from", consumer)
-                
+
             let stopwatch = Stopwatch.StartNew()
             do! next.Invoke(ctx)
-            
+
             let code = ctx.Response.StatusCode.ToString()
             let elapsedTime = stopwatch.ElapsedMilliseconds
             logger.log([

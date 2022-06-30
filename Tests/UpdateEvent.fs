@@ -16,7 +16,7 @@ let tests =
         let response, _ = putRequestAuthenticatedWithBody updatedEvent $"/events/{created.event.id}" token
         Expect.equal response.StatusCode HttpStatusCode.OK "A request with token should work"
       }
-      
+
       test "Update event with edit-token only should work" {
         let event = Generator.generateEvent()
         let created = postEvent event

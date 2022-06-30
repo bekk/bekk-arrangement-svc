@@ -31,7 +31,7 @@ type Date =
         | _ -> false
 
     override this.GetHashCode() = this.ToTuple.GetHashCode()
-    
+
 module Date =
     let decoder: Decoder<Date> =
         Decode.object (fun get ->
@@ -40,7 +40,7 @@ module Date =
                   Month = get.Required.Field "month" Decode.int
                   Year = get.Required.Field "year" Decode.int
               })
-        
+
     let encoder date =
         Encode.object [
             "day", Encode.int date.Day
@@ -74,15 +74,15 @@ type Time =
         | _ -> false
 
     override this.GetHashCode() = this.ToTuple.GetHashCode()
-    
+
 module Time =
     let decoder: Decoder<Time> =
         Decode.object (fun get ->
               {
                 Hour = get.Required.Field "hour" Decode.int
-                Minute = get.Required.Field "minute" Decode.int 
+                Minute = get.Required.Field "minute" Decode.int
               })
-        
+
     let encoder time =
         Encode.object [
             "hour", Encode.int time.Hour
@@ -115,7 +115,7 @@ type DateTimeCustom =
 
     override this.GetHashCode() =
         this.Date.GetHashCode() + this.Time.GetHashCode()
-        
+
 module DateTimeCustom =
     let decoder: Decoder<DateTimeCustom> =
         Decode.object (fun get ->
@@ -123,13 +123,13 @@ module DateTimeCustom =
                 Date = get.Required.Field "date" Date.decoder
                 Time = get.Required.Field "time" Time.decoder
               })
-        
+
     let encoder dateTimeCustom =
         Encode.object [
             "date", Date.encoder dateTimeCustom.Date
             "time", Time.encoder dateTimeCustom.Time
         ]
-        
+
 
 let customToDateTime (date: Date): DateTime =
     DateTime(date.Year, date.Month, date.Day, 0, 0, 0)

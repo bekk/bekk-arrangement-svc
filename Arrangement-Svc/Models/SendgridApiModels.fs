@@ -10,13 +10,13 @@ type Personalization =
 
 type Content =
     { Type: string
-      Value: string 
+      Value: string
     }
 
 type Attachment =
     { Content: string
       Type: string
-      Filename: string 
+      Filename: string
     }
 
 type SendGridFormat =
@@ -29,5 +29,5 @@ type SendGridFormat =
 
 type SendgridOptions =
     { ApiKey: string
-      SendgridUrl: string 
+      SendgridUrl: string
     }

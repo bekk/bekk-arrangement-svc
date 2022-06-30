@@ -23,7 +23,7 @@ open Email.SendgridApiModels
 let webApp =
     choose
         [ Health.healthCheck; Handlers.routes ]
-        
+
 let configuration =
     let builder = ConfigurationBuilder()
     builder.AddJsonFile("appsettings.json") |> ignore
@@ -79,7 +79,7 @@ let configureServices (services: IServiceCollection) =
               |> List.map (fun s -> s.Trim())
           databaseConnectionString = configuration["ConnectionStrings:EventDb"]
         }
-    services.AddScoped<AppConfig>(fun _ -> config) |> ignore 
+    services.AddScoped<AppConfig>(fun _ -> config) |> ignore
     services.AddScoped<Logger>() |> ignore
     services.AddTransient<SqlConnection>(fun _ -> new SqlConnection(config.databaseConnectionString)) |> ignore
     services.AddAuthentication(fun options ->

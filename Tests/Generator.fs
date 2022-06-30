@@ -10,19 +10,19 @@ let private generateDatePast () : DateTimeCustom.Date =
     { Day = date.Day
       Month = date.Month
       Year = date.Year }
-    
+
 let private generateDateFuture () : DateTimeCustom.Date =
     let date = faker.Date.Future(10, DateTime.Now)
     { Day = date.Day
       Month = date.Month
       Year = date.Year }
-    
+
 let private generateDateSoon () : DateTimeCustom.Date =
     let date = faker.Date.Soon(10, DateTime.Now)
     { Day = date.Day
       Month = date.Month
       Year = date.Year }
-    
+
 let private generateTimePast (): DateTimeCustom.Time =
     let time = faker.Date.Past(10, DateTime.Now)
     { Hour = time.Hour
@@ -32,7 +32,7 @@ let private generateTimeFuture (): DateTimeCustom.Time =
     let time = faker.Date.Future(10, DateTime.Now)
     { Hour = time.Hour
       Minute = time.Minute }
-    
+
 let private generateTimeSoon () : DateTimeCustom.Time =
     let time = faker.Date.Soon(10, DateTime.Now)
     { Hour = time.Hour
@@ -45,7 +45,7 @@ let generateDateTimeCustomPast () : DateTimeCustom.DateTimeCustom =
 let private generateDateTimeCustomFuture () : DateTimeCustom.DateTimeCustom =
     { Date = generateDateFuture ()
       Time = generateTimeFuture () }
-    
+
 let private generateDateTimeCustomSoon () : DateTimeCustom.DateTimeCustom =
     { Date = generateDateSoon ()
       Time = generateTimeSoon () }
@@ -110,4 +110,3 @@ let generateParticipant (number_of_questions: int): Models.ParticipantWriteModel
           [0..number_of_questions]
           |> List.map (fun _ -> faker.Lorem.Sentence())
       CancelUrlTemplate = "{eventId}{email}{cancellationToken}" }
-    
