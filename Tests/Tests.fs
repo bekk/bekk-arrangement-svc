@@ -121,9 +121,9 @@ module Database =
         Migrate.Run(getConnectionString())
 
 let enforceTokenExists() =
-    if String.IsNullOrWhiteSpace(token) then
-        failwith $"Missing JWT token in environment variable {TokenEnvVariableName}. Use token from other dev system.
-            \nStart with `{TokenEnvVariableName}=MYTOKEN dotnet run`, set it in Rider, or otherwise make it available before running tests."
+    if String.IsNullOrWhiteSpace(Api.token) then
+        failwith $"Missing JWT token in environment variable {Api.TokenEnvVariableName}. Use token from other dev system.
+            \nStart with `{Api.TokenEnvVariableName}=MYTOKEN dotnet run`, set it in Rider, or otherwise make it available before running tests."
 
 let maybeUpdateDatabase() =
     if Config.runMigration
