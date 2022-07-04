@@ -3,7 +3,7 @@ terraform {
     region     = "eu-central-1"
     bucket     = "bekk-terraform-app-states"
     profile    = "deploy"
-    key        = "bekk-arrangement-svc.tfstate"
+    key        = "bekk-arrangement.tfstate"
     kms_key_id = "870a3c58-7201-4334-8c32-b257d38e9a12"
     encrypt    = true
     # Table to store lock in
@@ -25,7 +25,7 @@ provider "aws" {
 module "aws-deploy" {
   source                 = "git@github.com:bekk/bekk-terraform-aws-deploy.git"
   base_name              = "bekk"
-  app_name               = "arrangement-svc"
+  app_name               = "arrangement"
   aws_region             = var.aws_region
   environment            = var.environment
   preview_name           = var.preview_name
