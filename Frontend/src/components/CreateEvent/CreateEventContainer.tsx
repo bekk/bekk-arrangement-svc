@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { IEditEvent, initialEditEvent, parseEditEvent } from 'src/types/event';
 import { eventsRoute, previewNewEventRoute } from 'src/routing';
 import { useAuthentication } from 'src/auth';
@@ -8,7 +8,6 @@ import { EditEvent } from 'src/components/EditEvent/EditEvent/EditEvent';
 import { BlockLink } from 'src/components/Common/BlockLink/BlockLink';
 import style from './CreateEventContainer.module.scss';
 import { isValid } from 'src/types/validation';
-import { usePersistentHistoryState } from 'src/utils/browser-state';
 import { useDuplicateEvent, useGotoEventPreview } from 'src/hooks/history';
 import { useEmailAndName } from 'src/hooks/cache';
 import { hasLoaded } from 'src/remote-data';
@@ -24,7 +23,7 @@ export const CreateEventContainer = () => {
   const emailAndName = useEmailAndName();
   const { email, name } = (hasLoaded(emailAndName) && emailAndName.data) || {};
 
-  const [event, setEvent] = usePersistentHistoryState<IEditEvent>(
+  const [event, setEvent] = useState<IEditEvent>(
     duplicateEvent ?? initialEditEvent(email, name)
   );
   const validEvent = validateEvent(event);

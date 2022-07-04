@@ -1,4 +1,4 @@
-import { useLayoutEffect, useEffect } from 'react';
+import {useLayoutEffect, useEffect, useState} from 'react';
 import React from 'react';
 import { IEditEvent, toEditEvent, parseEditEvent } from 'src/types/event';
 import { deleteEvent } from 'src/api/arrangementSvc';
@@ -10,7 +10,6 @@ import { hasLoaded } from 'src/remote-data';
 import {
   useQuery,
   useParam,
-  usePersistentHistoryState,
 } from 'src/utils/browser-state';
 import { useNotification } from 'src/components/NotificationHandler/NotificationHandler';
 import { Page } from 'src/components/Page/Page';
@@ -29,7 +28,7 @@ const useEditEvent = () => {
   const eventId = useParam(eventIdKey);
   const remoteEvent = useEvent(eventId);
 
-  const [editEvent, setEditEvent] = usePersistentHistoryState<IEditEvent>();
+  const [editEvent, setEditEvent] = useState<IEditEvent>();
   useLayoutEffect(() => {
     if (hasLoaded(remoteEvent) && !editEvent) {
       setEditEvent(toEditEvent(remoteEvent.data));

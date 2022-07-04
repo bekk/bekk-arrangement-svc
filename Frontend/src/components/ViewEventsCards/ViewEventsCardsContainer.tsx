@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import style from './ViewEventsCards.module.scss';
 import { createRoute } from 'src/routing';
 import { hasLoaded, RemoteData } from 'src/remote-data';
@@ -16,12 +16,11 @@ import {
   useSavedEditableEvents,
   useSavedParticipations,
 } from 'src/hooks/saved-tokens';
-import { usePersistentHistoryState } from 'src/utils/browser-state';
 import {useSetTitle} from "src/hooks/setTitle";
 import {appTitle} from "src/Constants";
 
 export const ViewEventsCardsContainer = () => {
-  const [selectedOption, setSelectedOption] = usePersistentHistoryState(1);
+  const [selectedOption, setSelectedOption] = useState(1);
   useSetTitle(appTitle)
 
   const options = [
@@ -46,7 +45,7 @@ export const ViewEventsCardsContainer = () => {
   return (
     <>
       <WavySubHeader eventId={'all-events'}>
-        <div role="heading" className={style.header}>
+        <div role="heading" aria-level={3} className={style.header}>
           <h1 className={style.headerText}>Hva skjer i Bekk?</h1>
           <AddEventButton />
         </div>
