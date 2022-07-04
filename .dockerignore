@@ -13,3 +13,5 @@ obj/
 out/
 ./paket/paket.exe
 ./paket/paket
+Frontend/node_modules
+Tests

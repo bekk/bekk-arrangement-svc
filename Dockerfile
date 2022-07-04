@@ -1,12 +1,27 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine as build-env
+FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine AS build
+
 WORKDIR /app
 
-COPY . ./
-RUN dotnet publish -c Release -o out ./Arrangement-Svc/Arrangement-Svc.fsproj
+RUN apk add --update nodejs npm netcat-openbsd
 
-FROM mcr.microsoft.com/dotnet/aspnet:6.0
-COPY --from=build-env /app/out .
+COPY Frontend/. frontend/.
+COPY Arrangement-Svc/. backend/Arrangement-Svc/.
+COPY Migration/. backend/migration/.
 
+WORKDIR /app/frontend
+RUN npm ci
+RUN npm run build
+WORKDIR /app/backend
+RUN ls
+WORKDIR /app/backend/Arrangement-Svc
+RUN dotnet restore
+RUN dotnet publish -c release -o out
+
+# RUN
+FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine
+WORKDIR /app/backend/Arrangement-Svc/
+COPY --from=build /app/backend/Arrangement-Svc/out .
+COPY --from=build /app/frontend/build wwwroot/.
 ENV VIRTUAL_PATH="/arrangement-svc"
 ENV PORT=80
-CMD dotnet arrangementSvc.dll
+CMD dotnet backend.dll
