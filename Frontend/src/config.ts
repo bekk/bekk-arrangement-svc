@@ -11,7 +11,7 @@ interface IConfig {
 }
 
 export const getConfig = async (): Promise<IConfig> => {
-  const response = await fetch(`/config`);
+  const response = await fetch(`/api/config`);
   const json = await response.json();
   return json as IConfig;
 }

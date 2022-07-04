@@ -23,14 +23,14 @@ let private decodeWriteModel<'T> (context: HttpContext) =
         let result = Decode.Auto.fromString<'T> (body, caseStrategy = CamelCase)
         return result
     }
-    
+
 let private decode decoder (context: HttpContext) =
     task {
         let! body = context.ReadBodyFromRequestAsync()
         let result = Decode.fromString decoder body
         return result
     }
-    
+
 let private createEditUrl (redirectUrlTemplate: string) (event: Models.Event) =
     redirectUrlTemplate.Replace("{eventId}", event.Id.ToString())
                        .Replace("{editToken}", event.EditToken.ToString())
@@ -44,7 +44,7 @@ let private createCancelUrl (redirectUrlTemplate: string) (participant: Particip
                    .Replace("{cancellationToken}",
                             participant.CancellationToken.ToString
                                 ())
-                   
+
 let private participationsToAttendeesAndWaitlist maxParticipants participations =
     match maxParticipants with
     | None ->
@@ -56,7 +56,7 @@ let private participationsToAttendeesAndWaitlist maxParticipants participations 
                 |> List.truncate max
           WaitingList =
                participations
-               |> Seq.safeSkip max 
+               |> Seq.safeSkip max
                |> Seq.toList }
 
 let getEditTokenFromQuery (context: HttpContext) =
@@ -72,18 +72,18 @@ let getCancellationTokenFromQuery (context: HttpContext) =
         | Error _ -> None
 
 type private ParticipateEvent =
-    | NotExternal 
+    | NotExternal
     | IsCancelled
     | NotOpenForRegistration
     | HasAlreadyTakenPlace
     | NoRoom
     | IsWaitListed
     | CanParticipate
-    
+
 let private participateEvent isBekker numberOfParticipants (event: Models.Event) =
     let currentEpoch = DateTimeOffset.Now.ToUnixTimeMilliseconds()
     let hasRoom = event.MaxParticipants.IsNone || event.MaxParticipants.IsSome && event.MaxParticipants.Value > numberOfParticipants
-    // Eventet er ikke ekstern 
+    // Eventet er ikke ekstern
     // Brukeren er ikke en bekker
     if not event.IsExternal && not isBekker then
         NotExternal
@@ -96,25 +96,25 @@ let private participateEvent isBekker numberOfParticipants (event: Models.Event)
     // Eventet har funnet sted
     else if DateTimeCustom.now() > (DateTimeCustom.toCustomDateTime event.EndDate event.EndTime) then
         HasAlreadyTakenPlace
-    // Eventet har ikke nok ledig plass 
+    // Eventet har ikke nok ledig plass
     else if not hasRoom && not event.HasWaitingList then
         NoRoom
     else if not hasRoom && event.HasWaitingList then
         IsWaitListed
     else
         CanParticipate
-        
+
 let registerParticipationHandler (eventId: Guid, email): HttpHandler =
     fun (next: HttpFunc) (context: HttpContext) ->
-        let result = 
+        let result =
             taskResult {
                 let isBekker = context.User.Identity.IsAuthenticated
                 let! userId = getUserId context
-                
+
                 let! writeModel =
                     decode ParticipantWriteModel.decoder context
                     |> TaskResult.mapError BadRequest
-                
+
                 let config = context.GetService<AppConfig>()
 
                 use db = openTransaction context
@@ -162,7 +162,7 @@ let registerParticipationHandler (eventId: Guid, email): HttpHandler =
                                 let participantAnswerDbModels: ParticipantAnswer list =
                                     writeModel.ParticipantAnswers
                                     |> Seq.zip eventQuestions
-                                    |> Seq.map (fun (question, answer) -> 
+                                    |> Seq.map (fun (question, answer) ->
                                         { QuestionId = question.Id
                                           EventId = eventId
                                           Email = email
@@ -180,20 +180,20 @@ let registerParticipationHandler (eventId: Guid, email): HttpHandler =
                 let email =
                     let redirectUrlTemplate =
                         HttpUtility.UrlDecode writeModel.CancelUrlTemplate
-                        
+
                     createNewParticipantMail
                         (createCancelUrl redirectUrlTemplate) eventAndQuestions.Event isWaitlisted
                         config.noReplyEmail
                         participant
                 sendMail email context
-                
+
                 return Participant.encodeWithCancelInfo participant answers
             }
         jsonResult result next context
-        
+
 let getEventsForForsideHandler (email: string) =
     fun (next: HttpFunc) (context: HttpContext) ->
-        let result = 
+        let result =
             taskResult {
                 use db = openConnection context
                 let! events =
@@ -204,7 +204,7 @@ let getEventsForForsideHandler (email: string) =
                        |> Encode.seq
             }
         jsonResult result next context
-        
+
 let getFutureEvents (next: HttpFunc) (context: HttpContext) =
     let result =
         taskResult {
@@ -217,7 +217,7 @@ let getFutureEvents (next: HttpFunc) (context: HttpContext) =
                 |> TaskResult.mapError InternalError
             let result =
                 eventAndQuestions
-                |> List.map Event.encodeEventAndQuestions 
+                |> List.map Event.encodeEventAndQuestions
             return result
         }
     jsonResult result next context
@@ -238,7 +238,7 @@ let getPastEvents (next: HttpFunc) (context: HttpContext) =
                     |> Encode.list
             }
         jsonResult result next context
-    
+
 let getEventsOrganizedBy (email: string) =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
@@ -252,7 +252,7 @@ let getEventsOrganizedBy (email: string) =
                     |> List.map Event.encodeEventAndQuestions
             }
         jsonResult result next context
-        
+
 let getEventIdByShortname =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
@@ -267,8 +267,8 @@ let getEventIdByShortname =
                     |> TaskResult.mapError InternalError
                 return result
             }
-        jsonResult result next context       
-    
+        jsonResult result next context
+
 let getEvent (eventId: Guid) =
     fun (next: HttpFunc) (context: HttpContext) ->
         let isBekker = context.User.Identity.IsAuthenticated
@@ -288,7 +288,7 @@ let getEvent (eventId: Guid) =
                 return Event.encodeEventAndQuestions eventAndQuestions
             }
         jsonResult result next context
-        
+
 let getUnfurlEvent (idOrName: string) =
     fun (next: HttpFunc) (context: HttpContext) ->
         let strSkip n (s: string) =
@@ -302,7 +302,7 @@ let getUnfurlEvent (idOrName: string) =
                 // TODO: USikker på hvilken av disse som er riktig.
                 // Gamle versjon gjør det på utkommentert måte, men den funker ikke i postman
 //                let success, parsedEventId = Guid.TryParse (idOrName |> strSkip ("/events/" |> String.length))
-                let success, parsedEventId = Guid.TryParse idOrName 
+                let success, parsedEventId = Guid.TryParse idOrName
                 let! eventId =
                     if not success then
                         let name = idOrName |> strSkip 1
@@ -316,7 +316,7 @@ let getUnfurlEvent (idOrName: string) =
                        task {
                            return Ok parsedEventId
                        }
-                       
+
                 let! eventAndQuestions =
                     Queries.getEvent eventId db
                     |> TaskResult.mapError InternalError
@@ -329,7 +329,7 @@ let getUnfurlEvent (idOrName: string) =
                 return {| event = Event.encodeEventAndQuestions eventAndQuestions; numberOfParticipants = numberOfParticipants |}
             }
         jsonResult result next context
-        
+
 let createEvent =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
@@ -358,10 +358,10 @@ let createEvent =
                 let redirectUrlTemplate = HttpUtility.UrlDecode writeModel.EditUrlTemplate
                 let viewUrl = writeModel.ViewUrl
                 sendNewlyCreatedEventMail viewUrl (createEditUrl redirectUrlTemplate) newEvent context
-                return Event.encoderWithEditInfo eventAndQuestions 
+                return Event.encoderWithEditInfo eventAndQuestions
             }
         jsonResult result next context
-    
+
 let cancelEvent (eventId: Guid) =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
@@ -397,7 +397,7 @@ let cancelEvent (eventId: Guid) =
                 return eventSuccessfullyCancelled eventAndQuestions.Event.Title
             }
         jsonResult result next context
-        
+
 let deleteEvent (eventId: Guid) =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
@@ -433,7 +433,7 @@ let deleteEvent (eventId: Guid) =
                 return eventSuccessfullyCancelled eventAndQuestions.Event.Title
             }
         jsonResult result next context
-        
+
 let getEventsAndParticipations (id: int) =
        fun (next: HttpFunc) (context: HttpContext) ->
         let result =
@@ -453,7 +453,7 @@ let getEventsAndParticipations (id: int) =
                 return Participant.encodeWithLocalStorage eventsAndQuestions (participations |> Seq.toList)
             }
         jsonResult result next context
-        
+
 let private canUpdateNumberOfParticipants (oldEvent: Models.Event) (newEvent: Models.EventWriteModel) oldEventParticipants =
     match oldEvent.MaxParticipants, newEvent.MaxParticipants with
     | _, None ->
@@ -483,22 +483,22 @@ let private canUpdateNumberOfParticipants (oldEvent: Models.Event) (newEvent: Mo
                 Error invalidRemovalOfWaitingList
             else
                 Error invalidMaxParticipantValue
-                
+
 let private canUpdateQuestions newEventQuestions (oldEventQuestions: ParticipantQuestion list) oldEventParticipants =
     let newEventQuestions =
         newEventQuestions
         |> List.sort
-        
+
     let oldEventQuestions =
         oldEventQuestions
         |> List.map (fun question -> question.Question)
         |> List.sort
-        
+
     let shouldChangeQuestions = newEventQuestions <> oldEventQuestions
     let canChangeQuestions = shouldChangeQuestions && oldEventParticipants = 0
-        
+
     {| ShouldChangeQuestions = shouldChangeQuestions; Error = shouldChangeQuestions && not canChangeQuestions |}
-    
+
 let private sendEmailToNewParticipants oldEventMaxParticipants newEventMaxParticipants (oldEventParticipants: Models.Participant seq)updatedEvent context =
     let oldEventWaitlist =
         match oldEventMaxParticipants with
@@ -509,14 +509,14 @@ let private sendEmailToNewParticipants oldEventMaxParticipants newEventMaxPartic
         | Some _, None -> Seq.length oldEventWaitlist
         | Some old, Some new' -> new' - old
         | _ -> 0
-        
+
     if numberOfPeople > 0 then
         let newPeople =
             oldEventWaitlist
             |> Seq.truncate numberOfPeople
         for newAttendee in newPeople do
             sendMail (createFreeSpotAvailableMail updatedEvent newAttendee) context
-    
+
 let updateEvent (eventId: Guid) =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
@@ -547,14 +547,14 @@ let updateEvent (eventId: Guid) =
 
                 do! canUpdateNumberOfParticipants oldEvent.Event writeModel numberOfParticipantsForOldEvent
                     |> Result.mapError id
-                    
+
                 let canUpdateQuestions = canUpdateQuestions writeModel.ParticipantQuestions oldEvent.Questions numberOfParticipantsForOldEvent
-                    
+
                 if canUpdateQuestions.Error then
                     return! TaskResult.error illegalQuestionsUpdate
-                else 
+                else
                     let mutable eventQuestions = oldEvent.Questions
-                        
+
                     if canUpdateQuestions.ShouldChangeQuestions then
                         let! _ =
                             Queries.deleteParticipantQuestions eventId db
@@ -564,7 +564,7 @@ let updateEvent (eventId: Guid) =
                             |> TaskResult.mapError InternalError
                         eventQuestions <- newQuestions
                         ()
-                    
+
                     let! updatedEvent =
                         Queries.updateEvent eventId writeModel db
                         |> TaskResult.mapError InternalError
@@ -574,7 +574,7 @@ let updateEvent (eventId: Guid) =
                     return Event.encodeEventAndQuestions eventAndQuestions
             }
         jsonResult result next context
-        
+
 let getNumberOfParticipantsForEvent (eventId: Guid) =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
@@ -607,24 +607,24 @@ let getParticipantsForEvent (eventId: Guid) =
                 return Participant.encodeParticipationsAndWaitlist (participationsToAttendeesAndWaitlist event.Event.MaxParticipants (participations |> Seq.toList))
             }
         jsonResult result next context
-        
+
 let createCsvString (event: Models.Event) (questions: ParticipantQuestion list) (participants: ParticipationsAndWaitlist) =
     let createParticipant (builder: System.Text.StringBuilder) (participantAndAnswers: ParticipantAndAnswers) =
         let participant = participantAndAnswers.Participant
         let answers = participantAndAnswers.Answers
         let answers =
-            answers 
+            answers
             |> List.map (fun a -> $"{a.Answer}")
             |> String.concat ","
         builder.Append($"{participant.Name}, {participant.Email}, {answers}\n") |> ignore
-    
+
     let builder = System.Text.StringBuilder()
-    
+
     let questions =
         questions
         |> List.map (fun q -> q.Question)
         |> String.concat ","
-        
+
     builder.Append($"{event.Title}\n") |> ignore
     builder.Append("Påmeldte\n") |> ignore
     builder.Append($"Navn,Epost,{questions}\n") |> ignore
@@ -632,9 +632,9 @@ let createCsvString (event: Models.Event) (questions: ParticipantQuestion list) 
     if not <| Seq.isEmpty participants.WaitingList then
         builder.Append("Venteliste\n") |> ignore
         Seq.iter (createParticipant builder) participants.WaitingList
-    
+
     builder.ToString()
-    
+
 let exportParticipationsForEvent (eventId: Guid) =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
@@ -660,7 +660,7 @@ let exportParticipationsForEvent (eventId: Guid) =
                 return createCsvString eventAndQuestions.Event eventAndQuestions.Questions participants
             }
         csvResult eventId result next context
-        
+
 let getWaitinglistSpot (eventId: Guid) (email: string) =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
@@ -685,13 +685,13 @@ let getWaitinglistSpot (eventId: Guid) (email: string) =
                 let waitingListIndex =
                     attendeesAndWaitlist.WaitingList
                     |> Seq.tryFindIndex (fun participantAndAnswers -> participantAndAnswers.Participant.Email = email)
-                    |> Option.map (fun x -> x + 1) 
+                    |> Option.map (fun x -> x + 1)
                     |> Option.defaultValue 0
-                    
+
                 return waitingListIndex
             }
         jsonResult result next context
-        
+
 let getParticipationsForParticipant (email: string) =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
@@ -705,7 +705,7 @@ let getParticipationsForParticipant (email: string) =
                     |> Seq.map Participant.encodeParticipantAndAnswers
             }
         jsonResult result next context
-        
+
 let deleteParticipantFromEvent (eventId: Guid) (email: string) =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
@@ -736,46 +736,46 @@ let deleteParticipantFromEvent (eventId: Guid) (email: string) =
                 return ()
             }
         jsonResult result next context
-        
-    
+
+
 let routes: HttpHandler =
     choose
         [ POST
           >=> choose [
-              routef "/events/%O/participants/%s" registerParticipationHandler
+              routef "/api/events/%O/participants/%s" registerParticipationHandler
               isAuthenticated >=> choose [
-                  route "/events" >=> createEvent
+                  route "/api/events" >=> createEvent
               ]
           ]
           PUT
           >=> choose [
-              routef "/events/%O" updateEvent
+              routef "/api/events/%O" updateEvent
           ]
           GET
           >=> choose [
-            route "/events/id" >=> getEventIdByShortname
-            routef "/events/%O" getEvent
-            routef "/events/%s/unfurl" getUnfurlEvent
-            routef "/events/%O/participants/count" getNumberOfParticipantsForEvent
-            routef "/events/%O/participants/%s/waitinglist-spot" (fun (eventId, email) -> getWaitinglistSpot eventId email)
-            routef "/events/%O/participants/export" exportParticipationsForEvent
+            route "/api/events/id" >=> getEventIdByShortname
+            routef "/api/events/%O" getEvent
+            routef "/api/events/%s/unfurl" getUnfurlEvent
+            routef "/api/events/%O/participants/count" getNumberOfParticipantsForEvent
+            routef "/api/events/%O/participants/%s/waitinglist-spot" (fun (eventId, email) -> getWaitinglistSpot eventId email)
+            routef "/api/events/%O/participants/export" exportParticipationsForEvent
             isAuthenticated >=> choose [
-                route "/events" >=> getFutureEvents 
-                route "/events/previous" >=> getPastEvents
-                routef "/events/forside/%s" getEventsForForsideHandler
-                routef "/events/organizer/%s" getEventsOrganizedBy
-                routef "/events-and-participations/%i" getEventsAndParticipations
-                routef "/events/%O/participants" getParticipantsForEvent
-                routef "/participants/%s/events" getParticipationsForParticipant
-                route "/office-events"
+                route "/api/events" >=> getFutureEvents
+                route "/api/events/previous" >=> getPastEvents
+                routef "/api/events/forside/%s" getEventsForForsideHandler
+                routef "/api/events/organizer/%s" getEventsOrganizedBy
+                routef "/api/events-and-participations/%i" getEventsAndParticipations
+                routef "/api/events/%O/participants" getParticipantsForEvent
+                routef "/api/participants/%s/events" getParticipationsForParticipant
+                route "/api/office-events"
                     >=> outputCache (fun opt -> opt.Duration <- TimeSpan.FromMinutes(5).TotalSeconds)
                     >=> OfficeEvents.WebApi.get
             ]
           ]
           DELETE
           >=> choose [
-              routef "/events/%O" cancelEvent
-              routef "/events/%O/delete" deleteEvent
-              routef "/events/%O/participants/%s" (fun (eventId, email) -> deleteParticipantFromEvent eventId email)
+              routef "/api/events/%O" cancelEvent
+              routef "/api/events/%O/delete" deleteEvent
+              routef "/api/events/%O/participants/%s" (fun (eventId, email) -> deleteParticipantFromEvent eventId email)
           ]
         ]

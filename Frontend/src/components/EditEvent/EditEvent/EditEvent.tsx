@@ -495,7 +495,7 @@ function useDebounce(timeout = 300) {
   const timer = useRef<number>();
   return (f: () => void) => {
     clearTimeout(timer.current);
-    timer.current = setTimeout(f, timeout);
+    timer.current = window.setTimeout(f, timeout);
   };
 }
 

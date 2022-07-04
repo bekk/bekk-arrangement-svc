@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import { isError } from 'util';
 import {
   useNotification,
   UserNotification,
 } from './components/NotificationHandler/NotificationHandler';
+import {isError} from "lodash";
 
 export type Ok<T> = {
   status: 'OK';

@@ -22,7 +22,7 @@ export const postEvent = (
 ): Promise<INewEventViewModel> =>
   post({
     host: "",
-    path: '/events',
+    path: '/api//events',
     body: toEventWriteModel(event, editUrlTemplate),
   });
 
@@ -33,26 +33,26 @@ export const putEvent = (
 ): Promise<IEventViewModel> =>
   put({
     host: "",
-    path: `/events/${eventId}${queryStringStringify({ editToken })}`,
+    path: `/api/events/${eventId}${queryStringStringify({ editToken })}`,
     body: toEventWriteModel(event),
   });
 
 export const getEvent = (eventId: string): Promise<IEventViewModel> =>
   get({
     host: "",
-    path: `/events/${eventId}`,
+    path: `/api/events/${eventId}`,
   });
 
 export const getEvents = (): Promise<WithId<IEventViewModel>[]> =>
   get({
     host: "",
-    path: `/events`,
+    path: `/api/events`,
   });
 
 export const getPastEvents = (): Promise<WithId<IEventViewModel>[]> =>
   get({
     host: "",
-    path: `/events/previous`,
+    path: `/api/events/previous`,
   });
 
 export const deleteEvent = (
@@ -62,7 +62,7 @@ export const deleteEvent = (
 ) =>
   del({
     host: "",
-    path: `/events/${eventId}${queryStringStringify({ editToken })}`,
+    path: `/api/events/${eventId}${queryStringStringify({ editToken })}`,
     body: cancellationMessage,
   });
 
@@ -72,7 +72,7 @@ export const getParticipantsForEvent = (
 ): Promise<IParticipantViewModelsWithWaitingList> =>
   get({
     host: "",
-    path: `/events/${eventId}/participants${queryStringStringify({
+    path: `/api/events/${eventId}/participants${queryStringStringify({
       editToken,
     })}`,
   });
@@ -82,7 +82,7 @@ export const getNumberOfParticipantsForEvent = (
 ): Promise<number> =>
   get({
     host: "",
-    path: `/events/${eventId}/participants/count`,
+    path: `/api/events/${eventId}/participants/count`,
   });
 
 export const getParticipantExportResponse = (
@@ -90,7 +90,7 @@ export const getParticipantExportResponse = (
 ): Promise<Response> =>
   getResponse({
     host: "",
-    path: `/events/${eventId}/participants/export`,
+    path: `/api/events/${eventId}/participants/export`,
   });
 
 export const getWaitinglistSpot = (
@@ -99,7 +99,7 @@ export const getWaitinglistSpot = (
 ): Promise<number> =>
   get({
     host: "",
-    path: `/events/${eventId}/participants/${encodeURIComponent(
+    path: `/api/events/${eventId}/participants/${encodeURIComponent(
       email
     )}/waitinglist-spot`,
   });
@@ -111,7 +111,7 @@ export const postParticipant = (
 ): Promise<INewParticipantViewModel> =>
   post({
     host: "",
-    path: `/events/${eventId}/participants/${encodeURIComponent(
+    path: `/api/events/${eventId}/participants/${encodeURIComponent(
       toEmailWriteModel(participant.email)
     )}`,
     body: toParticipantWriteModel(participant, cancelUrlTemplate),
@@ -128,7 +128,7 @@ export const deleteParticipant = ({
 }) =>
   del({
     host: "",
-    path: `/events/${eventId}/participants/${encodeURIComponent(
+    path: `/api/events/${eventId}/participants/${encodeURIComponent(
       participantEmail
     )}${queryStringStringify({ cancellationToken })}`,
   });
@@ -141,13 +141,13 @@ export const getEventsAndParticipationsForEmployee = (
 }> =>
   get({
     host: "",
-    path: `/events-and-participations/${employeeId}`,
+    path: `/api/events-and-participations/${employeeId}`,
   });
 
 export const getEventIdByShortname = (shortname: string): Promise<string> =>
   get({
     host: "",
-    path: `/events/id${queryStringStringify({
+    path: `/api/events/id${queryStringStringify({
       shortname: encodeURIComponent(shortname),
     })}`,
   });

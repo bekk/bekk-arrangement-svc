@@ -43,7 +43,7 @@ async function fetchAndValidate(
   method: string,
   host: string,
   path: string,
-  body?: unknown
+  body?: any
 ) {
   const token = getIdToken();
   const url = `${host}${path}`;
