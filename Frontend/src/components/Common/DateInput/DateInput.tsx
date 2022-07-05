@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import style from './DateInput.module.scss';
-import { EditDate } from 'src/types/date';
+import {EditDate, månedsNavn} from 'src/types/date';
 import {
   CalendarDate,
   monthNumber,
@@ -148,20 +148,6 @@ export const DateInput = ({ value, onChange, label }: IProps): JSX.Element => {
 };
 
 const formatMonthYear = ({ month, year }: CalendarMonth) => {
-  const månedsNavn = [
-    'januar',
-    'februar',
-    'mars',
-    'april',
-    'mai',
-    'juni',
-    'juli',
-    'august',
-    'september',
-    'oktober',
-    'november',
-    'desember',
-  ];
   const monthName = månedsNavn[monthNumber(month) - 1];
   return `${monthName} ${year}`;
 };

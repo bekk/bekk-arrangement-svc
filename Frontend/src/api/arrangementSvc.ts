@@ -1,7 +1,7 @@
 import {
   IEvent,
   IEventViewModel,
-  INewEventViewModel,
+  INewEventViewModel, IOfficeEvent,
   toEventWriteModel,
 } from 'src/types/event';
 import { post, get, del, put, getResponse } from './crud';
@@ -150,4 +150,10 @@ export const getEventIdByShortname = (shortname: string): Promise<string> =>
     path: `/api/events/id${queryStringStringify({
       shortname: encodeURIComponent(shortname),
     })}`,
+  });
+
+export const getOfficeEventsByDate = (date: string): Promise<IOfficeEvent> =>
+  get({
+    host: "",
+    path: `/api/office-events/${date}`
   });

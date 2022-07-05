@@ -4,26 +4,19 @@ import { App } from 'src/components/App/App';
 import 'src/extension-methods/array';
 import 'src/index.css';
 import { NotificationHandler } from './components/NotificationHandler/NotificationHandler';
-import {getConfig, setConfig} from "src/config";
-import {useEffectOnce} from "src/hooks/utils";
+import {authenticateUser, isAuthenticated} from "src/auth";
 
-const init = async () => {
-  const config = await getConfig()
-  setConfig(config);
-};
-
-const Application = () => {
-  useEffectOnce(() => {
-    (async () => {
-      await init()
-    })()
-  })
-  return(
-    <NotificationHandler>
-      <App />
-    </NotificationHandler>
-  )
+if (!isAuthenticated()) {
+  authenticateUser();
+} else {
+  const root = ReactDOM.createRoot(
+    document.getElementById("root") as HTMLElement,
+  );
+  root.render(
+    <React.StrictMode>
+      <NotificationHandler>
+        <App />
+      </NotificationHandler>
+    </React.StrictMode>,
+  );
 }
-
-const root = ReactDOM.createRoot(document.getElementById("root")!);
-root.render(<Application />);

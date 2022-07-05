@@ -1,11 +1,11 @@
 import { cachedRemoteData, hasLoaded } from 'src/remote-data';
-import { IEvent, parseEventViewModel } from 'src/types/event';
-import { useCallback } from 'react';
+import {IEvent, IOfficeEvent, parseEventViewModel} from 'src/types/event';
+import {useCallback, useMemo} from 'react';
 import {
   getEvent,
   getEventIdByShortname,
   getEvents,
-  getNumberOfParticipantsForEvent,
+  getNumberOfParticipantsForEvent, getOfficeEventsByDate,
   getParticipantsForEvent,
   getPastEvents,
   getWaitinglistSpot,
@@ -59,6 +59,18 @@ export const useShortname = (shortname: string) => {
     }, [shortname]),
   });
 };
+
+const officeEventCache = cachedRemoteData<string, IOfficeEvent>();
+export const useOfficeEvents = (date: Date) => {
+  const dateKey = useMemo(() => new Date(date).toDateString(), [date]);
+  console.log(dateKey)
+  return officeEventCache.useOne({
+    key: dateKey,
+    fetcher: useCallback(async () => {
+      return getOfficeEventsByDate(dateKey)
+    }, [dateKey]),
+  });
+}
 
 export const usePastEvents = () => {
   const map = useEvents();

@@ -9,6 +9,7 @@ interface IProps {
   noCircle?: boolean;
   className?: string;
   color?: 'white' | 'black';
+  onClick?: () => void;
 }
 
 export const Arrow = ({
@@ -16,6 +17,7 @@ export const Arrow = ({
   noCircle,
   className,
   color = 'black',
+  onClick
 }: IProps) => {
   const arrowStyle = classNames(style.arrow, className, {
     [style.left]: direction === 'left',
@@ -31,7 +33,7 @@ export const Arrow = ({
   const strokeWidth = noCircle ? '15' : '5';
 
   return (
-    <div className={arrowStyle}>
+    <div className={arrowStyle} onClick={onClick}>
       <svg width="411px" height="420px" viewBox="0 0 411 420" version="1.1">
         <g stroke="000" strokeWidth="1" fill="none" fillRule="evenodd">
           <g transform="translate(33.000000, 33.000000)" stroke="#000">

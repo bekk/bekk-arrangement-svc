@@ -43,6 +43,20 @@ import { parseName } from 'src/types/participant';
 import { viewEventShortnameRoute } from 'src/routing';
 import { toEditTime } from 'src/types/time';
 
+export interface IOfficeEvent {
+  contactPerson: string;
+  createdAt: string;
+  description: string;
+  endTime: string;
+  id: string;
+  location: string;
+  modifiedAt: string;
+  startTime: string
+  themes: string[];
+  title: string;
+  types: string[];
+}
+
 export interface INewEventViewModel {
   event: WithId<IEventViewModel>;
   editToken: string;

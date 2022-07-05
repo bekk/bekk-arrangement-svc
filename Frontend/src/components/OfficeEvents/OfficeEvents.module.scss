@@ -1,0 +1,130 @@
+@import 'src/style/constants';
+@import 'src/style/colors';
+
+.header {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: $pageMobileWidth;
+  margin: auto;
+  @media #{$desktop} {
+    flex-direction: row;
+    align-items: center;
+    width: $pageDesktopWidth;
+  }
+}
+
+.headerText {
+  @include titleText;
+  color: black;
+}
+
+table {
+  border-collapse: collapse;
+  margin: 0;
+  padding: 0;
+  width: 80%;
+  table-layout: fixed;
+}
+
+table caption {
+  text-transform: capitalize;
+  font-family: $serifFontRegular;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 40px;
+  line-height: 30px;
+  margin: .5em 0 .75em;
+  & div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    & p {
+      margin: 0 2em;
+    }
+  }
+}
+
+table tr {
+  background-color: var(--backgroundColor);
+  padding: .35em;
+}
+
+table th {
+  padding: .625em;
+  font-family: $serifFontRegular;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 30px;
+}
+table td {
+  padding: .625em;
+  width: 200px;
+  height: 200px;
+  border: 1px solid var(--svart50);
+  vertical-align: top;
+  text-align: left;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 23px;
+}
+
+@media screen and (max-width: 600px) {
+  table {
+    border: 0;
+  }
+
+  table thead {
+    border: none;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+  }
+
+  table tr {
+    display: block;
+    margin-bottom: .625em;
+  }
+
+  table td {
+    display: block;
+    font-size: .8em;
+    text-align: right;
+    width: 100%;
+  }
+
+  table tr::before {
+    content: attr(data-label);
+  }
+}
+
+.dateToday {
+  width: 2em;
+  height: 2em;
+  line-height: 2em;
+  text-align: center;
+  background-color: var(--soloppgangKontrast);
+  border-radius: 25px;
+  color: black;
+  @media screen and (max-width: 600px) {
+    float:right;
+  }
+}
+
+.oldDate {
+  color: var(--svart70)
+}
+
+.oldDay {
+  border: 1px solid var(--svart70);
+}
+
+.arrow  {
+  width: 1.5em;
+  height: 1.5em;
+}

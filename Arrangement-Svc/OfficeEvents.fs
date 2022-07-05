@@ -1,6 +1,8 @@
 module OfficeEvents
 
 open System
+open UserMessage
+open FsToolkit.ErrorHandling
 
 module String =
     let startsWith (prefix : string) (str : string) =
@@ -37,9 +39,9 @@ module Parser =
         static member Append (a : ParseResult) (b : ParseResult) : ParseResult =
             { ParseResult.Empty with
                 description =
-                    if System.String.IsNullOrWhiteSpace(a.description) then b.description
-                    elif System.String.IsNullOrWhiteSpace(b.description) then a.description
-                    else System.String.Join("\r\n\r\n", [a.description; b.description])
+                    if String.IsNullOrWhiteSpace(a.description) then b.description
+                    elif String.IsNullOrWhiteSpace(b.description) then a.description
+                    else String.Join("\r\n\r\n", [a.description; b.description])
                 types = List.append a.types b.types
                 themes = List.append a.themes b.themes
             }
@@ -175,35 +177,41 @@ module WebApi =
     open Microsoft.AspNetCore.Http
     open Giraffe
 
-    let get (next: HttpFunc) (context: HttpContext) =
-        task {
-            let start, end' =
-                let now = DateTime.UtcNow
-                let startOfMonth = DateTime(now.Year, now.Month, 1)
-                let endOfMonth = startOfMonth.AddMonths(1)
-                (startOfMonth.AddMonths(-1), endOfMonth.AddMonths(1).AddDays(-1))
-            return!
-                CalendarLookup.getEvents
-                    (context.GetService<CalendarLookup.Options>())
-                    context.RequestAborted
-                    start
-                    end'
-                |> FSharp.Control.AsyncSeq.map (fun e ->
-                    let body = Parser.parse e.Body.Content
-                    {| Id = e.Id
-                       Title =  if String.IsNullOrWhiteSpace(e.Subject) then "Tittel ikke satt" else e.Subject
-                       Description = body.description
-                       Types = body.types
-                       Themes = body.themes
-                       StartTime = e.Start.DateTime
-                       EndTime = e.End.DateTime
-                       ContactPerson = e.Organizer.EmailAddress.Name;
-                       ModifiedAt = e.LastModifiedDateTime.Value.UtcDateTime;
-                       CreatedAt = e.CreatedDateTime.Value.UtcDateTime;
-                       Location = if String.IsNullOrWhiteSpace(e.Location.DisplayName) then "Sted ikke satt" else e.Location.DisplayName
-                    |})
-                // The json serializer doesn't work with F# or dotnet AsyncEnumerable
-                |> FSharp.Control.AsyncSeq.toListAsync
-        }
-        |> Task.bind (fun res ->
-            json res next context)
+    let get (date: string) (next: HttpFunc) (context: HttpContext) =
+        let result =
+            taskResult {
+                let! date =
+                    DateTime.TryParse(date)
+                    |> function
+                        | false, _ -> Error $"{date} er ikke en gyldig datetime."
+                        | true, date -> Ok date
+                    |> Result.mapError BadRequest
+
+                let start, end' =
+                    let startOfMonth = DateTime(date.Year, date.Month, 1)
+                    let endOfMonth = startOfMonth.AddMonths(1)
+                    (startOfMonth.AddDays(-7), endOfMonth.AddDays(7))
+                return!
+                    CalendarLookup.getEvents
+                        (context.GetService<CalendarLookup.Options>())
+                        context.RequestAborted
+                        start
+                        end'
+                    |> FSharp.Control.AsyncSeq.map (fun e ->
+                        let body = Parser.parse e.Body.Content
+                        {| Id = e.Id
+                           Title =  if String.IsNullOrWhiteSpace(e.Subject) then "Tittel ikke satt" else e.Subject
+                           Description = body.description
+                           Types = body.types
+                           Themes = body.themes
+                           StartTime = e.Start.DateTime
+                           EndTime = e.End.DateTime
+                           ContactPerson = e.Organizer.EmailAddress.Name;
+                           ModifiedAt = e.LastModifiedDateTime.Value.UtcDateTime;
+                           CreatedAt = e.CreatedDateTime.Value.UtcDateTime;
+                           Location = if String.IsNullOrWhiteSpace(e.Location.DisplayName) then "Sted ikke satt" else e.Location.DisplayName
+                        |})
+                    // The json serializer doesn't work with F# or dotnet AsyncEnumerable
+                    |> FSharp.Control.AsyncSeq.toListAsync
+            }
+        jsonResult result next context

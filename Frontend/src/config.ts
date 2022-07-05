@@ -4,10 +4,10 @@ let issuerDomain: string;
 let scopes: string;
 
 interface IConfig {
-    employeeSvcUrl: string
-    audience: string
-    issuerDomain: string
-    scopes: string
+  employeeSvcUrl: string
+  audience: string
+  issuerDomain: string
+  scopes: string
 }
 
 export const getConfig = async (): Promise<IConfig> => {
@@ -17,6 +17,7 @@ export const getConfig = async (): Promise<IConfig> => {
 }
 
 export const setConfig = (config: IConfig) => {
+  console.log(config)
   employeeSvcUrl = config.employeeSvcUrl;
   audience = config.audience;
   issuerDomain = config.issuerDomain;

@@ -111,3 +111,18 @@ export const addWeek = (date: IDate): IDate => {
   const newDate = addDays(oldDate, 7);
   return fromCalendarDate(newDate);
 };
+
+export const månedsNavn = [
+  'januar',
+  'februar',
+  'mars',
+  'april',
+  'mai',
+  'juni',
+  'juli',
+  'august',
+  'september',
+  'oktober',
+  'november',
+  'desember',
+];

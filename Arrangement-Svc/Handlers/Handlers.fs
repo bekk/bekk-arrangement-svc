@@ -3,7 +3,6 @@ module Handlers
 open Giraffe
 open System
 open System.Web
-open Microsoft.Data.SqlClient
 open Thoth.Json.Net
 open FsToolkit.ErrorHandling
 open Microsoft.AspNetCore.Http
@@ -767,9 +766,10 @@ let routes: HttpHandler =
                 routef "/api/events-and-participations/%i" getEventsAndParticipations
                 routef "/api/events/%O/participants" getParticipantsForEvent
                 routef "/api/participants/%s/events" getParticipationsForParticipant
-                route "/api/office-events"
-                    >=> outputCache (fun opt -> opt.Duration <- TimeSpan.FromMinutes(5).TotalSeconds)
-                    >=> OfficeEvents.WebApi.get
+                routef "/api/office-events/%s" (fun date ->
+                    outputCache (fun opt -> opt.Duration <- TimeSpan.FromMinutes(5).TotalSeconds)
+                    >=> OfficeEvents.WebApi.get date
+                    )
             ]
           ]
           DELETE

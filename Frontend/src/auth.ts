@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect } from 'react';
 import { UserNotification } from 'src/components/NotificationHandler/NotificationHandler';
-import {getAudience, getIssuerDomain, getScopes } from "src/config";
+import {getAudience, getConfig, getIssuerDomain, getScopes, setConfig} from "src/config";
 const EmployeeIdClaimType = 'https://api.bekk.no/claims/employeeId';
 
 function parseHash(hash: string): any {
@@ -64,11 +64,14 @@ function getCurrentState(): string {
 }
 
 async function getAuth0Url(): Promise<string> {
+  const config = await getConfig()
+  setConfig(config)
   const encodedCallback = encodeURIComponent(
     getApplicationRoot() + '/redirect'
   );
   const state = getCurrentState();
   const encodedScopes = encodeURIComponent(getScopes());
+  console.log("ISSUER DOMAIN: ", getIssuerDomain())
   return `https://${getIssuerDomain()}/authorize?client_id=${getAudience()}&response_type=token&redirect_uri=${encodedCallback}&scope=${encodedScopes}&state=${state}`;
 }
 
@@ -137,8 +140,10 @@ export function getRoleClaims(): void {
 }
 
 export function authenticateUser(): void {
+  console.log("authenticate")
   if (!isAuthenticated()) {
     redirectToAuth0();
+    catchTokenFromAuth0AndSaveIt();
   }
 }
 
