@@ -4,14 +4,13 @@ import style from './OfficeEvents.module.scss';
 import {eachWeekOfInterval, endOfMonth, startOfMonth, addDays, getWeek, addMonths} from "date-fns";
 import classnames from "classnames";
 import {useOfficeEvents} from "src/hooks/cache";
-import {isLoading, isNotRequested} from "src/remote-data";
+import {isBad, isLoading, isNotRequested} from "src/remote-data";
 import {månedsNavn} from "src/types/date";
-import {Chevron} from "src/components/Common/Chevron/Chevron";
 import {Arrow} from "src/components/Common/Arrow/Arrow";
+import { OfficeEvent} from "src/types/event";
 
 export const OfficeEvents = () => {
   const [currentDate, setCurrentDate] = useState(new Date())
-  const weekdaysInMonth = getWeekdaysInMonth(currentDate)
   const incrementMonth = () =>
     setCurrentDate(addMonths(new Date(currentDate), 1))
   const decrementMonth = () =>
@@ -22,6 +21,20 @@ export const OfficeEvents = () => {
   if (isNotRequested(officeEvents) || isLoading(officeEvents)) {
     return null;
   }
+
+  if (isBad(officeEvents)) {
+    return (
+      <div>
+        FEIL
+      </div>
+    );
+  }
+
+  const weekdaysAndEvents: DayAndEvents[][] =
+    getWeekdaysInMonth(currentDate).map(weeks =>
+      weeks.map(day => {
+        return { day,
+                 events: officeEvents.data.filter(event => event.startTime.toDateString() === day.toDateString()) }}))
 
   return (
     <>
@@ -50,17 +63,18 @@ export const OfficeEvents = () => {
         </tr>
         </thead>
         <tbody>
-        {weekdaysInMonth.map(days => <WeekDayCards key={days.toLocaleString()} days={days}/>)}
+        {weekdaysAndEvents.map((daysAndEvents, i) => <WeekDayCards key={i} daysAndEvents={daysAndEvents}/>)}
         </tbody>
       </table>
     </>
   )
 }
 
-const WeekDayCards = ({days}: { days: Date[] }) => {
+const WeekDayCards = ({daysAndEvents}: { daysAndEvents: DayAndEvents[] }) => {
   return (
-    <tr key={getWeek(days[0])} data-label={getWeek(days[0])}>
-      {days.map(day => {
+    <tr key={getWeek(daysAndEvents[0].day)} data-label={getWeek(daysAndEvents[0].day)}>
+      {daysAndEvents.map(dayAndEvents => {
+        const {day, events} = dayAndEvents
         const borderStyle = classnames({
           [style.oldDay]: day < addDays(new Date(), -1)
         })
@@ -72,12 +86,23 @@ const WeekDayCards = ({days}: { days: Date[] }) => {
           <td className={borderStyle} key={day.getDate()}>
             <div className={dateStyle}>
               {day.getDate()}
+              {events.map(event => <Event key={`${event.title}:${event.contactPerson}`} event={event}/>)}
             </div>
           </td>
         )
       })}
     </tr>
   )
+}
+
+const Event = ({event}: {event: OfficeEvent}) => {
+  const eventStyle = classnames(style.event, {
+    [style.eventSolkontrast]: false,
+    [style.eventHavkontrast]: false,
+    [style.eventKveldkontrast]: false,
+    [style.eventSolnedgangKontrast]: false,
+  })
+  return (<p className={eventStyle}>{event.title}</p>)
 }
 
 const getWeekdaysInMonth = (date: Date) => {
@@ -88,4 +113,9 @@ const getWeekdaysInMonth = (date: Date) => {
     const weekdays = new Array(7).fill(0);
     return weekdays.map((_, dayInWeek) => addDays(date, dayInWeek))
   })
+}
+
+type DayAndEvents = {
+  day: Date,
+  events: OfficeEvent[]
 }

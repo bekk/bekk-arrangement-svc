@@ -1,5 +1,5 @@
 import { cachedRemoteData, hasLoaded } from 'src/remote-data';
-import {IEvent, IOfficeEvent, parseEventViewModel} from 'src/types/event';
+import {IEvent, OfficeEvent, parseEventViewModel} from 'src/types/event';
 import {useCallback, useMemo} from 'react';
 import {
   getEvent,
@@ -60,10 +60,9 @@ export const useShortname = (shortname: string) => {
   });
 };
 
-const officeEventCache = cachedRemoteData<string, IOfficeEvent>();
+const officeEventCache = cachedRemoteData<string, OfficeEvent[]>();
 export const useOfficeEvents = (date: Date) => {
   const dateKey = useMemo(() => new Date(date).toDateString(), [date]);
-  console.log(dateKey)
   return officeEventCache.useOne({
     key: dateKey,
     fetcher: useCallback(async () => {

@@ -128,3 +128,44 @@ table td {
   width: 1.5em;
   height: 1.5em;
 }
+
+.event {
+  font-family: $fontRegular;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 18px;
+  &::before {
+    display: inline-block;
+    content: "";
+    width: 2px;
+    height: 1em;
+    margin-right: 0.5em;
+    background-color: white;
+    vertical-align: bottom;
+  }
+}
+
+.eventSolkontrast {
+  &::before {
+    background-color: var(--solKontrast);
+  }
+}
+
+.eventHavkontrast {
+  &::before {
+    background-color: var(--havKontrast);
+  }
+}
+
+.eventKveldkontrast {
+  &::before {
+    background-color: var(--kveldKontrast);
+  }
+}
+
+.eventSolnedgangKontrast {
+  &::before {
+    background-color: var(--solnedgangKontrast);
+  }
+}

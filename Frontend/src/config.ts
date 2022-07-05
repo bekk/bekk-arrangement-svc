@@ -17,7 +17,6 @@ export const getConfig = async (): Promise<IConfig> => {
 }
 
 export const setConfig = (config: IConfig) => {
-  console.log(config)
   employeeSvcUrl = config.employeeSvcUrl;
   audience = config.audience;
   issuerDomain = config.issuerDomain;

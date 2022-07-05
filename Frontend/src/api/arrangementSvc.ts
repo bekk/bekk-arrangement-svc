@@ -1,7 +1,7 @@
 import {
   IEvent,
   IEventViewModel,
-  INewEventViewModel, IOfficeEvent,
+  INewEventViewModel, OfficeEvent, OfficeEventDecoder,
   toEventWriteModel,
 } from 'src/types/event';
 import { post, get, del, put, getResponse } from './crud';
@@ -152,8 +152,8 @@ export const getEventIdByShortname = (shortname: string): Promise<string> =>
     })}`,
   });
 
-export const getOfficeEventsByDate = (date: string): Promise<IOfficeEvent> =>
+export const getOfficeEventsByDate = (date: string): Promise<OfficeEvent[]> =>
   get({
     host: "",
     path: `/api/office-events/${date}`
-  });
+  }).then(x => x.map(OfficeEventDecoder))
