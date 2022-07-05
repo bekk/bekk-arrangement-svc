@@ -51,6 +51,7 @@ let private generateDateTimeCustomSoon () : DateTimeCustom.DateTimeCustom =
       Time = generateTimeSoon () }
 
 let generateEvent () : Models.EventWriteModel =
+    let start = DateTime.Now.AddDays(-1)
     { Title = faker.Company.CompanyName()
       Description = faker.Lorem.Paragraph()
       Location = faker.Address.City()
@@ -61,7 +62,7 @@ let generateEvent () : Models.EventWriteModel =
               None
           else
               Some <| faker.Random.Number(1, 100)
-      StartDate = DateTimeCustom.toCustomDateTime (DateTime.Now.AddDays(-1)).Date (DateTime.Now.AddDays(-1)).TimeOfDay
+      StartDate = DateTimeCustom.toCustomDateTime start.Date start.TimeOfDay
       EndDate = generateDateTimeCustomFuture ()
       OpenForRegistrationTime = (DateTimeOffset.Now.AddDays(-1).ToUnixTimeMilliseconds().ToString())
       CloseRegistrationTime =
@@ -69,7 +70,7 @@ let generateEvent () : Models.EventWriteModel =
               None
           else
               Some(
-                  (DateTimeOffset(faker.Date.Future().Date)
+                  (DateTimeOffset(faker.Date.Future(refDate = start).Date)
                       .ToUnixTimeMilliseconds())
                       .ToString()
               )
