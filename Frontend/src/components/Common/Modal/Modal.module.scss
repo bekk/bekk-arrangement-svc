@@ -31,10 +31,11 @@
   min-height: $modalHeight;
   max-width: 95vw;
   @media #{$mobile} {
-    min-width: 100vw;
-    max-width: 100vh;
-    min-height: 100vh;
-    max-height: 100vh;
+    min-width: 70vw;
+    max-width: 90vw;
+    min-height: 70vh;
+    max-height: 70vh;
+    overflow-y: auto;
   }
 }
 
@@ -58,6 +59,10 @@
   flex-direction: column;
   flex-grow: 1;
   justify-content: space-between;
+  @media #{$mobile} {
+    margin: 0;
+    padding: 0;
+  }
 }
 
 .cross {

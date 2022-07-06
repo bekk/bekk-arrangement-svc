@@ -120,7 +120,7 @@ const EventModal = ({event, closeModal}: { event: OfficeEvent, closeModal: () =>
       <hr/>
       <div></div>
       <h2>{event.title}</h2>
-      <div className={style.eventDescription}>{event.description}</div>
+      <p className={style.eventDescription}>{event.description}</p>
       <div></div>
     </Modal>
   )
