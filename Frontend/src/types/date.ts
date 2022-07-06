@@ -53,13 +53,13 @@ export const toEditDate = ({ year, month, day }: IDate): string =>
 
 // Util functions
 
-export const dateAsText = (date: IDate): string => {
+export const idateAsText = (date: IDate): string => {
   return format(new Date(date.year, date.month - 1, date.day), 'cccc d. MMMM', {
     locale: nb,
   });
 };
 
-export const dateAsText2 = (date: Date): string => {
+export const dateAsText = (date: Date): string => {
   return format(date, 'cccc d. MMMM', {
     locale: nb,
   });

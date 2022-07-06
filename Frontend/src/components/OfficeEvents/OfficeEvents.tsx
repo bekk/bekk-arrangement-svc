@@ -5,7 +5,7 @@ import {eachWeekOfInterval, endOfMonth, startOfMonth, addDays, getWeek, addMonth
 import classnames from "classnames";
 import {useOfficeEvents} from "src/hooks/cache";
 import {isBad, isLoading, isNotRequested} from "src/remote-data";
-import {dateAsText2, dateToStringWithoutTime, månedsNavn} from "src/types/date";
+import {dateAsText, dateToStringWithoutTime, månedsNavn} from "src/types/date";
 import {Arrow} from "src/components/Common/Arrow/Arrow";
 import { OfficeEvent} from "src/types/event";
 import {Modal} from "src/components/Common/Modal/Modal";
@@ -14,6 +14,7 @@ import {useHistory} from "react-router";
 import {officeEventRoute, officeEventsMonthKey} from "src/routing";
 import {useParam} from "src/utils/browser-state";
 import {useEffectOnce} from "src/hooks/utils";
+import {Spinner} from "src/components/Common/Spinner/spinner";
 
 export const OfficeEvents = () => {
   const urlDate = useParam(officeEventsMonthKey)
@@ -36,7 +37,7 @@ export const OfficeEvents = () => {
   const officeEvents = useOfficeEvents(currentDate);
 
   if (isNotRequested(officeEvents) || isLoading(officeEvents)) {
-    return null;
+    return <Spinner />
   }
 
   if (isBad(officeEvents)) {
@@ -126,7 +127,7 @@ const Event = ({event, setSelectedEvent}: {event: OfficeEvent, setSelectedEvent:
 const EventModal = ({event, closeModal}: { event: OfficeEvent, closeModal: () => void }) => {
   return (
     <Modal closeModal={closeModal} >
-      <div className={style.eventDate}>{dateAsText2(event.startTime)}, {dateToTime(event.startTime)} - {dateToTime(event.endTime)}</div>
+      <div className={style.eventDate}>{dateAsText(event.startTime)}, {dateToTime(event.startTime)} - {dateToTime(event.endTime)}</div>
       <div className={style.eventLocation}>
         <div>{event.location} </div>
         <div>{event.contactPerson} </div>

@@ -3,6 +3,7 @@ import style from './ViewParticipants.module.scss';
 import { useParticipants } from 'src/hooks/cache';
 import { hasLoaded, isBad } from 'src/remote-data';
 import { IParticipant } from 'src/types/participant';
+import {Spinner} from "src/components/Common/Spinner/spinner";
 
 interface IProps {
   eventId: string;
@@ -21,7 +22,7 @@ export const ViewParticipantsLimited = ({ eventId, editToken }: IProps) => {
   }
 
   if (!hasLoaded(remoteParticipants)) {
-    return <div>Laster...</div>;
+    return <Spinner />;
   }
 
   const { attendees, waitingList } = remoteParticipants.data;

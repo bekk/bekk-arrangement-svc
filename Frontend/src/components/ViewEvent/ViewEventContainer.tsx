@@ -29,7 +29,7 @@ import {
 import { useTimeLeft } from 'src/hooks/timeleftHooks';
 import { hasLoaded, isBad } from 'src/remote-data';
 import { cancelParticipantRoute } from 'src/routing';
-import { dateAsText, dateToIDate } from 'src/types/date';
+import { idateAsText, dateToIDate } from 'src/types/date';
 import { isInThePast } from 'src/types/date-time';
 import {
   IEvent,
@@ -278,7 +278,7 @@ export const ViewEventContainer = ({ eventId }: IProps) => {
               <div className={style.registrationDeadlineText}>
                 {event.closeRegistrationTime &&
                   !isPossibleToRegister() &&
-                  `Frist for å melde seg på er ${dateAsText(
+                  `Frist for å melde seg på er ${idateAsText(
                     dateToIDate(event.closeRegistrationTime)
                   )}, kl ${stringifyTime(
                     dateToITime(event.closeRegistrationTime)
@@ -378,7 +378,7 @@ const getClosedEventText = (
   }
 
   if (timeLeft.difference > 0) {
-    const openDate = dateAsText(dateToIDate(event.openForRegistrationTime));
+    const openDate = idateAsText(dateToIDate(event.openForRegistrationTime));
     const openTime = stringifyTime(dateToITime(event.openForRegistrationTime));
     return `Påmeldingen åpner ${openDate}, kl ${openTime}.`;
   }
@@ -399,7 +399,7 @@ const getClosedEventText = (
     closeRegistrationTimeLeft &&
     event.closeRegistrationTime
   ) {
-    const closeDate = dateAsText(dateToIDate(event.closeRegistrationTime));
+    const closeDate = idateAsText(dateToIDate(event.closeRegistrationTime));
     const closeTime = stringifyTime(dateToITime(event.closeRegistrationTime));
     return `Stenger ${closeDate}, kl ${closeTime}, om ${asString(
       closeRegistrationTimeLeft

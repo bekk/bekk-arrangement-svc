@@ -19,6 +19,7 @@ import { useEvent, useWaitinglistSpot } from 'src/hooks/cache';
 import { useSavedParticipations } from 'src/hooks/saved-tokens';
 import {useSetTitle} from "src/hooks/setTitle";
 import {appTitle} from "src/Constants";
+import {Spinner} from "src/components/Common/Spinner/spinner";
 
 export const CancelParticipant = () => {
   const eventId = useParam(eventIdKey);
@@ -79,7 +80,7 @@ export const CancelParticipant = () => {
   }
 
   if (!hasLoaded(remoteEvent)) {
-    return <div>Laster...</div>;
+    return <Spinner />;
   }
 
   const event = remoteEvent.data;

@@ -9,7 +9,7 @@ import { GentlemanIcon } from 'src/components/Common/Icons/GentlemanIcon';
 import { LocationIcon } from 'src/components/Common/Icons/LocationIcon';
 import { useGotoCreateDuplicate } from 'src/hooks/history';
 import { createRoute, editEventRoute } from 'src/routing';
-import { dateAsText, dateToIDate, isSameDate } from 'src/types/date';
+import { idateAsText, dateToIDate, isSameDate } from 'src/types/date';
 import { IDateTime } from 'src/types/date-time';
 import { stringifyEmail } from 'src/types/email';
 import {
@@ -117,7 +117,7 @@ export const ViewEvent = ({
         <p className={style.registrationDeadlineText}>
           {event.closeRegistrationTime &&
             isPossibleToRegister &&
-            `Frist for å melde seg på er ${dateAsText(
+            `Frist for å melde seg på er ${idateAsText(
               dateToIDate(event.closeRegistrationTime)
             )}, kl ${stringifyTime(dateToITime(event.closeRegistrationTime))}.`}
         </p>
@@ -153,15 +153,15 @@ const DateSection = ({ startDate, endDate }: IDateProps) => {
   if (isSameDate(startDate.date, endDate.date)) {
     return (
       <p className={style.text}>
-        {dateAsText(startDate.date)}, {stringifyTime(startDate.time)} -{' '}
+        {idateAsText(startDate.date)}, {stringifyTime(startDate.time)} -{' '}
         {stringifyTime(endDate.time)}
       </p>
     );
   }
   return (
     <p className={style.text}>
-      {dateAsText(startDate.date)}, {stringifyTime(startDate.time)} -{' '}
-      {dateAsText(endDate.date)}, {stringifyTime(endDate.time)}
+      {idateAsText(startDate.date)}, {stringifyTime(startDate.time)} -{' '}
+      {idateAsText(endDate.date)}, {stringifyTime(endDate.time)}
     </p>
   );
 };
