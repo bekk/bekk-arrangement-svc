@@ -33,6 +33,7 @@ let private decode decoder (context: HttpContext) =
 let private createEditUrl (redirectUrlTemplate: string) (event: Models.Event) =
     redirectUrlTemplate.Replace("{eventId}", event.Id.ToString())
                        .Replace("{editToken}", event.EditToken.ToString())
+
 let private createCancelUrl (redirectUrlTemplate: string) (participant: Participant) =
     redirectUrlTemplate.Replace("{eventId}",
                             participant.EventId.ToString
