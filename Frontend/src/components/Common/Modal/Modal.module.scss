@@ -29,7 +29,7 @@
   position: fixed;
   min-width: $modalWidth;
   min-height: $modalHeight;
-  max-width: 95vw;
+  max-width: 50vw;
   @media #{$mobile} {
     min-width: 70vw;
     max-width: 90vw;
