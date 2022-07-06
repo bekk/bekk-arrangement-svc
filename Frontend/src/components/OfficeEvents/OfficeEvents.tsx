@@ -5,19 +5,33 @@ import {eachWeekOfInterval, endOfMonth, startOfMonth, addDays, getWeek, addMonth
 import classnames from "classnames";
 import {useOfficeEvents} from "src/hooks/cache";
 import {isBad, isLoading, isNotRequested} from "src/remote-data";
-import {dateAsText2, månedsNavn, stringifyDate} from "src/types/date";
+import {dateAsText2, dateToStringWithoutTime, månedsNavn} from "src/types/date";
 import {Arrow} from "src/components/Common/Arrow/Arrow";
 import { OfficeEvent} from "src/types/event";
 import {Modal} from "src/components/Common/Modal/Modal";
 import {dateToTime} from "src/types/time";
+import {useHistory} from "react-router";
+import {officeEventRoute, officeEventsMonthKey} from "src/routing";
+import {useParam} from "src/utils/browser-state";
+import {useEffectOnce} from "src/hooks/utils";
 
 export const OfficeEvents = () => {
+  const urlDate = useParam(officeEventsMonthKey)
+  const history = useHistory()
+  const parsedDate = isNaN(Date.parse(urlDate)) ? new Date() : new Date(urlDate);
+  useEffectOnce(() => history.push(officeEventRoute(dateToStringWithoutTime(parsedDate))))
   const [selectedEvent, setSelectedEvent] = useState<OfficeEvent | undefined>(undefined);
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const incrementMonth = () =>
-    setCurrentDate(addMonths(new Date(currentDate), 1));
-  const decrementMonth = () =>
-    setCurrentDate(addMonths(new Date(currentDate), -1));
+  const [currentDate, setCurrentDate] = useState(parsedDate);
+  const incrementMonth = () => {
+    const date = addMonths(currentDate, 1);
+    setCurrentDate(date);
+    history.push(officeEventRoute(dateToStringWithoutTime(date)))
+  }
+  const decrementMonth = () => {
+    const date = addMonths(currentDate, -1);
+    setCurrentDate(date);
+    history.push(officeEventRoute(dateToStringWithoutTime(date)))
+  }
 
   const officeEvents = useOfficeEvents(currentDate);
 
@@ -27,8 +41,8 @@ export const OfficeEvents = () => {
 
   if (isBad(officeEvents)) {
     return (
-      <div>
-        FEIL
+      <div className={style.error}>
+        Det har skjedd en feil under henting av events fra office.
       </div>
     );
   }
@@ -118,9 +132,11 @@ const EventModal = ({event, closeModal}: { event: OfficeEvent, closeModal: () =>
         <div>{event.contactPerson} </div>
       </div>
       <hr/>
+      {/*TODO: Her vil vi ha kategori*/}
       <div></div>
       <h2>{event.title}</h2>
       <p className={style.eventDescription}>{event.description}</p>
+      {/*TODO: Her vil vi ha temaer*/}
       <div></div>
     </Modal>
   )

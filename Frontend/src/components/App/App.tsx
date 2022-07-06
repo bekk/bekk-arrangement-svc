@@ -16,7 +16,7 @@ import {
   rootRoute,
   previewNewEventRoute,
   viewEventShortnameRoute,
-  shortnameKey, officeEventsRoute,
+  shortnameKey, officeEventsMonthKey, officeEventRoute,
 } from 'src/routing';
 import { CreateEventContainer } from 'src/components/CreateEvent/CreateEventContainer';
 import { EditEventContainer } from 'src/components/EditEvent/EditEventContainer';
@@ -51,7 +51,12 @@ export const App = () => {
     <Router history={history}>
       <Header />
       <Switch>
-        <PrivateRoute exact path={officeEventsRoute}>
+        <PrivateRoute exact path={"/office-events"}>
+          <div className={classNames(style.container, style.darkBackground)}>
+            <OfficeEvents />
+          </div>
+        </PrivateRoute>
+        <PrivateRoute exact path={officeEventRoute(':' + officeEventsMonthKey)}>
           <div className={classNames(style.container, style.darkBackground)}>
             <OfficeEvents />
           </div>

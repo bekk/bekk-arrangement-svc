@@ -112,6 +112,8 @@ const toCalendarDate = ({ day, month, year }: IDate): CalendarDate => {
   return { day, month: monthName(month), year };
 };
 
+export const dateToStringWithoutTime = (date: Date): string => date.toISOString().split('T')[0]
+
 export const addWeek = (date: IDate): IDate => {
   const oldDate = toCalendarDate(date);
   const newDate = addDays(oldDate, 7);

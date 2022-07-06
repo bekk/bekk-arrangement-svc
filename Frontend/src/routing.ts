@@ -11,11 +11,11 @@ export const rootRoute = '/';
 export const eventsRoute = '/events';
 export const createRoute = '/events/create';
 export const previewNewEventRoute = `/events/create/preview`;
-
-export const officeEventsRoute = '/office-events';
+export const officeEventsMonthKey = 'date';
 
 export const viewEventShortnameRoute = (shortname: string) => `/${shortname}`;
 export const viewEventRoute = (eventId: string) => `/events/${eventId}`;
+export const officeEventRoute = (date: string) => `/office-events/${date}`;
 
 export const editEventRoute = (eventId: string, editToken?: string) =>
   `/events/${eventId}/edit${queryStringStringify({
@@ -59,8 +59,3 @@ export const useIsCreateRoute = () => {
   let routematch = useRouteMatch(createRoute);
   return routematch !== null;
 };
-
-export const useIsOfficeEventRoute = () => {
-  let routematch = useRouteMatch(officeEventsRoute);
-  return routematch !== null;
-}
