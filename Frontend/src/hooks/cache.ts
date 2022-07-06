@@ -62,7 +62,7 @@ export const useShortname = (shortname: string) => {
 
 const officeEventCache = cachedRemoteData<string, OfficeEvent[]>();
 export const useOfficeEvents = (date: Date) => {
-  const dateKey = useMemo(() => new Date(date).toDateString(), [date]);
+  const dateKey = useMemo(() => new Date(date).toISOString(), [date]);
   return officeEventCache.useOne({
     key: dateKey,
     fetcher: useCallback(async () => {

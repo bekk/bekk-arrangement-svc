@@ -5,18 +5,21 @@ import {eachWeekOfInterval, endOfMonth, startOfMonth, addDays, getWeek, addMonth
 import classnames from "classnames";
 import {useOfficeEvents} from "src/hooks/cache";
 import {isBad, isLoading, isNotRequested} from "src/remote-data";
-import {månedsNavn} from "src/types/date";
+import {dateAsText2, månedsNavn, stringifyDate} from "src/types/date";
 import {Arrow} from "src/components/Common/Arrow/Arrow";
 import { OfficeEvent} from "src/types/event";
+import {Modal} from "src/components/Common/Modal/Modal";
+import {dateToTime} from "src/types/time";
 
 export const OfficeEvents = () => {
-  const [currentDate, setCurrentDate] = useState(new Date())
+  const [selectedEvent, setSelectedEvent] = useState<OfficeEvent | undefined>(undefined);
+  const [currentDate, setCurrentDate] = useState(new Date());
   const incrementMonth = () =>
-    setCurrentDate(addMonths(new Date(currentDate), 1))
+    setCurrentDate(addMonths(new Date(currentDate), 1));
   const decrementMonth = () =>
-    setCurrentDate(addMonths(new Date(currentDate), -1))
+    setCurrentDate(addMonths(new Date(currentDate), -1));
 
-  const officeEvents = useOfficeEvents(currentDate)
+  const officeEvents = useOfficeEvents(currentDate);
 
   if (isNotRequested(officeEvents) || isLoading(officeEvents)) {
     return null;
@@ -43,6 +46,7 @@ export const OfficeEvents = () => {
           <h1 className={style.headerText}>Hva skjer i Bekk?</h1>
         </div>
       </WavySubHeader>
+      {selectedEvent !== undefined && <EventModal event={selectedEvent} closeModal={() => setSelectedEvent(undefined)}/> }
       <table>
         <caption>
           <div>
@@ -63,14 +67,14 @@ export const OfficeEvents = () => {
         </tr>
         </thead>
         <tbody>
-        {weekdaysAndEvents.map((daysAndEvents, i) => <WeekDayCards key={i} daysAndEvents={daysAndEvents}/>)}
+        {weekdaysAndEvents.map((daysAndEvents, i) => <WeekDayCards key={i} daysAndEvents={daysAndEvents} setSelectedEvent={setSelectedEvent}/>)}
         </tbody>
       </table>
     </>
   )
 }
 
-const WeekDayCards = ({daysAndEvents}: { daysAndEvents: DayAndEvents[] }) => {
+const WeekDayCards = ({daysAndEvents, setSelectedEvent}: { daysAndEvents: DayAndEvents[], setSelectedEvent: (x: OfficeEvent) => void  }) => {
   return (
     <tr key={getWeek(daysAndEvents[0].day)} data-label={getWeek(daysAndEvents[0].day)}>
       {daysAndEvents.map(dayAndEvents => {
@@ -86,7 +90,7 @@ const WeekDayCards = ({daysAndEvents}: { daysAndEvents: DayAndEvents[] }) => {
           <td className={borderStyle} key={day.getDate()}>
             <div className={dateStyle}>
               {day.getDate()}
-              {events.map(event => <Event key={`${event.title}:${event.contactPerson}`} event={event}/>)}
+              {events.map(event => <Event key={`${event.title}:${event.contactPerson}`} event={event} setSelectedEvent={setSelectedEvent}/>)}
             </div>
           </td>
         )
@@ -95,14 +99,31 @@ const WeekDayCards = ({daysAndEvents}: { daysAndEvents: DayAndEvents[] }) => {
   )
 }
 
-const Event = ({event}: {event: OfficeEvent}) => {
+const Event = ({event, setSelectedEvent}: {event: OfficeEvent, setSelectedEvent: (x: OfficeEvent) => void}) => {
   const eventStyle = classnames(style.event, {
     [style.eventSolkontrast]: false,
     [style.eventHavkontrast]: false,
     [style.eventKveldkontrast]: false,
     [style.eventSolnedgangKontrast]: false,
   })
-  return (<p className={eventStyle}>{event.title}</p>)
+  return (<p onClick={() => setSelectedEvent(event)} className={eventStyle}>{event.title}</p>)
+}
+
+const EventModal = ({event, closeModal}: { event: OfficeEvent, closeModal: () => void }) => {
+  return (
+    <Modal closeModal={closeModal} >
+      <div className={style.eventDate}>{dateAsText2(event.startTime)}, {dateToTime(event.startTime)} - {dateToTime(event.endTime)}</div>
+      <div className={style.eventLocation}>
+        <div>{event.location} </div>
+        <div>{event.contactPerson} </div>
+      </div>
+      <hr/>
+      <div></div>
+      <h2>{event.title}</h2>
+      <div className={style.eventDescription}>{event.description}</div>
+      <div></div>
+    </Modal>
+  )
 }
 
 const getWeekdaysInMonth = (date: Date) => {

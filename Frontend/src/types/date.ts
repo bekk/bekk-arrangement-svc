@@ -59,6 +59,12 @@ export const dateAsText = (date: IDate): string => {
   });
 };
 
+export const dateAsText2 = (date: Date): string => {
+  return format(date, 'cccc d. MMMM', {
+    locale: nb,
+  });
+};
+
 export const isSameDate = (date: IDate, otherDate: IDate) =>
   date.year === otherDate.year &&
   date.month === otherDate.month &&

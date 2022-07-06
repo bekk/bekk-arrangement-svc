@@ -104,9 +104,9 @@ table td {
 }
 
 .dateToday {
-  width: 2em;
-  height: 2em;
-  line-height: 2em;
+  width: 1.5em;
+  height: 1.5em;
+  line-height: 1.4em;
   text-align: center;
   background-color: var(--soloppgangKontrast);
   border-radius: 25px;
@@ -130,6 +130,7 @@ table td {
 }
 
 .event {
+  cursor: pointer;
   font-family: $fontRegular;
   font-style: normal;
   font-weight: 400;
@@ -168,4 +169,24 @@ table td {
   &::before {
     background-color: var(--solnedgangKontrast);
   }
+}
+
+.eventDate {
+  text-transform: capitalize;
+}
+
+.eventDescription {
+  white-space: pre-line;
+}
+
+.eventLocation {
+  display: flex;
+  justify-content: space-between;
+}
+
+hr {
+  width: 100%;
+  height: 1px;
+  background-color: var(--backgroundColor);
+  border: none;
 }
