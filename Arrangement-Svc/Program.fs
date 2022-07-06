@@ -99,14 +99,9 @@ let configureServices (services: IServiceCollection) =
                     (ValidateIssuer = false, ValidAudiences = audiences))
     |> ignore
 
-[<EntryPoint>]
-let main _ =
+let makeApp () : IWebHostBuilder =
     let contentRoot = Directory.GetCurrentDirectory()
     let webRoot = Path.Combine(contentRoot, "WebRoot")
-
-    if runMigration
-    then Migrate.Run(configuration["ConnectionStrings:EventDb"])
-    else printfn "Not running migrations. This assumes the database is created and up to date"
 
     WebHostBuilder()
         .UseKestrel()
@@ -116,6 +111,13 @@ let main _ =
         .Configure(Action<IApplicationBuilder> configureApp)
         .ConfigureKestrel(fun _ options -> options.AllowSynchronousIO <- true)
         .ConfigureServices(configureServices)
-        .Build()
-        .Run()
+
+[<EntryPoint>]
+let main _ =
+    if runMigration
+    then Migrate.Run(configuration["ConnectionStrings:EventDb"])
+    else printfn "Not running migrations. This assumes the database is created and up to date"
+
+    let app = makeApp ()
+    app.Build().Run()
     0

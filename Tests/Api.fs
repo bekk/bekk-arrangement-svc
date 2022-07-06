@@ -6,7 +6,7 @@ open System.Net.Http
 open System.Net.Mime
 open System.Text
 
-open Microsoft.AspNetCore.Hosting
+open System.Threading.Tasks
 open Microsoft.AspNetCore.TestHost
 open Thoth.Json.Net
 
@@ -74,13 +74,9 @@ let private enforceSuccess ((response, content) : ApiResponse) : ApiResponse =
     then (response, content)
     else apiError response content
 
-let private getTestHost() =
-    WebHostBuilder()
-        .UseTestServer()
-        .Configure(App.configureApp)
-        .ConfigureServices(App.configureServices)
-
 let private toJson data = Encode.Auto.toString(4, data, caseStrategy = CamelCase)
+let private server = new TestServer(App.makeApp())
+let private client = server.CreateClient()
 
 let private request (jwt: string option) (url: string) (body: 'a option) (method: HttpMethod) : ApiResponse =
     let request = new HttpRequestMessage()
@@ -89,8 +85,6 @@ let private request (jwt: string option) (url: string) (body: 'a option) (method
     body |> Option.iter (fun body -> request.Content <- new StringContent(toJson body, Encoding.UTF8, MediaTypeNames.Application.Json))
     jwt |> Option.iter (fun jwt -> request.Headers.Add("Authorization", $"Bearer {jwt}"))
     task {
-        use server = new TestServer(getTestHost())
-        use client = server.CreateClient()
         let! response = request |> client.SendAsync
         let! content = response.Content.ReadAsStringAsync()
         return (response, content)
