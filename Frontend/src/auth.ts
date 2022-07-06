@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect } from 'react';
 import { UserNotification } from 'src/components/NotificationHandler/NotificationHandler';
-import {getAudience, getConfig, getIssuerDomain, getScopes, setConfig} from "src/config";
+import {getAudience, getIssuerDomain, getScopes } from "src/config";
 const EmployeeIdClaimType = 'https://api.bekk.no/claims/employeeId';
 
 function parseHash(hash: string): any {
@@ -64,8 +64,6 @@ function getCurrentState(): string {
 }
 
 async function getAuth0Url(): Promise<string> {
-  const config = await getConfig()
-  setConfig(config)
   const encodedCallback = encodeURIComponent(
     getApplicationRoot() + '/redirect'
   );

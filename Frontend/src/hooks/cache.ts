@@ -162,8 +162,7 @@ export const useEmailAndName = () => {
       if (employeeId === null) {
         return undefined;
       }
-      const userAndEmail = await getEmailAndName(employeeId);
-      return userAndEmail;
+      return await getEmailAndName(employeeId);
     }, [employeeId]),
   });
 };

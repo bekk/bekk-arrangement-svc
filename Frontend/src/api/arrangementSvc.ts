@@ -22,7 +22,7 @@ export const postEvent = (
 ): Promise<INewEventViewModel> =>
   post({
     host: "",
-    path: '/api//events',
+    path: '/api/events',
     body: toEventWriteModel(event, editUrlTemplate),
   });
 
