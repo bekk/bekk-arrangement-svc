@@ -35,6 +35,7 @@ let timezoneObject =
 
 type CalendarInviteStatus =
     | Create
+    | Update
     | Cancel
 
 let eventObject (event: Models.Event, participant: Participant,
@@ -43,6 +44,17 @@ let eventObject (event: Models.Event, participant: Participant,
     =
     let utcNow =
         DateTimeCustom.toUtcString (DateTimeCustom.toCustomDateTime DateTime.UtcNow (TimeSpan()))
+
+    // We don't track number of edits, so this is a poor man's incrementing number.
+    //
+    // There is no requirement to increase the sequence number for subsequent changes,
+    // but the mail clients (at least gmail and outlook) uses this to render the correct
+    // information for an event, notification than an event has been updated and so on.
+    //
+    // Ref https://icalendar.org/iCalendar-RFC-5545/3-8-7-4-sequence-number.html
+    let sequence =
+        $"SEQUENCE:{DateTime.UtcNow.Ticks:yyMMddHHmmss}"
+
     [ "BEGIN:VEVENT"
       $"UID:{event.Id}"
       $"DTSTART;TZID=W. Europe Standard Time:{DateTimeCustom.toDateString (DateTimeCustom.toCustomDateTime event.StartDate event.StartTime)}"
@@ -56,8 +68,16 @@ let eventObject (event: Models.Event, participant: Participant,
       $"X-ALT-DESC;FMTTYPE=text/html:{event.Description}"
       $"LOCATION;LANGUAGE=nb-NO:{event.Location}"
 
-      (if status = Create then "STATUS:CONFIRMED" else "STATUS:CANCELLED")
-      (if status = Create then "SEQUENCE:0" else "SEQUENCE:1")
+      match status with
+      | Create ->
+          "STATUS:CONFIRMED"
+          "SEQUENCE:0"
+      | Update ->
+          "STATUS:CONFIRMED"
+          sequence
+      | Cancel ->
+          "STATUS:CANCELLED"
+          sequence
 
       reminderObject
       // if recurring, insert recurringObject. TODO: implement frontend.
