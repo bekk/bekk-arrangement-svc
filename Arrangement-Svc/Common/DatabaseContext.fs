@@ -8,33 +8,36 @@ open Giraffe
 
 type DatabaseContext(cn : SqlConnection, tx : SqlTransaction) =
     do
-        if not (isNull tx) then assert (tx.Connection = cn)
-    let mutable disposed = false
-    let mutable txComplete = false
+        assert (isNotNull cn)
+        if isNotNull tx then assert (tx.Connection = cn)
+    let mutable isDisposed = false
     member _.Connection = cn
     member _.Transaction = tx
 
-    member _.Commit () =
-        assert (not txComplete)
+    member this.Commit () =
         tx.Commit()
-        txComplete <- true
 
     member _.Rollback () =
-        assert (not txComplete)
         tx.Rollback()
-        txComplete <- true
+
+    member private this.Dispose(disposing: bool) =
+        if isDisposed then ()
+        else
+        // NOTE: Do we care if it's been called only using the finalizer (disposing=false)? It means it has been used incorrectly, but
+        // we should still clean up even though it's a bit late.
+
+        if isNotNull tx then
+            tx.Dispose()
+        cn.Dispose()
+        isDisposed <- true
+
+    override this.Finalize() =
+        this.Dispose(false)
 
     interface IDisposable with
-        member _.Dispose() =
-            if not disposed then
-                if not (isNull tx) then
-                    if (not txComplete) then
-                        tx.Rollback()
-                    tx.Dispose()
-                if not (isNull cn) then
-                    cn.Close()
-                    cn.Dispose()
-                disposed <- true
+        member this.Dispose() =
+            this.Dispose(true)
+            GC.SuppressFinalize(this)
 
 
 let openConnection (ctx : HttpContext) =
