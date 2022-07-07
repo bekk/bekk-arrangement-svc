@@ -47,6 +47,7 @@ import {
 } from 'src/components/Common/FunEffects/effectUtils';
 import { Halloween } from 'src/components/Common/FunEffects/Halloween/Halloween';
 import { Kittens } from 'src/components/Common/FunEffects/Kittens/Kittens';
+import {Spinner} from "src/components/Common/Spinner/spinner";
 
 interface IProps {
   eventId: string;
@@ -99,7 +100,7 @@ export const ViewEventContainer = ({ eventId }: IProps) => {
   }
 
   if (!hasLoaded(remoteEvent) || !hasLoaded(emailAndName)) {
-    return <div>Loading</div>;
+    return <Spinner />
   }
 
   const event = remoteEvent.data;

@@ -23,6 +23,7 @@ import { useGotoEventPreview } from 'src/hooks/history';
 import { useEditToken, useSavedEditableEvents } from 'src/hooks/saved-tokens';
 import classnames from 'classnames';
 import {useSetTitle} from "src/hooks/setTitle";
+import {Spinner} from "src/components/Common/Spinner/spinner";
 
 const useEditEvent = () => {
   const eventId = useParam(eventIdKey);
@@ -65,7 +66,7 @@ export const EditEventContainer = () => {
   const editToken = useEditToken(eventId);
 
   if (!editEvent) {
-    return <div>Loading</div>;
+    return <Spinner />
   }
 
   const onDeleteEvent = catchAndNotify(
