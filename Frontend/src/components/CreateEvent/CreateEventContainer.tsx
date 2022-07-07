@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React  from 'react';
 import { IEditEvent, initialEditEvent, parseEditEvent } from 'src/types/event';
 import { eventsRoute, previewNewEventRoute } from 'src/routing';
 import { useAuthentication } from 'src/auth';
@@ -13,6 +13,7 @@ import { useEmailAndName } from 'src/hooks/cache';
 import { hasLoaded } from 'src/remote-data';
 import {useSetTitle} from "src/hooks/setTitle";
 import {appTitle} from "src/Constants";
+import {useSessionState} from "src/hooks/sessionState";
 
 export const CreateEventContainer = () => {
   useAuthentication();
@@ -22,17 +23,8 @@ export const CreateEventContainer = () => {
 
   const emailAndName = useEmailAndName();
   const { email, name } = (hasLoaded(emailAndName) && emailAndName.data) || {};
-  const storedEvent = window.sessionStorage.getItem("eventData")
-  const eventData =
-    storedEvent !== null ?
-      JSON.parse(storedEvent) as IEditEvent:
-      duplicateEvent ?? initialEditEvent(email, name)
 
-  const [event, setEvent] = useState<IEditEvent>(eventData);
-  const updateEvent = (event: IEditEvent) => {
-    window.sessionStorage.setItem("eventData", JSON.stringify(event))
-    setEvent(event)
-  }
+  const [event, setEvent] = useSessionState<IEditEvent>(duplicateEvent ?? initialEditEvent(email, name), "createEvent");
   const validEvent = validateEvent(event);
   const errors = parseEditEvent(event);
 
@@ -47,7 +39,7 @@ export const CreateEventContainer = () => {
   return (
     <Page>
       <h1 className={style.header}>Opprett arrangement</h1>
-      <EditEvent eventResult={event} updateEvent={updateEvent} />
+      <EditEvent eventResult={event} updateEvent={setEvent} />
       <div className={style.buttonContainer}>
         <Button
           onClick={redirectToPreview || (() => {})}

@@ -1,6 +1,6 @@
-import {useLayoutEffect, useEffect, useState} from 'react';
+import {useLayoutEffect, useEffect } from 'react';
 import React from 'react';
-import { IEditEvent, toEditEvent, parseEditEvent } from 'src/types/event';
+import {IEditEvent, toEditEvent, parseEditEvent, initialEditEvent} from 'src/types/event';
 import { deleteEvent } from 'src/api/arrangementSvc';
 import { useHistory } from 'react-router';
 import { EditEvent } from './EditEvent/EditEvent';
@@ -24,12 +24,13 @@ import { useEditToken, useSavedEditableEvents } from 'src/hooks/saved-tokens';
 import classnames from 'classnames';
 import {useSetTitle} from "src/hooks/setTitle";
 import {Spinner} from "src/components/Common/Spinner/spinner";
+import {useSessionState} from "src/hooks/sessionState";
 
 const useEditEvent = () => {
   const eventId = useParam(eventIdKey);
   const remoteEvent = useEvent(eventId);
 
-  const [editEvent, setEditEvent] = useState<IEditEvent>();
+  const [editEvent, setEditEvent] = useSessionState<IEditEvent>(initialEditEvent("",""), "editEvent");
   useLayoutEffect(() => {
     if (hasLoaded(remoteEvent) && !editEvent) {
       setEditEvent(toEditEvent(remoteEvent.data));
