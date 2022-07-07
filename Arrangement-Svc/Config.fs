@@ -13,5 +13,4 @@ type AppConfig =
       readPermissionClaim: string
       sendMailInDevEnvWhiteList: string list
       noReplyEmail: string
-      databaseConnectionString: string
     }
