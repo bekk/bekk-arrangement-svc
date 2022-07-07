@@ -24,24 +24,39 @@ An F# service and frontend for collecting and maintaining data about events.
 
 ### Running the service
 
-Developing locally you can either run the frontend and backend together:
-in one terminal window:
+Developing locally you can either run the frontend on its own and proxy to the dev instance in AWS.
+Or you can run both frontend and backend locally.
+
+Running everything locally:
 ```
-cd Frontend
-npm i
-npm start
+$ cd Frontend
+$ npm i
+$ npm start
 ```
 In another:
 ```
-dotnet watch run
+$ cd Arrangement-svc
+$ dotnet watch run
 ```
 
 If you are only developing frontend you can use and environment variable to proxy to the dev environment
 ```
-cd Frontend
-export PROXY=https://api.bekk.dev/arrangement-svc
-npm i 
-npm start
+$ cd Frontend
+$ export PROXY=https://api.bekk.dev/arrangement-svc
+$ npm i 
+$ npm start
+```
+
+When running the backend you may not want to run the migrations each time.
+If you do not want to run migrations you can use the environment variable: `NO_MIGRATION`.
+```
+$ NO_MIGRATION=true dotnet run
+```
+
+Alternatively you can export it so you do not have to type it each time:
+```
+$ export NO_MIGRATION=true
+$ dotnet run
 ```
 
 ## Deploy app
@@ -69,6 +84,11 @@ Frontend:
 - React
 - Sass
 - Lodash
+
+## Trying endpoints 
+While there is no swagger in this project you can use any JetBrains product, like Rider, to test HTTP endpoints.
+Open the `Requests.http` file and you can test from there.
+Some of the end points require a JWT authorized token, you can add this to the `http-client.env.json` file.
 
 ## Tests
 The testing framework we use is [Expecto](https://github.com/haf/expecto).
@@ -99,7 +119,6 @@ $ dotnet run --project Tests
 ```
 
 Running tests on changes is also supported by running `dotnet watch run --project Tests`
-
 
 ## Migrating the database
 

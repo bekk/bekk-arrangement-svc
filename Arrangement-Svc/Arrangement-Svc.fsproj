@@ -63,5 +63,7 @@
     <Content Include="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="http-client.env.json" />
+    <Content Include="Requests.http" />
   </ItemGroup>
 </Project>
