@@ -189,3 +189,44 @@ let toReadableString (dt: DateTimeCustom) =
         (dt.Date.Month.ToString().PadLeft(2, '0'))
         (dt.Date.Year.ToString()) (dt.Time.Hour.ToString().PadLeft(2, '0'))
         (dt.Time.Minute.ToString().PadLeft(2, '0'))
+
+type private ShowField = Skip | Start | Interval
+let toReadableDiff (oldStart: DateTimeCustom) (oldEnd: DateTimeCustom) (newStart: DateTimeCustom) (newEnd: DateTimeCustom) : (string*string) option =
+    let fmtDt (dt: DateTime) =
+        $"{dt:yy}.{dt:MM}.{dt:dd}"
+
+    let fmtTm (dt: DateTime) =
+        $"{dt:HH}:{dt:mm}"
+
+    // Working with DateTimeCustom is quite annoying, so we start by converting to DateTime and TimeSpan
+    let oldStart = oldStart.ToDateTime()
+    let oldEnd = oldEnd.ToDateTime()
+    let newStart = newStart.ToDateTime()
+    let newEnd = newEnd.ToDateTime()
+
+    let field (a, b) =
+      if a = b then Start else Interval
+
+    let diff old new' =
+      if old = new'
+      then (Skip, Skip)
+      else (field old, field new')
+
+    let (dt0, dt1) = diff (oldStart.Date, oldEnd.Date) (newStart.Date, newEnd.Date)
+    let (tm0, tm1) = diff (oldStart.TimeOfDay, oldEnd.TimeOfDay) (newStart.TimeOfDay, newEnd.TimeOfDay)
+
+    let fmt dt tm start' end' =
+        match (dt, tm) with
+        | Interval, Interval  -> $"{fmtDt start'} kl {fmtTm start'}-{fmtDt end'} kl {fmtTm end'}"
+        | Interval, Start     -> $"{fmtDt start'}-{fmtDt start'} kl {fmtTm start'}"
+        | Interval, Skip      -> $"{fmtDt start'}-{fmtDt end'}"
+        | Start   , Interval  -> $"{fmtDt start'} kl {fmtTm start'}-{fmtTm end'}"
+        | Start   , Start     -> $"{fmtDt start'} kl {fmtTm start'}"
+        | Start   , Skip      -> $"{fmtDt start'}"
+        | Skip    , Interval  -> $"kl {fmtTm start'}-{fmtTm end'}"
+        | Skip    , Start     -> $"kl {fmtTm start'}"
+        | Skip    , Skip      -> $""
+
+    match ((fmt dt0 tm0 oldStart oldEnd), (fmt dt1 tm1 newStart newEnd)) with
+    | ("", "") -> None
+    | x -> Some x
