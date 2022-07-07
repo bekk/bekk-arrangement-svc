@@ -107,7 +107,9 @@ let configureServices (services: IServiceCollection) =
 
 [<EntryPoint>]
 let main _ =
-    Migrate.Run(configuration["ConnectionStrings:EventDb"])
+    if runMigration
+    then Migrate.Run(configuration["ConnectionStrings:EventDb"])
+    else printfn "Not running migrations. This assumes the database is created and up to date"
 
     WebHostBuilder()
         .UseKestrel()

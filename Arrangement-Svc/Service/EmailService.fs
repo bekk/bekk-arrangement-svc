@@ -33,7 +33,6 @@ let private sendMailProd (options: SendgridOptions) (jsonBody: string) =
     |> Async.Start
     
 let sendMail (email: Email) (context: HttpContext) =
-
     let sendgridConfig = context.GetService<SendgridOptions>()
     let appConfig = context.GetService<AppConfig>()
 
@@ -70,7 +69,7 @@ let sendMail (email: Email) (context: HttpContext) =
 
 let private createdEventMessage (viewUrl: string option) createEditUrl (event: Models.Event) =
     [ $"Hei {event.OrganizerName}! 😄"
-      $"Arrangementet ditt {event.Title} er nå opprettet." 
+      $"Arrangementet ditt {event.Title} er nå opprettet."
       match viewUrl with
       | None -> ""
       | Some url -> $"Se arrangmentet, få oversikt over påmeldte deltagere og gjør eventuelle endringer her: {url}."
@@ -93,9 +92,9 @@ let private createEmail viewUrl createEditUrl noReplyMail (event: Models.Event) 
     { Subject = $"Du opprettet {event.Title}"
       Message = message
       To = event.OrganizerEmail
-      CalendarInvite = 
+      CalendarInvite =
           createCalendarAttachment
-              (event, organizerAsParticipant event, noReplyMail, message, Create) |> Some 
+              (event, organizerAsParticipant event, noReplyMail, message, Create) |> Some
     }
 
 let sendNewlyCreatedEventMail viewUrl createEditUrl (event: Models.Event) (ctx: HttpContext) =
@@ -110,7 +109,7 @@ let private inviteMessage redirectUrl (event: Models.Event) =
       $"Du er nå påmeldt {event.Title}."
       $"Vi gleder oss til å se deg på {event.Location} den {DateTimeCustom.toReadableString (DateTimeCustom.toCustomDateTime event.StartDate event.StartTime)} 🎉"
       ""
-      if event.MaxParticipants.IsSome then 
+      if event.MaxParticipants.IsSome then
         "Siden det er begrenset med plasser, setter vi pris på om du melder deg av hvis du ikke lenger<br>kan delta. Da blir det plass til andre på ventelisten 😊"
       else "Gjerne meld deg av dersom du ikke lenger har mulighet til å delta."
       $"Du kan melde deg av <a href=\"{redirectUrl}\">via denne lenken</a>."
@@ -155,7 +154,7 @@ let createNewParticipantMail
       To = participant.Email
       CalendarInvite =
           createCalendarAttachment
-              (event, participant, noReplyMail, message, Create) |> Some 
+              (event, participant, noReplyMail, message, Create) |> Some
     }
 
 let private createCancelledParticipationMailToOrganizer
@@ -163,9 +162,9 @@ let private createCancelledParticipationMailToOrganizer
     (participant: Models.Participant)
     =
     { Subject = "Avmelding"
-      Message = $"{participant.Name} har meldt seg av {event.Title}" 
+      Message = $"{participant.Name} har meldt seg av {event.Title}"
       To = event.OrganizerEmail
-      CalendarInvite = None 
+      CalendarInvite = None
     }
 
 let private createCancelledParticipationMailToAttendee
@@ -174,23 +173,23 @@ let private createCancelledParticipationMailToAttendee
     =
     { Subject = "Avmelding"
       Message = [
-                $"Vi bekrefter at du nå er avmeldt {event.Title}." 
+                $"Vi bekrefter at du nå er avmeldt {event.Title}."
                 ""
                 "Takk for at du gir beskjed! Vi håper å se deg ved en senere anledning.😊"
                 ]
                 |> String.concat "<br>"
       To = participant.Email
-      CalendarInvite = None 
+      CalendarInvite = None
     }
 
 let createFreeSpotAvailableMail
     (event: Models.Event)
     (participant: Models.Participant)
     =
-    { Subject = $"Du har fått plass på {event.Title}!" 
+    { Subject = $"Du har fått plass på {event.Title}!"
       Message = $"Du har rykket opp fra ventelisten for {event.Title}! Hvis du ikke lenger kan delta, meld deg av med lenken fra forrige e-post."
       To = participant.Email
-      CalendarInvite = None 
+      CalendarInvite = None
     }
 
 let private createCancelledEventMail
@@ -204,7 +203,7 @@ let private createCancelledEventMail
       To = participant.Email
       CalendarInvite =
           createCalendarAttachment
-              (event, participant, noReplyMail, message, Cancel) |> Some 
+              (event, participant, noReplyMail, message, Cancel) |> Some
     }
 
 let private sendMailToFirstPersonOnWaitingList
@@ -238,14 +237,14 @@ let private createCancellationConfirmationToOrganizer
     =
     { Subject = $"Avlyst: {event.Title}"
       Message = [
-                $"Du har avlyst arrangementet ditt {event.Title}." 
+                $"Du har avlyst arrangementet ditt {event.Title}."
                 "Denne meldingen ble sendt til alle påmeldte:"
                 ""
                 messageToParticipants
                 ]
                 |> String.concat "<br>"
       To = event.OrganizerEmail
-      CalendarInvite = None 
+      CalendarInvite = None
     }
 
 let sendCancellationMailToParticipants

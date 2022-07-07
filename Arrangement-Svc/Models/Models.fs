@@ -17,7 +17,7 @@ type ParticipantAnswer = {
   Email: string
   Answer: string
 }
-            
+
 module Validate =
     let private containsChars (toTest: string) (chars: string) =
         Seq.exists (fun c -> Seq.contains c chars) toTest
@@ -28,13 +28,13 @@ module Validate =
             Decode.fail "Tittel kan ha maks 60 tegn"
         else
             Decode.succeed title
-            
+
     let description (description: string) =
         if description.Length < 3 then
             Decode.fail "Beskrivelse må ha minst 3 tegn"
         else
             Decode.succeed description
-            
+
     let location (location: string) =
         if location.Length < 3 then
             Decode.fail "Tittel må ha minst 3 tegn"
@@ -42,7 +42,7 @@ module Validate =
             Decode.fail "Tittel kan ha maks 60 tegn"
         else
             Decode.succeed location
-            
+
     let organizerName (organizerName: string) =
         if organizerName.Length < 3 then
             Decode.fail "Navn må ha minst 3 tegn"
@@ -50,34 +50,34 @@ module Validate =
             Decode.fail "Navn kan ha maks 50 tegn"
         else
             Decode.succeed organizerName
-            
+
     let maxParticipants (maxParticipants: int) =
         if maxParticipants >= 0 then
             Decode.succeed maxParticipants
         else
             Decode.fail "Maks antall påmeldte kan ikke være negativt"
-                    
+
     let participantQuestions (questions: string list) =
         let condition = List.forall (fun (question: string) -> question.Length < 200) questions
         if condition then
             Decode.succeed questions
         else
             Decode.fail "Spørsmål til deltaker kan ha maks 200 tegn"
-            
+
     let participantAnswers (questions: string list) =
         let condition = List.forall (fun (question: string) -> question.Length < 1000) questions
         if condition then
             Decode.succeed questions
         else
             Decode.fail "Svar kan ha mask 1000 tegn"
-            
+
     let shortname (shortname: string) =
         match shortname with
         | x when x.Length = 0 -> Decode.fail "URL Kortnavn kan ikke være en tom streng"
         | x when x.Length > 200 -> Decode.fail "URL Kortnavn kan ha maks 200 tegn"
         | x when containsChars x "/?#" -> Decode.fail "URL kortnavn kan ikke inneholde reserverte tegn: / ? #"
         | x -> Decode.succeed x
-        
+
     let customHexColor (hexColor: string) =
         match hexColor with
         | x when containsChars x "#" -> Decode.fail "Hex-koden trenger ikke '#', foreksempel holder det med 'ffaa00' for gul"
@@ -85,13 +85,13 @@ module Validate =
         | x when x.Length > 6 -> Decode.fail "Hex-koden må ha nøaktig 6 tegn"
         | x when not <| Seq.forall Uri.IsHexDigit x -> Decode.fail "Ugyldig tegn, hex-koden må bestå av tegn mellom a..f og 0..9"
         | x -> Decode.succeed x
-        
+
     let organizerEmail (email: string) =
         if email.Contains '@' then
             Decode.succeed email
         else
             Decode.fail "E-post må inneholde alfakrøll (@)"
-        
+
 type EventWriteModel =
     { Title: string
       Description: string
@@ -106,46 +106,46 @@ type EventWriteModel =
       ParticipantQuestions: string list
       ViewUrl: string option
       EditUrlTemplate: string
-      HasWaitingList: bool 
+      HasWaitingList: bool
       IsExternal: bool
       IsHidden: bool
       Shortname: string option
       CustomHexColor: string option
     }
-    
+
 module EventWriteModel =
     let decoder : Decoder<EventWriteModel> =
         Decode.object (fun get ->
             { Title = get.Required.Field "title"
                        (Decode.string |> Decode.andThen Validate.title)
-              Description = get.Required.Field "description" 
-                           (Decode.string |> Decode.andThen Validate.description) 
-              Location = get.Required.Field "location" 
-                          (Decode.string |> Decode.andThen Validate.location) 
-              OrganizerName = get.Required.Field "organizerName" 
-                          (Decode.string |> Decode.andThen Validate.organizerName) 
-              OrganizerEmail = get.Required.Field "organizerEmail" 
+              Description = get.Required.Field "description"
+                           (Decode.string |> Decode.andThen Validate.description)
+              Location = get.Required.Field "location"
+                          (Decode.string |> Decode.andThen Validate.location)
+              OrganizerName = get.Required.Field "organizerName"
+                          (Decode.string |> Decode.andThen Validate.organizerName)
+              OrganizerEmail = get.Required.Field "organizerEmail"
                           (Decode.string |> Decode.andThen Validate.organizerEmail)
               MaxParticipants = get.Optional.Field "maxParticipants"
                                     (Decode.int |> Decode.andThen Validate.maxParticipants)
               StartDate = get.Required.Field "startDate" DateTimeCustom.DateTimeCustom.decoder
               EndDate = get.Required.Field "endDate" DateTimeCustom.DateTimeCustom.decoder
-              OpenForRegistrationTime = get.Required.Field "openForRegistrationTime" Decode.string 
+              OpenForRegistrationTime = get.Required.Field "openForRegistrationTime" Decode.string
               CloseRegistrationTime = get.Optional.Field "closeRegistrationTime" Decode.string
               ParticipantQuestions = get.Required.Field "participantQuestions"
                                          (Decode.list Decode.string |> Decode.andThen Validate.participantQuestions)
               ViewUrl = get.Optional.Field "viewUrl" Decode.string
               EditUrlTemplate = get.Required.Field "editUrlTemplate" Decode.string
-              HasWaitingList = get.Required.Field "hasWaitingList" Decode.bool 
-              IsExternal = get.Required.Field "isExternal" Decode.bool 
+              HasWaitingList = get.Required.Field "hasWaitingList" Decode.bool
+              IsExternal = get.Required.Field "isExternal" Decode.bool
               IsHidden = get.Required.Field "isHidden" Decode.bool
-              CustomHexColor = get.Optional.Field "customHexColor" 
-                          (Decode.string |> Decode.andThen Validate.customHexColor) 
-              Shortname =  get.Optional.Field "shortname" 
+              CustomHexColor = get.Optional.Field "customHexColor"
+                          (Decode.string |> Decode.andThen Validate.customHexColor)
+              Shortname =  get.Optional.Field "shortname"
                           (Decode.string |> Decode.andThen Validate.shortname) })
-    
+
 [<CLIMutable>]
-type Event = 
+type Event =
     { Id: Guid
       Title: string
       Description: string
@@ -159,16 +159,16 @@ type Event =
       EndTime: TimeSpan
       OpenForRegistrationTime: int64
       CloseRegistrationTime: int64 option
-      HasWaitingList: bool 
+      HasWaitingList: bool
       IsCancelled: bool
-      IsExternal: bool 
+      IsExternal: bool
       IsHidden: bool
       EditToken: Guid
       OrganizerId: int
       CustomHexColor: string option
       Shortname: string option
     }
-    
+
 type EventAndQuestions = {
     Event: Event
     Questions: ParticipantQuestion list
@@ -183,7 +183,7 @@ type ForsideEvent = {
     EndDate: DateTime
     StartTime: TimeSpan
     EndTime: TimeSpan
-    OpenForRegistrationTime: int64 
+    OpenForRegistrationTime: int64
     CloseRegistrationTime: int64 option
     MaxParticipants: int option
     CustomHexColor: string option
@@ -227,7 +227,7 @@ module Event =
                     "customHexColor", Encode.string event.CustomHexColor.Value
             ]
         encoding
-        
+
     let encodeForside (event: ForsideEvent) =
         let encoding =
             Encode.object [
@@ -252,20 +252,20 @@ module Event =
                 "isParticipating", Encode.bool event.IsParticipating
             ]
         encoding
-        
+
     let encoderWithEditInfo eventAndQuestions =
         Encode.object [
             "event", encodeEventAndQuestions eventAndQuestions
             "editToken", Encode.guid eventAndQuestions.Event.EditToken
         ]
-    
+
 
 type ParticipantWriteModel =
     { Name: string
       ParticipantAnswers: string list
-      CancelUrlTemplate: string 
+      CancelUrlTemplate: string
     }
-   
+
 module ParticipantWriteModel =
   let decoder: Decoder<ParticipantWriteModel> =
     Decode.object (fun get ->
@@ -286,7 +286,7 @@ type Participant =
     CancellationToken: Guid
     EmployeeId: int option
   }
-  
+
 type ParticipantAndAnswers = {
     Participant: Participant
     Answers: ParticipantAnswer list
@@ -296,7 +296,7 @@ type ParticipationsAndWaitlist =
     { Attendees: ParticipantAndAnswers list
       WaitingList: ParticipantAndAnswers list
     }
-    
+
 module Participant =
     let encodeParticipantAndAnswers (participantAndAnswers: ParticipantAndAnswers) =
         let participant = participantAndAnswers.Participant
@@ -313,27 +313,27 @@ module Participant =
             "cancellationToken", Encode.guid participant.CancellationToken
             "employeeId", Encode.option Encode.int participant.EmployeeId
         ]
-        
+
     let encodeWithCancelInfo (participant: Participant) (answers: ParticipantAnswer list) =
         let participantAndAnswers = {Participant = participant; Answers = answers }
         Encode.object [
             "participant", encodeParticipantAndAnswers participantAndAnswers
             "cancellationToken", Encode.guid participantAndAnswers.Participant.CancellationToken
         ]
-        
+
     let encodeToLocalStorage (participant: Participant) =
         Encode.object [
             "eventId", Encode.guid participant.EventId
             "email", Encode.string participant.Email
             "cancellationToken", Encode.guid participant.CancellationToken
         ]
-        
+
     let encodeWithLocalStorage (eventAndQuestions: EventAndQuestions list) (participations: Participant list) =
         Encode.object [
            "editableEvents", eventAndQuestions |> List.map Event.encoderWithEditInfo |> Encode.list
            "participations", participations |> List.map encodeToLocalStorage |> Encode.list
         ]
-        
+
     let encodeParticipationsAndWaitlist (participationsAndWaitlist: ParticipationsAndWaitlist) =
         Encode.object [
             "attendees",

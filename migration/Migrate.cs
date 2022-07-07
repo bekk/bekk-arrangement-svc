@@ -4,7 +4,6 @@ using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 
-
 namespace migrator
 {
     public static class Migrate
@@ -139,6 +138,4 @@ namespace migrator
             return migrations;
         }
     }
-
-
 }

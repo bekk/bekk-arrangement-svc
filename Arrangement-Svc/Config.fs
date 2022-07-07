@@ -1,8 +1,9 @@
 module Config
 
-open Giraffe
-open System.Data
-open Microsoft.AspNetCore.Http
+open System
+
+let runPodman = isNull <| Environment.GetEnvironmentVariable("NO_PODMAN")
+let runMigration = isNull <| Environment.GetEnvironmentVariable("NO_MIGRATION")
 
 type AppConfig =
     { isProd: bool

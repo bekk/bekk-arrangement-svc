@@ -16,7 +16,7 @@ let isAdmin (context: HttpContext) =
     let config = context.GetService<AppConfig>()
     context.User.HasClaim(config.permissionsAndClaimsKey, config.adminPermissionClaim)
 
-let getUserId (context: HttpContext) = 
+let getUserId (context: HttpContext) =
     task {
         let value = context.User.FindFirst(employeeIdClaim)
         return

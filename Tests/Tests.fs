@@ -121,24 +121,34 @@ module Database =
         Migrate.Run(getConnectionString())
 
 let enforceTokenExists() =
-    if String.IsNullOrWhiteSpace(token) then
-        failwith $"Missing JWT token in environment variable {TokenEnvVariableName}. Use token from other dev system.
-            \nStart with `{TokenEnvVariableName}=MYTOKEN dotnet run`, set it in Rider, or otherwise make it available before running tests."
+    if String.IsNullOrWhiteSpace(Api.token) then
+        failwith $"Missing JWT token in environment variable {Api.TokenEnvVariableName}. Use token from other dev system.
+            \nStart with `{Api.TokenEnvVariableName}=MYTOKEN dotnet run`, set it in Rider, or otherwise make it available before running tests."
+
+let maybeUpdateDatabase() =
+    if Config.runMigration
+    then
+        Database.create()
+        Database.migrate()
+    else printfn "Not running migrations. This assumes the database is created and up to date"
 
 [<EntryPoint>]
 let main args =
     enforceTokenExists()
 
-    if Podman.containerMissing() then
-        printfn "Container missing. Creating fresh container for tests."
-        Podman.create()
-        Podman.start()
-        Database.create()
-        Database.migrate()
-    elif Podman.containerStopped() then
-        printfn "Container already exists. Reusing container for tests."
-        Podman.start()
+    if Config.runPodman then
+        if Podman.containerMissing() then
+            printfn "Container missing. Creating fresh container for tests."
+            Podman.create()
+            Podman.start()
+            maybeUpdateDatabase()
+        elif Podman.containerStopped() then
+            printfn "Container already exists. Reusing container for tests."
+            Podman.start()
+        else
+            printfn "Container already up and running. Reusing container for tests."
     else
-        printfn "Container already up and running. Reusing container for tests."
+        printfn "Running tests without podman interaction. This assumes the test container is running properly."
+        maybeUpdateDatabase()
 
     runTestsWithCLIArgs [] args allTests
