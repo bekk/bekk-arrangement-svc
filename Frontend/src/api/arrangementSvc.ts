@@ -15,6 +15,7 @@ import {
 import { queryStringStringify } from 'src/utils/browser-state';
 import { toEmailWriteModel } from 'src/types/email';
 import { EditEventToken, Participation } from 'src/hooks/saved-tokens';
+import { cancelParticipantRoute } from 'src/routing';
 
 export const postEvent = (
   event: IEvent,
@@ -31,11 +32,20 @@ export const putEvent = (
   event: IEvent,
   editToken?: string
 ): Promise<IEventViewModel> =>
-  put({
-    host: "",
-    path: `/api/events/${eventId}${queryStringStringify({ editToken })}`,
-    body: toEventWriteModel(event),
-  });
+  {
+    const cancelParticipationUrlTemplate =
+      document.location.origin +
+      cancelParticipantRoute({
+        eventId: '{eventId}',
+        email: '{email}',
+        cancellationToken: '{cancellationToken}',
+      });
+    return put({
+      host: "",
+      path: `/api/events/${eventId}${queryStringStringify({ editToken })}`,
+      body: toEventWriteModel(event, '', cancelParticipationUrlTemplate),
+    });
+  };
 
 export const getEvent = (eventId: string): Promise<IEventViewModel> =>
   get({

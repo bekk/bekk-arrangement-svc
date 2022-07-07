@@ -97,6 +97,7 @@ export interface IEventWriteModel {
   maxParticipants?: number;
   viewUrl?: string;
   editUrlTemplate: string;
+  cancelParticipationUrlTemplate: string;
   participantQuestions: string[];
   hasWaitingList: boolean;
   isExternal: boolean;
@@ -210,7 +211,8 @@ export const parseEditEvent = ({
 
 export const toEventWriteModel = (
   event: IEvent,
-  editUrlTemplate: string = ''
+  editUrlTemplate: string = '',
+  cancelParticipationUrlTemplate: string = ''
 ): IEventWriteModel => ({
   ...event,
   maxParticipants: isMaxParticipantsLimited(event.maxParticipants)
@@ -227,6 +229,7 @@ export const toEventWriteModel = (
   endDate: event.end,
   viewUrl: event.shortname && urlFromShortname(event.shortname),
   editUrlTemplate,
+  cancelParticipationUrlTemplate,
 });
 
 export const parseEventViewModel = (eventView: IEventViewModel): IEvent => {

@@ -15,6 +15,7 @@
         <Compile Include="CreateEvent.fs" />
         <Compile Include="RegisterToEvent.fs" />
         <Compile Include="UpdateEvent.fs" />
+        <Compile Include="SendEmailOnUpdateEvent.fs" />
         <Compile Include="DeleteEvent.fs" />
         <Compile Include="GetEvent.fs" />
         <Compile Include="OfficeEvents.fs" />

@@ -14,6 +14,7 @@ let allTests =
         CreateEvent.tests
         RegisterToEvent.tests
         UpdateEvent.tests
+        SendEmailOnUpdateEvent.tests
         GetEvent.tests
         DeleteEvent.tests
         OfficeEvents.tests

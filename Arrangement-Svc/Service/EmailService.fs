@@ -96,7 +96,7 @@ let private createdEventMessage (viewUrl: string option) createEditUrl (event: M
       "Del denne kun med personer som du ønsker skal ha redigeringstilgang.🕵️" ]
     |> String.concat "<br>"
 
-let private organizerAsParticipant (event: Models.Event): Participant =
+let organizerAsParticipant (event: Models.Event): Participant =
     {
       Name = event.OrganizerName
       Email = event.OrganizerEmail
