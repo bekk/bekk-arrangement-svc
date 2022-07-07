@@ -2,8 +2,8 @@ module Tests.UpdateEvent
 
 open Expecto
 
-open TestUtils
 open Api
+open Models
 
 // TODO: User is organizer -> 200 (Hvordan teste dette? Mitt token er alltid admin)
 let tests =
