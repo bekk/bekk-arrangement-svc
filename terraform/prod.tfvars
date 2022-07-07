@@ -1,7 +1,7 @@
 environment            = "prod"
 sld_domain             = "bekk.no"
 hostname               = "skjer"
-task_image             = "882089634282.dkr.ecr.eu-central-1.amazonaws.com/bekk-arrangement"
+task_image             = "882089634282.dkr.ecr.eu-central-1.amazonaws.com/arrangement-svc"
 task_image_tag         = "latest"
 listener_path_patterns = ["/*"]
 create_dns_record      = true
@@ -11,8 +11,9 @@ task_environment = {
   Auth0__Audience              = "QHQy75S7tmnhDdBGYSnszzlhMPul0fAE"
   PORT                         = "80"
   Serilog__MinimumLevel        = "Warning"
+  VIRTUAL_PATH                 = "/arrangement-svc"
   Auth0__PERMISSION_CLAIM_TYPE = "https://api.bekk.no/claims/permission"
-  EMPLOYEE_SVC_URL             = "https://api.bekk.no/employee-svc"
+  Config__Employee_Svc_url     = "https://api.bekk.no/employee-svc"
 }
 task_secrets = [
   "ConnectionStrings__EventDb",
