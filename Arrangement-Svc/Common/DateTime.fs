@@ -89,12 +89,31 @@ module Time =
             "minute", Encode.int time.Minute
         ]
 
+// We assume sane people work with UTC, and DateTimeCustom is some strange "Norwegian" time without timezone information
+let private tzOslo = TimeZoneInfo.FindSystemTimeZoneById("Europe/Oslo")
 
 [<CustomComparison; CustomEquality>]
 type DateTimeCustom =
     { Date: Date
       Time: Time
     }
+with
+    member this.ToDateTime() =
+        DateTime(this.Date.Year, this.Date.Month, this.Date.Day, this.Time.Hour, this.Time.Minute, 0, DateTimeKind.Unspecified)
+
+    static member FromDateTime(dt: DateTime) =
+        // DateTimeCustom doesn't include TZ, so we need to make sure it's a Norwegian date before converting.
+        let dt =
+            match dt.Kind with
+            | DateTimeKind.Unspecified ->
+                dt
+            | DateTimeKind.Local
+            | DateTimeKind.Utc ->
+                TimeZoneInfo.ConvertTimeFromUtc(dt, tzOslo)
+            | x ->
+                failwith $"BUG: %A{x} not a DateTimeKind"
+        { Date = { Day = dt.Day; Month = dt.Month; Year = dt.Year }
+          Time = { Hour = dt.Hour; Minute = dt.Minute } }
 
     interface IComparable with
         member this.CompareTo obj =
