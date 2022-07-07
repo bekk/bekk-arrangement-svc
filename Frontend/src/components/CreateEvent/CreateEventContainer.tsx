@@ -22,10 +22,17 @@ export const CreateEventContainer = () => {
 
   const emailAndName = useEmailAndName();
   const { email, name } = (hasLoaded(emailAndName) && emailAndName.data) || {};
+  const storedEvent = window.sessionStorage.getItem("eventData")
+  const eventData =
+    storedEvent !== null ?
+      JSON.parse(storedEvent) as IEditEvent:
+      duplicateEvent ?? initialEditEvent(email, name)
 
-  const [event, setEvent] = useState<IEditEvent>(
-    duplicateEvent ?? initialEditEvent(email, name)
-  );
+  const [event, setEvent] = useState<IEditEvent>(eventData);
+  const updateEvent = (event: IEditEvent) => {
+    window.sessionStorage.setItem("eventData", JSON.stringify(event))
+    setEvent(event)
+  }
   const validEvent = validateEvent(event);
   const errors = parseEditEvent(event);
 
@@ -40,7 +47,7 @@ export const CreateEventContainer = () => {
   return (
     <Page>
       <h1 className={style.header}>Opprett arrangement</h1>
-      <EditEvent eventResult={event} updateEvent={setEvent} />
+      <EditEvent eventResult={event} updateEvent={updateEvent} />
       <div className={style.buttonContainer}>
         <Button
           onClick={redirectToPreview || (() => {})}
