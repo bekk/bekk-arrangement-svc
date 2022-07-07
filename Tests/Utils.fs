@@ -2,7 +2,15 @@ module Tests.TestUtils
 
 open System
 open System.Text.RegularExpressions
+open System.Threading.Tasks
 open Expecto
+
+module Task =
+    let ignore (x : Task<'a>) : Task =
+        task {
+            let! _ = x
+            return ()
+        }
 
 module Expect =
     let throwsTC<'a, 'ex when 'ex :> exn > (f: unit -> unit) (cont: 'ex -> 'a) : 'a =
