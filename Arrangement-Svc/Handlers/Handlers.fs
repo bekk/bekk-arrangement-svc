@@ -173,8 +173,8 @@ let registerParticipationHandler (eventId: Guid, email): HttpHandler =
                         Ok (participant, answers)
                     result |> Result.mapError InternalError
                 let! participant = participant |> Result.mapError InternalError
-                db.Commit()
                 let! answers = answers |> Result.mapError InternalError
+                db.Commit()
                 // Sende epost
                 let isWaitlisted = participate = IsWaitListed
                 let email =
