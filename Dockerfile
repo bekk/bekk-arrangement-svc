@@ -16,6 +16,6 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine
 WORKDIR /app/
 COPY --from=build /app/Arrangement-Svc/out .
 COPY --from=build /app/Arrangement-Svc/wwwroot wwwroot/.
-COPY --from=build /app/Frontend/build wwwroot/.
+COPY --from=build /app/Frontend/build/. wwwroot/.
 ENV ASPNETCORE_URLS="http://+:80"
 CMD dotnet arrangementSvc.dll

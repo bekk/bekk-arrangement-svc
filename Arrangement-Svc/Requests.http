@@ -78,3 +78,6 @@ GET localhost:5000/api/config
 
 ### Get webfonts
 GET localhost:5000/fonts/webfonts.css
+
+### Get index
+GET localhost:5000/

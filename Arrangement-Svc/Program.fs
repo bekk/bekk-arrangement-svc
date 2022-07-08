@@ -37,6 +37,7 @@ let configureCors (builder: CorsPolicyBuilder) =
            .AllowAnyOrigin() |> ignore
 
 let configureApp (app: IApplicationBuilder) =
+    app.UseDefaultFiles() |> ignore
     app.UseStaticFiles() |> ignore
     app.Use(fun context (next: Func<Task>) ->
         context.Request.Path <- context.Request.Path.Value.Replace (configuration["VIRTUAL_PATH"], "") |> PathString
@@ -116,7 +117,6 @@ let main _ =
 
     WebHostBuilder()
         .UseKestrel()
-        .UseContentRoot(Directory.GetCurrentDirectory())
         .UseIISIntegration()
         .Configure(Action<IApplicationBuilder> configureApp)
         .ConfigureKestrel(fun _ options -> options.AllowSynchronousIO <- true)
