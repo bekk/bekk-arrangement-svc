@@ -8,6 +8,7 @@ docker-compose.yml
 docker-compose.*.yml
 **/bin
 **/obj
+**/out
 bin/
 obj/
 out/
