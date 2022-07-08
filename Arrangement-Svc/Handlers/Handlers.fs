@@ -109,7 +109,7 @@ let registerParticipationHandler (eventId: Guid, email): HttpHandler =
         let result =
             taskResult {
                 let isBekker = context.User.Identity.IsAuthenticated
-                let! userId = getUserId context
+                let userId = getUserId context
 
                 let! writeModel =
                     decode ParticipantWriteModel.decoder context
@@ -210,7 +210,7 @@ let getFutureEvents (next: HttpFunc) (context: HttpContext) =
         taskResult {
             let! userId =
                 getUserId context
-                |> TaskResult.requireSome couldNotRetrieveUserId
+                |> Result.requireSome couldNotRetrieveUserId
             use db = openConnection context
             let! eventAndQuestions =
                 Queries.getFutureEvents userId db
@@ -227,7 +227,7 @@ let getPastEvents (next: HttpFunc) (context: HttpContext) =
             taskResult {
                 let! userId =
                     getUserId context
-                    |> TaskResult.requireSome couldNotRetrieveUserId
+                    |> Result.requireSome couldNotRetrieveUserId
                 use db = openConnection context
                 let! eventAndQuestions =
                     Queries.getPastEvents userId db
@@ -339,7 +339,7 @@ let createEvent =
                     |> TaskResult.mapError BadRequest
                 let! userId =
                     getUserId context
-                    |> TaskResult.requireSome couldNotRetrieveUserId
+                    |> Result.requireSome couldNotRetrieveUserId
                 use db = openTransaction context
                 let! doesShortNameExist =
                     Queries.doesShortnameExist writeModel.Shortname db
@@ -367,7 +367,7 @@ let cancelEvent (eventId: Guid) =
         let result =
             taskResult {
                 let config = context.GetService<AppConfig>()
-                let! userId = getUserId context
+                let userId = getUserId context
                 let userIsAdmin = isAdmin context
                 let editToken = getEditTokenFromQuery context
                 use db = openTransaction context
@@ -403,7 +403,7 @@ let deleteEvent (eventId: Guid) =
         let result =
             taskResult {
                 let config = context.GetService<AppConfig>()
-                let! userId = getUserId context
+                let userId = getUserId context
                 let userIsAdmin = isAdmin context
                 let editToken = getEditTokenFromQuery context
                 use db = openTransaction context
@@ -440,7 +440,7 @@ let getEventsAndParticipations (id: int) =
             taskResult {
                 let! userId =
                     getUserId context
-                    |> TaskResult.requireSome couldNotRetrieveUserId
+                    |> Result.requireSome couldNotRetrieveUserId
                 let userIsAdmin = isAdmin context
                 do! (userId = id || userIsAdmin)
                     |> Result.requireTrue cannotSeeParticipations
@@ -521,7 +521,7 @@ let updateEvent (eventId: Guid) =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
             taskResult {
-                let! userId = getUserId context
+                let userId = getUserId context
                 let userIsAdmin = isAdmin context
                 let editToken = getEditTokenFromQuery context
                 let! writeModel =
@@ -641,7 +641,7 @@ let exportParticipationsForEvent (eventId: Guid) =
             taskResult {
                 let editToken = getEditTokenFromQuery context
                 let isAdmin = isAdmin context
-                let! userId = getUserId context
+                let userId = getUserId context
                 use db = openConnection context
                 let! canEditEvent =
                     Queries.canEditEvent eventId isAdmin userId editToken db
