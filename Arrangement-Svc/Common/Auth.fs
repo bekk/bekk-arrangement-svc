@@ -17,15 +17,7 @@ let isAdmin (context: HttpContext) =
     context.User.HasClaim(config.permissionsAndClaimsKey, config.adminPermissionClaim)
 
 let getUserId (context: HttpContext) =
-    task {
-        let value = context.User.FindFirst(employeeIdClaim)
-        return
-            if value = null then
-                None
-            else
-                let parsedSuccessfully, parsedValue = Int32.TryParse(value.Value)
-                if parsedSuccessfully then
-                    Some parsedValue
-                else
-                    None
-    }
+    context.User.FindFirst(employeeIdClaim)
+    |> Option.ofObj
+    |> Option.map (fun c -> c.Value)
+    |> Option.bind (Int32.TryParse >> (function | true, x -> Some x | false, _ -> None))

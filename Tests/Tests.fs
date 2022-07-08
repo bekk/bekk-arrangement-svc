@@ -68,9 +68,7 @@ module Podman =
         not << containerRunning
 
     let private waitForContainerRunning () : unit =
-        while containerStopped() do
-            printfn "Waiting for container to start .."
-            Threading.Thread.Sleep(1000)
+        podman [$"wait --condition running {ContainerName}"] |> ignore
 
     let create () =
         printfn $"Run container {ContainerName}"

@@ -6,35 +6,35 @@ open Bogus
 let private faker = Faker()
 
 let private generateDatePast () : DateTimeCustom.Date =
-    let date = faker.Date.Past(10, DateTime.Now)
+    let date = faker.Date.Past(10, DateTime.Now.AddDays(-1))
     { Day = date.Day
       Month = date.Month
       Year = date.Year }
 
 let private generateDateFuture () : DateTimeCustom.Date =
-    let date = faker.Date.Future(10, DateTime.Now)
+    let date = faker.Date.Future(10, DateTime.Now.AddDays(1))
     { Day = date.Day
       Month = date.Month
       Year = date.Year }
 
 let private generateDateSoon () : DateTimeCustom.Date =
-    let date = faker.Date.Soon(10, DateTime.Now)
+    let date = faker.Date.Soon(10, DateTime.Now.AddDays(1))
     { Day = date.Day
       Month = date.Month
       Year = date.Year }
 
 let private generateTimePast (): DateTimeCustom.Time =
-    let time = faker.Date.Past(10, DateTime.Now)
+    let time = faker.Date.Past(10, DateTime.Now.AddMinutes(-1))
     { Hour = time.Hour
       Minute = time.Minute }
 
 let private generateTimeFuture (): DateTimeCustom.Time =
-    let time = faker.Date.Future(10, DateTime.Now)
+    let time = faker.Date.Future(10, DateTime.Now.AddMinutes(1))
     { Hour = time.Hour
       Minute = time.Minute }
 
 let private generateTimeSoon () : DateTimeCustom.Time =
-    let time = faker.Date.Soon(10, DateTime.Now)
+    let time = faker.Date.Soon(10, DateTime.Now.AddMinutes(1))
     { Hour = time.Hour
       Minute = time.Minute }
 
@@ -51,6 +51,7 @@ let private generateDateTimeCustomSoon () : DateTimeCustom.DateTimeCustom =
       Time = generateTimeSoon () }
 
 let generateEvent () : Models.EventWriteModel =
+    let start = DateTime.Now.AddDays(-1)
     { Title = faker.Company.CompanyName()
       Description = faker.Lorem.Paragraph()
       Location = faker.Address.City()
@@ -61,15 +62,15 @@ let generateEvent () : Models.EventWriteModel =
               None
           else
               Some <| faker.Random.Number(1, 100)
-      StartDate = DateTimeCustom.toCustomDateTime (DateTime.Now.AddDays(-1)).Date (DateTime.Now.AddDays(-1)).TimeOfDay
+      StartDate = DateTimeCustom.toCustomDateTime start.Date start.TimeOfDay
       EndDate = generateDateTimeCustomFuture ()
-      OpenForRegistrationTime = (DateTimeOffset.Now.AddDays(-1).ToUnixTimeMilliseconds().ToString())
+      OpenForRegistrationTime = (DateTimeOffset(start).AddDays(-1).ToUnixTimeMilliseconds().ToString())
       CloseRegistrationTime =
           if faker.Hacker.Random.Bool() then
               None
           else
               Some(
-                  (DateTimeOffset(faker.Date.Future().Date)
+                  (DateTimeOffset(faker.Date.Future(10, refDate = start).Date)
                       .ToUnixTimeMilliseconds())
                       .ToString()
               )

@@ -18,3 +18,9 @@ let wrap (x: 'x): 'x Task =
     task {
         return x
     }
+
+let sequence (xs : Task<'x> seq) : Task<'x seq> =
+    Task.WhenAll(xs) |> map Array.toSeq
+
+let whenAll (xs: Task seq) : Task =
+    Task.WhenAll(xs)
