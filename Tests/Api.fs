@@ -4,12 +4,14 @@ open System
 open System.Net
 open System.Net.Http
 open System.Net.Mime
+open System.Runtime.ExceptionServices
 open System.Text
 
 open System.Threading.Tasks
 open Microsoft.AspNetCore.TestHost
 open Microsoft.Extensions.Hosting
 open Thoth.Json.Net
+open Expecto
 
 open Models
 open TestUtils
@@ -42,6 +44,9 @@ module Expect =
            with
            | :? ApiException as ex ->
                return (cont ex)
+           | :? Expecto.AssertException as ex ->
+               ExceptionDispatchInfo.Throw(ex) // reraise cannot be used in an async expression
+               return (cont <| ApiException(null, null)) // <- to get the compiler to shut up
            | x ->
                failtest $"Expected exception of type ApiException to be thrown, but another exception was thrown, %A{x}"
                return (cont <| ApiException(null, null)) // <- to get the compiler to shut up
