@@ -67,7 +67,7 @@ let tests =
       }
 
       testTask "Counting participants returns correct number" {
-        let! event = TestData.createEvent (fun ev -> { ev with IsExternal = false })
+        let! event = TestData.createEvent (fun ev -> { ev with MaxParticipants = None; IsExternal = false })
         for _ in 0..4 do
           do! justEffect <| Participant.create UsingJwtToken.request event id id
         do! Expect.expectApiMessage
@@ -77,7 +77,7 @@ let tests =
       }
 
       testTask "Can get waitlist spot if event is external" {
-        let! event = TestData.createEvent (fun ev -> { ev with IsExternal = true; IsHidden = true })
+        let! event = TestData.createEvent (fun ev -> { ev with MaxParticipants = None; IsExternal = true; IsHidden = true })
         let! participant = justContent <| Participant.create UsingJwtToken.request event id id
         do! Expect.expectApiSuccess
               (fun () -> UsingJwtToken.request $"/events/{event.id}/participants/{participant.email}/waitinglist-spot" None |> Api.get)
