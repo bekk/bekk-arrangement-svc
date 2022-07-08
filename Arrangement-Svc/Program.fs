@@ -47,7 +47,8 @@ let configureApp (app: IApplicationBuilder) =
     app.UseAuthentication() |> ignore
     app.UseCors(configureCors) |> ignore
     app.UseOutputCaching()
-    app.UseGiraffe(webApp)
+    app.UseMiddleware<Middleware.RetryOnDeadlock>() |> ignore
+    app.UseGiraffe(webApp) |> ignore
 
 let configureServices (services: IServiceCollection) =
     services.AddResponseCompression() |> ignore
@@ -109,18 +110,20 @@ let configureServices (services: IServiceCollection) =
                     (ValidateIssuer = false, ValidAudiences = audiences))
     |> ignore
 
-[<EntryPoint>]
-let main _ =
-    if runMigration
-    then Migrate.Run(configuration["ConnectionStrings:EventDb"])
-    else printfn "Not running migrations. This assumes the database is created and up to date"
-
+let makeApp () : IWebHostBuilder =
     WebHostBuilder()
         .UseKestrel()
         .UseIISIntegration()
         .Configure(Action<IApplicationBuilder> configureApp)
         .ConfigureKestrel(fun _ options -> options.AllowSynchronousIO <- true)
         .ConfigureServices(configureServices)
-        .Build()
-        .Run()
+
+[<EntryPoint>]
+let main _ =
+    if runMigration
+    then Migrate.Run(configuration["ConnectionStrings:EventDb"])
+    else printfn "Not running migrations. This assumes the database is created and up to date"
+
+    let app = makeApp ()
+    app.Build().Run()
     0

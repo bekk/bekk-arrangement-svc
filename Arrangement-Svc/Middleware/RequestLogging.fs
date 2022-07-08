@@ -1,4 +1,4 @@
-module Middleware
+namespace Middleware
 
 open Giraffe
 open System
@@ -9,7 +9,7 @@ open Microsoft.AspNetCore.Http
 type RequestLogging(next: RequestDelegate) =
     member this.Invoke(ctx: HttpContext, logger: Logger) =
         task {
-            let! loggedInEmployee = Auth.getUserId ctx
+            let loggedInEmployee = Auth.getUserId ctx
             let method = ctx.Request.Method
             let path = ctx.Request.Path.ToString()
             let consumer =

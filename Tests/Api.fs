@@ -4,11 +4,14 @@ open System
 open System.Net
 open System.Net.Http
 open System.Net.Mime
+open System.Runtime.ExceptionServices
 open System.Text
 
-open Microsoft.AspNetCore.Hosting
+open System.Threading.Tasks
 open Microsoft.AspNetCore.TestHost
+open Microsoft.Extensions.Hosting
 open Thoth.Json.Net
+open Expecto
 
 open Models
 open TestUtils
@@ -22,9 +25,9 @@ let basePath = "http://localhost:5000"
 type TypedApiResponse<'a> = HttpResponseMessage*'a
 type ApiResponse = TypedApiResponse<string>
 
-let justEffect : TypedApiResponse<_> -> unit = ignore
-let justResponse : TypedApiResponse<_> -> HttpResponseMessage = fst
-let justContent : TypedApiResponse<'a> -> 'a = snd
+let justEffect<'a> : TypedApiResponse<'a> Task -> Task = Task.ignore
+let justResponse<'a> : TypedApiResponse<'a> Task -> HttpResponseMessage Task = Task.map fst
+let justContent<'a> : TypedApiResponse<'a> Task -> 'a Task = Task.map snd
 
 type ApiException (response: HttpResponseMessage, message: string) =
     inherit Exception(message)
@@ -32,17 +35,31 @@ type ApiException (response: HttpResponseMessage, message: string) =
 
 module Expect =
     open Expecto
-    let throwsApiError<'a> (f: unit -> unit) (cont: ApiException -> 'a) : 'a =
-       TestUtils.Expect.throwsTC<'a, ApiException> f cont
+    let throwsApiError<'a> (f: unit -> Task) (cont: ApiException -> 'a) : 'a Task =
+       task {
+           try
+               do! f()
+               failtest $"Expected exception of type %A{typeof<'a>}, but no exception was thrown."
+               return (cont <| ApiException(null, null)) // <- to get the compiler to shut up
+           with
+           | :? ApiException as ex ->
+               return (cont ex)
+           | :? Expecto.AssertException as ex ->
+               ExceptionDispatchInfo.Throw(ex) // reraise cannot be used in an async expression
+               return (cont <| ApiException(null, null)) // <- to get the compiler to shut up
+           | x ->
+               failtest $"Expected exception of type ApiException to be thrown, but another exception was thrown, %A{x}"
+               return (cont <| ApiException(null, null)) // <- to get the compiler to shut up
+       }
 
-    let expectApiError<'a> (f: unit -> TypedApiResponse<'a>) (expected : string) (message: string) : unit =
+    let expectApiError<'a> (f: unit -> TypedApiResponse<'a> Task) (expected : string) (message: string) : Task =
         throwsApiError
-            (f >> ignore)
+            (f >> Task.ignore)
             (fun ex -> Expect.equal ex.Message expected message)
 
-    let expectApiErrorCode<'a> (expected: HttpStatusCode) (f: unit -> TypedApiResponse<'a>) (message: string) : unit =
+    let expectApiErrorCode<'a> (expected: HttpStatusCode) (f: unit -> TypedApiResponse<'a> Task) (message: string) : Task =
         throwsApiError
-            (f >> ignore)
+            (f >> Task.ignore)
             (fun ex -> Expect.equal ex.Response.StatusCode expected message)
 
     let expectApiUnauthorized<'a> = expectApiErrorCode<'a> HttpStatusCode.Unauthorized
@@ -51,13 +68,17 @@ module Expect =
 
     let expectApiForbidden<'a> = expectApiErrorCode<'a> HttpStatusCode.Forbidden
 
-    let expectApiSuccess (f: unit -> TypedApiResponse<_>) (message: string) : unit =
-        let (response, _) = f()
-        Expect.isTrue response.IsSuccessStatusCode message
+    let expectApiSuccess (f: unit -> TypedApiResponse<_> Task) (message: string) : Task =
+        task {
+            let! (response, _) = f()
+            Expect.isTrue response.IsSuccessStatusCode message
+        }
 
-    let expectApiMessage (f: unit -> ApiResponse) (expected: string) (message: string) : unit =
-        let (_, content) = f()
-        Expect.equal content expected message
+    let expectApiMessage (f: unit -> ApiResponse Task) (expected: string) (message: string) : Task =
+        task {
+            let! (_, content) = f()
+            Expect.equal content expected message
+        }
 
 
 let private apiError (response: HttpResponseMessage) (content: string) : 'a =
@@ -74,34 +95,26 @@ let private enforceSuccess ((response, content) : ApiResponse) : ApiResponse =
     then (response, content)
     else apiError response content
 
-let private getTestHost() =
-    WebHostBuilder()
-        .UseTestServer()
-        .Configure(App.configureApp)
-        .ConfigureServices(App.configureServices)
-
 let private toJson data = Encode.Auto.toString(4, data, caseStrategy = CamelCase)
+let private server = new TestServer(App.makeApp())
+let private client = server.CreateClient()
 
-let private request (jwt: string option) (url: string) (body: 'a option) (method: HttpMethod) : ApiResponse =
+let private request (jwt: string option) (url: string) (body: 'a option) (method: HttpMethod) : ApiResponse Task =
     let request = new HttpRequestMessage()
     request.Method <- method
     request.RequestUri <- Uri(url)
     body |> Option.iter (fun body -> request.Content <- new StringContent(toJson body, Encoding.UTF8, MediaTypeNames.Application.Json))
     jwt |> Option.iter (fun jwt -> request.Headers.Add("Authorization", $"Bearer {jwt}"))
     task {
-        use server = new TestServer(getTestHost())
-        use client = server.CreateClient()
         let! response = request |> client.SendAsync
         let! content = response.Content.ReadAsStringAsync()
-        return (response, content)
+        return enforceSuccess (response, content)
     }
-    |> Async.AwaitTask
-    |> Async.RunSynchronously
-    |> enforceSuccess
+    //|> Task.map enforceSuccess
 
 [<RequireQualifiedAccess>]
 module WithoutToken =
-    let request (url: string) (body: 'a option) (method: HttpMethod) : ApiResponse =
+    let request (url: string) (body: 'a option) (method: HttpMethod) : ApiResponse Task =
         request None url body method
 
 let private uriBuilder (url : string) : UriBuilder =
@@ -109,7 +122,7 @@ let private uriBuilder (url : string) : UriBuilder =
 
 [<RequireQualifiedAccess>]
 module UsingEditToken =
-    let request (editToken: string) (url: string) (body: 'a option) (method: HttpMethod) : ApiResponse =
+    let request (editToken: string) (url: string) (body: 'a option) (method: HttpMethod) : ApiResponse Task =
         let withToken =
             let builder = uriBuilder url
             builder.Query <- $"editToken={editToken}"
@@ -118,7 +131,7 @@ module UsingEditToken =
 
 [<RequireQualifiedAccess>]
 module UsingCancellationToken =
-    let request (cancellationToken: string) (url: string) (body: 'a option) (method: HttpMethod) : ApiResponse =
+    let request (cancellationToken: string) (url: string) (body: 'a option) (method: HttpMethod) : ApiResponse Task =
         let withToken =
             let builder = uriBuilder url
             builder.Query <- $"cancellationToken={cancellationToken}"
@@ -127,7 +140,7 @@ module UsingCancellationToken =
 
 [<RequireQualifiedAccess>]
 module UsingShortName =
-    let request (shortName: string) (url: string) (body: 'a option) (method: HttpMethod) : ApiResponse =
+    let request (shortName: string) (url: string) (body: 'a option) (method: HttpMethod) : ApiResponse Task =
         let withToken =
             let builder = uriBuilder url
             builder.Query <- $"shortname={shortName}"
@@ -136,7 +149,7 @@ module UsingShortName =
 
 [<RequireQualifiedAccess>]
 module UsingJwtToken =
-    let request (url: string) (body: 'a option) (method: HttpMethod) : ApiResponse =
+    let request (url: string) (body: 'a option) (method: HttpMethod) : ApiResponse Task =
         request (Some token) url body method
 
 
@@ -145,7 +158,7 @@ module Models =
     let mapResponse<'a, 'b> (f: 'a -> 'b) ((response, content) : TypedApiResponse<'a>) : TypedApiResponse<'b> =
         (response, f content)
 
-    let decode<'a> (response : ApiResponse) : (HttpResponseMessage*'a) =
+    let decode<'a> (response : ApiResponse) : TypedApiResponse<'a> =
         response
         |> mapResponse (fun content ->
             Decode.Auto.fromString<'a>(content)
@@ -172,6 +185,27 @@ module Models =
         cancellationToken: string
         employeeId: int option
     }
+
+    type GetEventResponse = {
+        id: string
+        title: string
+        description: string
+        location: string
+        organizerName: string
+        organizerEmail: string
+        // TODO: Fix deserialization of DateTimeCustom
+        //startDate: DateTimeCustom.DateTimeCustom
+        //endDate: DateTimeCustom.DateTimeCustom
+        participantQuestions: string list
+        // TODO: Fix deserialization. DateTime as ticks..?
+        openForRegistrationTime: string
+        hasWaitingList: bool
+        isCancelled: bool
+        isExternal: bool
+        isHidden: bool
+        organizerId: int
+    }
+
     let decodeParticipiant =
         decode<ParticipantResponse>
 
@@ -179,23 +213,7 @@ module Models =
         decode<{| participant: ParticipantResponse; cancellationToken: string |}>
 
     let decodeEvent =
-        decode<{| id: string
-                  title: string
-                  description: string
-                  location: string
-                  organizerName: string
-                  organizerEmail: string
-                  // TODO: Fix deserialization of DateTimeCustom
-                  //startDate: DateTimeCustom.DateTimeCustom
-                  //endDate: DateTimeCustom.DateTimeCustom
-                  participantQuestions: string list
-                  // TODO: Fix deserialization. DateTime as ticks..?
-                  openForRegistrationTime: string
-                  hasWaitingList: bool
-                  isCancelled: bool
-                  isExternal: bool
-                  isHidden: bool
-                  organizerId: int|}>
+        decode<GetEventResponse>
 
     let decodeUserMessage =
         decode<{| userMessage: string |}>
@@ -219,7 +237,7 @@ module Models =
 
 [<AutoOpen>]
 module Api =
-    type Requester<'a> = string -> 'a option -> HttpMethod -> ApiResponse
+    type Requester<'a> = string -> 'a option -> HttpMethod -> ApiResponse Task
     let get req = req HttpMethod.Get
     let put req = req HttpMethod.Put
     let post req = req HttpMethod.Post
@@ -229,20 +247,23 @@ module Api =
         let get (req: Requester<_>) =
             req "/health" None
             |> get
-            |> decode<string>
+            |> Task.map decode<string>
 
     module Events =
-        let create (req : Requester<Models.EventWriteModel>) (f : Models.EventWriteModel -> Models.EventWriteModel) : TypedApiResponse<CreatedEvent> =
+        let create (req : Requester<Models.EventWriteModel>) (f : Models.EventWriteModel -> Models.EventWriteModel) : TypedApiResponse<CreatedEvent> Task =
             let event = f <| Generator.generateEvent()
-            req "/events" (Some event)
-            |> post
-            |> decode<{| event: {| id: string; shortname: string option; isCancelled: bool |}; editToken: string |}>
-            |> mapResponse (fun created ->
-                { id = created.event.id
-                  shortName = created.event.shortname
-                  isCancelled = created.event.isCancelled
-                  editToken = created.editToken
-                  event = event })
+            task {
+                let! response = req "/events" (Some event) |> post
+                return
+                    response
+                    |> decode<{| event: {| id: string; shortname: string option; isCancelled: bool |}; editToken: string |}>
+                    |> mapResponse (fun created ->
+                        { id = created.event.id
+                          shortName = created.event.shortname
+                          isCancelled = created.event.isCancelled
+                          editToken = created.editToken
+                          event = event })
+            }
 
         let forside<'a> (req: Requester<'a>) (email: string) =
             req $"/events/forside/{email}" None
@@ -259,40 +280,44 @@ module Api =
         let get<'a> (req : Requester<'a>) (eventId : string) =
             req $"/events/{eventId}" None
             |> get
-            |> decodeEvent
+            |> Task.map decodeEvent
 
-        let update (req : Requester<_>) (event: CreatedEvent) (f: EventWriteModel -> EventWriteModel) : TypedApiResponse<CreatedEvent> =
+        let update (req : Requester<_>) (event: CreatedEvent) (f: EventWriteModel -> EventWriteModel) : TypedApiResponse<CreatedEvent> Task =
             let newEvent = f event.event
             req $"/events/{event.id}" (Some newEvent)
             |> put
-            |> mapResponse (fun _ -> { event with event = newEvent })
+            |> Task.map (mapResponse (fun _ -> { event with event = newEvent }))
 
-        let cancel (req: Requester<_>) (event: CreatedEvent) : ApiResponse =
+        let cancel (req: Requester<_>) (event: CreatedEvent) : ApiResponse Task =
             req $"/events/{event.id}" None
             |> delete
 
-        let delete (req: Requester<_>) (event: CreatedEvent) : ApiResponse =
+        let delete (req: Requester<_>) (event: CreatedEvent) : ApiResponse Task =
             req $"/events/{event.id}/delete" None
             |> delete
 
     module Participant =
-        let create (req: Requester<_>) (event: CreatedEvent) (fp: ParticipantWriteModel -> ParticipantWriteModel) (fe: string -> string) : TypedApiResponse<RegisteredParticipant> =
+        let create (req: Requester<_>) (event: CreatedEvent) (fp: ParticipantWriteModel -> ParticipantWriteModel) (fe: string -> string) : TypedApiResponse<RegisteredParticipant> Task =
             let participant = fp (Generator.generateParticipant (List.length event.event.ParticipantQuestions))
             let email = fe (Generator.generateEmail())
-            req $"/events/{event.id}/participants/{email}" (Some participant)
-            |> post
-            |> decodeParticipantWithCancellationToken
-            |> mapResponse (fun decoded ->
-                { participant = participant
-                  email = email
-                  event = event
-                  participantResponse = decoded.participant
-                  cancellationToken = decoded.cancellationToken })
+            task {
+                let! response = req $"/events/{event.id}/participants/{email}" (Some participant) |> post
+                return
+                    response
+                    |> decodeParticipantWithCancellationToken
+                    |> mapResponse (fun decoded ->
+                        { participant = participant
+                          email = email
+                          event = event
+                          participantResponse = decoded.participant
+                          cancellationToken = decoded.cancellationToken })
+            }
 
         let delete (req: Requester<_>) (participant: RegisteredParticipant) =
             req $"/events/{participant.event.id}/participants/{participant.email}" (Some participant)
             |> delete
 
 module TestData =
-    let createEvent (f: EventWriteModel -> EventWriteModel) : CreatedEvent =
-        justContent <| Events.create UsingJwtToken.request f
+    let createEvent (f: EventWriteModel -> EventWriteModel) : CreatedEvent Task =
+        Events.create UsingJwtToken.request f
+        |> justContent
