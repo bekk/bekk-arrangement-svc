@@ -6,35 +6,35 @@ open Bogus
 let private faker = Faker()
 
 let private generateDatePast () : DateTimeCustom.Date =
-    let date = faker.Date.Past(10, DateTime.Now)
+    let date = faker.Date.Past(10, DateTime.Now.AddDays(-1))
     { Day = date.Day
       Month = date.Month
       Year = date.Year }
 
 let private generateDateFuture () : DateTimeCustom.Date =
-    let date = faker.Date.Future(10, DateTime.Now)
+    let date = faker.Date.Future(10, DateTime.Now.AddDays(1))
     { Day = date.Day
       Month = date.Month
       Year = date.Year }
 
 let private generateDateSoon () : DateTimeCustom.Date =
-    let date = faker.Date.Soon(10, DateTime.Now)
+    let date = faker.Date.Soon(10, DateTime.Now.AddDays(1))
     { Day = date.Day
       Month = date.Month
       Year = date.Year }
 
 let private generateTimePast (): DateTimeCustom.Time =
-    let time = faker.Date.Past(10, DateTime.Now)
+    let time = faker.Date.Past(10, DateTime.Now.AddMinutes(-1))
     { Hour = time.Hour
       Minute = time.Minute }
 
 let private generateTimeFuture (): DateTimeCustom.Time =
-    let time = faker.Date.Future(10, DateTime.Now)
+    let time = faker.Date.Future(10, DateTime.Now.AddMinutes(1))
     { Hour = time.Hour
       Minute = time.Minute }
 
 let private generateTimeSoon () : DateTimeCustom.Time =
-    let time = faker.Date.Soon(10, DateTime.Now)
+    let time = faker.Date.Soon(10, DateTime.Now.AddMinutes(1))
     { Hour = time.Hour
       Minute = time.Minute }
 
