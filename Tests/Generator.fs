@@ -70,7 +70,7 @@ let generateEvent () : Models.EventWriteModel =
               None
           else
               Some(
-                  (DateTimeOffset(faker.Date.Future(refDate = start).Date)
+                  (DateTimeOffset(faker.Date.Future(10, refDate = start).Date)
                       .ToUnixTimeMilliseconds())
                       .ToString()
               )
