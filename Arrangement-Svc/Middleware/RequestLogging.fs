@@ -1,4 +1,4 @@
-module Middleware
+namespace Middleware
 
 open Giraffe
 open System

@@ -45,6 +45,7 @@ let configureApp (app: IApplicationBuilder) =
     app.UseAuthentication() |> ignore
     app.UseCors(configureCors) |> ignore
     app.UseOutputCaching()
+    app.UseMiddleware<Middleware.RetryOnDeadlock>() |> ignore
     app.UseGiraffe(webApp) |> ignore
 
 let configureServices (services: IServiceCollection) =
