@@ -21,4 +21,4 @@ COPY --from=build /Arrangement-Svc/out .
 COPY --from=build /Frontend/build wwwroot/.
 ENV VIRTUAL_PATH="/arrangement-svc"
 ENV PORT=80
-CMD dotnet backend.dll
+CMD dotnet arrangementSvc.dll
