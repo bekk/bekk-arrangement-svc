@@ -16,7 +16,7 @@ RUN dotnet publish -c release -o out
 FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine
 WORKDIR /app/Arrangement-Svc/
 COPY --from=build /app/Arrangement-Svc/out .
-COPY --from=build /app/Arrangement-Svc/wwwroot ./wwwroot/.
+COPY --from=build /app/Arrangement-Svc/wwwroot wwwroot/.
 WORKDIR /app
-COPY --from=build /Frontend/build wwwroot/.
+COPY --from=build /app/Frontend/build wwwroot/.
 CMD dotnet arrangementSvc.dll

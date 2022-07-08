@@ -51,7 +51,6 @@
     "@types/react-responsive": "^8.0.5",
     "@types/react-router": "^5.1.18",
     "@types/react-router-dom": "^5.3.3",
-    "@types/react-textarea-autosize": "^8.0.0",
     "http-proxy-middleware": "^2.0.6",
     "react-responsive": "^8.2.0",
     "sass": "^1.53.0",
