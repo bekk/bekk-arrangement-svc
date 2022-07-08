@@ -2,9 +2,9 @@ import React, { createRef, useRef } from 'react';
 import { useHistory } from 'react-router';
 import { getParticipantExportResponse } from 'src/api/arrangementSvc';
 import {
+  authenticateUser,
   isAuthenticated,
   needsToAuthenticate,
-  redirectToAuth0,
   userIsAdmin,
   userIsLoggedIn,
 } from 'src/auth';
@@ -93,7 +93,7 @@ export const ViewEventContainer = ({ eventId }: IProps) => {
 
   if (isBad(remoteEvent)) {
     if (!isAuthenticated() && needsToAuthenticate(remoteEvent.statusCode)) {
-      redirectToAuth0();
+      authenticateUser();
       return <p>Redirigerer til innlogging</p>;
     }
     return <div>{remoteEvent.userMessage}</div>;

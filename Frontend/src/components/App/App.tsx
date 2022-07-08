@@ -1,4 +1,4 @@
-import { isAuthenticated, redirectToAuth0, useAuth0Redirect } from 'src/auth';
+import {authenticateUser, isAuthenticated, useAuth0Redirect, userIsLoggedIn} from 'src/auth';
 import { Router, Switch, Route, Redirect, RouteProps } from 'react-router';
 import React from 'react';
 import { Header } from 'src/components/Common/Header/Header';
@@ -117,7 +117,7 @@ export const App = () => {
             <ConfirmParticipant />
           </div>
         </Route>
-        <Redirect exact from={rootRoute} to={eventsRoute} />
+        {userIsLoggedIn() && <Redirect exact from={rootRoute} to={eventsRoute} />}
         <Route path={viewEventShortnameRoute(':' + shortnameKey)}>
           <div className={classNames(style.container, style.darkBackground)}>
             <ViewEventShortnameRoute />
@@ -133,7 +133,7 @@ export type ProtectedRouteProps = {
 
 const PrivateRoute = ({ children, ...routeProps }: ProtectedRouteProps) => {
   if (!isAuthenticated()) {
-    redirectToAuth0();
+    authenticateUser();
     return null;
   } else {
     return <Route {...routeProps} render={() => children} />;

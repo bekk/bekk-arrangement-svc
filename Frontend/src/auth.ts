@@ -63,17 +63,16 @@ function getCurrentState(): string {
   return encodeURIComponent(state);
 }
 
-async function getAuth0Url(): Promise<string> {
-  const encodedCallback = encodeURIComponent(
-    getApplicationRoot() + '/redirect'
-  );
+function getAuth0Url(): string {
+  const encodedCallback = encodeURIComponent(getApplicationRoot());
   const state = getCurrentState();
   const encodedScopes = encodeURIComponent(getScopes());
   return `https://${getIssuerDomain()}/authorize?client_id=${getAudience()}&response_type=token&redirect_uri=${encodedCallback}&scope=${encodedScopes}&state=${state}`;
 }
 
-export function redirectToAuth0(): void {
-  getAuth0Url().then(url => window.location.replace(url));
+function redirectToAuth0(): void {
+  const url = getAuth0Url();
+  window.location.replace(url);
 }
 
 function getStateFromHash(): string {
@@ -137,17 +136,13 @@ export function getRoleClaims(): void {
 }
 
 export function authenticateUser(): void {
-  if (!isAuthenticated()) {
-    redirectToAuth0();
-    catchTokenFromAuth0AndSaveIt();
-  }
-}
-
-export function catchTokenFromAuth0AndSaveIt(): void {
   const token = tryParseToken();
   if (token) {
     saveToken(token);
     redirectToState();
+  }
+  if (!isAuthenticated()) {
+    redirectToAuth0();
   }
 }
 
@@ -159,7 +154,7 @@ export function useAuthentication(): void {
 
 export function useAuth0Redirect(): void {
   useLayoutEffect(() => {
-    catchTokenFromAuth0AndSaveIt();
+    authenticateUser();
   }, []);
 }
 
