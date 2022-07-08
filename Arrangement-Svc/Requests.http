@@ -71,7 +71,7 @@ DELETE localhost:5000/events/<enter event id here>/delete
 Authorization: Bearer {{token}}
 
 ### Get health
-GET localhost:5000/api/api/health
+GET localhost:5000/health
 
 ### Get config
 GET localhost:5000/api/config
@@ -80,4 +80,4 @@ GET localhost:5000/api/config
 GET localhost:5000/fonts/webfonts.css
 
 ### Get index
-GET localhost:5000/
+GET localhost:5000

@@ -778,4 +778,5 @@ let routes: HttpHandler =
               routef "/api/events/%O/delete" deleteEvent
               routef "/api/events/%O/participants/%s" (fun (eventId, email) -> deleteParticipantFromEvent eventId email)
           ]
+          RequestErrors.NOT_FOUND "Not Found"
         ]
