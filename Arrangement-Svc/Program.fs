@@ -2,7 +2,7 @@
 
 open System
 open Giraffe
-open System.IO
+open Giraffe.EndpointRouting
 open Bekk.Canonical.Logger
 open System.Threading.Tasks
 open Microsoft.AspNetCore.Http
@@ -18,7 +18,6 @@ open Microsoft.AspNetCore.Authentication.JwtBearer
 open migrator
 open Config
 open Email.SendgridApiModels
-
 
 let webApp =
     choose
@@ -37,23 +36,28 @@ let configureCors (builder: CorsPolicyBuilder) =
            .AllowAnyOrigin() |> ignore
 
 let configureApp (app: IApplicationBuilder) =
-    app.UseDefaultFiles() |> ignore
-    app.UseStaticFiles() |> ignore
     app.Use(fun context (next: Func<Task>) ->
         context.Request.Path <- context.Request.Path.Value.Replace (configuration["VIRTUAL_PATH"], "") |> PathString
         next.Invoke())
     |> ignore
+    app.UseDefaultFiles() |> ignore
+    app.UseStaticFiles() |> ignore
     app.UseMiddleware<Middleware.RequestLogging>() |> ignore
+    app.UseRouting() |> ignore
     app.UseAuthentication() |> ignore
     app.UseCors(configureCors) |> ignore
     app.UseOutputCaching()
     app.UseMiddleware<Middleware.RetryOnDeadlock>() |> ignore
-    app.UseGiraffe(webApp) |> ignore
+    app.UseGiraffe(webApp)
+    app.UseEndpoints(fun e ->
+            e.MapFallbackToFile "index.html" |> ignore) |> ignore
+
 
 let configureServices (services: IServiceCollection) =
     services.AddResponseCompression() |> ignore
     services.AddCors() |> ignore
     services.AddGiraffe() |> ignore
+    services.AddRouting() |> ignore
     services.AddOutputCaching(fun opt ->
         // The default option requires the user to not be authenticated, probably to avoid leaking data between
         // users. A good default, but it means we cannot use it as a cache for all users. We turn off this security

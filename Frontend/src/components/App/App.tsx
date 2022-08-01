@@ -1,4 +1,4 @@
-import {authenticateUser, isAuthenticated, useAuth0Redirect, userIsLoggedIn} from 'src/auth';
+import {authenticateUser, isAuthenticated, useAuth0Redirect } from 'src/auth';
 import { Router, Switch, Route, Redirect, RouteProps } from 'react-router';
 import React from 'react';
 import { Header } from 'src/components/Common/Header/Header';

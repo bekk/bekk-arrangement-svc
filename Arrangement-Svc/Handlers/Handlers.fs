@@ -739,9 +739,11 @@ let deleteParticipantFromEvent (eventId: Guid) (email: string) =
 
 let routes: HttpHandler =
     choose
-        [ POST
+        [
+          POST
           >=> choose [
               routef "/api/events/%O/participants/%s" registerParticipationHandler
+              // Todo: Fix authenticated her
               isAuthenticated >=> choose [
                   route "/api/events" >=> createEvent
               ]
@@ -758,15 +760,17 @@ let routes: HttpHandler =
             routef "/api/events/%O/participants/count" getNumberOfParticipantsForEvent
             routef "/api/events/%O/participants/%s/waitinglist-spot" (fun (eventId, email) -> getWaitinglistSpot eventId email)
             routef "/api/events/%O/participants/export" exportParticipationsForEvent
-            isAuthenticated >=> choose [
-                route "/api/events" >=> getFutureEvents
-                route "/api/events/previous" >=> getPastEvents
-                routef "/api/events/forside/%s" getEventsForForsideHandler
-                routef "/api/events/organizer/%s" getEventsOrganizedBy
-                routef "/api/events-and-participations/%i" getEventsAndParticipations
-                routef "/api/events/%O/participants" getParticipantsForEvent
-                routef "/api/participants/%s/events" getParticipationsForParticipant
+            // TODO: Fix penere
+            choose [
+                route "/api/events" >=> isAuthenticated >=> getFutureEvents
+                route "/api/events/previous" >=> isAuthenticated >=> getPastEvents
+                routef "/api/events/forside/%s" (fun x -> isAuthenticated >=> (getEventsForForsideHandler x))
+                routef "/api/events/organizer/%s" (fun x -> isAuthenticated >=> (getEventsOrganizedBy x))
+                routef "/api/events-and-participations/%i" (fun x -> isAuthenticated >=> (getEventsAndParticipations x))
+                routef "/api/events/%O/participants" (fun x -> isAuthenticated >=> (getParticipantsForEvent x))
+                routef "/api/participants/%s/events" (fun x -> isAuthenticated >=> (getParticipationsForParticipant x))
                 routef "/api/office-events/%s" (fun date ->
+                    isAuthenticated >=>
                     outputCache (fun opt -> opt.Duration <- TimeSpan.FromMinutes(5).TotalSeconds)
                     >=> OfficeEvents.WebApi.get date
                     )
@@ -778,5 +782,4 @@ let routes: HttpHandler =
               routef "/api/events/%O/delete" deleteEvent
               routef "/api/events/%O/participants/%s" (fun (eventId, email) -> deleteParticipantFromEvent eventId email)
           ]
-          RequestErrors.NOT_FOUND "Not Found"
         ]
