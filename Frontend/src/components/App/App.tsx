@@ -28,13 +28,13 @@ import { PreviewEventContainer } from 'src/components/PreviewEvent/PreviewEventC
 import { PreviewNewEventContainer } from 'src/components/PreviewEvent/PreviewNewEventContainer';
 import { ViewEventsCardsContainer } from 'src/components/ViewEventsCards/ViewEventsCardsContainer';
 import { StylingExamples } from 'src/components/Common/StylingExamples/StylingExamples';
-import { usePopulateTokensInLocalStorage } from 'src/hooks/saved-tokens';
 import {
   ViewEventShortnameRoute,
   ViewEventContainerRegularRoute,
 } from 'src/components/ViewEvent/ViewEventRoutes';
 import classNames from 'classnames';
 import {OfficeEvents} from "src/components/OfficeEvents/OfficeEvents";
+import {usePopulateTokensInLocalStorage} from "src/hooks/saved-tokens";
 
 const history = createBrowserHistory();
 
@@ -117,7 +117,7 @@ export const App = () => {
             <ConfirmParticipant />
           </div>
         </Route>
-        {userIsLoggedIn() && <Redirect exact from={rootRoute} to={eventsRoute} />}
+        <Redirect exact from={rootRoute} to={eventsRoute} />
         <Route path={viewEventShortnameRoute(':' + shortnameKey)}>
           <div className={classNames(style.container, style.darkBackground)}>
             <ViewEventShortnameRoute />

@@ -12,5 +12,6 @@ type Config = {
 let configHandler (next: HttpFunc) (context: HttpContext) =
     let config = context.GetService<Config>()
     json config next context
+
 let config: HttpHandler =
     route "/api/config" >=> configHandler

@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect } from 'react';
 import { UserNotification } from 'src/components/NotificationHandler/NotificationHandler';
-import {getAudience, getIssuerDomain, getScopes } from "src/config";
+import { getScopes, getIssuerDomain, getAudience } from 'src/config';
 const EmployeeIdClaimType = 'https://api.bekk.no/claims/employeeId';
 
 function parseHash(hash: string): any {
@@ -64,13 +64,15 @@ function getCurrentState(): string {
 }
 
 function getAuth0Url(): string {
-  const encodedCallback = encodeURIComponent(getApplicationRoot());
+  const encodedCallback = encodeURIComponent(
+    getApplicationRoot() + '/redirect'
+  );
   const state = getCurrentState();
   const encodedScopes = encodeURIComponent(getScopes());
   return `https://${getIssuerDomain()}/authorize?client_id=${getAudience()}&response_type=token&redirect_uri=${encodedCallback}&scope=${encodedScopes}&state=${state}`;
 }
 
-function redirectToAuth0(): void {
+export function redirectToAuth0(): void {
   const url = getAuth0Url();
   window.location.replace(url);
 }
@@ -136,13 +138,16 @@ export function getRoleClaims(): void {
 }
 
 export function authenticateUser(): void {
+  if (!isAuthenticated()) {
+    redirectToAuth0();
+  }
+}
+
+export function catchTokenFromAuth0AndSaveIt(): void {
   const token = tryParseToken();
   if (token) {
     saveToken(token);
     redirectToState();
-  }
-  if (!isAuthenticated()) {
-    redirectToAuth0();
   }
 }
 
@@ -154,7 +159,7 @@ export function useAuthentication(): void {
 
 export function useAuth0Redirect(): void {
   useLayoutEffect(() => {
-    authenticateUser();
+    catchTokenFromAuth0AndSaveIt();
   }, []);
 }
 
