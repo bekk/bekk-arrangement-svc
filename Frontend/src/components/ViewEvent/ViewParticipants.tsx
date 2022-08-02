@@ -158,7 +158,7 @@ const ParticipantTableDesktop = (props: {
                   {questions.map(
                     (q, i) =>
                       attendee.participantAnswers[i] && (
-                        <div>
+                        <div key={`${q}:${i}`}>
                           <div className={style.question}>{q}</div>
                           <div className={style.answer}>
                             {attendee.participantAnswers[i]}

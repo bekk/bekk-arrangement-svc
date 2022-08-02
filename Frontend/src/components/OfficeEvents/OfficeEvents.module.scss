@@ -19,7 +19,7 @@
   color: black;
 }
 
-table {
+.table {
   border-collapse: collapse;
   margin: 0;
   padding: 0;
@@ -27,7 +27,7 @@ table {
   table-layout: fixed;
 }
 
-table caption {
+.table caption {
   text-transform: capitalize;
   font-family: $serifFontRegular;
   font-style: normal;
@@ -45,19 +45,19 @@ table caption {
   }
 }
 
-table tr {
+.table tr {
   background-color: var(--backgroundColor);
   padding: .35em;
 }
 
-table th {
+.table th {
   padding: .625em;
   font-family: $serifFontRegular;
   font-weight: 400;
   font-size: 20px;
   line-height: 30px;
 }
-table td {
+.table td {
   padding: .625em;
   width: 200px;
   height: 200px;
@@ -110,7 +110,7 @@ table td {
   text-align: center;
   background-color: var(--soloppgangKontrast);
   border-radius: 25px;
-  color: black;
+  color: black !important;
   @media screen and (max-width: 600px) {
     float:right;
   }

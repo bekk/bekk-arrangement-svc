@@ -127,7 +127,7 @@ export const ViewEvent = ({
               <div>
                 <h3>Spørsmål til deltaker</h3>
                 {event.participantQuestions.map((q) => (
-                  <div>{q}</div>
+                  <div key={q}>{q}</div>
                 ))}
               </div>
             )}
@@ -173,8 +173,8 @@ const Description = ({ description }: { description: string }) => {
   const paragraphs = description.split('\n');
   return (
     <>
-      {paragraphs.map((paragraph) => (
-        <div key={paragraph} className={style.paragraph}>
+      {paragraphs.map((paragraph, i) => (
+        <div key={`${paragraph}:${i}`} className={style.paragraph}>
           {formatLinks(paragraph).map(formatHeadersAndStuff)}
         </div>
       ))}
@@ -221,10 +221,10 @@ const formatLinks = (line: string): (string | JSX.Element)[] => {
 const formatHeadersAndStuff = (s: string | JSX.Element, i: number) => {
   if (i === 0 && typeof s === 'string') {
     if (s.charAt(0) === '-') {
-      return <li>{s.slice(1).trim()}</li>;
+      return <li key={s}>{s.slice(1).trim()}</li>;
     }
     if (s.charAt(0) === '#') {
-      return <h3>{s.slice(1).trim()}</h3>;
+      return <h3 key={s}>{s.slice(1).trim()}</h3>;
     }
   }
   return s;

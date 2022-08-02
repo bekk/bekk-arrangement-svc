@@ -62,7 +62,7 @@ export const OfficeEvents = () => {
         </div>
       </WavySubHeader>
       {selectedEvent !== undefined && <EventModal event={selectedEvent} closeModal={() => setSelectedEvent(undefined)}/> }
-      <table>
+      <table className={style.table}>
         <caption>
           <div>
             <Arrow onClick={decrementMonth} className={style.arrow} direction="left" color="white" noCircle />
@@ -90,16 +90,20 @@ export const OfficeEvents = () => {
 }
 
 const WeekDayCards = ({daysAndEvents, setSelectedEvent}: { daysAndEvents: DayAndEvents[], setSelectedEvent: (x: OfficeEvent) => void  }) => {
+  const currentDate = new Date();
+  const isPreviousDay = (day: Date) => day < currentDate;
+  const isToday = (day: Date) => day.toDateString() === currentDate.toDateString();
+  const isNextMonth = (day: Date) => day.getMonth() > currentDate.getMonth()
   return (
     <tr key={getWeek(daysAndEvents[0].day)} data-label={getWeek(daysAndEvents[0].day)}>
       {daysAndEvents.map(dayAndEvents => {
         const {day, events} = dayAndEvents
         const borderStyle = classnames({
-          [style.oldDay]: day < addDays(new Date(), -1)
+          [style.oldDay]: isPreviousDay(day) || isNextMonth(day),
         })
         const dateStyle = classnames({
-          [style.oldDate]: day < addDays(new Date(), -1),
-          [style.dateToday]: day.toDateString() === new Date().toDateString()
+          [style.oldDate]: isPreviousDay(day) || isNextMonth(day),
+          [style.dateToday]: isToday(day),
         })
         return (
           <td className={borderStyle} key={day.getDate()}>
