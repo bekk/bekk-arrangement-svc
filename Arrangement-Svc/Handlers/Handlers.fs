@@ -743,10 +743,8 @@ let routes: HttpHandler =
           POST
           >=> choose [
               routef "/api/events/%O/participants/%s" registerParticipationHandler
-              // Todo: Fix authenticated her
-              isAuthenticated >=> choose [
-                  route "/api/events" >=> createEvent
-              ]
+              // Has authentication
+              route "/api/events" >=> isAuthenticated >=> createEvent
           ]
           PUT
           >=> choose [
@@ -760,21 +758,19 @@ let routes: HttpHandler =
             routef "/api/events/%O/participants/count" getNumberOfParticipantsForEvent
             routef "/api/events/%O/participants/%s/waitinglist-spot" (fun (eventId, email) -> getWaitinglistSpot eventId email)
             routef "/api/events/%O/participants/export" exportParticipationsForEvent
-            // TODO: Fix penere
-            choose [
-                route "/api/events" >=> isAuthenticated >=> getFutureEvents
-                route "/api/events/previous" >=> isAuthenticated >=> getPastEvents
-                routef "/api/events/forside/%s" (fun x -> isAuthenticated >=> (getEventsForForsideHandler x))
-                routef "/api/events/organizer/%s" (fun x -> isAuthenticated >=> (getEventsOrganizedBy x))
-                routef "/api/events-and-participations/%i" (fun x -> isAuthenticated >=> (getEventsAndParticipations x))
-                routef "/api/events/%O/participants" (fun x -> isAuthenticated >=> (getParticipantsForEvent x))
-                routef "/api/participants/%s/events" (fun x -> isAuthenticated >=> (getParticipationsForParticipant x))
-                routef "/api/office-events/%s" (fun date ->
-                    isAuthenticated >=>
-                    outputCache (fun opt -> opt.Duration <- TimeSpan.FromMinutes(5).TotalSeconds)
-                    >=> OfficeEvents.WebApi.get date
-                    )
-            ]
+            // Has authentication
+            route "/api/events" >=> isAuthenticated >=> getFutureEvents
+            route "/api/events/previous" >=> isAuthenticated >=> getPastEvents
+            routef "/api/events/forside/%s" (isAuthenticatedf getEventsForForsideHandler)
+            routef "/api/events/organizer/%s" (isAuthenticatedf getEventsOrganizedBy)
+            routef "/api/events-and-participations/%i" (isAuthenticatedf getEventsAndParticipations)
+            routef "/api/events/%O/participants" (isAuthenticatedf getParticipantsForEvent)
+            routef "/api/participants/%s/events" (isAuthenticatedf getParticipationsForParticipant)
+            routef "/api/office-events/%s" (fun date ->
+                isAuthenticated >=>
+                outputCache (fun opt -> opt.Duration <- TimeSpan.FromMinutes(5).TotalSeconds)
+                >=> OfficeEvents.WebApi.get date
+                )
           ]
           DELETE
           >=> choose [
