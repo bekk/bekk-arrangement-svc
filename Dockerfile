@@ -1,6 +1,6 @@
+FROM node:16-alpine AS node_base
 FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine AS build
-
-RUN apk add --update nodejs npm netcat-openbsd
+COPY --from=node_base . .
 
 WORKDIR /app
 COPY . .
