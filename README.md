@@ -1,6 +1,6 @@
 # Arrangement Service
 
-An F# service for collecting and maintaining data about events.
+An F# service and frontend for collecting and maintaining data about events.
 
 ## Environments
 
@@ -19,19 +19,51 @@ An F# service for collecting and maintaining data about events.
 
 ### First time setup
 
-- Open the project from the `src` folder in the terminal to avoid error messages in Visual Studio Code
 - You will need to create the database `arrangement-db` on you local SQL server, if it does not already exist. Use the query `CREATE DATABASE [arrangement-db]`. If you dont have a local SQL server -> https://docs.microsoft.com/en-us/sql/linux/quickstart-install-connect-docker?view=sql-server-ver15&pivots=cs1-cmd
 - In `appsettings.json`, make sure your database is running on this address. If this doesn't work you can try to connect to the development database. You can find the address for the development database in the secrets manager on AWS.
 
-### Run the app
+### Running the service
 
-- In the src folder run `$ dotnet watch run`
-- The service runs at `http://localhost:5000/`
-- If everything works, `http://localhost:5000/health` should return 200 OK.
+Developing locally you can either run the frontend on its own and proxy to the dev instance in AWS.
+Or you can run both frontend and backend locally.
+
+Running everything locally:
+```
+$ cd Frontend
+$ npm i
+$ npm start
+```
+In another:
+```
+$ cd Arrangement-svc
+$ dotnet watch run
+```
+
+If you are only developing frontend you can use and environment variable to proxy to the dev environment
+```
+$ cd Frontend
+$ export PROXY=https://api.bekk.dev/arrangement-svc
+$ npm i 
+$ npm start
+```
+
+When running the backend you may not want to run the migrations each time.
+If you do not want to run migrations you can use the environment variable: `NO_MIGRATION`.
+```
+$ NO_MIGRATION=true dotnet run
+```
+
+Alternatively you can export it so you do not have to type it each time:
+```
+$ export NO_MIGRATION=true
+$ dotnet run
+```
 
 ## Deploy app
 
 ### Deploy to development
+When the program is deployed the frontend is built and hosted by the backend.
+Look in the dockerfile to see how this works.
 
 Push to the master branch will automatically deploy the app to development.
 If you want a preview of the service then append `-preview` to the title of any PR you make.
@@ -41,9 +73,22 @@ If you want a preview of the service then append `-preview` to the title of any 
 Create a release from the master branch, and it should deploy to production.
 
 ## Technologies we use
+Backend:
+- F#
 - [Giraffe](https://github.com/giraffe-fsharp/Giraffe) is the framework we use to setup the web application. It is an easy to use library which builds functional components on top of Kestrel. It also has extensive documentation.
 - [Dapper](https://github.com/DapperLib/Dapper) is the ORM we are using. We went with plain Dapper here as we want to write SQL and escape any heavier ORM. This has some pros and cons, but has been working well for us.
 - [FsToolkit.ErrorHandling](https://github.com/demystifyfp/FsToolkit.ErrorHandling) Is a library we use to better deal with Task and Result types. It allows us to remove some rightward drift (match case pyramids) and also simplify our error handling.
+
+Frontend:
+- TypeScript
+- React
+- Sass
+- Lodash
+
+## Trying endpoints 
+While there is no swagger in this project you can use any JetBrains product, like Rider, to test HTTP endpoints.
+Open the `Requests.http` file and you can test from there.
+Some of the end points require a JWT authorized token, you can add this to the `http-client.env.json` file.
 
 ## Tests
 The testing framework we use is [Expecto](https://github.com/haf/expecto).

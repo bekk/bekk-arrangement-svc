@@ -3,7 +3,6 @@ module Handlers
 open Giraffe
 open System
 open System.Web
-open Microsoft.Data.SqlClient
 open Thoth.Json.Net
 open FsToolkit.ErrorHandling
 open Microsoft.AspNetCore.Http
@@ -740,42 +739,43 @@ let deleteParticipantFromEvent (eventId: Guid) (email: string) =
 
 let routes: HttpHandler =
     choose
-        [ POST
+        [
+          POST
           >=> choose [
-              routef "/events/%O/participants/%s" registerParticipationHandler
-              isAuthenticated >=> choose [
-                  route "/events" >=> createEvent
-              ]
+              routef "/api/events/%O/participants/%s" registerParticipationHandler
+              // Has authentication
+              route "/api/events" >=> isAuthenticated >=> createEvent
           ]
           PUT
           >=> choose [
-              routef "/events/%O" updateEvent
+              routef "/api/events/%O" updateEvent
           ]
           GET
           >=> choose [
-            route "/events/id" >=> getEventIdByShortname
-            routef "/events/%O" getEvent
-            routef "/events/%s/unfurl" getUnfurlEvent
-            routef "/events/%O/participants/count" getNumberOfParticipantsForEvent
-            routef "/events/%O/participants/%s/waitinglist-spot" (fun (eventId, email) -> getWaitinglistSpot eventId email)
-            routef "/events/%O/participants/export" exportParticipationsForEvent
-            isAuthenticated >=> choose [
-                route "/events" >=> getFutureEvents
-                route "/events/previous" >=> getPastEvents
-                routef "/events/forside/%s" getEventsForForsideHandler
-                routef "/events/organizer/%s" getEventsOrganizedBy
-                routef "/events-and-participations/%i" getEventsAndParticipations
-                routef "/events/%O/participants" getParticipantsForEvent
-                routef "/participants/%s/events" getParticipationsForParticipant
-                route "/office-events"
-                    >=> outputCache (fun opt -> opt.Duration <- TimeSpan.FromMinutes(5).TotalSeconds)
-                    >=> OfficeEvents.WebApi.get
-            ]
+            route "/api/events/id" >=> getEventIdByShortname
+            routef "/api/events/%O" getEvent
+            routef "/api/events/%s/unfurl" getUnfurlEvent
+            routef "/api/events/%O/participants/count" getNumberOfParticipantsForEvent
+            routef "/api/events/%O/participants/%s/waitinglist-spot" (fun (eventId, email) -> getWaitinglistSpot eventId email)
+            routef "/api/events/%O/participants/export" exportParticipationsForEvent
+            // Has authentication
+            route "/api/events" >=> isAuthenticated >=> getFutureEvents
+            route "/api/events/previous" >=> isAuthenticated >=> getPastEvents
+            routef "/api/events/forside/%s" (isAuthenticatedf getEventsForForsideHandler)
+            routef "/api/events/organizer/%s" (isAuthenticatedf getEventsOrganizedBy)
+            routef "/api/events-and-participations/%i" (isAuthenticatedf getEventsAndParticipations)
+            routef "/api/events/%O/participants" (isAuthenticatedf getParticipantsForEvent)
+            routef "/api/participants/%s/events" (isAuthenticatedf getParticipationsForParticipant)
+            routef "/api/office-events/%s" (fun date ->
+                isAuthenticated >=>
+                outputCache (fun opt -> opt.Duration <- TimeSpan.FromMinutes(5).TotalSeconds)
+                >=> OfficeEvents.WebApi.get date
+                )
           ]
           DELETE
           >=> choose [
-              routef "/events/%O" cancelEvent
-              routef "/events/%O/delete" deleteEvent
-              routef "/events/%O/participants/%s" (fun (eventId, email) -> deleteParticipantFromEvent eventId email)
+              routef "/api/events/%O" cancelEvent
+              routef "/api/events/%O/delete" deleteEvent
+              routef "/api/events/%O/participants/%s" (fun (eventId, email) -> deleteParticipantFromEvent eventId email)
           ]
         ]

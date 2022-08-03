@@ -57,6 +57,7 @@
     <Compile Include="Middleware\RetryOnDeadlock.fs" />
     <Compile Include="OfficeEvents.fs" />
     <Compile Include="Handlers\Health.fs" />
+    <Compile Include="Handlers\Auth.fs" />
     <Compile Include="Handlers\Handlers.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
@@ -64,5 +65,7 @@
     <Content Include="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="http-client.env.json" />
+    <Content Include="Requests.http" />
   </ItemGroup>
 </Project>

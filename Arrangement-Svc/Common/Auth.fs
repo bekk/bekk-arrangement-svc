@@ -12,6 +12,8 @@ let employeeIdClaim = "https://api.bekk.no/claims/employeeId"
 let isAuthenticated (next: HttpFunc) (context: HttpContext)  =
     requiresAuthentication (challenge JwtBearerDefaults.AuthenticationScheme) next context
 
+let isAuthenticatedf f = (fun x -> isAuthenticated >=> (f x))
+
 let isAdmin (context: HttpContext) =
     let config = context.GetService<AppConfig>()
     context.User.HasClaim(config.permissionsAndClaimsKey, config.adminPermissionClaim)

@@ -1,0 +1,51 @@
+@import 'src/style/constants';
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(275px, 1fr));
+  grid-template-rows: auto;
+  margin: 30px auto 0 auto;
+  gap: 40px;
+  @media #{$tablet} {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    margin-top: 50px;
+  }
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: left;
+  width: $pageMobileWidth;
+  margin: auto;
+  @media #{$desktop} {
+    flex-direction: row;
+    align-items: center;
+    width: $pageDesktopWidth;
+  }
+}
+
+.headerText {
+  @include titleText;
+  color: black;
+}
+
+.pastEventsContainer {
+  margin-top: 60px;
+}
+
+.subHeaderText {
+  @include subHeaderText;
+}
+
+.headerContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+
+  @media #{$desktop} {
+    justify-content: flex-end;
+    margin-top: 0;
+  }
+}

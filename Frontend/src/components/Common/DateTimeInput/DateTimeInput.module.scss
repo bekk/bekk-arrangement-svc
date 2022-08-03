@@ -1,0 +1,16 @@
+@import 'src/style/constants';
+
+.flex {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.dateInput {
+  flex-grow: 1;
+  margin-right: 10px;
+}
+
+.errorText {
+  margin-top: -15px;
+}

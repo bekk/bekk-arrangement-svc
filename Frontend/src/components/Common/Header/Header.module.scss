@@ -1,0 +1,109 @@
+@import 'src/style/colors';
+.header {
+  position: absolute;
+  width: 100%;
+  padding-top: 3em;
+  z-index: 100;
+}
+
+.coloredHeader {
+  margin-bottom: -100px;
+  max-width: max-content;
+}
+
+.logo {
+  width: 98px;
+  margin-left: 5vw;
+}
+
+.subHeaderContainer {
+  width: 100%;
+}
+
+.contentContainer {
+  padding-top: 120px;
+  padding-bottom: 40px;
+}
+
+.sineCurve {
+  z-index: 20;
+  pointer-events: none;
+  overflow: hidden;
+  margin-top: -10px;
+}
+
+.sineCurveContent {
+  margin: 0 -2px;
+  display: block;
+}
+
+.hav {
+  background-color: var(--hav);
+}
+.kveld {
+  background-color: var(--kveld);
+}
+
+.regn {
+  background-color: var(--regn);
+}
+
+.skyfritt {
+  background-color: var(--skyfritt);
+}
+.sol {
+  background-color: var(--sol);
+}
+.solnedgang {
+  background-color: var(--solnedgang);
+}
+.solnedgangKontrast {
+  background-color: var(--solnedgangKontrast);
+}
+.christmas {
+  background-color: #d6001c;
+
+  & h1,
+  p,
+  button {
+    color: white;
+  }
+  & path {
+    fill: white;
+  }
+  & circle {
+    stroke: white;
+  }
+  & button {
+    border-color: white;
+  }
+  & button:hover {
+    background-color: darkgreen;
+    border-color: darkgreen;
+  }
+}
+.halloween {
+  background-color: #ff7518;
+  & button:hover {
+    background-color: red;
+    border-color: red;
+  }
+}
+.kittens {
+  background-color: #f59fce;
+  & button:hover {
+    background-color: #b63afc;
+    border-color: #b63afc;
+  }
+}
+.soloppgang {
+  background-color: var(--soloppgang);
+}
+
+.none {
+  background-color: var(--hvit);
+}
+
+.custom {
+  background-color: initial;
+}

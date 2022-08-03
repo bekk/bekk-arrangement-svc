@@ -1,0 +1,54 @@
+@keyframes spin {
+  25% {
+    transform: translate3d(30px, 0px, 0px) rotateZ(-90deg);
+    border-radius: 0;
+    background-color: var(--solKontrast);
+  }
+  50% {
+    transform: translate3d(30px, 30px, 0px) rotateZ(-179deg);
+    border-radius: 10px;
+    background-color: var(--havKontrast);
+  }
+  75% {
+    transform: translate3d(0px, 30px, 0px) rotateZ(-270deg);
+    border-radius: 0px;
+    background-color: var(--kveldKontrast);
+  }
+  100% {
+    transform: translate3d(0px, 0px, 0px) rotateZ(-360deg);
+    border-radius: 10px;
+    background-color: var(--solnedgangKontrast);
+  }
+}
+
+.animationItem {
+  position: absolute;
+  content: "";
+  width: 15px;
+  height: 15px;
+  background-color: var(--solKontrast);
+  animation-name: spin;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease;
+}
+
+.spinner {
+  position: relative;
+  height: 10vh;
+  width: 50px;
+  &::before {
+    @extend .animationItem;
+  }
+  &::after {
+    @extend .animationItem;
+    animation-delay: 1s;
+  }
+}
+
+.spinnerContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}

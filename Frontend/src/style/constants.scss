@@ -1,0 +1,123 @@
+@import 'src/style/fonts';
+
+$mobileMaxWidth: 540px;
+$mobileMinWidth: 321px;
+$smallMobileWidth: 375px;
+$tabletMinWidth: 768px;
+$tabletMaxWidth: 1024px;
+$desktopMinWidth: 1025px;
+$monitorMinWidth: 1600px;
+
+$titleMobile: 48px;
+$titleDesktop: 58px;
+$headerDesktop: 48px;
+$headerMobile: 37px;
+$subHeaderDesktop: 37px;
+$subHeaderMobile: 25px;
+$subSubHeaderDesktop: 32px;
+$subSubHeaderMobile: 25px;
+$textDesktop: 20px;
+$textMobile: 18px;
+$smallDesktop: 16px;
+$smallMobile: 14px;
+$buttonMobile: 18px;
+$label: 14px;
+$pageMobileWidth: 75%;
+$pageDesktopWidth: 70%;
+
+$monitor: 'only screen and (min-width: #{$monitorMinWidth})';
+$desktop: 'only screen and (min-width: #{$desktopMinWidth})';
+$mobile: 'screen and (max-width: #{$mobileMaxWidth})';
+$tablet: 'only screen and (min-width: #{$tabletMinWidth})';
+
+$modalWidth: 600px;
+$modalHeight: 350px;
+$crossSize: 50px;
+$modalPadding: 45px;
+
+$transitionLength: 0.2s;
+
+@mixin boldText {
+  color: var(--lightTextColor);
+  font-size: $textMobile;
+  font-family: $fontMedium;
+  @media #{$desktop} {
+    font-size: $textDesktop;
+  }
+}
+
+@mixin regularText {
+  color: var(--lightTextColor);
+  font-size: $textMobile;
+  font-family: $fontLight;
+  line-height: 26px;
+  @media #{$desktop} {
+    font-size: $textDesktop;
+  }
+}
+
+@mixin titleText {
+  color: var(--svart);
+  font-size: $titleMobile;
+  font-family: $serifFontRegular;
+  line-height: $titleMobile;
+  @media #{$desktop} {
+    font-size: $titleDesktop;
+  }
+}
+
+@mixin headerText {
+  color: var(--lightTextColor);
+  font-size: $headerMobile;
+  font-family: $serifFontRegular;
+  line-height: $headerMobile;
+  @media #{$desktop} {
+    font-size: $headerDesktop;
+  }
+}
+
+@mixin subHeaderText {
+  color: var(--lightTextColor);
+  font-size: $subHeaderMobile;
+  font-family: $serifFontRegular;
+  @media #{$desktop} {
+    font-size: $subHeaderDesktop;
+  }
+}
+
+@mixin subSubHeaderText {
+  color: var(--lightTextColor);
+  font-size: $subSubHeaderMobile;
+  font-family: $serifFontRegular;
+  @media #{$desktop} {
+    font-size: $subSubHeaderDesktop;
+  }
+}
+
+@mixin labelText {
+  color: var(--lightTextColor);
+  font-size: $label;
+  font-family: $fontLight;
+}
+
+@mixin smallText {
+  color: var(--lightTextColor);
+  font-size: $smallMobile;
+  font-family: $fontLight;
+  @media #{$desktop} {
+    font-size: $smallDesktop;
+  }
+}
+
+@mixin buttonText {
+  color: var(--backgroundColor);
+  font-family: $fontLight;
+  font-size: $buttonMobile;
+  text-align: center;
+  overflow-wrap: break-word;
+}
+
+@mixin inputText {
+  @include regularText();
+  color: black;
+}

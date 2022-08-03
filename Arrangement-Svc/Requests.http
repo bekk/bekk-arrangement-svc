@@ -1,0 +1,83 @@
+POST localhost:5000/api/events/846e4e3c-a215-4981-b672-d0ef1f3174a9/participants/{{$randomInt}}@foo
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "name": "{{$randomInt}}",
+"email": {
+  "email": "{{$randomInt}}@foo"
+},
+"participantAnswers": [],
+"cancelUrlTemplate": "http://localhost:3000/events/{eventId}/cancel/{email}?cancellationToken=%7BcancellationToken%7D",
+}
+
+###
+### Get event id by shortname
+GET localhost:5000/api/events/id?shortname=<Enter a shortname here>
+Authorization: Bearer {{token}}
+
+### Get event by ID
+GET localhost:5000/api/events/<Enter a GUID here>
+
+### Get unfurled event by ID
+GET localhost:5000/api/events/<enter a event id here>/unfurl
+Authorization: Bearer {{token}}
+
+### Get all future events
+GET localhost:5000/api/events
+Authorization: Bearer {{token}}
+
+### Get all past events
+GET localhost:5000/api/events/previous
+Authorization: Bearer {{token}}
+
+### Get all events by organizer email
+GET localhost:5000/api/events/organizer/<enter organizer email here>
+Authorization: Bearer {{token}}
+
+### Get all events and participations by employee id
+GET localhost:5000/api/events-and-participations/<enter employee id here>
+Authorization: Bearer {{token}}
+
+### Get all participants for an event
+GET localhost:5000/api/events/<enter event id here>/participants
+Authorization: Bearer {{token}}
+
+### Get a count of participants for event
+GET localhost:5000/api/events/<enter event id here>/participants/count
+Authorization: Bearer {{token}}
+
+### Get an export of participant information from an event
+GET localhost:5000/api/events/<enter event id here>/participants/export
+Authorization: Bearer {{token}}
+
+### Get all participations for email
+GET localhost:5000/api/participants/<enter participant email here>/events
+Authorization: Bearer {{token}}
+
+### Delete participant from event
+DELETE localhost:5000/events/<enter event id here>/participants/<enter participant email here>
+Authorization: Bearer {{token}}
+
+### Get event waitinglist spot for participant
+GET localhost:5000/api/events/<enter event id here>/participants/<enter participant email here>/waitinglist-spot
+Authorization: Bearer {{token}}
+
+### Get office events
+GET localhost:5000/api/office-events/<enter date here>
+Authorization: Bearer {{token}}
+
+### Delete event
+DELETE localhost:5000/events/<enter event id here>/delete
+Authorization: Bearer {{token}}
+
+### Get health
+GET localhost:5000/health
+
+### Get config
+GET localhost:5000/api/config
+
+### Get webfonts
+GET localhost:5000/fonts/webfonts.css
+
+### Get index
+GET localhost:5000

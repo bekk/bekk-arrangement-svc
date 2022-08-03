@@ -2,7 +2,7 @@
 
 open System
 open Giraffe
-open System.IO
+open Giraffe.EndpointRouting
 open Bekk.Canonical.Logger
 open System.Threading.Tasks
 open Microsoft.AspNetCore.Http
@@ -19,10 +19,9 @@ open migrator
 open Config
 open Email.SendgridApiModels
 
-
 let webApp =
     choose
-        [ Health.healthCheck; Handlers.routes ]
+        [ Health.healthCheck; AuthHandler.config; Handlers.routes ]
 
 let configuration =
     let builder = ConfigurationBuilder()
@@ -41,28 +40,45 @@ let configureApp (app: IApplicationBuilder) =
         context.Request.Path <- context.Request.Path.Value.Replace (configuration["VIRTUAL_PATH"], "") |> PathString
         next.Invoke())
     |> ignore
+    app.UseDefaultFiles() |> ignore
+    app.UseStaticFiles() |> ignore
     app.UseMiddleware<Middleware.RequestLogging>() |> ignore
+    app.UseRouting() |> ignore
     app.UseAuthentication() |> ignore
     app.UseCors(configureCors) |> ignore
     app.UseOutputCaching()
     app.UseMiddleware<Middleware.RetryOnDeadlock>() |> ignore
-    app.UseGiraffe(webApp) |> ignore
+    app.UseGiraffe(webApp)
+    app.UseEndpoints(fun e ->
+            e.MapFallbackToFile "index.html" |> ignore) |> ignore
+
 
 let configureServices (services: IServiceCollection) =
+    services.AddResponseCompression() |> ignore
     services.AddCors() |> ignore
     services.AddGiraffe() |> ignore
+    services.AddRouting() |> ignore
     services.AddOutputCaching(fun opt ->
         // The default option requires the user to not be authenticated, probably to avoid leaking data between
         // users. A good default, but it means we cannot use it as a cache for all users. We turn off this security
         // measure so we can use a common cache for all users
         opt.DoesRequestQualify <- fun ctx -> ctx.Request.Method = HttpMethods.Get)
+    // Adds secrets needed for communicating with office via microsoft graph
     services.AddSingleton<OfficeEvents.CalendarLookup.Options>(
-        { TenantId = configuration.["OfficeEvents:TenantId"]
-          Mailbox = configuration.["OfficeEvents:Mailbox"]
-          ClientId = configuration.["OfficeEvents:ClientId"]
-          ClientSecret = configuration.["OfficeEvents:ClientSecret"]
+        { TenantId = configuration["OfficeEvents:TenantId"]
+          Mailbox = configuration["OfficeEvents:Mailbox"]
+          ClientId = configuration["OfficeEvents:ClientId"]
+          ClientSecret = configuration["OfficeEvents:ClientSecret"]
         } : OfficeEvents.CalendarLookup.Options)
     |> ignore
+    // Adds all configuration options
+    services.AddSingleton<AuthHandler.Config>(
+        { EmployeeSvcUrl = configuration["Config:Employee_Svc_url"]
+          Audience = configuration["Auth0:Audience"]
+          IssuerDomain = configuration["Auth0:Issuer_Domain"]
+          Scopes = configuration["Auth0:Scopes"]
+        } : AuthHandler.Config) |> ignore
+    // Adds sendgrid secrets
     services.AddSingleton<SendgridOptions>
         { ApiKey = configuration["Sendgrid:Apikey"]
           SendgridUrl = configuration["Sendgrid:SendgridUrl"] }
@@ -78,11 +94,10 @@ let configureServices (services: IServiceCollection) =
               configuration["Sendgrid:Dev_White_List_Addresses"].Split(',')
               |> Seq.toList
               |> List.map (fun s -> s.Trim())
-          databaseConnectionString = configuration["ConnectionStrings:EventDb"]
         }
     services.AddScoped<AppConfig>(fun _ -> config) |> ignore
     services.AddScoped<Logger>() |> ignore
-    services.AddTransient<SqlConnection>(fun _ -> new SqlConnection(config.databaseConnectionString)) |> ignore
+    services.AddTransient<SqlConnection>(fun _ -> new SqlConnection(configuration["ConnectionStrings:EventDb"])) |> ignore
     services.AddAuthentication(fun options ->
             options.DefaultAuthenticateScheme <-
                 JwtBearerDefaults.AuthenticationScheme
@@ -100,14 +115,9 @@ let configureServices (services: IServiceCollection) =
     |> ignore
 
 let makeApp () : IWebHostBuilder =
-    let contentRoot = Directory.GetCurrentDirectory()
-    let webRoot = Path.Combine(contentRoot, "WebRoot")
-
     WebHostBuilder()
         .UseKestrel()
-        .UseContentRoot(contentRoot)
         .UseIISIntegration()
-        .UseWebRoot(webRoot)
         .Configure(Action<IApplicationBuilder> configureApp)
         .ConfigureKestrel(fun _ options -> options.AllowSynchronousIO <- true)
         .ConfigureServices(configureServices)

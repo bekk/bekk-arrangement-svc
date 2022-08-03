@@ -1,0 +1,54 @@
+@import 'src/style/colors.scss';
+
+.arrow {
+  cursor: pointer;
+  * {
+    stroke: var(--svart60);
+    ellipse:hover {
+      fill: var(--overskyet50);
+    }
+  }
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+  height: 30px;
+  width: 30px;
+  top: 50%;
+  z-index: 2;
+}
+
+.whiteArrow {
+  * {
+    stroke: var(--hvit);
+    ellipse:hover {
+      stroke: black;
+      fill: white;
+    }
+  }
+}
+
+.left {
+  left: 0;
+  svg {
+    transform: rotate(90deg);
+  }
+}
+
+.right {
+  right: 0;
+  svg {
+    transform: rotate(-90deg);
+  }
+}
+
+.down {
+  bottom: 0;
+}
+
+.up {
+  top: 0;
+  svg {
+    transform: rotate(180deg);
+  }
+}

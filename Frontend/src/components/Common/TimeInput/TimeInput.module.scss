@@ -1,0 +1,48 @@
+@import 'src/style/constants';
+
+.timeInput {
+  @include inputText;
+  background-color: transparent;
+  text-align: center;
+  align-self: center;
+  width: 40px;
+  line-height: 1;
+  @media #{$desktop} {
+    width: 50px;
+  }
+  border: none;
+  -moz-appearance: textfield;
+}
+
+.dropdown {
+  white-space: pre-wrap;
+  align-self: center;
+  background-color: #222;
+  border: none;
+  @include inputText;
+}
+
+.timeInputContainer {
+  display: flex;
+  background-color: var(--overskyet50);
+  border-bottom: 1px solid var(--svart60);
+  flex-direction: row;
+  height: 39px;
+  justify-content: center;
+  @media #{$desktop} {
+    height: 42px;
+  }
+}
+
+.text {
+  @include inputText;
+  text-align: center;
+  line-height: 1.2s;
+  margin: 5px 0;
+}
+
+.textLabel {
+  display: block;
+  @include labelText;
+  color: var(--svart60);
+}

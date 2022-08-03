@@ -1,0 +1,63 @@
+@import "src/style/colors.scss";
+@import 'src/style/constants';
+
+.container {
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--skyfritt)
+}
+
+.titleContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--skyfritt);
+  color: var(--svart);
+  font-family: $fontRegular;
+  font-size: 16px;
+  font-weight: 400;
+  height: 2rem;
+  cursor: pointer;
+  &:first-child {
+    padding-left: 10px;
+  }
+}
+
+.title{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.titleText {
+  padding-left: 10px;
+}
+
+.children {
+  max-height: 0;
+  overflow: hidden;
+  transition-duration: 200ms;
+  transition-timing-function: ease-in-out;
+  transition-property: max-height;
+  color: black;
+}
+
+.childrenOpen {
+  max-height: 200px;
+}
+
+.cross {
+  width: 10%;
+}
+
+.chevron {
+  transform: rotateZ(180deg);
+  margin-right: 10px;
+  transition-duration: 200ms;
+  transition-timing-function: ease-in-out;
+}
+
+.chevronOpen {
+  transform: rotateZ(0deg);
+}

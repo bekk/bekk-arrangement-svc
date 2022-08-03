@@ -8,8 +8,11 @@ docker-compose.yml
 docker-compose.*.yml
 **/bin
 **/obj
+**/out
 bin/
 obj/
 out/
 ./paket/paket.exe
 ./paket/paket
+Frontend/node_modules
+Tests

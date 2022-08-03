@@ -1,0 +1,73 @@
+@import 'src/style/constants';
+@import 'src/style/fonts';
+
+.modalContainer {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  max-height: 100vh;
+  min-height: 100vh;
+  z-index: 3;
+  @media #{$desktop} {
+    background: rgba(0, 0, 0, 0.5);
+  }
+}
+
+.modal {
+  display: flex;
+  flex-direction: column;
+  @include regularText;
+  color: var(--backgroundColor);
+  background-color: var(--lightTextColor);
+  z-index: 3;
+  line-height: initial;
+  padding: 20px;
+  position: fixed;
+  min-width: $modalWidth;
+  min-height: $modalHeight;
+  max-width: 50vw;
+  @media #{$mobile} {
+    min-width: 70vw;
+    max-width: 90vw;
+    min-height: 70vh;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+}
+
+.header {
+  @include headerText;
+  color: var(--backgroundColor);
+  height: $modalPadding;
+  line-height: 50px;
+  padding-left: $modalPadding;
+  margin-bottom: 20px;
+  max-width: 600px;
+}
+
+.modalContent {
+  @include regularText;
+  color: var(--svart);
+  line-height: 25px;
+  padding: $modalPadding;
+  padding-top: 0;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  justify-content: space-between;
+  @media #{$mobile} {
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.cross {
+  width: $crossSize;
+  height: $crossSize;
+  z-index: 4;
+  cursor: pointer;
+}

@@ -1,9 +1,10 @@
 environment            = "prod"
 sld_domain             = "bekk.no"
-hostname               = "api"
+hostname               = "skjer"
 task_image             = "882089634282.dkr.ecr.eu-central-1.amazonaws.com/arrangement-svc"
-task_image_tag         = "38"
-listener_path_patterns = ["/arrangement-svc*"]
+task_image_tag         = "latest"
+listener_path_patterns = ["/*"]
+create_dns_record      = true
 task_environment = {
   ASPNETCORE_ENVIRONMENT       = "Production"
   Auth0__Issuer_Domain         = "bekk.eu.auth0.com"
@@ -12,6 +13,7 @@ task_environment = {
   Serilog__MinimumLevel        = "Warning"
   VIRTUAL_PATH                 = "/arrangement-svc"
   Auth0__PERMISSION_CLAIM_TYPE = "https://api.bekk.no/claims/permission"
+  Config__Employee_Svc_url     = "https://api.bekk.no/employee-svc"
 }
 task_secrets = [
   "ConnectionStrings__EventDb",

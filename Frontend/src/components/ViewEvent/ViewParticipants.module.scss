@@ -1,0 +1,76 @@
+@import 'src/style/constants';
+@import 'src/style/colors';
+
+.text {
+  @include regularText;
+}
+
+.table {
+  @include regularText;
+  font-size: 16px;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.mobileNameCell {
+  @include boldText;
+  font-size: 16px;
+  padding: 15px 15px 15px 0;
+  text-align: left;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: 100px;
+}
+
+.mobileEmailCell {
+  @include regularText;
+  font-size: 16px;
+  padding: 15px 0;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: 120px;
+  opacity: 0.7;
+}
+
+.mobileCommentCell {
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--svart20);
+  line-height: 21px;
+}
+
+.desktopCell {
+  vertical-align: top;
+  padding: 15px 15px 15px 0;
+  text-align: left;
+  border-bottom: 1px solid var(--svart20);
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: 100px;
+}
+
+.desktopCommentCell {
+  @extend .desktopCell;
+  padding-left: 0px;
+}
+
+.desktopHeaderCell {
+  padding: 15px 0;
+  text-align: left;
+  border-bottom: 1px solid white;
+}
+
+.subSubHeader {
+  @include subSubHeaderText;
+  margin-top: 50px;
+  margin-bottom: 20px;
+}
+
+.question {
+  font-family: $fontMedium;
+}
+
+.answer {
+  font-family: $fontLight;
+  margin-bottom: 10px;
+}

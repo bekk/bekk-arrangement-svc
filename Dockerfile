@@ -1,12 +1,21 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine as build-env
+FROM node:16-alpine AS node_base
+FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine AS build
+COPY --from=node_base . .
+
 WORKDIR /app
+COPY . .
 
-COPY . ./
-RUN dotnet publish -c Release -o out ./Arrangement-Svc/Arrangement-Svc.fsproj
+WORKDIR /app/Frontend
+RUN npm ci
+RUN npm run build
+WORKDIR /app/Arrangement-Svc
+RUN dotnet publish -c release -o out
 
-FROM mcr.microsoft.com/dotnet/aspnet:6.0
-COPY --from=build-env /app/out .
-
-ENV VIRTUAL_PATH="/arrangement-svc"
-ENV PORT=80
+# RUN
+FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine
+WORKDIR /app/
+COPY --from=build /app/Arrangement-Svc/out .
+COPY --from=build /app/Arrangement-Svc/wwwroot wwwroot/.
+COPY --from=build /app/Frontend/build/. wwwroot/.
+ENV ASPNETCORE_URLS="http://+:80"
 CMD dotnet arrangementSvc.dll

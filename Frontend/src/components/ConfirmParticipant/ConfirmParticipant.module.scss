@@ -1,0 +1,11 @@
+@import 'src/style/constants';
+
+.header {
+  @include headerText;
+}
+
+.text {
+  @include regularText;
+  margin: 20px 0;
+  line-height: 1.5;
+}
