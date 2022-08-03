@@ -31,7 +31,7 @@ let private sendMailProd (options: SendgridOptions) (jsonBody: string) =
             ()
     }
     |> Async.Start
-    
+
 let sendMail (email: Email) (context: HttpContext) =
     let sendgridConfig = context.GetService<SendgridOptions>()
     let appConfig = context.GetService<AppConfig>()
@@ -63,9 +63,8 @@ let sendMail (email: Email) (context: HttpContext) =
     if appConfig.isProd then
         actuallySendMail()
     else
-        printfn "%A" serializedEmail
-//        if appConfig.sendMailInDevEnvWhiteList
-//           |> List.contains email.To then actuallySendMail()
+        if appConfig.sendMailInDevEnvWhiteList
+           |> List.contains email.To then actuallySendMail()
 
 let private createdEventMessage (viewUrl: string option) createEditUrl (event: Models.Event) =
     [ $"Hei {event.OrganizerName}! 😄"
