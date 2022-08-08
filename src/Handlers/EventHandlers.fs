@@ -171,6 +171,37 @@ let routes: HttpHandler =
                     routef "/events/%s/unfurl" (fun idOrName ->
                         (handle (getUnfurl idOrName)
                         |> withTransaction))
+                        
+                    route "/api/events" >=>
+                        (check isAuthenticated
+                        >=> handle getEvents
+                        |> withTransaction)
+
+                    route "/api/events/previous" >=>
+                        (check isAuthenticated
+                        >=> handle getPastEvents
+                        |> withTransaction)
+
+                    routef "/api/events/%O" (fun eventId -> 
+                        check (Authorization.eventIsExternalOrUserIsAuthenticated eventId)
+                        >=> (handle << getEvent) eventId
+                        |> withTransaction)
+
+                    routef "/api/events/organizer/%s" (fun email -> 
+                        check isAuthenticated
+                        >=> (handle << getEventsOrganizedBy) email
+                        |> withTransaction)
+
+                    routef "/api/events-and-participations/%i" (fun id ->
+                        check (isAdminOrAuthenticatedAsUser id)
+                        >=> (handle << getEventAndParticipationSummaryForEmployee) id
+                        |> withTransaction) 
+                    
+                    route "/api/events/id" >=> (handle getEventIdByShortname |> withTransaction)
+
+                    routef "/api/events/%s/unfurl" (fun idOrName ->
+                        (handle (getUnfurl idOrName)
+                        |> withTransaction))
                   ]
           DELETE
           >=> choose
@@ -182,16 +213,36 @@ let routes: HttpHandler =
                         check (Authorization.userCanEditEvent id)
                         >=> (handle << deleteEvent) id
                         |> withTransaction)
+                    routef "/api/events/%O" (fun id ->
+                        check (Authorization.userCanEditEvent id)
+                        >=> (handle << cancelEvent) id
+                        |> withTransaction)
+                    routef "/api/events/%O/delete" (fun id -> 
+                        check (Authorization.userCanEditEvent id)
+                        >=> (handle << deleteEvent) id
+                        |> withTransaction)
                     ]
           PUT
           >=> choose
                   [ routef "/events/%O" (fun id ->
                         check (Authorization.userCanEditEvent id)
                         >=> (handle << updateEvent) id
-                        |> withTransaction) ]
+                        |> withTransaction)
+                    routef "/api/events/%O" (fun id ->
+                        check (Authorization.userCanEditEvent id)
+                        >=> (handle << updateEvent) id
+                        |> withTransaction)
+                  ]
           POST 
           >=> choose 
-                [ route "/events" >=>
+                [
+                  route "/events" >=>
                         (check isAuthenticated
                         >=> handle createEvent 
-                        |> withTransaction)] ]
+                        |> withTransaction)
+                  route "/api/events" >=>
+                        (check isAuthenticated
+                        >=> handle createEvent 
+                        |> withTransaction)
+                ]
+]

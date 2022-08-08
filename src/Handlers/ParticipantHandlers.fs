@@ -114,7 +114,8 @@ let routes: HttpHandler =
     choose
         [ GET_HEAD
           >=> choose
-                  [ routef "/events/%O/participants" (fun eventId ->
+                  [
+                    routef "/events/%O/participants" (fun eventId ->
                         check isAuthenticated
                         >=> (handle << getParticipantsForEvent) eventId
                         |> withTransaction)
@@ -133,17 +134,44 @@ let routes: HttpHandler =
                     routef "/participants/%s/events" (fun email ->
                         check isAuthenticated
                         >=> (handle << getParticipationsForParticipant) email
+                        |> withTransaction)
+                    
+                    routef "/api/events/%O/participants" (fun eventId ->
+                        check isAuthenticated
+                        >=> (handle << getParticipantsForEvent) eventId
+                        |> withTransaction)
+                    routef "/api/events/%O/participants/count" (fun eventId -> 
+                        check (Event.Authorization.eventIsExternalOrUserIsAuthenticated eventId)
+                        >=> (handle << getNumberOfParticipantsForEvent) eventId
+                        |> withTransaction)
+                    routef "/api/events/%O/participants/export" (fun eventId -> 
+                        check (Event.Authorization.userCanEditEvent eventId)
+                        >=> (csvHandle eventId << exportParticipationsDataForEvent) eventId
+                        |> withTransaction)
+                    routef "/api/events/%O/participants/%s/waitinglist-spot" (fun (eventId, email) ->
+                        check (Event.Authorization.eventIsExternalOrUserIsAuthenticated eventId)
+                        >=> (handle << getWaitinglistSpot) (eventId, email)
+                        |> withTransaction)
+                    routef "/api/participants/%s/events" (fun email ->
+                        check isAuthenticated
+                        >=> (handle << getParticipationsForParticipant) email
                         |> withTransaction) ]
           DELETE
           >=> choose
-                  [ routef "/events/%O/participants/%s" (fun parameters ->
+                  [
+                    routef "/events/%O/participants/%s" (fun parameters ->
+                        check (Authorization.userCanCancel parameters)
+                        >=> (handle << deleteParticipant) parameters)
+                        |> withTransaction 
+                    routef "/api/events/%O/participants/%s" (fun parameters ->
                         check (Authorization.userCanCancel parameters)
                         >=> (handle << deleteParticipant) parameters)
                         |> withTransaction ]
 
           POST
           >=> choose
-                  [ routef "/events/%O/participants/%s" V2.Handlers.registerParticipationHandler ]
-                   ]
-
-
+                  [
+                    routef "/events/%O/participants/%s" V2.Handlers.registerParticipationHandler 
+                    routef "/api/events/%O/participants/%s" V2.Handlers.registerParticipationHandler
+                  ]
+]

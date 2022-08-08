@@ -198,8 +198,14 @@ let routes: HttpHandler =
     choose
         [ POST
           >=> choose
-                  [ routef "/events/%O/participants/%s" registerParticipationHandler ]
+                  [
+                      routef "/events/%O/participants/%s" registerParticipationHandler
+                      routef "/api/events/%O/participants/%s" registerParticipationHandler
+                  ]
           GET
-          >=> choose
-                  [ isAuthenticatedV2 >=> routef "/events/forside/%s" getEventsForForsideHandler ]
+          >=> isAuthenticatedV2 >=> choose
+                  [
+                    routef "/events/forside/%s" getEventsForForsideHandler
+                    routef "/api/events/forside/%s" getEventsForForsideHandler
+                  ]
         ]
