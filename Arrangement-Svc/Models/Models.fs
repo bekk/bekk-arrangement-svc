@@ -234,9 +234,9 @@ module Event =
                 "id", Encode.guid event.Id
                 "title", Encode.string event.Title
                 "location", Encode.string event.Location
-                "startDate", DateTimeCustom.DateTimeCustom.encoder (DateTimeCustom.toCustomDateTime event.StartDate event.StartTime)
-                "endDate", DateTimeCustom.DateTimeCustom.encoder (DateTimeCustom.toCustomDateTime event.EndDate event.EndTime)
-                "starTime", Encode.timespan event.StartTime
+                "startDate", Encode.datetime event.StartDate
+                "endDate", Encode.datetime event.EndDate
+                "startTime", Encode.timespan event.StartTime
                 "endTime", Encode.timespan event.EndTime
                 "openForRegistrationTime", Encode.int64 event.OpenForRegistrationTime
                 if event.CloseRegistrationTime.IsSome then
