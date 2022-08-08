@@ -1,4 +1,3 @@
-
 {
   "compilerOptions": {
     "target": "es5",
@@ -18,12 +17,10 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react",
+    "jsx": "react-jsx",
     "downlevelIteration": true,
     "baseUrl": "./",
-    "paths": {
-      "src/*": ["src/*"]
-    }
+    "noFallthroughCasesInSwitch": true
   },
   "include": [
     "src"
