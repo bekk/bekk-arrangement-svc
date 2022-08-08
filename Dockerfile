@@ -1,4 +1,4 @@
-FROM node:14-alpine AS node_base
+FROM node:11.14.0 AS node_base
 FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine AS build
 COPY --from=node_base . .
 
