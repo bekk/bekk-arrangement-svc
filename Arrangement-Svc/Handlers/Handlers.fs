@@ -742,10 +742,6 @@ let routes: HttpHandler =
         [
           POST
           >=> choose [
-              routef "/events/%O/participants/%s" registerParticipationHandler
-              // Has authentication
-              route "/events" >=> isAuthenticated >=> createEvent
-              // NEW
               routef "/api/events/%O/participants/%s" registerParticipationHandler
               // Has authentication
               route "/api/events" >=> isAuthenticated >=> createEvent
@@ -756,26 +752,6 @@ let routes: HttpHandler =
           ]
           GET
           >=> choose [
-            route "/events/id" >=> getEventIdByShortname
-            routef "/events/%O" getEvent
-            routef "/events/%s/unfurl" getUnfurlEvent
-            routef "/events/%O/participants/count" getNumberOfParticipantsForEvent
-            routef "/events/%O/participants/%s/waitinglist-spot" (fun (eventId, email) -> getWaitinglistSpot eventId email)
-            routef "/events/%O/participants/export" exportParticipationsForEvent
-            // Has authentication
-            route "/events" >=> isAuthenticated >=> getFutureEvents
-            route "/events/previous" >=> isAuthenticated >=> getPastEvents
-            routef "/events/forside/%s" (isAuthenticatedf getEventsForForsideHandler)
-            routef "/events/organizer/%s" (isAuthenticatedf getEventsOrganizedBy)
-            routef "/events-and-participations/%i" (isAuthenticatedf getEventsAndParticipations)
-            routef "/events/%O/participants" (isAuthenticatedf getParticipantsForEvent)
-            routef "/participants/%s/events" (isAuthenticatedf getParticipationsForParticipant)
-            routef "/office-events/%s" (fun date ->
-                isAuthenticated >=>
-                outputCache (fun opt -> opt.Duration <- TimeSpan.FromMinutes(5).TotalSeconds)
-                >=> OfficeEvents.WebApi.get date
-                )
-            // NEW
             route "/api/events/id" >=> getEventIdByShortname
             routef "/api/events/%O" getEvent
             routef "/api/events/%s/unfurl" getUnfurlEvent
@@ -798,10 +774,6 @@ let routes: HttpHandler =
           ]
           DELETE
           >=> choose [
-              routef "/events/%O" cancelEvent
-              routef "/events/%O/delete" deleteEvent
-              routef "/events/%O/participants/%s" (fun (eventId, email) -> deleteParticipantFromEvent eventId email)
-              // NEW
               routef "/api/events/%O" cancelEvent
               routef "/api/events/%O/delete" deleteEvent
               routef "/api/events/%O/participants/%s" (fun (eventId, email) -> deleteParticipantFromEvent eventId email)
