@@ -28,6 +28,22 @@
     "value": "<SECRET>"
   },
   {
+    "name": "OfficeEvents__TenantId",
+    "value": "<SECRET>"
+  },
+  {
+    "name": "OfficeEvents__Mailbox",
+    "value": "<SECRET>"
+  },
+  {
+    "name": "OfficeEvents__ClientId",
+    "value": "<SECRET>"
+  },
+  {
+    "name": "OfficeEvents__ClientSecret",
+    "value": "<SECRET>"
+  },
+  {
     "name": "SendGrid__AdminArrangementSvc",
     "value": "bjorn.ivar.strom@bekk.no"
   },
@@ -46,5 +62,9 @@
   {
     "name": "Auth0__PERMISSION_CLAIM_TYPE",
     "value": "https://api.bekk.no/claims/permission"
+  },
+  {
+    "name": "Config__Employee_Svc_url",
+    "value": "https://api.bekk.no/employee-svc"
   }
 ]
