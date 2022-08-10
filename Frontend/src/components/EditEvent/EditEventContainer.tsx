@@ -58,9 +58,6 @@ export const EditEventContainer = () => {
     useEditEvent();
   useSetTitle(`Rediger ${editEvent?.title}`)
 
-  console.log("Edit event container")
-  console.log("edit event: ", editEvent)
-
   const { catchAndNotify } = useNotification();
   const history = useHistory();
 
