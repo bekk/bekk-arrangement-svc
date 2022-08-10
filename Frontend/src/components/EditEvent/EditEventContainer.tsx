@@ -30,7 +30,7 @@ const useEditEvent = () => {
   const eventId = useParam(eventIdKey);
   const remoteEvent = useEvent(eventId);
 
-  const [editEvent, setEditEvent] = useSessionState<IEditEvent>(initialEditEvent("",""), "editEvent");
+  const [editEvent, setEditEvent] = useSessionState<IEditEvent | undefined>(undefined, "editEvent");
   useLayoutEffect(() => {
     if (hasLoaded(remoteEvent) && !editEvent) {
       setEditEvent(toEditEvent(remoteEvent.data));
@@ -57,6 +57,9 @@ export const EditEventContainer = () => {
   const { eventId, validEvent, editEvent, setEditEvent, errors } =
     useEditEvent();
   useSetTitle(`Rediger ${editEvent?.title}`)
+
+  console.log("Edit event container")
+  console.log("edit event: ", editEvent)
 
   const { catchAndNotify } = useNotification();
   const history = useHistory();
