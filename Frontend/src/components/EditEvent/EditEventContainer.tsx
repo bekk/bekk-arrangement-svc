@@ -30,7 +30,7 @@ const useEditEvent = () => {
   const eventId = useParam(eventIdKey);
   const remoteEvent = useEvent(eventId);
 
-  const [editEvent, setEditEvent] = useSessionState<IEditEvent>(initialEditEvent("",""), "editEvent");
+  const [editEvent, setEditEvent] = useSessionState<IEditEvent | undefined>(undefined, "editEvent");
   useLayoutEffect(() => {
     if (hasLoaded(remoteEvent) && !editEvent) {
       setEditEvent(toEditEvent(remoteEvent.data));
