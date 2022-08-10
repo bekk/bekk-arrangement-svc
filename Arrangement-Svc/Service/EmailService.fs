@@ -1,5 +1,6 @@
 module Email.Service
 
+open System
 open Giraffe
 open System.Text
 open FSharp.Data
@@ -32,6 +33,23 @@ let private sendMailProd (options: SendgridOptions) (jsonBody: string) =
     }
     |> Async.Start
 
+type DevEmail = {
+    Email : Email
+    Serialized: string
+    NoReplyEmail: string
+}
+
+let getDevMailbox, addDevMail, emptyDevMailbox =
+    let mbLock = obj()
+    let mutable mailbox = []
+    let get () =
+        mailbox
+    let add (mail: DevEmail) =
+        lock mbLock (fun () -> mailbox <- mail :: mailbox)
+    let empty () =
+        lock mbLock (fun () -> mailbox <- [])
+    get, add, empty
+
 let sendMail (email: Email) (context: HttpContext) =
     let sendgridConfig = context.GetService<SendgridOptions>()
     let appConfig = context.GetService<AppConfig>()
@@ -63,8 +81,10 @@ let sendMail (email: Email) (context: HttpContext) =
     if appConfig.isProd then
         actuallySendMail()
     else
+        addDevMail { Email = email; Serialized = serializedEmail; NoReplyEmail = appConfig.noReplyEmail }
         if appConfig.sendMailInDevEnvWhiteList
            |> List.contains email.To then actuallySendMail()
+        ()
 
 let private createdEventMessage (viewUrl: string option) createEditUrl (event: Models.Event) =
     [ $"Hei {event.OrganizerName}! 😄"
