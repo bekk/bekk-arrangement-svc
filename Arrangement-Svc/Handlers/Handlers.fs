@@ -337,23 +337,32 @@ let getUnfurlEvent (idOrName: string) =
 
 let createEvent =
     fun (next: HttpFunc) (context: HttpContext) ->
+        let bekkLogger = context.GetService<Bekk.Canonical.Logger.Logger>()
+        let logInfo k v = bekkLogger.log(Bekk.Canonical.Logger.LogLevel.Information, $"createEvent: %A{k}", v)
         let result =
             taskResult {
                 let! writeModel =
                     decode EventWriteModel.decoder context
                     |> TaskResult.mapError BadRequest
+                    |> TaskResult.map (fun m ->
+                        logInfo "writeModel decoded" m
+                        m)
                 let! userId =
                     getUserId context
                     |> Result.requireSome couldNotRetrieveUserId
                 use db = openTransaction context
+                logInfo "calling doesShortnameExist" true
                 let! doesShortNameExist =
                     Queries.doesShortnameExist writeModel.Shortname db
                     |> TaskResult.mapError InternalError
+                logInfo "doesShartnameExist result" doesShortNameExist
                 do! doesShortNameExist
                     |> Result.requireFalse (shortnameIsInUse writeModel.Shortname)
+                logInfo "calling Queries.createEvent" (writeModel, userId)
                 let! newEvent =
                     Queries.createEvent writeModel userId db
                     |> TaskResult.mapError InternalError
+                logInfo "createEvent result" newEvent
                 let! newQuestions =
                     Queries.createParticipantQuestions newEvent.Id writeModel.ParticipantQuestions db
                     |> TaskResult.mapError InternalError
