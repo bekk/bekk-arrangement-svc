@@ -252,6 +252,14 @@ let getEventsOrganizedBy (email: string) =
             }
         jsonResult result next context
 
+let getEventIdByShortnameHttpResult shortname db =
+    taskResult {
+        let! result =
+            Queries.getEventIdByShortname shortname db
+            |> TaskResult.mapError InternalError
+        return! Result.requireSome (NotFound $"Kunne ikke finne event med kortnavn %s{shortname}") result
+    }
+
 let getEventIdByShortname =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
@@ -261,10 +269,7 @@ let getEventIdByShortname =
                     |> Result.mapError BadRequest
                 let shortname = HttpUtility.UrlDecode(shortnameEncoded)
                 use db = openConnection context
-                let! result =
-                    Queries.getEventIdByShortname shortname db
-                    |> TaskResult.mapError InternalError
-                return result
+                return! getEventIdByShortnameHttpResult shortname db
             }
         jsonResult result next context
 
@@ -301,20 +306,13 @@ let getUnfurlEvent (idOrName: string) =
                 // TODO: USikker på hvilken av disse som er riktig.
                 // Gamle versjon gjør det på utkommentert måte, men den funker ikke i postman
 //                let success, parsedEventId = Guid.TryParse (idOrName |> strSkip ("/events/" |> String.length))
-                let success, parsedEventId = Guid.TryParse idOrName
                 let! eventId =
-                    if not success then
+                    match Guid.TryParse idOrName with
+                    | true, guid ->
+                        TaskResult.ok guid
+                    | false, _ ->
                         let name = idOrName |> strSkip 1
-                        taskResult {
-                            let! result =
-                                Queries.getEventIdByShortname name db
-                                |> TaskResult.mapError InternalError
-                            return result
-                        }
-                    else
-                       task {
-                           return Ok parsedEventId
-                       }
+                        getEventIdByShortnameHttpResult name db
 
                 let! eventAndQuestions =
                     Queries.getEvent eventId db
