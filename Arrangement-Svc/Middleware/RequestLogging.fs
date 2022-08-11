@@ -19,6 +19,7 @@ type RequestLogging(next: RequestDelegate) =
             logger.log([
                 "method", method
                 "request_path", path
+                "request_querystring", ctx.Request.QueryString
             ])
 
             if loggedInEmployee.IsSome then
