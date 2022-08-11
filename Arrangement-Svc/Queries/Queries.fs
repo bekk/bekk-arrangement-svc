@@ -653,7 +653,7 @@ let getEventIdByShortname shortname (db: DatabaseContext) =
         ]
 
         try
-            let! result = db.Connection.QuerySingleAsync<Guid>(query, parameters, db.Transaction)
+            let! result = db.Connection.QuerySingleOrDefaultAsync<Guid>(query, parameters, db.Transaction)
             return Ok result
         with
             | ex -> return Error ex

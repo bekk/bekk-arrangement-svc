@@ -266,7 +266,10 @@ let getEventIdByShortname =
                 let! result =
                     Queries.getEventIdByShortname shortname db
                     |> TaskResult.mapError InternalError
-                return result
+                return!
+                    if result = Guid.Empty
+                    then TaskResult.error (NotFound $"Kunne ikke finne event med kortnavn %s{shortname}")
+                    else TaskResult.ok result
             }
         jsonResult result next context
 
@@ -303,20 +306,21 @@ let getUnfurlEvent (idOrName: string) =
                 // TODO: USikker på hvilken av disse som er riktig.
                 // Gamle versjon gjør det på utkommentert måte, men den funker ikke i postman
 //                let success, parsedEventId = Guid.TryParse (idOrName |> strSkip ("/events/" |> String.length))
-                let success, parsedEventId = Guid.TryParse idOrName
                 let! eventId =
-                    if not success then
+                    match Guid.TryParse idOrName with
+                    | true, guid ->
+                        TaskResult.ok guid
+                    | false, _ ->
                         let name = idOrName |> strSkip 1
                         taskResult {
-                            let! result =
+                            let! guid =
                                 Queries.getEventIdByShortname name db
                                 |> TaskResult.mapError InternalError
-                            return result
+                            return!
+                                if guid = Guid.Empty
+                                then TaskResult.error (NotFound $"Finner ikke event med kortnavn %s{name}")
+                                else TaskResult.ok guid
                         }
-                    else
-                       task {
-                           return Ok parsedEventId
-                       }
 
                 let! eventAndQuestions =
                     Queries.getEvent eventId db
