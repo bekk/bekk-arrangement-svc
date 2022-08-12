@@ -20,7 +20,7 @@ open TestUtils
 let TokenEnvVariableName = "ARRANGEMENT_SVC_TEST_JWT_TOKEN"
 let token = Environment.GetEnvironmentVariable TokenEnvVariableName
 
-let basePath = "http://localhost:5000"
+let basePath = "http://localhost:5000/api"
 
 type TypedApiResponse<'a> = HttpResponseMessage*'a
 type ApiResponse = TypedApiResponse<string>
