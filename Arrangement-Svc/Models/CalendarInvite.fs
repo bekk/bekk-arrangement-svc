@@ -46,7 +46,7 @@ let eventObject (event: Models.Event, participant: Participant,
     [ "BEGIN:VEVENT"
       $"UID:{event.Id}"
       $"DTSTART;TZID=W. Europe Standard Time:{DateTimeCustom.toDateString (DateTimeCustom.toCustomDateTime event.StartDate event.StartTime)}"
-      $"DTEND;TZID=W. Europe Standard Time: {DateTimeCustom.toDateString (DateTimeCustom.toCustomDateTime event.EndDate event.StartTime)}"
+      $"DTEND;TZID=W. Europe Standard Time: {DateTimeCustom.toDateString (DateTimeCustom.toCustomDateTime event.EndDate event.EndTime)}"
       $"DTSTAMP:{utcNow}"
       $"ORGANIZER:mailto:{noReplyMail}"
       $"ATTENDEE;PARTSTAT=ACCEPTED;RSVP=FALSE;CN={event.OrganizerName}:mailto:{event.OrganizerEmail}"
