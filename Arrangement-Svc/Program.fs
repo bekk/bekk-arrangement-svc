@@ -50,7 +50,13 @@ let configureApp (app: IApplicationBuilder) =
     app.UseMiddleware<Middleware.RetryOnDeadlock>() |> ignore
     app.UseGiraffe(webApp)
     app.UseEndpoints(fun e ->
-            e.MapFallbackToFile "index.html" |> ignore) |> ignore
+            // NOTE: The default pattern is {*path:nonfile}, which excludes routes which looks like filenames
+            // This means the default will serve "a.b" if you ask for that, or "index.html" if it doesn't look like
+            // a file, e.g. "a/b".
+            //
+            // We use email addresses in the url, and those often looks like "first.last", which is interpreted
+            // as files, thus trying to serve a file with that name rather than serve index.html.
+            e.MapFallbackToFile("{*path}", "index.html") |> ignore) |> ignore
 
 
 let configureServices (services: IServiceCollection) =
