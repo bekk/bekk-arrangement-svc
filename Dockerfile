@@ -19,7 +19,7 @@ WORKDIR /app/Arrangement-Svc
 RUN dotnet publish -c release -o out
 
 # RUN
-FROM mcr.microsoft.com/dotnet/sdk:6.0
+FROM mcr.microsoft.com/dotnet/aspnet:6.0
 WORKDIR /app/
 COPY --from=dotnet_build /app/Arrangement-Svc/out .
 COPY --from=dotnet_build /app/Arrangement-Svc/wwwroot wwwroot/.
