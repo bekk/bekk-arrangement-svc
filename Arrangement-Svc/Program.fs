@@ -42,9 +42,9 @@ let configureApp (app: IApplicationBuilder) =
     |> ignore
     app.UseDefaultFiles() |> ignore
     app.UseStaticFiles() |> ignore
+    app.UseAuthentication() |> ignore
     app.UseMiddleware<Middleware.RequestLogging>() |> ignore
     app.UseRouting() |> ignore
-    app.UseAuthentication() |> ignore
     app.UseCors(configureCors) |> ignore
     app.UseOutputCaching()
     app.UseMiddleware<Middleware.RetryOnDeadlock>() |> ignore
