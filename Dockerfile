@@ -1,6 +1,3 @@
-# NOTE: When using Alpine, createEvent requests mysteriously dies at decoding
-# the body. This does not happen locally or using Debian. Before changing back
-# to Alpine, make sure the application actually works from Docker
 FROM node:11.14.0 AS node_build
 
 WORKDIR /app
