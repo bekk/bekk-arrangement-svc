@@ -47,6 +47,7 @@
     <Compile Include="Common\Auth.fs" /> 
     <Compile Include="Common\UserMessage.fs" />
     <Compile Include="Common\DatabaseContext.fs" />
+    <Compile Include="Common\GiraffeHelpers.fs" />
     <Compile Include="Models\Models.fs" />
     <Compile Include="Models\SendgridApiModels.fs" />
     <Compile Include="Models\EmailModels.fs" />

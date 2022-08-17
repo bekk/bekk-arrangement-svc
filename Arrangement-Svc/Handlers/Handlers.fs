@@ -736,6 +736,7 @@ let deleteParticipantFromEvent (eventId: Guid) (email: string) =
             }
         jsonResult result next context
 
+open GiraffeHelpers
 
 let routes: HttpHandler =
     choose
