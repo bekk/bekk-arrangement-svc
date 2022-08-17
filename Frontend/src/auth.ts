@@ -122,7 +122,7 @@ export function isAuthenticated(): boolean {
   return false;
 }
 
-export const needsToAuthenticate = (status: number) => status === 401;
+export const needsToAuthenticate = (status: number) => status === 403;
 
 export function getEmployeeId(): any {
   if (!isAuthenticated()) {
