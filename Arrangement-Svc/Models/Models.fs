@@ -106,6 +106,7 @@ type EventWriteModel =
       ParticipantQuestions: string list
       ViewUrl: string option
       EditUrlTemplate: string
+      CancelParticipationUrlTemplate: string option
       HasWaitingList: bool
       IsExternal: bool
       IsHidden: bool
@@ -136,6 +137,7 @@ module EventWriteModel =
                                          (Decode.list Decode.string |> Decode.andThen Validate.participantQuestions)
               ViewUrl = get.Optional.Field "viewUrl" Decode.string
               EditUrlTemplate = get.Required.Field "editUrlTemplate" Decode.string
+              CancelParticipationUrlTemplate = get.Optional.Field "cancelParticipationUrlTemplate" Decode.string
               HasWaitingList = get.Required.Field "hasWaitingList" Decode.bool
               IsExternal = get.Required.Field "isExternal" Decode.bool
               IsHidden = get.Required.Field "isHidden" Decode.bool

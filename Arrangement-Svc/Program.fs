@@ -26,7 +26,9 @@ let webApp =
 let configuration =
     let builder = ConfigurationBuilder()
     builder.AddJsonFile("appsettings.json") |> ignore
-    builder.AddUserSecrets(System.Reflection.Assembly.GetExecutingAssembly()) |> ignore
+    // We use this configuration from the tests, so we need Entry assembly to
+    // fetch user secrets from the correct location.
+    builder.AddUserSecrets(System.Reflection.Assembly.GetEntryAssembly()) |> ignore
     builder.AddEnvironmentVariables() |> ignore
     builder.Build()
 

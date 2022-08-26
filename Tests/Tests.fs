@@ -9,10 +9,12 @@ open migrator
 
 let allTests =
     testList "All Tests" [
+        DateTimeCustom.tests
         General.tests
         CreateEvent.tests
         RegisterToEvent.tests
         UpdateEvent.tests
+        SendEmailOnUpdateEvent.tests
         GetEvent.tests
         DeleteEvent.tests
         OfficeEvents.tests

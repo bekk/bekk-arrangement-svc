@@ -20,7 +20,7 @@ open TestUtils
 let TokenEnvVariableName = "ARRANGEMENT_SVC_TEST_JWT_TOKEN"
 let token = Environment.GetEnvironmentVariable TokenEnvVariableName
 
-let basePath = "http://localhost:5000"
+let basePath = "http://localhost:5000/api"
 
 type TypedApiResponse<'a> = HttpResponseMessage*'a
 type ApiResponse = TypedApiResponse<string>
@@ -112,13 +112,14 @@ let private request (jwt: string option) (url: string) (body: 'a option) (method
     }
     //|> Task.map enforceSuccess
 
+let private uriBuilder (url : string) : UriBuilder =
+    UriBuilder(if url.StartsWith('/') then $"{basePath}{url}" else url)
+
 [<RequireQualifiedAccess>]
 module WithoutToken =
     let request (url: string) (body: 'a option) (method: HttpMethod) : ApiResponse Task =
+        let url = (uriBuilder url).ToString()
         request None url body method
-
-let private uriBuilder (url : string) : UriBuilder =
-    UriBuilder(if url.StartsWith('/') then $"{basePath}{url}" else url)
 
 [<RequireQualifiedAccess>]
 module UsingEditToken =
@@ -150,6 +151,7 @@ module UsingShortName =
 [<RequireQualifiedAccess>]
 module UsingJwtToken =
     let request (url: string) (body: 'a option) (method: HttpMethod) : ApiResponse Task =
+        let url = (uriBuilder url).ToString()
         request (Some token) url body method
 
 

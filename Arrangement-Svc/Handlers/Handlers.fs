@@ -8,6 +8,7 @@ open FsToolkit.ErrorHandling
 open Microsoft.AspNetCore.Http
 
 open Email.Service
+open Email.Models
 
 open Auth
 open Config
@@ -33,6 +34,7 @@ let private decode decoder (context: HttpContext) =
 let private createEditUrl (redirectUrlTemplate: string) (event: Models.Event) =
     redirectUrlTemplate.Replace("{eventId}", event.Id.ToString())
                        .Replace("{editToken}", event.EditToken.ToString())
+
 let private createCancelUrl (redirectUrlTemplate: string) (participant: Participant) =
     redirectUrlTemplate.Replace("{eventId}",
                             participant.EventId.ToString
@@ -252,6 +254,14 @@ let getEventsOrganizedBy (email: string) =
             }
         jsonResult result next context
 
+let getEventIdByShortnameHttpResult shortname db =
+    taskResult {
+        let! result =
+            Queries.getEventIdByShortname shortname db
+            |> TaskResult.mapError InternalError
+        return! Result.requireSome (NotFound $"Kunne ikke finne event med kortnavn %s{shortname}") result
+    }
+
 let getEventIdByShortname =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
@@ -261,10 +271,7 @@ let getEventIdByShortname =
                     |> Result.mapError BadRequest
                 let shortname = HttpUtility.UrlDecode(shortnameEncoded)
                 use db = openConnection context
-                let! result =
-                    Queries.getEventIdByShortname shortname db
-                    |> TaskResult.mapError InternalError
-                return result
+                return! getEventIdByShortnameHttpResult shortname db
             }
         jsonResult result next context
 
@@ -301,20 +308,13 @@ let getUnfurlEvent (idOrName: string) =
                 // TODO: USikker på hvilken av disse som er riktig.
                 // Gamle versjon gjør det på utkommentert måte, men den funker ikke i postman
 //                let success, parsedEventId = Guid.TryParse (idOrName |> strSkip ("/events/" |> String.length))
-                let success, parsedEventId = Guid.TryParse idOrName
                 let! eventId =
-                    if not success then
+                    match Guid.TryParse idOrName with
+                    | true, guid ->
+                        TaskResult.ok guid
+                    | false, _ ->
                         let name = idOrName |> strSkip 1
-                        taskResult {
-                            let! result =
-                                Queries.getEventIdByShortname name db
-                                |> TaskResult.mapError InternalError
-                            return result
-                        }
-                    else
-                       task {
-                           return Ok parsedEventId
-                       }
+                        getEventIdByShortnameHttpResult name db
 
                 let! eventAndQuestions =
                     Queries.getEvent eventId db
@@ -516,6 +516,69 @@ let private sendEmailToNewParticipants oldEventMaxParticipants newEventMaxPartic
         for newAttendee in newPeople do
             sendMail (createFreeSpotAvailableMail updatedEvent newAttendee) context
 
+let diffEvent (oldEvent: Event) (newEvent : Event) =
+    let extract (ev : Event) =
+        {| start = DateTimeCustom.toCustomDateTime ev.StartDate ev.StartTime
+           end' = DateTimeCustom.toCustomDateTime ev.EndDate ev.EndTime
+           location = ev.Location |}
+    let old' = extract oldEvent
+    let new' = extract newEvent
+    if old' <> new' then
+        Some {| oldStart = old'.start
+                oldEnd = old'.end'
+                newStart = new'.start
+                newEnd = new'.end'
+                oldLocation = old'.location
+                newLocation = new'.location |}
+    else None
+
+let sendUpdateEmailToOldParticipants (old' : Event) (new' : Event) (oldParticipants : Participant seq) (cancelTemplate: string option) (ctx : HttpContext) =
+    diffEvent old' new'
+    |> Option.iter (fun diff ->
+        let cfg = ctx.GetService<AppConfig>()
+        oldParticipants
+        |> Seq.map (fun (p : Participant) ->
+            let diffMsg =
+                  let timeChanged = DateTimeCustom.toReadableDiff diff.oldStart diff.oldEnd diff.newStart diff.newEnd
+                  let locationChanged =
+                      if diff.oldLocation <> diff.newLocation
+                      then Some (diff.oldLocation, diff.newLocation)
+                      else None
+                  [ $"Hei! 😄"
+                    $""
+                    match timeChanged, locationChanged with
+                    | Some (fromTime, toTime), Some(fromLoc, toLoc) ->
+                        $"Arrangementet du har meldt deg på har endret tidspunkt og lokasjon: "
+                        $"- Tidspunkt er endret fra {fromTime} til {toTime}"
+                        $"- Lokasjon er endret fra {fromLoc} til {toLoc}"
+                    | Some (fromTime, toTime), None ->
+                        $"Arrangementet du har meldt deg på har endret tidspunkt fra {fromTime} til {toTime}"
+                    | None, Some (fromLoc, toLoc) ->
+                        $"Arrangementet du har meldt deg på har endret lokasjon fra {fromLoc} til {toLoc}"
+                    | None, None ->
+                        failwithf "Only expected to send update notification for certain fields, but there are other changes!"
+                    $""
+                    $"Vi gleder oss til å se deg! 🎉"
+                    $""
+                    if new'.MaxParticipants.IsSome
+                    then "Siden det er begrenset med plasser, setter vi pris på om du melder deg av hvis du ikke lenger<br>kan delta. Da blir det plass til andre på ventelisten 😊"
+                    else "Gjerne meld deg av dersom du ikke lenger har mulighet til å delta."
+                    if cancelTemplate.IsSome then $"Du kan melde deg av <a href=\"{(createCancelUrl cancelTemplate.Value p)}\">via denne lenken</a>."
+                    $""
+                    $"Bare send meg en mail på {new'.OrganizerEmail} om det er noe du lurer på."
+                    $"Vi sees!"
+                    $""
+                    $"Hilsen {new'.OrganizerName} i Bekk"
+                  ] |> String.concat "<br>"
+            { Subject = $"Arrangementet {old'.Title} er endret"
+              Message = diffMsg
+              To = p.Email
+              CalendarInvite =
+                  (new', p, cfg.noReplyEmail, diffMsg, Email.CalendarInvite.Update)
+                  |> Email.CalendarInvite.createCalendarAttachment
+                  |> Some }
+        ) |> Seq.iter (fun msg -> sendMail msg ctx))
+
 let updateEvent (eventId: Guid) =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
@@ -569,6 +632,8 @@ let updateEvent (eventId: Guid) =
                         |> TaskResult.mapError InternalError
                     db.Commit()
                     sendEmailToNewParticipants oldEvent.Event.MaxParticipants writeModel.MaxParticipants oldEventParticipants updatedEvent context
+                    let cancelUrl = writeModel.CancelParticipationUrlTemplate |> Option.map HttpUtility.UrlDecode in
+                        sendUpdateEmailToOldParticipants oldEvent.Event updatedEvent oldEventParticipants cancelUrl context
                     let eventAndQuestions = { Event = updatedEvent; Questions = eventQuestions }
                     return Event.encodeEventAndQuestions eventAndQuestions
             }
