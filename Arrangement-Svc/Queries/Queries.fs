@@ -58,6 +58,13 @@ let getEventsForForside (email: string) (db: DatabaseContext) =
     task {
         let query =
             "
+             WITH participation as (
+                SELECT EventId, Email, RegistrationTime, ROW_NUMBER() OVER (
+                PARTITION BY EventId ORDER BY RegistrationTime
+                ) registrationSpot
+                FROM Participants
+                GROUP BY EventId, RegistrationTime, Email
+                )
             SELECT E.Id,
                    E.Title,
                    E.Location,
@@ -71,12 +78,17 @@ let getEventsForForside (email: string) (db: DatabaseContext) =
                    E.CustomHexColor,
                    E.Shortname,
                    E.hasWaitingList,
-                   COUNT(*) as NumberOfParticipants,
-                   (SELECT COUNT(*) FROM Participants p0 WHERE p0.Email = @email AND p0.EventId = E.Id) as IsParticipating
+                   IIF(e.MaxParticipants is null, 1, IIF((SELECT COUNT(*) FROM Participants p0 WHERE p0.EventId = E.Id) < E.MaxParticipants, 1, 0)) as HasRoom,
+                   IIF(myp.registrationSpot is null, 0, 1) as IsParticipating,
+                   IIF(myp.RegistrationSpot > E.MaxParticipants, 1, 0) as IsWaitlisted,
+                   IIF(myp.RegistrationSpot > E.MaxParticipants, (myp.registrationSpot - e.MaxParticipants), 0) AS PositionInWaitlist
             FROM Events E
-            LEFT JOIN Participants P on E.Id = P.EventId
-            WHERE EndDate > @now AND IsCancelled = 0 AND IsHidden = 0
-            GROUP BY E.Id, E.Title, E.Location, E.StartDate, E.EndDate, E.StartTime, E.EndTime, E.OpenForRegistrationTime, E.CloseRegistrationTime, E.MaxParticipants, E.CustomHexColor, E.Shortname, E.hasWaitingList
+                     LEFT OUTER JOIN participation PN ON E.id = PN.EventId
+                     LEFT OUTER JOIN participation myp ON E.Id = myp.EventId AND myp.Email = @email
+            WHERE EndDate > @now
+              AND IsCancelled = 0
+              AND IsHidden = 0
+            GROUP BY E.Id, E.Title, E.Location, E.StartDate, E.EndDate, E.StartTime, E.EndTime, E.OpenForRegistrationTime, E.CloseRegistrationTime, E.MaxParticipants, E.CustomHexColor, E.Shortname, E.hasWaitingList, myp.RegistrationSpot
             "
 
         let parameters = dict [
