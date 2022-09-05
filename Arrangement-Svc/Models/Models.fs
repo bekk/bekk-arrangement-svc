@@ -191,8 +191,10 @@ type ForsideEvent = {
     CustomHexColor: string option
     Shortname: string option
     HasWaitingList: bool
-    NumberOfParticipants: int
     IsParticipating: bool
+    HasRoom: bool
+    IsWaitlisted: bool
+    PositionInWaitlist: int
 }
 
 module Event =
@@ -250,8 +252,10 @@ module Event =
                 if event.Shortname.IsSome then
                     "shortname", Encode.string event.Shortname.Value
                 "hasWaitingList", Encode.bool event.HasWaitingList
-                "numberOfParticipants", Encode.int event.NumberOfParticipants
+                "hasRoom", Encode.bool event.HasRoom
                 "isParticipating", Encode.bool event.IsParticipating
+                "isWaitlisted", Encode.bool event.IsWaitlisted
+                "positionInWaitlist", Encode.int event.PositionInWaitlist
             ]
         encoding
 
