@@ -233,7 +233,9 @@ let private sendMailToFirstPersonOnWaitingList
     let personWhoGotIt = Seq.tryHead waitingList
     match personWhoGotIt with
     | None -> ()
-    | Some participant -> sendMail (createFreeSpotAvailableMail event participant) context
+    | Some participant ->
+        printfn $"Hvem sender vi epost til? {participant}"
+        sendMail (createFreeSpotAvailableMail event participant) context
 
 let private sendMailToOrganizerAboutCancellation (event: Models.Event) participant context =
     let mail = createCancelledParticipationMailToOrganizer event participant
@@ -244,6 +246,7 @@ let private sendMailWithCancellationConfirmation event participant context =
     sendMail mail context
 
 let sendParticipantCancelMails (event: Models.Event) (participant: Models.Participant) (waitingList: ParticipantAndAnswers seq) context =
+    printfn $"Den som melder seg av er: {participant}"
     sendMailToOrganizerAboutCancellation event participant context
     sendMailWithCancellationConfirmation event participant context
     if not <| Seq.isEmpty waitingList then

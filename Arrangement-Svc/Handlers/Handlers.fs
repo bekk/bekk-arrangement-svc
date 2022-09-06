@@ -794,7 +794,11 @@ let deleteParticipantFromEvent (eventId: Guid) (email: string) =
                 let! deletedParticipant =
                     Queries.deleteParticipantFromEvent eventId email db
                     |> TaskResult.mapError InternalError
-                let participants = participationsToAttendeesAndWaitlist eventAndQuestions.Event.MaxParticipants (participants |> Seq.toList)
+                let participantsWithoutDeletedPerson =
+                    participants
+                    |> Seq.filter (fun x -> x.Participant.Email <> deletedParticipant.Email)
+                    |> Seq.toList
+                let participants = participationsToAttendeesAndWaitlist eventAndQuestions.Event.MaxParticipants participantsWithoutDeletedPerson
                 db.Commit()
                 sendParticipantCancelMails eventAndQuestions.Event deletedParticipant participants.WaitingList context
                 return ()
