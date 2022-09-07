@@ -103,7 +103,7 @@
   }
 }
 
-.dateToday {
+.todayHighlighter {
   width: 1.5em;
   height: 1.5em;
   line-height: 1.4em;
@@ -114,6 +114,10 @@
   @media screen and (max-width: 600px) {
     float:right;
   }
+}
+
+.currentDate {
+  color: white !important;
 }
 
 .oldDate {
