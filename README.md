@@ -42,7 +42,7 @@ $ dotnet watch run
 If you are only developing frontend you can use and environment variable to proxy to the dev environment
 ```
 $ cd Frontend
-$ export PROXY=https://api.bekk.dev/arrangement-svc
+$ export PROXY=https://skjer.bekk.dev
 $ npm i 
 $ npm start
 ```
