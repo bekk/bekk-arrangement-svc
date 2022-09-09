@@ -103,12 +103,17 @@ const WeekDayCards = ({daysAndEvents, setSelectedEvent}: { daysAndEvents: DayAnd
         })
         const dateStyle = classnames({
           [style.oldDate]: isPreviousDay(day) || isNextMonth(day),
-          [style.dateToday]: isToday(day),
+          [style.currentDate]: isToday(day),
+        })
+        const dateHighlighter = classnames({
+          [style.todayHighlighter]: isToday(day)
         })
         return (
           <td className={borderStyle} key={day.getDate()}>
             <div className={dateStyle}>
-              {day.getDate()}
+              <div className={dateHighlighter}>
+                {day.getDate()}
+              </div>
               {events.map(event => <Event key={`${event.title}:${event.contactPerson}`} event={event} setSelectedEvent={setSelectedEvent}/>)}
             </div>
           </td>
