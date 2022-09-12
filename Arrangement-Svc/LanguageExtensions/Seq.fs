@@ -9,6 +9,8 @@ let safeSkip n list =
     |> Seq.skipWhile (fun (_, i) -> i < n)
     |> Seq.map fst
 
+
 let fromDict dictionary =
     dictionary
     |> Seq.map (|KeyValue|)
+

@@ -227,13 +227,10 @@ let private createCancelledEventMail
 
 let private sendMailToFirstPersonOnWaitingList
     (event: Models.Event)
-    (waitingList: Models.Participant list)
+    (personWhoGotIt: Models.Participant)
     context
     =
-    let personWhoGotIt = Seq.tryHead waitingList
-    match personWhoGotIt with
-    | None -> ()
-    | Some participant -> sendMail (createFreeSpotAvailableMail event participant) context
+    sendMail (createFreeSpotAvailableMail event personWhoGotIt) context
 
 let private sendMailToOrganizerAboutCancellation (event: Models.Event) participant context =
     let mail = createCancelledParticipationMailToOrganizer event participant
@@ -243,12 +240,12 @@ let private sendMailWithCancellationConfirmation event participant context =
     let mail = createCancelledParticipationMailToAttendee event participant
     sendMail mail context
 
-let sendParticipantCancelMails (event: Models.Event) (participant: Models.Participant) (waitingList: ParticipantAndAnswers seq) context =
+let sendParticipantCancelMails (event: Models.Event) (participant: Models.Participant) (personWhoGotIt: ParticipantAndAnswers option) context =
     sendMailToOrganizerAboutCancellation event participant context
     sendMailWithCancellationConfirmation event participant context
-    if not <| Seq.isEmpty waitingList then
-        sendMailToFirstPersonOnWaitingList event (Seq.map (fun x -> x.Participant) waitingList |> Seq.toList) context
-        ()
+    match personWhoGotIt with
+    | Some person -> sendMailToFirstPersonOnWaitingList event person.Participant context
+    | None -> ()
 
 let private createCancellationConfirmationToOrganizer
     (event: Models.Event)
