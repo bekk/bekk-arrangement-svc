@@ -25,4 +25,5 @@ COPY --from=dotnet_build /app/Arrangement-Svc/out .
 COPY --from=dotnet_build /app/Arrangement-Svc/wwwroot wwwroot/.
 COPY --from=node_build /app/Frontend/build/. wwwroot/.
 ENV ASPNETCORE_URLS="http://+:80"
+ENV PORT=80
 CMD dotnet arrangementSvc.dll

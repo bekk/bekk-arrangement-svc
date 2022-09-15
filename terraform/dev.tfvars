@@ -8,13 +8,12 @@ create_dns_record      = true
 
 task_environment = {
   ASPNETCORE_ENVIRONMENT       = "Development"
-  Auth0__Issuer_Domain         = "bekk-dev.eu.auth0.com"
   Auth0__Audience              = "QHQy75S7tmnhDdBGYSnszzlhMPul0fAE"
-  PORT                         = "80"
-  Serilog__MinimumLevel        = "Warning"
-  VIRTUAL_PATH                 = "/arrangement-svc"
+  Auth0__Issuer_Domain         = "bekk-dev.eu.auth0.com"
   Auth0__PERMISSION_CLAIM_TYPE = "https://api.bekk.no/claims/permission"
   Config__Employee_Svc_url     = "https://api.bekk.dev/employee-svc"
+  Serilog__MinimumLevel        = "Warning"
+  VIRTUAL_PATH                 = "/arrangement-svc"
 }
 task_secrets = [
   "ConnectionStrings__EventDb",
