@@ -336,6 +336,14 @@ let createEvent =
                 let! writeModel =
                     decode EventWriteModel.decoder context
                     |> TaskResult.mapError BadRequest
+                // Check if shortname is legal
+                do!
+                    let illegalShortnames = ["redirect"]
+                    match writeModel.Shortname with
+                    | Some shortname ->
+                        List.contains shortname illegalShortnames
+                        |> Result.requireFalse (BadRequest $"\"{shortname}\" er et ugyldig kortnavn")
+                    | None -> Ok ()
                 let! userId =
                     getUserId context
                     |> Result.requireSome couldNotRetrieveUserId

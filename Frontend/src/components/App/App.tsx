@@ -117,6 +117,10 @@ export const App = () => {
             <ConfirmParticipant />
           </div>
         </Route>
+        {/* Add empty route for /redirect to prevent faulty api-calls */}
+        <Route path="/redirect">
+          <></>
+        </Route>
         <Redirect exact from={rootRoute} to={eventsRoute} />
         <Route path={viewEventShortnameRoute(':' + shortnameKey)}>
           <div className={classNames(style.container, style.darkBackground)}>
