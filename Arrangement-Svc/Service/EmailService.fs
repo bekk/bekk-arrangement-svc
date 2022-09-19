@@ -183,13 +183,13 @@ let private createCancelledParticipationMailToOrganizer
     participantAnswers
     =
         let stringBuilder = StringBuilder()
-        stringBuilder.AppendLine $"{participant.Name} har meldt seg av {event.Title}" |> ignore
+        stringBuilder.AppendLine $"{participant.Name} har meldt seg av {event.Title}<br>" |> ignore
         if List.isEmpty eventQuestions = false then
-            stringBuilder.AppendLine "Deltaker har svart:" |> ignore
+            stringBuilder.AppendLine "Deltaker har svart:<br>" |> ignore
             List.iter (fun question ->
-                stringBuilder.AppendLine $"- {question.Question}" |> ignore
+                stringBuilder.AppendLine $"- {question.Question}<br>" |> ignore
                 let question = List.find (fun (a: ParticipantAnswer) -> a.QuestionId = question.Id) participantAnswers
-                stringBuilder.AppendLine question.Answer |> ignore
+                stringBuilder.AppendLine $"{question.Answer}<br>" |> ignore
                 stringBuilder.AppendLine "</br>" |> ignore
             ) eventQuestions
         { Subject = "Avmelding"
