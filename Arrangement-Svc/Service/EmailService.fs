@@ -189,10 +189,11 @@ let private createCancelledParticipationMailToOrganizer
                    $"- {question.Question}<br>{answer.Answer}<br><br>"
                 ) eventQuestions
             [ $"{participant.Name} har meldt seg av {event.Title}"
-              ""
-              "Deltaker har svart:"
-              ""
-              yield! questionAnswerString
+              if List.isEmpty eventQuestions = false then
+                  ""
+                  "Deltaker har svart:"
+                  ""
+                  yield! questionAnswerString
             ] |> String.concat "<br>"
         { Subject = "Avmelding"
           Message = message
