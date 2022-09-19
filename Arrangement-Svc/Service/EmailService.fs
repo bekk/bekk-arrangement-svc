@@ -194,16 +194,6 @@ let private createCancelledParticipationMailToOrganizer
               ""
               yield! questionAnswerString
             ] |> String.concat "<br>"
-//        let stringBuilder = StringBuilder()
-//        stringBuilder.AppendLine
-//        if List.isEmpty eventQuestions = false then
-//            stringBuilder.AppendLine "Deltaker har svart:<br>" |> ignore
-//            List.iter (fun question ->
-//                stringBuilder.AppendLine $"- {question.Question}<br>" |> ignore
-//                let question = List.find (fun (a: ParticipantAnswer) -> a.QuestionId = question.Id) participantAnswers
-//                stringBuilder.AppendLine $"{question.Answer}<br>" |> ignore
-//                stringBuilder.AppendLine "<br><br>" |> ignore
-//            ) eventQuestions
         { Subject = "Avmelding"
           Message = message
           To = event.OrganizerEmail
