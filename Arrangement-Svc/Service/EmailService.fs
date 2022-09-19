@@ -186,7 +186,7 @@ let private createCancelledParticipationMailToOrganizer
             let questionAnswerString =
                 List.map (fun (question: ParticipantQuestion) ->
                    let answer = List.find (fun (a: ParticipantAnswer) -> a.QuestionId = question.Id) participantAnswers
-                   $"- {question.Question}<br>{answer.Answer}"
+                   $"- {question.Question}<br>{answer.Answer}<br><br>"
                 ) eventQuestions
             [ $"{participant.Name} har meldt seg av {event.Title}"
               ""
