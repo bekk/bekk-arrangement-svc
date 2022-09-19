@@ -794,7 +794,7 @@ let deleteParticipantFromEvent (eventId: Guid) (email: string) =
                 let participationsAndWaitlist =
                     participants
                     |> Seq.toList
-                    |> participationsToAttendeesAndWaitlist eventAndQuestions.Event.MaxParticipants 
+                    |> participationsToAttendeesAndWaitlist eventAndQuestions.Event.MaxParticipants
                 let participantIsAttendee =
                     participationsAndWaitlist.Attendees
                     |> Seq.exists (fun x -> x.Participant.Email = email)
@@ -807,7 +807,11 @@ let deleteParticipantFromEvent (eventId: Guid) (email: string) =
                     Queries.deleteParticipantFromEvent eventId email db
                     |> TaskResult.mapError InternalError
                 db.Commit()
-                sendParticipantCancelMails eventAndQuestions.Event deletedParticipant personWhoGotIt context
+                let deletedParticipantAnswers =
+                    participants
+                    |> Seq.find (fun pa -> pa.Participant.Email = email)
+                    |> fun p -> p.Answers
+                sendParticipantCancelMails eventAndQuestions.Event eventAndQuestions.Questions deletedParticipant deletedParticipantAnswers personWhoGotIt context
                 return ()
             }
         jsonResult result next context
