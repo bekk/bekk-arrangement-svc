@@ -101,8 +101,8 @@ let organizerAsParticipant (event: Models.Event): Participant =
       Name = event.OrganizerName
       Email = event.OrganizerEmail
       EventId = event.Id
-      RegistrationTime = System.DateTimeOffset.Now.ToUnixTimeSeconds()
-      CancellationToken = System.Guid.Empty
+      RegistrationTime = DateTimeOffset.Now.ToUnixTimeSeconds()
+      CancellationToken = Guid.Empty
       EmployeeId = Some event.OrganizerId
     }
 
@@ -178,13 +178,32 @@ let createNewParticipantMail
 
 let private createCancelledParticipationMailToOrganizer
     (event: Models.Event)
-    (participant: Models.Participant)
+    eventQuestions
+    participant
+    participantAnswers
     =
-    { Subject = "Avmelding"
-      Message = $"{participant.Name} har meldt seg av {event.Title}"
-      To = event.OrganizerEmail
-      CalendarInvite = None
-    }
+        let message =
+            let participantInfo =
+                let questionAnswerString =
+                    List.map (fun (question: ParticipantQuestion) ->
+                       let answer = List.find (fun (a: ParticipantAnswer) -> a.QuestionId = question.Id) participantAnswers
+                       $"- {question.Question}<br>{answer.Answer}<br><br>"
+                    ) eventQuestions
+                [
+                    ""
+                    "Deltaker har svart:"
+                    ""
+                    yield! questionAnswerString
+                ]
+            [ $"{participant.Name} har meldt seg av {event.Title}"
+              if List.isEmpty eventQuestions = false then
+                  yield! participantInfo
+            ] |> String.concat "<br>"
+        { Subject = "Avmelding"
+          Message = message
+          To = event.OrganizerEmail
+          CalendarInvite = None
+        }
 
 let private createCancelledParticipationMailToAttendee
     (event: Models.Event)
@@ -232,16 +251,16 @@ let private sendMailToFirstPersonOnWaitingList
     =
     sendMail (createFreeSpotAvailableMail event personWhoGotIt) context
 
-let private sendMailToOrganizerAboutCancellation (event: Models.Event) participant context =
-    let mail = createCancelledParticipationMailToOrganizer event participant
+let private sendMailToOrganizerAboutCancellation event eventQuestions participant participantAnswers context =
+    let mail = createCancelledParticipationMailToOrganizer event eventQuestions participant participantAnswers
     sendMail mail context
 
 let private sendMailWithCancellationConfirmation event participant context =
     let mail = createCancelledParticipationMailToAttendee event participant
     sendMail mail context
 
-let sendParticipantCancelMails (event: Models.Event) (participant: Models.Participant) (personWhoGotIt: ParticipantAndAnswers option) context =
-    sendMailToOrganizerAboutCancellation event participant context
+let sendParticipantCancelMails (event: Models.Event) (eventQuestions: ParticipantQuestion list) (participant: Models.Participant) (participantAnswers: ParticipantAnswer list) (personWhoGotIt: ParticipantAndAnswers option) context =
+    sendMailToOrganizerAboutCancellation event eventQuestions participant participantAnswers context
     sendMailWithCancellationConfirmation event participant context
     match personWhoGotIt with
     | Some person -> sendMailToFirstPersonOnWaitingList event person.Participant context
