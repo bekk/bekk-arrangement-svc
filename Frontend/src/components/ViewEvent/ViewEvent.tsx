@@ -84,19 +84,21 @@ export const ViewEvent = ({
             <LocationIcon color="black" className={style.icon} />
             <p>{event.location}</p>
           </div>
-          <div className={style.iconTextContainer}>
-            <GentlemanIcon color="black" className={style.icon} />
-            {hasOpenedForRegistration ? (
-              <p>{participantsText}</p>
-            ) : (
-              <p>
-                {!isMaxParticipantsLimited(event.maxParticipants)
-                  ? ' ∞'
-                  : maxParticipantsLimit(event.maxParticipants)}{' '}
-                plasser
-              </p>
-            )}
-          </div>
+          {userIsLoggedIn() && (
+            <div className={style.iconTextContainer}>
+              <GentlemanIcon color="black" className={style.icon} />
+              {hasOpenedForRegistration ? (
+                <p>{participantsText}</p>
+              ) : (
+                <p>
+                  {!isMaxParticipantsLimited(event.maxParticipants)
+                    ? ' ∞'
+                    : maxParticipantsLimit(event.maxParticipants)}{' '}
+                  plasser
+                </p>
+              )}
+            </div>
+          )}
           {event.isExternal && userIsLoggedIn() && (
             <div className={style.iconTextContainer}>
               <ExternalIcon color="black" className={style.externalIcon} />
