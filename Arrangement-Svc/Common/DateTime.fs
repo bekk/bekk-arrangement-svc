@@ -193,7 +193,7 @@ let toReadableString (dt: DateTimeCustom) =
 type private ShowField = Skip | Start | Interval
 let toReadableDiff (oldStart: DateTimeCustom) (oldEnd: DateTimeCustom) (newStart: DateTimeCustom) (newEnd: DateTimeCustom) : (string*string) option =
     let fmtDt (dt: DateTime) =
-        $"{dt:yy}.{dt:MM}.{dt:dd}"
+        $"{dt:dd}.{dt:MM}.{dt:yyyy}"
 
     let fmtTm (dt: DateTime) =
         $"{dt:HH}:{dt:mm}"
@@ -212,8 +212,8 @@ let toReadableDiff (oldStart: DateTimeCustom) (oldEnd: DateTimeCustom) (newStart
       then (Skip, Skip)
       else (field old, field new')
 
-    let (dt0, dt1) = diff (oldStart.Date, oldEnd.Date) (newStart.Date, newEnd.Date)
-    let (tm0, tm1) = diff (oldStart.TimeOfDay, oldEnd.TimeOfDay) (newStart.TimeOfDay, newEnd.TimeOfDay)
+    let dt0, dt1 = diff (oldStart.Date, oldEnd.Date) (newStart.Date, newEnd.Date)
+    let tm0, tm1 = diff (oldStart.TimeOfDay, oldEnd.TimeOfDay) (newStart.TimeOfDay, newEnd.TimeOfDay)
 
     let fmt dt tm start' end' =
         match (dt, tm) with
@@ -228,5 +228,5 @@ let toReadableDiff (oldStart: DateTimeCustom) (oldEnd: DateTimeCustom) (newStart
         | Skip    , Skip      -> $""
 
     match ((fmt dt0 tm0 oldStart oldEnd), (fmt dt1 tm1 newStart newEnd)) with
-    | ("", "") -> None
+    | "", "" -> None
     | x -> Some x
