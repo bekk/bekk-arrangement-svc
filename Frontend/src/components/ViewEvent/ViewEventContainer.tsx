@@ -47,7 +47,7 @@ import {
 } from 'src/components/Common/FunEffects/effectUtils';
 import { Halloween } from 'src/components/Common/FunEffects/Halloween/Halloween';
 import { Kittens } from 'src/components/Common/FunEffects/Kittens/Kittens';
-import {Spinner} from "src/components/Common/Spinner/spinner";
+import { Spinner } from 'src/components/Common/Spinner/spinner';
 
 interface IProps {
   eventId: string;
@@ -100,7 +100,7 @@ export const ViewEventContainer = ({ eventId }: IProps) => {
   }
 
   if (!hasLoaded(remoteEvent) || !hasLoaded(emailAndName)) {
-    return <Spinner />
+    return <Spinner />;
   }
 
   const event = remoteEvent.data;
@@ -176,7 +176,9 @@ export const ViewEventContainer = ({ eventId }: IProps) => {
   )
     ? 'Ubegrenset antall plasser'
     : avilableSpots > 0
-    ? plural(avilableSpots, 'ledig plass', 'ledige plasser')
+    ? !userIsLoggedIn() && event.isExternal
+      ? 'Ledige plasser'
+      : plural(avilableSpots, 'ledig plass', 'ledige plasser')
     : 'Ingen ledige plasser';
 
   const goToRemoveParticipantRoute = ({
@@ -315,14 +317,6 @@ export const ViewEventContainer = ({ eventId }: IProps) => {
                 />
               </>
             )
-          )}
-          {!userIsLoggedIn() && event.isExternal && (
-            <>
-              <div className={style.attendeesTitleContainer}>
-                <h2 className={style.subHeader}>Påmeldte</h2>
-              </div>
-              <p>{participantsText}</p>
-            </>
           )}
         </section>
       </Page>
