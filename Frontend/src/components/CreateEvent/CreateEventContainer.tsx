@@ -9,7 +9,7 @@ import { BlockLink } from 'src/components/Common/BlockLink/BlockLink';
 import style from './CreateEventContainer.module.scss';
 import { isValid } from 'src/types/validation';
 import { useDuplicateEvent, useGotoEventPreview } from 'src/hooks/history';
-import { useEmailAndName } from 'src/hooks/cache';
+import { useEmailNameAndDepartment } from 'src/hooks/cache';
 import { hasLoaded } from 'src/remote-data';
 import {useSetTitle} from "src/hooks/setTitle";
 import {appTitle} from "src/Constants";
@@ -21,7 +21,7 @@ export const CreateEventContainer = () => {
 
   const duplicateEvent = useDuplicateEvent();
 
-  const emailAndName = useEmailAndName();
+  const emailAndName = useEmailNameAndDepartment();
   const { email, name } = (hasLoaded(emailAndName) && emailAndName.data) || {};
 
   const [event, setEvent] = useSessionState<IEditEvent>(duplicateEvent ?? initialEditEvent(email, name), "createEvent");

@@ -15,6 +15,7 @@ export interface IParticipantWriteModel {
 export interface IParticipantViewModel {
   name: string;
   email?: string;
+  department: string;
   eventId: string;
   registrationTime: number;
   participantAnswers: string[];
@@ -38,12 +39,14 @@ export interface INewParticipantViewModel {
 export interface IParticipant {
   name: string;
   email: Email;
+  department: string;
   participantAnswers: string[];
 }
 
 export interface IEditParticipant {
   name: string;
   email: string;
+  department: string;
   participantAnswers: string[];
 }
 
@@ -81,11 +84,13 @@ export const parseParticipantViewModel = (
 export const parseEditParticipant = ({
   name,
   email,
+  department,
   participantAnswers: answers,
 }: IEditParticipant): IParticipant | IError[] => {
   const participant = {
     name: parseName(name),
     email: parseEditEmail(email),
+    department: department,
     participantAnswers: parseAnswers(answers),
   };
 
@@ -101,10 +106,12 @@ export const parseEditParticipant = ({
 export const toEditParticipant = ({
   name,
   email,
+  department,
   participantAnswers: answers,
 }: IParticipant): IEditParticipant => ({
   name,
   email: toEditEmail(email),
+  department,
   participantAnswers: answers,
 });
 
@@ -129,11 +136,13 @@ export const parseAnswers = (value: string[]): string[] | IError[] => {
 export function initalParticipant(
   numberOfParticipantQuestions: number,
   email?: string,
-  name?: string
+  name?: string,
+  department?: string
 ): IParticipant {
   return {
     email: { email: email ?? '' },
     name: name ?? '',
+    department: department ?? "",
     participantAnswers: Array(numberOfParticipantQuestions).fill(''),
   };
 }
