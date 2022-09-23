@@ -36,12 +36,20 @@ export const useEvent = (id: string) => {
 export const useEvents = () => {
   return eventCache.useAll(
     useCallback(async () => {
-      const [eventContracts, eventsContractPastEvents] = await Promise.all([
-        getEvents(),
-        getPastEvents(),
-      ]);
+      const eventContracts = await getEvents()
       return eventContracts
-        .concat(eventsContractPastEvents)
+        .map(({ id, ...event }) => {
+          return [id, parseEventViewModel(event)];
+        });
+    }, [])
+  );
+};
+
+export const usePastEvents = () => {
+  return eventCache.useAll(
+    useCallback(async () => {
+      const pastEvents = await getPastEvents()
+      return pastEvents
         .map(({ id, ...event }) => {
           return [id, parseEventViewModel(event)];
         });
@@ -71,14 +79,14 @@ export const useOfficeEvents = (date: Date) => {
   });
 }
 
-export const usePastEvents = () => {
-  const map = useEvents();
-  return new Map(
-    [...map].filter(
-      ([_, event]) => hasLoaded(event) && isInThePast(event.data.end)
-    )
-  );
-};
+// export const usePastEvents = () => {
+//   const map = useEvents();
+//   return new Map(
+//     [...map].filter(
+//       ([_, event]) => hasLoaded(event) && isInThePast(event.data.end)
+//     )
+//   );
+// };
 
 export const useUpcomingEvents = () => {
   const map = useEvents();
