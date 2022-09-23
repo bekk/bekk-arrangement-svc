@@ -108,6 +108,7 @@ let generateRandomString () = faker.Lorem.Paragraph()[0..199]
 
 let generateParticipant (number_of_questions: int): Models.ParticipantWriteModel =
     { Name = $"{faker.Name.FirstName()} {faker.Name.LastName()}"
+      Department = faker.Company.CompanySuffix()
       ParticipantAnswers =
           [0..number_of_questions]
           |> List.map (fun _ -> faker.Lorem.Sentence())

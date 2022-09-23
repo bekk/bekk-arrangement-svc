@@ -1,4 +1,4 @@
-FROM node:11.14.0 AS node_build
+FROM node:17.3.0 AS node_build
 
 WORKDIR /app
 COPY . .

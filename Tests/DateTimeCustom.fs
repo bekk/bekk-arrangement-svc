@@ -75,7 +75,7 @@ let tests =
       expectDiff
         (always (DateTime(2020, 01, 02, 03, 04, 05), TimeSpan.Zero))
         (mapDuration (addDays 1))
-        (Some ("20.01.02", "20.01.02-20.01.03"))
+        (Some ("02.01.2020", "02.01.2020-03.01.2020"))
     }
 
     test "Change duration from non-zero to zero" {
@@ -89,48 +89,48 @@ let tests =
       expectDiff
         (alwaysStart (DateTime(2020, 01, 02, 03, 04, 05)))
         (mapStart (addDays 1))
-        (Some ("20.01.02", "20.01.03"))
+        (Some ("02.01.2020", "03.01.2020"))
     }
 
     test "Change date and start" {
       expectDiff
         (alwaysStart (DateTime(2020, 01, 02, 03, 04, 05)))
         ((mapStart ((addDays 1) >> (addHours 1))))
-        (Some ("20.01.02 kl 03:04", "20.01.03 kl 04:04"))
+        (Some ("02.01.2020 kl 03:04", "03.01.2020 kl 04:04"))
     }
 
     test "Change date and duration from zero to non-zero" {
       expectDiff
         (alwaysStart (DateTime(2020, 01, 02, 03, 04, 05)))
         ((mapStart ((addDays 1))) >> (mapDuration (addHours 1)))
-        (Some ("20.01.02 kl 03:04", "20.01.03 kl 03:04-04:04"))
+        (Some ("02.01.2020 kl 03:04", "03.01.2020 kl 03:04-04:04"))
     }
 
     test "Change date and duration from non-zero to zero" {
       expectDiff
         (always (DateTime(2020, 01, 02, 03, 04, 05), TimeSpan.FromHours(1)))
         ((mapStart (addDays 1)) >> (alwaysDuration TimeSpan.Zero))
-        (Some ("20.01.02 kl 03:04-04:04", "20.01.03 kl 03:04"))
+        (Some ("02.01.2020 kl 03:04-04:04", "03.01.2020 kl 03:04"))
     }
 
     test "Change date, start, and duration from zero to non-zero" {
       expectDiff
         (alwaysStart (DateTime(2020, 01, 02, 03, 04, 05)))
         ((mapStart ((addDays 1) >> (addHours 1))) >> (mapDuration (addHours 1)))
-        (Some ("20.01.02 kl 03:04", "20.01.03 kl 04:04-05:04"))
+        (Some ("02.01.2020 kl 03:04", "03.01.2020 kl 04:04-05:04"))
     }
 
     test "Change date, start, and duration from non-zero to zero" {
       expectDiff
         (always (DateTime(2020, 01, 02, 03, 04, 05), TimeSpan.FromHours(1)))
         ((mapStart ((addDays 1) >> (addHours 1))) >> (alwaysDuration TimeSpan.Zero))
-        (Some ("20.01.02 kl 03:04-04:04", "20.01.03 kl 04:04"))
+        (Some ("02.01.2020 kl 03:04-04:04", "03.01.2020 kl 04:04"))
     }
 
     test "Change everything" {
       expectDiff
         (alwaysStart (DateTime(2020, 01, 02, 03, 04, 05)) >> (mapDuration ((addDays 1) >> (addHours 1))))
         ((mapStart ((addDays 1) >> (addHours 1))) >> (mapDuration ((addDays 1) >> (addHours 1))))
-        (Some ("20.01.02 kl 03:04-20.01.03 kl 04:04", "20.01.03 kl 04:04-20.01.05 kl 06:04"))
+        (Some ("02.01.2020 kl 03:04-03.01.2020 kl 04:04", "03.01.2020 kl 04:04-05.01.2020 kl 06:04"))
     }
   ]
