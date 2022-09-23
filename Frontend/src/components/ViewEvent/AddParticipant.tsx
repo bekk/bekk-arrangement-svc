@@ -31,15 +31,16 @@ interface Props {
   event: IEvent;
   email?: string;
   name?: string;
+  department?: string;
 }
 
-export const AddParticipant = ({ eventId, event, email, name }: Props) => {
+export const AddParticipant = ({ eventId, event, email, name, department }: Props) => {
   const { catchAndNotify } = useNotification();
   const history = useHistory();
 
   const [participant, setParticipant] = useState<IEditParticipant>(
     toEditParticipant(
-      initalParticipant(event.participantQuestions.length, email, name)
+      initalParticipant(event.participantQuestions.length, email, name, department)
     )
   );
 

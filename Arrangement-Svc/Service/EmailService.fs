@@ -101,6 +101,7 @@ let organizerAsParticipant (event: Models.Event): Participant =
       Name = event.OrganizerName
       Email = event.OrganizerEmail
       EventId = event.Id
+      Department = None
       RegistrationTime = DateTimeOffset.Now.ToUnixTimeSeconds()
       CancellationToken = Guid.Empty
       EmployeeId = Some event.OrganizerId

@@ -268,6 +268,7 @@ module Event =
 
 type ParticipantWriteModel =
     { Name: string
+      Department: string
       ParticipantAnswers: string list
       CancelUrlTemplate: string
     }
@@ -278,6 +279,7 @@ module ParticipantWriteModel =
       {
         Name = get.Required.Field "name"
                    (Decode.string |> Decode.andThen Validate.organizerName)
+        Department = get.Required.Field "department" Decode.string
         ParticipantAnswers = get.Required.Field "participantAnswers"
                                  (Decode.list Decode.string |> Decode.andThen Validate.participantAnswers)
         CancelUrlTemplate = get.Required.Field "cancelUrlTemplate" Decode.string
@@ -287,6 +289,7 @@ module ParticipantWriteModel =
 type Participant =
   { Name: string
     Email: string
+    Department: string option
     RegistrationTime: int64
     EventId: Guid
     CancellationToken: Guid

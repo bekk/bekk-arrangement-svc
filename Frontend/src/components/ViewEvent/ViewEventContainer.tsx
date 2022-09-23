@@ -17,7 +17,7 @@ import { ViewEvent } from 'src/components/ViewEvent/ViewEvent';
 import { ViewParticipants } from 'src/components/ViewEvent/ViewParticipants';
 import { ViewParticipantsLimited } from 'src/components/ViewEvent/ViewParticipantsLimited';
 import {
-  useEmailAndName,
+  useEmailNameAndDepartment,
   useEvent,
   useNumberOfParticipants,
 } from 'src/hooks/cache';
@@ -85,7 +85,7 @@ export const ViewEventContainer = ({ eventId }: IProps) => {
   const oneMinute = 60000;
   const oneHour = oneMinute * 60;
 
-  const emailAndName = useEmailAndName();
+  const emailAndName = useEmailNameAndDepartment();
 
   // ref til boks hvor man ikke skal spawne juletrær og ræl fordi
   // det er annoying når man prøver å fylle ut påmeldingsskjemaet
@@ -104,7 +104,7 @@ export const ViewEventContainer = ({ eventId }: IProps) => {
   }
 
   const event = remoteEvent.data;
-  const { email, name } = emailAndName.data ?? {};
+  const { email, name, department } = emailAndName.data ?? {};
 
   const eventIsFull =
     isMaxParticipantsLimited(event.maxParticipants) &&
@@ -261,6 +261,7 @@ export const ViewEventContainer = ({ eventId }: IProps) => {
                     event={event}
                     email={email}
                     name={name}
+                    department={department}
                   />
                 )}
               <div className={style.boxHolder}>

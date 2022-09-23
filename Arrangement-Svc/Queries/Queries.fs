@@ -473,12 +473,12 @@ let getParticipantsForEvent (eventId: Guid) (db: DatabaseContext) =
             | ex -> return Error ex
     }
 
-let addParticipantToEvent (eventId: Guid) email (userId: int option) name (db: DatabaseContext) =
+let addParticipantToEvent (eventId: Guid) email (userId: int option) name department (db: DatabaseContext) =
     let query =
         "
         INSERT INTO Participants
         OUTPUT INSERTED.*
-        VALUES (@email, @eventId, @currentEpoch, @cancellationToken, @name, @employeeId);
+        VALUES (@email, @eventId, @currentEpoch, @cancellationToken, @name, @employeeId, @department);
         "
 
     let parameters = dict [
@@ -487,6 +487,7 @@ let addParticipantToEvent (eventId: Guid) email (userId: int option) name (db: D
         "email", box email
         "cancellationToken", box (Guid.NewGuid().ToString())
         "name", box name
+        "department", box department
         "employeeId", if userId.IsSome then box userId.Value else box null
     ]
 
@@ -873,6 +874,7 @@ let getParticipantsAndAnswersForEvent (eventId: Guid) (db: DatabaseContext) =
             SELECT P.Name,
                    P.Email,
                    P.EmployeeId,
+                   P.Department,
                    P.EventId,
                    P.RegistrationTime,
                    PA.QuestionId,

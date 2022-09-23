@@ -153,7 +153,7 @@ let registerParticipationHandler (eventId: Guid, email): HttpHandler =
 
                 let! participant, answers =
                     let result =
-                        let participant = Queries.addParticipantToEvent eventId email userId writeModel.Name db
+                        let participant = Queries.addParticipantToEvent eventId email userId writeModel.Name writeModel.Department db
                         let answers =
                             if List.isEmpty writeModel.ParticipantAnswers then
                                 Ok []
@@ -680,7 +680,14 @@ let createCsvString (event: Models.Event) (questions: ParticipantQuestion list) 
             answers
             |> List.map (fun a -> $"{a.Answer}")
             |> String.concat ","
-        builder.Append($"{participant.Name}, {participant.Email}, {answers}\n") |> ignore
+        let employeeId =
+            participant.EmployeeId
+            |> Option.map string
+            |> Option.defaultValue ""
+        let department =
+            participant.Department
+            |> Option.defaultValue ""
+        builder.Append($"{employeeId}, {participant.Name}, {participant.Email}, {department}, {answers}\n") |> ignore
 
     let builder = System.Text.StringBuilder()
 
@@ -691,7 +698,7 @@ let createCsvString (event: Models.Event) (questions: ParticipantQuestion list) 
 
     builder.Append($"{event.Title}\n") |> ignore
     builder.Append("Påmeldte\n") |> ignore
-    builder.Append($"Navn,Epost,{questions}\n") |> ignore
+    builder.Append($"AnsattId,Navn,Epost,Avdeling,{questions}\n") |> ignore
     Seq.iter (createParticipant builder) participants.Attendees
     if not <| Seq.isEmpty participants.WaitingList then
         builder.Append("Venteliste\n") |> ignore
