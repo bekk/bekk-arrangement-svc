@@ -79,15 +79,6 @@ export const useOfficeEvents = (date: Date) => {
   });
 }
 
-// export const usePastEvents = () => {
-//   const map = useEvents();
-//   return new Map(
-//     [...map].filter(
-//       ([_, event]) => hasLoaded(event) && isInThePast(event.data.end)
-//     )
-//   );
-// };
-
 export const useUpcomingEvents = () => {
   const map = useEvents();
   return new Map(
