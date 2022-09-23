@@ -80,6 +80,7 @@ export interface IEventViewModel {
   isCancelled: boolean;
   isExternal: boolean;
   isHidden: boolean;
+  numberOfParticipants: number;
   shortname?: string;
   customHexColor?: string;
 }
@@ -135,6 +136,7 @@ export interface IEvent {
   isCancelled: boolean;
   isExternal: boolean;
   isHidden: boolean;
+  numberOfParticipants: number;
   shortname?: string;
   customHexColor?: string;
 }
@@ -155,6 +157,7 @@ export interface IEditEvent {
   isCancelled: boolean;
   isExternal: boolean;
   isHidden: boolean;
+  numberOfParticipants: number;
   shortname?: string;
   customHexColor?: string;
 }
@@ -175,6 +178,7 @@ export const parseEditEvent = ({
   isCancelled,
   isExternal,
   isHidden,
+  numberOfParticipants,
   shortname,
   customHexColor,
 }: IEditEvent): IEvent | IError[] => {
@@ -196,6 +200,7 @@ export const parseEditEvent = ({
     isCancelled,
     isExternal,
     isHidden,
+    numberOfParticipants,
     shortname: parseShortname(shortname),
     customHexColor,
   };
@@ -261,6 +266,7 @@ export const parseEventViewModel = (eventView: IEventViewModel): IEvent => {
   const isCancelled = eventView.isCancelled;
   const isExternal = eventView.isExternal;
   const isHidden = eventView.isHidden;
+  const numberOfParticipants = eventView.numberOfParticipants;
   const shortname = parseShortname(eventView.shortname);
   const customHexColor = eventView.customHexColor;
 
@@ -280,6 +286,7 @@ export const parseEventViewModel = (eventView: IEventViewModel): IEvent => {
     isCancelled,
     isExternal,
     isHidden,
+    numberOfParticipants,
     shortname,
     customHexColor,
   };
@@ -305,6 +312,7 @@ export const toEditEvent = ({
   isCancelled,
   isExternal,
   isHidden,
+  numberOfParticipants,
   shortname,
   customHexColor,
 }: IEvent): IEditEvent => ({
@@ -325,6 +333,7 @@ export const toEditEvent = ({
   isCancelled,
   isExternal,
   isHidden,
+  numberOfParticipants,
   shortname,
   customHexColor,
 });
@@ -354,6 +363,7 @@ export const initialEditEvent = (email?: string, name?: string): IEditEvent => {
     isCancelled: false,
     isExternal: false,
     isHidden: false,
+    numberOfParticipants: 0,
   };
 };
 

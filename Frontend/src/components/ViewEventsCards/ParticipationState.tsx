@@ -10,7 +10,7 @@ import { SmileIcon } from 'src/components/Common/Icons/SmileIcon';
 import { FrownyFaceIcon } from 'src/components/Common/Icons/FrownyFaceIcon';
 import { useHistory } from 'react-router';
 import { Button } from 'src/components/Common/Button/Button';
-import {Spinner} from "src/components/Common/Spinner/spinner";
+import {UnstyledSpinner} from "src/components/Common/Spinner/spinner";
 
 export enum EventState  {
   Rediger = 'Rediger',
@@ -146,7 +146,7 @@ export const ParticipationState = ({
       );
 
     case EventState.Laster:
-      return <Spinner />;
+      return <UnstyledSpinner />;
 
     case EventState.IkkePameldt:
       return null;

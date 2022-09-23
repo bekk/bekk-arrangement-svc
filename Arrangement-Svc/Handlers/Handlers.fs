@@ -352,7 +352,7 @@ let createEvent =
                     Queries.createParticipantQuestions newEvent.Id writeModel.ParticipantQuestions db
                     |> TaskResult.mapError InternalError
                 db.Commit()
-                let eventAndQuestions = { Event = newEvent; Questions = newQuestions }
+                let eventAndQuestions = { Event = newEvent; NumberOfParticipants = None; Questions = newQuestions }
                 // Send epost etter registrering
                 let redirectUrlTemplate = HttpUtility.UrlDecode writeModel.EditUrlTemplate
                 let viewUrl = writeModel.ViewUrl
@@ -634,7 +634,7 @@ let updateEvent (eventId: Guid) =
                     sendEmailToNewParticipants oldEvent.Event.MaxParticipants writeModel.MaxParticipants oldEventParticipants updatedEvent context
                     let cancelUrl = writeModel.CancelParticipationUrlTemplate |> Option.map HttpUtility.UrlDecode in
                         sendUpdateEmailToOldParticipants oldEvent.Event updatedEvent oldEventParticipants cancelUrl context
-                    let eventAndQuestions = { Event = updatedEvent; Questions = eventQuestions }
+                    let eventAndQuestions = { Event = updatedEvent; NumberOfParticipants = None; Questions = eventQuestions }
                     return Event.encodeEventAndQuestions eventAndQuestions
             }
         jsonResult result next context

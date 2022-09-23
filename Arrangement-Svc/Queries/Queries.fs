@@ -2,7 +2,6 @@ module Queries
 
 open Dapper
 open System
-open Microsoft.Data.SqlClient
 open System.Collections.Generic
 
 let isEventExternal eventId (db: DatabaseContext) =
@@ -104,7 +103,7 @@ let getEventsForForside (email: string) (db: DatabaseContext) =
             return Error ex
     }
 
-let private getEventAndParticipantQuestions query (parameters: IDictionary<string, Object>) (db: DatabaseContext) =
+let private getEventAndParticipantQuestions query numParticipantsQuery (parameters: IDictionary<string, Object>) (db: DatabaseContext) =
     task {
         try
             let! rows =
@@ -117,13 +116,19 @@ let private getEventAndParticipantQuestions query (parameters: IDictionary<strin
                     parameters,
                     transaction = db.Transaction)
 
+            let! count = db.Connection.QueryAsync<{| Id: Guid; NumParticipants: int |}>(numParticipantsQuery, parameters, db.Transaction)
+
             let groupedEvents =
                 rows
                 |> Seq.fold (fun state (event, question) ->
+                    let numParticipants =
+                        count
+                        |> Seq.tryFind (fun e -> e.Id = event.Id)
+                        |> Option.map (fun x -> x.NumParticipants)
                     let group =
                         // Find existing or create event if not exists
                         Map.tryFind event.Id state
-                        |> Option.defaultValue ({ Event = event; Questions = [] } : Models.EventAndQuestions)
+                        |> Option.defaultValue ({ Event = event; NumberOfParticipants = numParticipants; Questions = [] } : Models.EventAndQuestions)
                         // Add question
                         |> fun e ->
                             question
@@ -192,7 +197,16 @@ let getFutureEvents (employeeId: int) (db: DatabaseContext) =
             "now", box DateTime.Now.Date
         ]
 
-        return! getEventAndParticipantQuestions query parameters db
+        let numParticipantsQuery =
+            "
+            SELECT Id, Count(Id) as NumParticipants
+            FROM EVENTS
+                INNER JOIN Participants P on Events.Id = P.EventId
+            WHERE EndDate >= @now
+            GROUP BY Id
+            "
+
+        return! getEventAndParticipantQuestions query numParticipantsQuery parameters db
     }
 
 // Denne querien returnerer alle ferdige events
@@ -248,7 +262,16 @@ let getPastEvents (employeeId: int) (db: DatabaseContext) =
             "now", box DateTime.Now.Date
         ]
 
-        return! getEventAndParticipantQuestions query parameters db
+        let numParticipantsQuery =
+            "
+            SELECT Id, Count(Id) as NumParticipants
+            FROM EVENTS
+                INNER JOIN Participants P on Events.Id = P.EventId
+            WHERE EndDate <= @now
+            GROUP BY Id
+            "
+
+        return! getEventAndParticipantQuestions query numParticipantsQuery parameters db
     }
 
 let getEventsOrganizedByEmail (email: string) (db : DatabaseContext) =
@@ -289,7 +312,16 @@ let getEventsOrganizedByEmail (email: string) (db : DatabaseContext) =
             "email", box email
         ]
 
-        return! getEventAndParticipantQuestions query parameters db
+        let numParticipantsQuery =
+            "
+            SELECT Id, Count(Id) as NumParticipants
+            FROM EVENTS
+                INNER JOIN Participants P on Events.Id = P.EventId
+            WHERE OrganizerEmail = @email
+            GROUP BY Id
+            "
+
+        return! getEventAndParticipantQuestions query numParticipantsQuery parameters db
     }
 
 let getEventsOrganizedById (id: int) (db: DatabaseContext) =
@@ -330,7 +362,16 @@ let getEventsOrganizedById (id: int) (db: DatabaseContext) =
             "id", box id
         ]
 
-        return! getEventAndParticipantQuestions query parameters db
+        let numParticipantsQuery =
+            "
+            SELECT Id, Count(Id) as NumParticipants
+            FROM EVENTS
+                INNER JOIN Participants P on Events.Id = P.EventId
+            WHERE OrganizerId = @id
+            GROUP BY Id
+            "
+
+        return! getEventAndParticipantQuestions query numParticipantsQuery parameters db
     }
 
 let getParticipationsById (id: int) (db: DatabaseContext) =
@@ -354,6 +395,27 @@ let getParticipationsById (id: int) (db: DatabaseContext) =
 
         try
             let! result = db.Connection.QueryAsync<Models.Participant>(query, parameters, db.Transaction)
+            return Ok result
+        with
+            | ex -> return Error ex
+    }
+
+let getNumberOfParticipantsForEvent (eventId: Guid) (db: DatabaseContext) =
+    task {
+        let query =
+            "
+            SELECT Count(*)
+                FROM
+                Participants
+                INNER JOIN Events E on E.Id = @eventId
+            WHERE EventId = @eventId;
+            "
+        let parameters = dict [
+            "eventId", box eventId
+        ]
+
+        try
+            let! result = db.Connection.QuerySingleAsync<int>(query, parameters, db.Transaction)
             return Ok result
         with
             | ex -> return Error ex
@@ -413,38 +475,22 @@ let getEvent (eventId: Guid) (db: DatabaseContext) =
                     parameters,
                     transaction = db.Transaction)
 
-            let result =
-                events
-                |> List.tryHead
-                |> Option.map (fun x ->
-                    let result: Models.EventAndQuestions = { Event = List.head events; Questions = questions}
-                    result)
+            let! numberOfParticipants = getNumberOfParticipantsForEvent eventId db
 
-            return Ok result
+            match numberOfParticipants with
+            | Ok numParticipants ->
+                let result =
+                    events
+                    |> List.tryHead
+                    |> Option.map (fun _ ->
+                        let result: Models.EventAndQuestions = { Event = List.head events; NumberOfParticipants = Some numParticipants; Questions = questions}
+                        result)
+
+                return Ok result
+            | Error ex ->
+                return Error ex
         with
         | ex -> return Error ex
-    }
-
-let getNumberOfParticipantsForEvent (eventId: Guid) (db: DatabaseContext) =
-    task {
-        let query =
-            "
-            SELECT Count(*)
-                FROM
-                Participants
-                INNER JOIN Events E on E.Id = @eventId
-            WHERE EventId = @eventId;
-            "
-        let parameters = dict [
-            "eventId", box eventId
-        ]
-
-        try
-            let! result = db.Connection.QuerySingleAsync<int>(query, parameters, db.Transaction)
-            return Ok result
-        with
-            | ex -> return Error ex
-
     }
 
 let getParticipantsForEvent (eventId: Guid) (db: DatabaseContext) =

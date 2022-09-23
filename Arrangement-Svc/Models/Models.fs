@@ -173,6 +173,7 @@ type Event =
 
 type EventAndQuestions = {
     Event: Event
+    NumberOfParticipants: int option
     Questions: ParticipantQuestion list
 }
 
@@ -229,6 +230,7 @@ module Event =
                     "shortname", Encode.string event.Shortname.Value
                 if event.CustomHexColor.IsSome then
                     "customHexColor", Encode.string event.CustomHexColor.Value
+                "numberOfParticipants", Encode.int (Option.defaultValue 0 eventAndQuestions.NumberOfParticipants)
             ]
         encoding
 

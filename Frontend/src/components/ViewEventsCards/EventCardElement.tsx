@@ -13,7 +13,7 @@ import {
   ParticipationState,
   EventState,
 } from 'src/components/ViewEventsCards/ParticipationState';
-import { useNumberOfParticipants, useWaitinglistSpot } from 'src/hooks/cache';
+import { useWaitinglistSpot } from 'src/hooks/cache';
 import { useEditToken, useSavedParticipations } from 'src/hooks/saved-tokens';
 import { hasLoaded } from 'src/remote-data';
 import { viewEventRoute, viewEventShortnameRoute } from 'src/routing';
@@ -56,24 +56,19 @@ export const EventCardElement = ({ eventId, event }: IProps) => {
     participationsForThisEvent[0]?.email
   );
 
-  const remoteNumberOfParticipants = useNumberOfParticipants(eventId);
-  const numberOfParticipants = hasLoaded(remoteNumberOfParticipants)
-    ? remoteNumberOfParticipants.data
-    : undefined;
-
   const numberOfAvailableSpot =
     isMaxParticipantsLimited(event.maxParticipants) &&
-    numberOfParticipants !== undefined
-      ? maxParticipantsLimit(event.maxParticipants) - numberOfParticipants
+    event.numberOfParticipants !== undefined
+      ? maxParticipantsLimit(event.maxParticipants) - event.numberOfParticipants
       : undefined;
 
   const registrationState = !isMaxParticipantsLimited(event.maxParticipants)
     ? EventState.Plass
-    : numberOfParticipants === undefined
+    : event.numberOfParticipants === undefined
     ? EventState.Laster
-    : numberOfParticipants < maxParticipantsLimit(event.maxParticipants)
+    : event.numberOfParticipants < maxParticipantsLimit(event.maxParticipants)
     ? EventState.Plass
-    : numberOfParticipants >= maxParticipantsLimit(event.maxParticipants) &&
+    : event.numberOfParticipants >= maxParticipantsLimit(event.maxParticipants) &&
       event.hasWaitingList
     ? EventState.PlassPaVenteliste
     : EventState.Fullt;
