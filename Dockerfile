@@ -19,7 +19,7 @@ RUN dotnet publish -c release -o out
 # NOTE: When using Alpine, createEvent requests mysteriously dies at decoding
 # the body. This does not happen locally or using Debian. Before changing back
 # to Alpine, make sure the application actually works from Docker
-FROM mcr.microsoft.com/dotnet/aspnet:6.0
+FROM bekkforvaltning/aspnet-datadog-instrumented:6.0
 WORKDIR /app/
 COPY --from=dotnet_build /app/Arrangement-Svc/out .
 COPY --from=dotnet_build /app/Arrangement-Svc/wwwroot wwwroot/.
