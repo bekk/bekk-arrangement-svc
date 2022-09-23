@@ -37,6 +37,7 @@ module "aws-deploy" {
   task_image_tag         = var.task_image_tag
   task_environment       = var.task_environment
   task_secrets           = var.task_secrets
+  enable_tracing         = true
 }
 
 output "URL" {
