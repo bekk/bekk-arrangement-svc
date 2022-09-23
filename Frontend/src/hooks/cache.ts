@@ -4,8 +4,8 @@ import {useCallback, useMemo} from 'react';
 import {
   getEvent,
   getEventIdByShortname,
-  getEvents,
-  getNumberOfParticipantsForEvent, getOfficeEventsByDate,
+  getEvents, getNumberOfParticipantsForEvent,
+  getOfficeEventsByDate,
   getParticipantsForEvent,
   getPastEvents,
   getWaitinglistSpot,
