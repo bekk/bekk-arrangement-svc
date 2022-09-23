@@ -51,6 +51,7 @@ let configureApp (app: IApplicationBuilder) =
     app.UseOutputCaching()
     app.UseMiddleware<Middleware.RetryOnDeadlock>() |> ignore
     app.UseGiraffe(webApp)
+    app.UseResponseCompression() |> ignore
     app.UseEndpoints(fun e ->
             // NOTE: The default pattern is {*path:nonfile}, which excludes routes which looks like filenames
             // This means the default will serve "a.b" if you ask for that, or "index.html" if it doesn't look like
