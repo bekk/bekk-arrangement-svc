@@ -230,8 +230,7 @@ module Event =
                     "shortname", Encode.string event.Shortname.Value
                 if event.CustomHexColor.IsSome then
                     "customHexColor", Encode.string event.CustomHexColor.Value
-                if eventAndQuestions.NumberOfParticipants.IsSome then
-                    "numParticipants", Encode.int eventAndQuestions.NumberOfParticipants.Value
+                "numberOfParticipants", Encode.int (Option.defaultValue 0 eventAndQuestions.NumberOfParticipants)
             ]
         encoding
 
