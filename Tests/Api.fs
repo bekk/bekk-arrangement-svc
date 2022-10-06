@@ -96,7 +96,7 @@ let private enforceSuccess ((response, content) : ApiResponse) : ApiResponse =
     else apiError response content
 
 let private toJson data = Encode.Auto.toString(4, data, caseStrategy = CamelCase)
-let private server = new TestServer(App.makeApp())
+let private server = new TestServer((App.makeAppBuilder [||]).WebHost)
 let private client = server.CreateClient()
 
 let private request (jwt: string option) (url: string) (body: 'a option) (method: HttpMethod) : ApiResponse Task =

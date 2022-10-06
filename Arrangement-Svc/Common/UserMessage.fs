@@ -2,7 +2,7 @@ module UserMessage
 
 open Giraffe
 open Microsoft.AspNetCore.Http
-open Microsoft.Data.SqlClient
+open Microsoft.Extensions.Logging
 open Microsoft.Net.Http.Headers
 
 type UserMessage = { UserMessage: string }
@@ -17,18 +17,26 @@ let notFound message = RequestErrors.NOT_FOUND message
 let badRequest message = RequestErrors.BAD_REQUEST message
 let forbidden message = RequestErrors.FORBIDDEN message
 let internalError exn = ServerErrors.INTERNAL_ERROR exn
-let private httpStatusResult result handler next context =
+
+let private httpStatusResult result handler next (context : HttpContext) =
     task {
+        // TODO: How can we reference the module when a type shadows the name?
+        let logger = context.GetService<ILogger<UserMessage>>()
         match! result with
-        | Ok result -> return! handler result next context
-        | Error (BadRequest e) -> return! badRequest { UserMessage = e } next context
-        | Error (NotFound e) -> return! notFound { UserMessage = e } next context
-        | Error (Forbidden e) -> return! forbidden { UserMessage = e } next context
-        | Error (InternalError e) ->
-            let logger = context.GetService<Bekk.Canonical.Logger.Logger>()
-            logger.log(Bekk.Canonical.Logger.Error, "ExceptionMessage", e.Message)
-            logger.log(Bekk.Canonical.Logger.Error, "ExceptionStacktrace", e.StackTrace)
-            return! internalError { UserMessage = $"Det har skjedd en feil i backenden. Feil registrert med id: {logger.getRequestId()}. Kontakt basen dersom dette vedvarer." } next context
+        | Ok result ->
+            return! handler result next context
+        | Error (BadRequest e) ->
+            logger.LogError("Bad Request: {message}", e)
+            return! badRequest { UserMessage = e } next context
+        | Error (NotFound e) ->
+            logger.LogError("Not found: {message}", e)
+            return! notFound { UserMessage = e } next context
+        | Error (Forbidden e) ->
+            logger.LogError("Forbidden: {message}", e)
+            return! forbidden { UserMessage = e } next context
+        | Error (InternalError ex) ->
+            logger.LogError(ex, "Internal error")
+            return! internalError { UserMessage = $"Det har skjedd en feil i backenden." } next context
     }
 let jsonResult result =
     fun next context ->

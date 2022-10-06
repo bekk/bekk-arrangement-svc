@@ -7,13 +7,12 @@ listener_path_patterns = ["/*"]
 create_dns_record      = true
 
 task_environment = {
-  ASPNETCORE_ENVIRONMENT       = "Development"
-  Auth0__Audience              = "QHQy75S7tmnhDdBGYSnszzlhMPul0fAE"
-  Auth0__Issuer_Domain         = "bekk-dev.eu.auth0.com"
-  Auth0__PERMISSION_CLAIM_TYPE = "https://api.bekk.no/claims/permission"
-  Config__Employee_Svc_url     = "https://api.bekk.dev/employee-svc"
-  Serilog__MinimumLevel        = "Warning"
-  VIRTUAL_PATH                 = "/arrangement-svc"
+  DOTNET_ENVIRONMENT                 = "Development"
+  Auth0__Audience                    = "QHQy75S7tmnhDdBGYSnszzlhMPul0fAE"
+  Auth0__Issuer_Domain               = "bekk-dev.eu.auth0.com"
+  Auth0__PERMISSION_CLAIM_TYPE       = "https://api.bekk.no/claims/permission"
+  Config__Employee_Svc_url           = "https://api.bekk.dev/employee-svc"
+  Sendgrid__Dev_White_List_Addresses = "bjorn.ivar.strom@bekk.no, hong.nhung.thi.vo@bekk.no, simen.endsjo@bekk.no, simendsjo@gmail.com, tora.gunstad@bekk.no, ingrid.larssen@bekk.no"
 }
 task_secrets = [
   "ConnectionStrings__EventDb",

@@ -6,14 +6,13 @@ task_image_tag         = "latest"
 listener_path_patterns = ["/*"]
 create_dns_record      = true
 task_environment = {
-  ASPNETCORE_ENVIRONMENT          = "Production"
-  Auth0__Audience                 = "HuH7oGHSgymn4mYLzEClyE2bhQSM1iTC"
-  Auth0__Issuer_Domain            = "bekk.eu.auth0.com"
-  Auth0__PERMISSION_CLAIM_TYPE    = "https://api.bekk.no/claims/permission"
-  Auth0__Scheduled_Tasks_Audience = "https://api.bekk.no"
-  Config__Employee_Svc_url        = "https://api.bekk.no/employee-svc"
-  Serilog__MinimumLevel           = "Warning"
-  VIRTUAL_PATH                    = "/arrangement-svc"
+ DOTNET_ENVIRONMENT                 = "Production"
+ Auth0__Audience                    = "HuH7oGHSgymn4mYLzEClyE2bhQSM1iTC"
+ Auth0__Issuer_Domain               = "bekk.eu.auth0.com"
+ Auth0__PERMISSION_CLAIM_TYPE       = "https://api.bekk.no/claims/permission"
+ Auth0__Scheduled_Tasks_Audience    = "https://api.bekk.no"
+ Config__Employee_Svc_url           = "https://api.bekk.no/employee-svc"
+ Sendgrid__Dev_White_List_Addresses = ""
 }
 task_secrets = [
   "ConnectionStrings__EventDb",
