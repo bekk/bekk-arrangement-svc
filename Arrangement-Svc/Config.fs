@@ -2,7 +2,7 @@ module Config
 
 open System
 
-let runPodman = isNull <| Environment.GetEnvironmentVariable("NO_PODMAN")
+let manageContainers = isNull <| Environment.GetEnvironmentVariable("NO_CONTAINER_MANAGEMENT")
 let runMigration = isNull <| Environment.GetEnvironmentVariable("NO_MIGRATION")
 
 type AppConfig =

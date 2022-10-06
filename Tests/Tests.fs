@@ -20,35 +20,41 @@ let allTests =
         OfficeEvents.tests
     ]
 
-module Podman =
+module Container =
+    let ContainerName =
+        Environment.GetEnvironmentVariable("ARRANGEMENT_SVC_TESTCONTAINER")
+        |> Option.ofObj
+        |> Option.defaultValue "Arrangement_Svc_TestContainer"
 
-    [<Literal>]
-    let ContainerName = "Arrangement_Svc_TestContainer"
+    let ContainerManagerProgram =
+        Environment.GetEnvironmentVariable("ARRANGEMENT_SVC_CONTAINER_MANAGER")
+        |> Option.ofObj
+        |> Option.defaultValue "podman"
 
-    let private podman (args : string seq) =
+    let private container (args : string seq) =
         let p =
             let i = System.Diagnostics.ProcessStartInfo()
             i.FileName <- "sudo"
-            i.Arguments <- $"podman {String.Join(' ', args)}"
+            i.Arguments <- $"{ContainerManagerProgram} {String.Join(' ', args)}"
             i.UseShellExecute <- false
             i.RedirectStandardError <- true
             i.RedirectStandardOutput <- true
             i.RedirectStandardInput <- true
-            #if DEBUG_PODMAN
-            printfn $"PODMAN COMMAND: %A{i.FileName} %A{i.Arguments}"
+            #if DEBUG_CONTAINER
+            printfn $"{ContainerManagerProgram} COMMAND: %A{i.FileName} %A{i.Arguments}"
             #endif
             System.Diagnostics.Process.Start(i)
         p.WaitForExit()
         let out = p.StandardOutput.ReadToEnd()
         let err = p.StandardError.ReadToEnd()
-        if not (String.IsNullOrWhiteSpace(err)) then failwithf "Podman failed! Error: %A\nOutput: %A" err out
-        #if DEBUG_PODMAN
-        printfn $"PODMAN OUTPUT: %A{out}"
+        if not (String.IsNullOrWhiteSpace(err)) then failwithf "%A failed! Error: %A\nOutput: %A" ContainerManagerProgram err out
+        #if DEBUG_CONTAINER
+        printfn $"{ContainerManagerProgram} OUTPUT: %A{out}"
         #endif
         out
 
     let getContainer () : string option =
-        podman [$"ps --all --filter name={ContainerName} --format {{{{.ID}}}}"]
+        container [$"ps --all --filter name={ContainerName} --format {{{{.ID}}}}"]
         |> Option.fromString
 
     let containerExists : unit -> bool =
@@ -58,7 +64,7 @@ module Podman =
         not << containerExists
 
     let private getStatus () : string option =
-        podman [$"ps --all --filter name={ContainerName} --format {{{{.Status}}}}"]
+        container [$"ps --all --filter name={ContainerName} --format {{{{.Status}}}}"]
         |> Option.fromString
 
     let containerRunning : unit -> bool =
@@ -70,33 +76,33 @@ module Podman =
         not << containerRunning
 
     let private waitForContainerRunning () : unit =
-        podman [$"wait --condition running {ContainerName}"] |> ignore
+        container [$"wait --condition running {ContainerName}"] |> ignore
 
     let create () =
         printfn $"Run container {ContainerName}"
         // TODO: Fetch password from config
-        podman [$"create --name {ContainerName} -e \"ACCEPT_EULA=Y\" -e \"SA_PASSWORD=<YourStrong!Passw0rd>\" -p 1433:1433 mcr.microsoft.com/mssql/server:2017-latest"] |> ignore
+        container [$"create --name {ContainerName} -e \"ACCEPT_EULA=Y\" -e \"SA_PASSWORD=<YourStrong!Passw0rd>\" -p 1433:1433 mcr.microsoft.com/mssql/server:2017-latest"] |> ignore
 
     let rm () =
         if Option.isNone <| getContainer()
         then printfn "No container exists, ignoring rm command."
         else
         printfn $"Deleting container {ContainerName}"
-        podman [$"rm {ContainerName}"] |> ignore
+        container [$"rm {ContainerName}"] |> ignore
 
     let kill () =
         if containerStopped()
         then printfn "Container not running, ignoring kill command."
         else
         printfn $"Stopping container {ContainerName}"
-        podman [$"kill {ContainerName}"] |> ignore
+        container [$"kill {ContainerName}"] |> ignore
 
     let start () =
         if containerRunning()
         then printfn "Container already running, ignoring start command."
         else
         printfn $"Starting container {ContainerName}"
-        podman [$"start {ContainerName}"] |> ignore
+        container [$"start {ContainerName}"] |> ignore
         waitForContainerRunning ()
 
 module Database =
@@ -107,7 +113,7 @@ module Database =
         cs.ConnectionString
 
     let create () : unit =
-        if Podman.containerStopped() then failwith "Cannot create database, container not running."
+        if Container.containerStopped() then failwith "Cannot create database, container not running."
         printfn "Creating database"
         use connection = new SqlConnection(getConnectionString())
         connection.Open()
@@ -136,19 +142,19 @@ let maybeUpdateDatabase() =
 let main args =
     enforceTokenExists()
 
-    if Config.runPodman then
-        if Podman.containerMissing() then
+    if Config.manageContainers then
+        if Container.containerMissing() then
             printfn "Container missing. Creating fresh container for tests."
-            Podman.create()
-            Podman.start()
+            Container.create()
+            Container.start()
             maybeUpdateDatabase()
-        elif Podman.containerStopped() then
+        elif Container.containerStopped() then
             printfn "Container already exists. Reusing container for tests."
-            Podman.start()
+            Container.start()
         else
             printfn "Container already up and running. Reusing container for tests."
     else
-        printfn "Running tests without podman interaction. This assumes the test container is running properly."
+        printfn "Running tests without container interaction. This assumes the test container is running properly."
         maybeUpdateDatabase()
 
     runTestsWithCLIArgs [] args allTests

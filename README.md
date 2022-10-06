@@ -107,6 +107,12 @@ If you have a running database on your system, you could use that, but we recomm
 Running the tests will create a new image and database just for testing, and reuse that instance for later test sessions for performance reasons.
 Note that you must remove the Expecto spinner when running tests in parallel as it deadlocks with requestlogging which writes/locks IO in Dispose.
 
+Environment variables:
+- `ARRANGEMENT_SVC_TEST_JWT_TOKEN` : Token used for authentication
+- `NO_CONTAINER_MANAGEMENT` : Don't try to manage test container. Assumes it's up and running.
+- `ARRANGEMENT_SVC_CONTAINER_MANAGER` : Program used for managing the container. Default is `podman`, but `docker` works fine too.
+- `ARRANGEMENT_SVC_TESTCONTAINER` : Container name.
+
 To run tests:
 ```
 $ ARRANGEMENT_SVC_TEST_JWT_TOKEN=MYTOKEN dotnet run --project Tests -- --no-spinner
@@ -124,7 +130,7 @@ Running tests on changes is also supported by running `dotnet watch run --projec
 It's possible to disable podman integration to avoid requiring sudo password and migrations.
 
 ```
-$ NO_PODMAN=1 NO_MIGRATION=1 dotnet # .. rest as before
+$ NO_CONTAINER_MANAGEMENT=1 NO_MIGRATION=1 dotnet # .. rest as before
 ```
 
 The systems can be stress tested by running in a loop
