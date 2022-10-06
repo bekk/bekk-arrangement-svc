@@ -45,7 +45,7 @@
 .startDate {
   grid-area: sd;
   width: 100%;
-  min-width: 150px;
+  min-width: 185px;
 }
 
 .endDate {
@@ -54,10 +54,12 @@
 
 .startTime {
   grid-area: st;
+  width: 73px;
 }
 
 .endTime {
   grid-area: et;
+  width: 73px;
 }
 
 .dateError {
