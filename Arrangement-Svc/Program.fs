@@ -20,9 +20,6 @@ open migrator
 open Config
 open Email.SendgridApiModels
 
-let webApp =
-    choose
-        [ Health.healthCheck; AuthHandler.config; Handlers.routes ]
 
 let configuration =
     let builder = ConfigurationBuilder()
@@ -32,6 +29,11 @@ let configuration =
     builder.AddUserSecrets(System.Reflection.Assembly.GetEntryAssembly()) |> ignore
     builder.AddEnvironmentVariables() |> ignore
     builder.Build()
+let webApp (next: HttpFunc) (context: HttpContext) =
+    // Datadog gets resource name "GET /{** path}", and we need to set it manually.
+    let scope = Datadog.Trace.Tracer.Instance.ActiveScope
+    if isNotNull scope then scope.Span.ResourceName <- $"{context.Request.Method} {context.Request.Path}"
+    choose [ Health.healthCheck; AuthHandler.config; Handlers.routes ] next context
 
 let configureCors (builder: CorsPolicyBuilder) =
     builder.AllowAnyMethod()
