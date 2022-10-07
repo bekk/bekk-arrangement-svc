@@ -3,6 +3,7 @@ module Tests.All
 open System
 open Expecto
 open Microsoft.Data.SqlClient
+open Microsoft.Extensions.Configuration
 
 open TestUtils
 open migrator
@@ -107,7 +108,8 @@ module Container =
 
 module Database =
     let private getConnectionString () : string =
-        let connectionString = App.configuration["ConnectionStrings:EventDb"]
+        let cfg = Api.webapp.Services.GetService(typeof<IConfiguration>) :?> IConfiguration
+        let connectionString = cfg.GetConnectionString("EventDb")
         let cs = SqlConnectionStringBuilder(connectionString)
         cs.InitialCatalog <- ""
         cs.ConnectionString

@@ -8,6 +8,7 @@ open System.Runtime.ExceptionServices
 open System.Text
 
 open System.Threading.Tasks
+open Microsoft.AspNetCore.Mvc.Testing
 open Microsoft.AspNetCore.TestHost
 open Microsoft.Extensions.Hosting
 open Thoth.Json.Net
@@ -96,8 +97,10 @@ let private enforceSuccess ((response, content) : ApiResponse) : ApiResponse =
     else apiError response content
 
 let private toJson data = Encode.Auto.toString(4, data, caseStrategy = CamelCase)
-let private server = new TestServer(App.makeApp())
-let private client = server.CreateClient()
+
+let webapp = new WebApplicationFactory<App.Program>()
+
+let private client = webapp.CreateClient()
 
 let private request (jwt: string option) (url: string) (body: 'a option) (method: HttpMethod) : ApiResponse Task =
     let request = new HttpRequestMessage()
