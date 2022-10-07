@@ -25,7 +25,6 @@
     <PackageReference Include="FSharp.Control.AsyncSeq" Version="3.2.1" />
     <PackageReference Include="FSharp.Data" Version="4.2.8" />
     <PackageReference Include="FsToolkit.ErrorHandling.TaskResult" Version="3.0.0-beta007" />
-    <PackageReference Include="Giraffe.SerilogExtensions" Version="2.0.0" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.43" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.5" />
     <PackageReference Include="Microsoft.Graph" Version="4.32.0" />
