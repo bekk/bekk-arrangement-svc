@@ -9,6 +9,7 @@ open Microsoft.AspNetCore.Http
 open Microsoft.AspNetCore.Hosting
 open Microsoft.AspNetCore.Builder
 open Microsoft.Data.SqlClient
+open Microsoft.Extensions.Logging
 open Microsoft.IdentityModel.Tokens
 open Microsoft.Extensions.Configuration
 open Microsoft.Extensions.DependencyInjection
@@ -45,10 +46,14 @@ let configureApp (app: IApplicationBuilder) =
     app.UseDefaultFiles() |> ignore
     app.UseStaticFiles() |> ignore
     app.UseAuthentication() |> ignore
-    app.UseMiddleware<Middleware.RequestLogging>() |> ignore
     app.UseRouting() |> ignore
     app.UseCors(configureCors) |> ignore
     app.UseOutputCaching()
+    app.UseGiraffeErrorHandler(fun (ex : Exception) (logger : Microsoft.Extensions.Logging.ILogger) ->
+        logger.LogError(ex, "Unhandled exception")
+        clearResponse >=> ServerErrors.INTERNAL_ERROR ex.Message
+        ) |> ignore
+    app.UseMiddleware<Middleware.RequestLogging>() |> ignore
     app.UseMiddleware<Middleware.RetryOnDeadlock>() |> ignore
     app.UseGiraffe(webApp)
     app.UseEndpoints(fun e ->
