@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <DebugType>portable</DebugType>
-    <AssemblyName>arrangementSvc</AssemblyName>
     <OutputType>Exe</OutputType>
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <LangVersion>preview</LangVersion>
