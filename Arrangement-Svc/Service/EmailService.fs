@@ -82,8 +82,9 @@ let sendMail (email: Email) (context: HttpContext) =
         actuallySendMail()
     else
         addDevMail { Email = email; Serialized = serializedEmail; NoReplyEmail = appConfig.noReplyEmail }
-        if appConfig.sendMailInDevEnvWhiteList
-           |> List.contains email.To then actuallySendMail()
+        let sendgridEnabled = not (String.IsNullOrWhiteSpace sendgridConfig.ApiKey)
+        let emailWhitelisted = appConfig.sendMailInDevEnvWhiteList |> List.contains email.To
+        if sendgridEnabled && emailWhitelisted then actuallySendMail ()
         ()
 
 let private createdEventMessage (viewUrl: string option) createEditUrl (event: Models.Event) =
