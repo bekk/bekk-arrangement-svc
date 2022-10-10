@@ -2,42 +2,38 @@
 
 open System
 open Giraffe
-open Giraffe.EndpointRouting
 open Bekk.Canonical.Logger
 open System.Threading.Tasks
 open Microsoft.AspNetCore.Http
 open Microsoft.AspNetCore.Hosting
 open Microsoft.AspNetCore.Builder
 open Microsoft.Data.SqlClient
+open Microsoft.Extensions.Logging
 open Microsoft.IdentityModel.Tokens
 open Microsoft.Extensions.Configuration
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.AspNetCore.Cors.Infrastructure
 open Microsoft.AspNetCore.Authentication.JwtBearer
+open Serilog
+open Serilog.Events
+open Serilog.Formatting.Json
 
 open migrator
 open Config
 open Email.SendgridApiModels
 
-let webApp =
-    choose
-        [ Health.healthCheck; AuthHandler.config; Handlers.routes ]
-
-let configuration =
-    let builder = ConfigurationBuilder()
-    builder.AddJsonFile("appsettings.json") |> ignore
-    // We use this configuration from the tests, so we need Entry assembly to
-    // fetch user secrets from the correct location.
-    builder.AddUserSecrets(System.Reflection.Assembly.GetEntryAssembly()) |> ignore
-    builder.AddEnvironmentVariables() |> ignore
-    builder.Build()
+let webApp (next: HttpFunc) (context: HttpContext) =
+    // Datadog gets resource name "GET /{** path}", and we need to set it manually.
+    let scope = Datadog.Trace.Tracer.Instance.ActiveScope
+    if isNotNull scope then scope.Span.ResourceName <- $"{context.Request.Method} {context.Request.Path}"
+    choose [ Health.healthCheck; AuthHandler.config; Handlers.routes ] next context
 
 let configureCors (builder: CorsPolicyBuilder) =
     builder.AllowAnyMethod()
            .AllowAnyHeader()
            .AllowAnyOrigin() |> ignore
 
-let configureApp (app: IApplicationBuilder) =
+let configureApp (configuration : IConfiguration) (app: IApplicationBuilder) =
     app.Use(fun context (next: Func<Task>) ->
         context.Request.Path <- context.Request.Path.Value.Replace (configuration["VIRTUAL_PATH"], "") |> PathString
         next.Invoke())
@@ -45,10 +41,14 @@ let configureApp (app: IApplicationBuilder) =
     app.UseDefaultFiles() |> ignore
     app.UseStaticFiles() |> ignore
     app.UseAuthentication() |> ignore
-    app.UseMiddleware<Middleware.RequestLogging>() |> ignore
     app.UseRouting() |> ignore
     app.UseCors(configureCors) |> ignore
     app.UseOutputCaching()
+    app.UseGiraffeErrorHandler(fun (ex : Exception) (logger : Microsoft.Extensions.Logging.ILogger) ->
+        logger.LogError(ex, "Unhandled exception")
+        clearResponse >=> ServerErrors.INTERNAL_ERROR ex.Message
+        ) |> ignore
+    app.UseMiddleware<Middleware.RequestLogging>() |> ignore
     app.UseMiddleware<Middleware.RetryOnDeadlock>() |> ignore
     app.UseGiraffe(webApp)
     app.UseEndpoints(fun e ->
@@ -61,7 +61,7 @@ let configureApp (app: IApplicationBuilder) =
             e.MapFallbackToFile("{*path}", "index.html") |> ignore) |> ignore
 
 
-let configureServices (services: IServiceCollection) =
+let configureServices (configuration : IConfiguration) (services: IServiceCollection) =
     services.AddResponseCompression() |> ignore
     services.AddCors() |> ignore
     services.AddGiraffe() |> ignore
@@ -122,20 +122,43 @@ let configureServices (services: IServiceCollection) =
                     (ValidateIssuer = false, ValidAudiences = audiences))
     |> ignore
 
-let makeApp () : IWebHostBuilder =
-    WebHostBuilder()
-        .UseKestrel()
-        .UseIISIntegration()
-        .Configure(Action<IApplicationBuilder> configureApp)
-        .ConfigureKestrel(fun _ options -> options.AllowSynchronousIO <- true)
-        .ConfigureServices(configureServices)
+// To test WebApplication using WebApplicationFactory, we need a Program type.
+// This is a hack to get it to compile. The Program will be created for us with the EntryPoint function by the compiler.
+type Program() = class end
 
 [<EntryPoint>]
-let main _ =
-    if runMigration
-    then Migrate.Run(configuration["ConnectionStrings:EventDb"])
-    else printfn "Not running migrations. This assumes the database is created and up to date"
+let main args =
+    Log.Logger <-
+        LoggerConfiguration()
+            // Useful to see ports in use for development
+            .MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Information)
+            .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+            .Enrich.FromLogContext()
+            .WriteTo.Console(JsonFormatter(renderMessage=true))
+            .CreateLogger()
 
-    let app = makeApp ()
-    app.Build().Run()
-    0
+    try
+        try
+            Log.Information("Starting web host")
+            let builder = WebApplication.CreateBuilder(args)
+            builder.Host.UseSerilog() |> ignore
+            builder.WebHost
+                .UseIISIntegration()
+                .UseKestrel(fun _ options -> options.AllowSynchronousIO <- true)
+                |> ignore
+            configureServices builder.Configuration builder.Services
+
+            let app = builder.Build()
+            configureApp app.Configuration app
+
+            if runMigration
+            then Migrate.Run(app.Configuration["ConnectionStrings:EventDb"])
+            else printfn "Not running migrations. This assumes the database is created and up to date"
+
+            app.Run()
+            0
+        with ex ->
+            Log.Fatal(ex, "Host terminated unexpectedly")
+            1
+    finally
+        Log.CloseAndFlush()
