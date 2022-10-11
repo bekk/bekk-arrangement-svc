@@ -1,6 +1,7 @@
 module AuthHandler
 
 open Giraffe
+open GiraffeHelpers
 open Microsoft.AspNetCore.Http
 
 type Config = {
