@@ -1,6 +1,7 @@
 module Health
 
 open Giraffe
+open GiraffeHelpers
 
 let healthCheck: HttpHandler =
     choose [
