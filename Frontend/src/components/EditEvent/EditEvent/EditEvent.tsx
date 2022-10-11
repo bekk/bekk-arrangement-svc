@@ -12,7 +12,7 @@ import {
   parseMaxAttendees,
   parseLocation,
   parseQuestions,
-  parseShortname,
+  parseShortname, parseProgram,
 } from 'src/types';
 import { ValidatedTextInput } from 'src/components/Common/ValidatedTextInput/ValidatedTextInput';
 import { DateTimeInputWithTimezone } from 'src/components/Common/DateTimeInput/DateTimeInputWithTimezone';
@@ -61,6 +61,16 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
     _setHasCustomColor(hasCustomColor);
     if (!hasCustomColor) {
       updateEvent({ ...event, customHexColor: undefined });
+    }
+  };
+
+  const [hasProgram, _setHasProgram] = useState(
+      event.program !== undefined
+  );
+  const setHasProgram = (hasProgram: boolean) => {
+    _setHasProgram(hasProgram)
+    if (!hasProgram) {
+      updateEvent({...event, program: undefined})
     }
   };
 
@@ -232,10 +242,51 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
               <li>Bullet points med bindestrek (-)</li>
               <li>Overskrift med skigard (#)</li>
               <li>Lenker kan limes inn direkte</li>
+              <li>Bold med dobbel asterisk (**) rundt teksten</li>
+              <li>Italics med én asterisk (*) rundt teksten</li>
             </ul>
           </InfoBox>
         </div>
       </div>
+      {!hasProgram && (
+          <Button
+              color="Secondary"
+              displayAsLink
+              onLightBackground
+              className={style.participantQuestion}
+              onClick={() => setHasProgram(true)}
+          >
+            {buttonText.addProgram}
+          </Button>
+      )}
+      {hasProgram && (
+          <div>
+            <ValidatedTextArea
+                className={style.textAreaContainer}
+                label={labels.program}
+                placeholder={placeholders.program}
+                value={event.program!!}
+                validation={parseProgram}
+                onLightBackground
+                minRow={8}
+                onChange={(program) =>
+                    updateEvent({
+                      ...event,
+                      program,
+                    })
+                }
+            />
+            <Button
+                color="Secondary"
+                displayAsLink
+                onLightBackground
+                className={style.participantQuestion}
+                onClick={() => setHasProgram(false)}
+            >
+              {buttonText.removeProgram}
+            </Button>
+          </div>
+      )}
       <div className={style.column}>
         <div>
           <ValidatedTextInput
@@ -489,7 +540,7 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
       </div>
     </div>
   );
-};
+}
 
 function useDebounce(timeout = 300) {
   const timer = useRef<number>();
@@ -624,6 +675,7 @@ const labels = {
   hiddenEvent: 'Skjul arrangementet fra oversikten',
   participantQuestion: 'Spørsmål til deltakerne*',
   shortname: 'Lag en penere URL for arrangementet',
+  program: 'Program',
 };
 
 const placeholders = {
@@ -635,6 +687,7 @@ const placeholders = {
   organizerEmail: 'kari.nordmann@bekk.no',
   participantQuestion: 'Allergier, preferanser eller noe annet på hjertet?',
   limitSpots: 'F.eks. 10',
+  program: 'Legg inn program for eventen. Vi støtter litt pseudomarkdown.'
 };
 
 const helpText = {
@@ -653,4 +706,6 @@ const buttonText = {
   removeRegistrationEndDate: '- Fjern påmeldingsfrist',
   addParticipantQuestion: '+ Legg til spørsmål til deltakere',
   removeParticipantQuestion: '- Fjern spørsmål',
+  addProgram: '+ Legg til program',
+  removeProgram: '- Fjern program'
 };

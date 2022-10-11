@@ -17,6 +17,17 @@ export const parseDescription = (value: string): string | IError[] => {
   return validator.resolve(value);
 };
 
+export const parseProgram = (value: string): string | undefined | IError[]  => {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  const validator = validate<string>({
+    'Programmet må ha minst 5 tegn': value.length < 5,
+  });
+  return validator.resolve(value);
+}
+
 export const parseLocation = (value: string): string | IError[] => {
   const validator = validate<string>({
     'Sted må ha minst tre tegn': value.length < 3,
