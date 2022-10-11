@@ -181,6 +181,7 @@ let getFutureEvents (employeeId: int) (db: DatabaseContext) =
                    E.CloseRegistrationTime,
                    E.CustomHexColor,
                    E.Shortname,
+                   E.Program,
                    P.Id,
                    P.EventId,
                    P.Question,
@@ -246,6 +247,7 @@ let getPastEvents (employeeId: int) (db: DatabaseContext) =
                    E.CloseRegistrationTime,
                    E.CustomHexColor,
                    E.Shortname,
+                   E.Program,
                    P.Id,
                    P.EventId,
                    P.Question,
@@ -300,6 +302,7 @@ let getEventsOrganizedByEmail (email: string) (db : DatabaseContext) =
                    E.CloseRegistrationTime,
                    E.CustomHexColor,
                    E.Shortname,
+                   E.Program,
                    P.Id,
                    P.EventId,
                    P.Question
@@ -350,6 +353,7 @@ let getEventsOrganizedById (id: int) (db: DatabaseContext) =
                    E.CloseRegistrationTime,
                    E.CustomHexColor,
                    E.Shortname,
+                   E.Program,
                    P.Id,
                    P.EventId,
                    P.Question
@@ -449,6 +453,7 @@ let getEvent (eventId: Guid) (db: DatabaseContext) =
                    E.CloseRegistrationTime,
                    E.CustomHexColor,
                    E.Shortname,
+                   E.Program,
                    P.Id,
                    P.EventId,
                    P.Question
@@ -662,7 +667,8 @@ let updateEvent eventId (model: Models.EventWriteModel) (db: DatabaseContext) =
                 IsHidden = @isHidden,
                 CloseRegistrationTime = @closeRegistrationTime,
                 CustomHexColor = @customHexColor,
-                Shortname = @shortname
+                Shortname = @shortname,
+                Program = @program
             OUTPUT INSERTED.*
             WHERE Id = @eventId;
             "
@@ -689,6 +695,7 @@ let updateEvent eventId (model: Models.EventWriteModel) (db: DatabaseContext) =
             "closeRegistrationTime", (if model.CloseRegistrationTime.IsSome then box model.CloseRegistrationTime.Value else box null)
             "customHexColor", (if model.CustomHexColor.IsSome then model.CustomHexColor.Value else box null)
             "shortname", (if model.Shortname.IsSome then model.Shortname.Value else box null)
+            "program", (if model.Program.IsSome then model.Program.Value else box null)
         ]
 
         try
@@ -829,7 +836,8 @@ let createEvent (writeModel: Models.EventWriteModel) employeeId (db: DatabaseCon
                     IsHidden,
                     CloseRegistrationTime,
                     CustomHexColor,
-                    Shortname)
+                    Shortname,
+                    Program)
             OUTPUT INSERTED.*
             VALUES (@eventId,
                     @title,
@@ -851,7 +859,8 @@ let createEvent (writeModel: Models.EventWriteModel) employeeId (db: DatabaseCon
                     @isHidden,
                     @closeRegistrationTime,
                     @customHexColor,
-                    @shortname)
+                    @shortname,
+                    @Program)
             "
         let newEventId = Guid.NewGuid()
         let newEditToken = Guid.NewGuid()
@@ -877,6 +886,7 @@ let createEvent (writeModel: Models.EventWriteModel) employeeId (db: DatabaseCon
             "closeRegistrationTime", (if writeModel.CloseRegistrationTime.IsSome then box writeModel.CloseRegistrationTime.Value else box null)
             "customHexColor", (if writeModel.CustomHexColor.IsSome then writeModel.CustomHexColor.Value else box null)
             "shortname", (if writeModel.Shortname.IsSome then writeModel.Shortname.Value else box null)
+            "program", (if writeModel.Program.IsSome then writeModel.Program.Value else box null)
             "now", box (DateTime.Now.Date.ToString())
         ]
 

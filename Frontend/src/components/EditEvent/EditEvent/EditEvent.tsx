@@ -247,46 +247,47 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
             </ul>
           </InfoBox>
         </div>
-      </div>
-      {!hasProgram && (
-          <Button
-              color="Secondary"
-              displayAsLink
-              onLightBackground
-              className={style.participantQuestion}
-              onClick={() => setHasProgram(true)}
-          >
-            {buttonText.addProgram}
-          </Button>
-      )}
-      {hasProgram && (
-          <div>
-            <ValidatedTextArea
-                className={style.textAreaContainer}
-                label={labels.program}
-                placeholder={placeholders.program}
-                value={event.program!!}
-                validation={parseProgram}
-                onLightBackground
-                minRow={8}
-                onChange={(program) =>
-                    updateEvent({
-                      ...event,
-                      program,
-                    })
-                }
-            />
+        {!hasProgram && (
             <Button
                 color="Secondary"
                 displayAsLink
                 onLightBackground
                 className={style.participantQuestion}
-                onClick={() => setHasProgram(false)}
+                onClick={() => setHasProgram(true)}
             >
-              {buttonText.removeProgram}
+              {buttonText.addProgram}
             </Button>
-          </div>
-      )}
+        )}
+        {hasProgram && (
+            <div>
+              <ValidatedTextArea
+                  className={style.textAreaContainer}
+                  label={labels.program}
+                  placeholder={placeholders.program}
+                  value={event.program!!}
+                  validation={parseProgram}
+                  onLightBackground
+                  minRow={8}
+                  onChange={(program) =>
+                      updateEvent({
+                        ...event,
+                        program,
+                      })
+                  }
+              />
+              <Button
+                  color="Secondary"
+                  displayAsLink
+                  onLightBackground
+                  className={style.participantQuestion}
+                  onClick={() => setHasProgram(false)}
+              >
+                {buttonText.removeProgram}
+              </Button>
+            </div>
+        )}
+      </div>
+
       <div className={style.column}>
         <div>
           <ValidatedTextInput

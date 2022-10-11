@@ -115,6 +115,18 @@
   }
 }
 
+.program {
+  @include regularText;
+  margin-top: 40px;
+  padding: 10px 20px;
+  white-space: pre-wrap;
+  background-color: white;
+  color: black;
+  @media #{$desktop} {
+    margin-top: 50px;
+  }
+}
+
 .organizer {
   @include regularText;
   color: black;
