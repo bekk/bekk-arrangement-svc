@@ -108,14 +108,16 @@ export const ViewEvent = ({
         </div>
       </WavySubHeader>
       <div className={style.contentContainer}>
-        <p className={style.description}>
-          <Description description={event.description} />
-        </p>
-        {event.program && (
-            <p className={style.program}>
-              <Program program={event.program} />
-            </p>
-        )}
+        <div className={style.infoContainer}>
+          <p className={style.description}>
+            <Description description={event.description} />
+          </p>
+          {event.program && (
+              <p className={style.program}>
+                <Program program={event.program} />
+              </p>
+          )}
+        </div>
         <p>—</p>
         <p className={style.organizerText}>
           Arrangementet holdes av {event.organizerName}. Har du spørsmål ta
