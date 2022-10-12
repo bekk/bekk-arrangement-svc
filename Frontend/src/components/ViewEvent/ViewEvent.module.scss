@@ -109,7 +109,7 @@
 .infoContainer {
   @media #{$desktop} {
     display: flex;
-    gap: 30px;
+    gap: 25px;
   }
 }
 
@@ -125,11 +125,11 @@
 .program {
   @include regularText;
   margin-top: 40px;
-  padding: 10px 40px 10px 30px;
+  padding: 10px 30px 10px 30px;
   white-space: pre-wrap;
   background-color: white;
   color: black;
-  min-width: 300px;
+  min-width: 250px;
   width: fit-content;
   height: fit-content;
 
