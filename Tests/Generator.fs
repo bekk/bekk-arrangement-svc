@@ -77,6 +77,11 @@ let generateEvent () : Models.EventWriteModel =
       ParticipantQuestions =
           [ 0 .. faker.Random.Number(0, 5) ]
           |> List.map (fun _ -> faker.Lorem.Sentence())
+      Program =
+          if faker.Random.Number(0, 5) <> 0 then
+              None
+          else
+              Some(faker.Lorem.Paragraph()[0..99])
       ViewUrl =
           if faker.Random.Number(0, 5) <> 0 then
               None

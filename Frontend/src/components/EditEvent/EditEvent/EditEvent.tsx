@@ -237,15 +237,7 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
               })
             }
           />
-          <InfoBox title="Formateringshjelp">
-            <ul className={style.listStyle}>
-              <li>Bullet points med bindestrek (-)</li>
-              <li>Overskrift med skigard (#)</li>
-              <li>Lenker kan limes inn direkte</li>
-              <li>Bold med dobbel asterisk (**) rundt teksten</li>
-              <li>Italics med én asterisk (*) rundt teksten</li>
-            </ul>
-          </InfoBox>
+          <FormattingHelper />
         </div>
         {!hasProgram && (
             <Button
@@ -275,11 +267,12 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
                       })
                   }
               />
+              <FormattingHelper />
               <Button
                   color="Secondary"
                   displayAsLink
                   onLightBackground
-                  className={style.participantQuestion}
+                  className={style.programButton}
                   onClick={() => setHasProgram(false)}
               >
                 {buttonText.removeProgram}
@@ -655,6 +648,20 @@ const setStartEndDates = ({ start, end }: State, message: Action): State => {
   }
 };
 
+const FormattingHelper = () => {
+  return (
+      <InfoBox title="Formateringshjelp">
+        <ul className={style.listStyle}>
+          <li>Bullet points med bindestrek (-)</li>
+          <li>Overskrift med skigard (#)</li>
+          <li>Lenker kan limes inn direkte</li>
+          <li>Bold med dobbel asterisk (**) rundt teksten</li>
+          <li>Italics med én asterisk (*) rundt teksten</li>
+        </ul>
+      </InfoBox>
+  )
+}
+
 const labels = {
   title: 'Tittel*',
   startDate: 'Arrangementet starter*',
@@ -688,7 +695,7 @@ const placeholders = {
   organizerEmail: 'kari.nordmann@bekk.no',
   participantQuestion: 'Allergier, preferanser eller noe annet på hjertet?',
   limitSpots: 'F.eks. 10',
-  program: 'Legg inn program for eventen. Vi støtter litt pseudomarkdown.'
+  program: 'Legg inn program for eventen. Vi støtter samme pseudomarkdown som for beskrivelsen.'
 };
 
 const helpText = {
