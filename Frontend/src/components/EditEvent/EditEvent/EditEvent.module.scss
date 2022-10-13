@@ -23,7 +23,7 @@
   grid-template-areas:
     'sd sd sd sd'
     'st st et et';
-  gap: 15px;
+  gap: 10px;
   @media #{$desktop} {
     grid-template-areas: 'sd sd sd sd st et';
   }
@@ -45,7 +45,7 @@
 .startDate {
   grid-area: sd;
   width: 100%;
-  min-width: 150px;
+  //min-width: 185px;
 }
 
 .endDate {
@@ -54,10 +54,16 @@
 
 .startTime {
   grid-area: st;
+  @media #{$desktop} {
+    width: 73px;
+  }
 }
 
 .endTime {
   grid-area: et;
+  @media #{$desktop} {
+    width: 73px;
+  }
 }
 
 .dateError {
