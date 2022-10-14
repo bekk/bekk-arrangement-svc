@@ -135,13 +135,13 @@
   white-space: pre-wrap;
   background-color: white;
   color: black;
-  width: fit-content;
   height: fit-content;
   border-radius: 5px;
 
   @media #{$desktop} {
     margin-top: 50px;
     min-width: 300px;
+    width: fit-content;
   }
 }
 
