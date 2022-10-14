@@ -108,9 +108,16 @@ export const ViewEvent = ({
         </div>
       </WavySubHeader>
       <div className={style.contentContainer}>
-        <p className={style.description}>
-          <Description description={event.description} />
-        </p>
+        <div className={style.infoContainer}>
+          <p className={style.description}>
+            <Description description={event.description} />
+          </p>
+          {event.program && (
+              <p className={style.program}>
+                <Program program={event.program} />
+              </p>
+          )}
+        </div>
         <p>—</p>
         <p className={style.organizerText}>
           Arrangementet holdes av {event.organizerName}. Har du spørsmål ta
@@ -183,6 +190,21 @@ const Description = ({ description }: { description: string }) => {
     </>
   );
 };
+
+const Program = ({program}: {program: string | undefined}) => {
+  if (program === undefined) return null
+  const paragraphs = program.split('\n');
+
+  return (
+      <>
+        {paragraphs.map((paragraph, i) => (
+            <div key={`${paragraph}:${i}`} className={style.paragraph}>
+              {formatLinks(paragraph).map(formatHeadersAndStuff)}
+            </div>
+        ))}
+      </>
+  );
+}
 
 const formatLinks = (line: string): (string | JSX.Element)[] => {
   const linkRegex = /(https?:\/\/[^\s]+)/;

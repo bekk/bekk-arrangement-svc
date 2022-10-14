@@ -35,6 +35,12 @@ module Validate =
         else
             Decode.succeed description
 
+    let program (program: string ) =
+        if program.Length < 5 then
+            Decode.fail "Programmet må ha minst 5 tegn"
+        else
+            Decode.succeed program
+        
     let location (location: string) =
         if location.Length < 3 then
             Decode.fail "Tittel må ha minst 3 tegn"
@@ -104,6 +110,7 @@ type EventWriteModel =
       OpenForRegistrationTime: string
       CloseRegistrationTime: string option
       ParticipantQuestions: string list
+      Program: string option
       ViewUrl: string option
       EditUrlTemplate: string
       CancelParticipationUrlTemplate: string option
@@ -135,6 +142,7 @@ module EventWriteModel =
               CloseRegistrationTime = get.Optional.Field "closeRegistrationTime" Decode.string
               ParticipantQuestions = get.Required.Field "participantQuestions"
                                          (Decode.list Decode.string |> Decode.andThen Validate.participantQuestions)
+              Program = get.Optional.Field "program" Decode.string
               ViewUrl = get.Optional.Field "viewUrl" Decode.string
               EditUrlTemplate = get.Required.Field "editUrlTemplate" Decode.string
               CancelParticipationUrlTemplate = get.Optional.Field "cancelParticipationUrlTemplate" Decode.string
@@ -161,6 +169,7 @@ type Event =
       EndTime: TimeSpan
       OpenForRegistrationTime: int64
       CloseRegistrationTime: int64 option
+      Program: string option
       HasWaitingList: bool
       IsCancelled: bool
       IsExternal: bool
@@ -218,6 +227,8 @@ module Event =
                     participantQuestions
                     |> List.map (fun q -> Encode.string q.Question)
                     |> Encode.list
+                if event.Program.IsSome then   
+                    "program", Encode.string event.Program.Value    
                 "openForRegistrationTime", Encode.int64 event.OpenForRegistrationTime
                 if event.CloseRegistrationTime.IsSome then
                     "closeRegistrationTime", Encode.int64 event.CloseRegistrationTime.Value

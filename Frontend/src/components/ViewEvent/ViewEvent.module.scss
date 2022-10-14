@@ -38,6 +38,7 @@
   font-family: $fontLight;
   font-size: 16px;
   margin-top: 50px;
+  max-width: 800px;
 }
 
 .generalInfoContainer {
@@ -101,8 +102,16 @@
   width: $pageMobileWidth;
   @media #{$desktop} {
     width: $pageDesktopWidth;
-    max-width: 800px;
+    max-width: 1300px;
     margin-left: calc(max((100vw - 2000px) / 2, 15%));
+  }
+}
+
+.infoContainer {
+  @media #{$desktop} {
+    display: flex;
+    justify-content: space-between;
+    gap: 30px;
   }
 }
 
@@ -110,8 +119,31 @@
   @include regularText;
   margin-top: 40px;
   white-space: pre-wrap;
+  max-width: 800px;
+
   @media #{$desktop} {
     margin-top: 50px;
+    min-width: 500px;
+  }
+}
+
+.program {
+  @include regularText;
+
+  margin-top: 40px;
+  padding: 10px 30px 10px 30px;
+  white-space: pre-wrap;
+  background-color: white;
+  color: black;
+  height: fit-content;
+  border-radius: 5px;
+  min-width: 250px;
+  width: fit-content;
+
+  @media #{$desktop} {
+    margin-top: 50px;
+    min-width: 300px;
+    width: fit-content;
   }
 }
 
@@ -214,4 +246,5 @@
 
 .organizerText {
   font-family: $fontItalic;
+  max-width: 800px;
 }
