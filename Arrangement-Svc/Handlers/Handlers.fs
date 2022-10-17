@@ -60,11 +60,14 @@ let private participationsToAttendeesAndWaitlist maxParticipants participations 
                |> Seq.safeSkip max
                |> Seq.toList }
 
-let getEditTokenFromQuery (context: HttpContext) =
+let getEditTokenFromQuery (context: HttpContext): Result<Guid, string> =
     context.GetQueryStringValue "editToken"
-    |> function
-        | Ok editToken -> Guid.Parse(editToken)
-        | _ -> Guid.Empty
+    |> Result.map(fun queryValue ->
+        match Guid.TryParse queryValue with
+        | true, guid -> Ok guid
+        | false, _ -> Error "Edit token is not a valid GUID")
+    |> Result.bind id
+
 let getCancellationTokenFromQuery (context: HttpContext) =
     context.GetQueryStringValue "cancellationToken"
     |> Result.map Guid.TryParse
@@ -368,7 +371,9 @@ let cancelEvent (eventId: Guid) =
                 let config = context.GetService<AppConfig>()
                 let userId = getUserId context
                 let userIsAdmin = isAdmin context
-                let editToken = getEditTokenFromQuery context
+                let! editToken =
+                    getEditTokenFromQuery context
+                    |> Result.mapError (fun _ -> invalidEditToken)
                 use db = openTransaction context
                 let! canEditEvent =
                     Queries.canEditEvent eventId userIsAdmin userId editToken db
@@ -404,7 +409,9 @@ let deleteEvent (eventId: Guid) =
                 let config = context.GetService<AppConfig>()
                 let userId = getUserId context
                 let userIsAdmin = isAdmin context
-                let editToken = getEditTokenFromQuery context
+                let! editToken =
+                    getEditTokenFromQuery context
+                    |> Result.mapError (fun _ -> invalidEditToken)
                 use db = openTransaction context
                 let! canEditEvent =
                     Queries.canEditEvent eventId userIsAdmin userId editToken db
@@ -585,7 +592,9 @@ let updateEvent (eventId: Guid) =
             taskResult {
                 let userId = getUserId context
                 let userIsAdmin = isAdmin context
-                let editToken = getEditTokenFromQuery context
+                let! editToken =
+                    getEditTokenFromQuery context
+                    |> Result.mapError (fun _ -> invalidEditToken)
                 let! writeModel =
                     decodeWriteModel<Models.EventWriteModel> context
                     |> TaskResult.mapError BadRequest
@@ -710,7 +719,9 @@ let exportParticipationsForEvent (eventId: Guid) =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
             taskResult {
-                let editToken = getEditTokenFromQuery context
+                let! editToken =
+                    getEditTokenFromQuery context
+                    |> Result.mapError (fun _ -> invalidEditToken)
                 let isAdmin = isAdmin context
                 let userId = getUserId context
                 use db = openConnection context
