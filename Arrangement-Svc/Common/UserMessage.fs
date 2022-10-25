@@ -53,10 +53,9 @@ let csvResult filename result (next: HttpFunc) (context: HttpContext) =
 
 module ResponseMessages =
     let eventNotFound id: HttpStatus = $"Kan ikke finne event {id}" |> NotFound
-    let eventSuccessfullyCancelled title : string = $"Arrangement: '{title}' blei avlyst. Epost har blitt sendt til alle deltagere"
+    let eventSuccessfullyCancelled title: string = $"Arrangement: '{title}' blei avlyst. Epost har blitt sendt til alle deltagere"
     let invalidMaxParticipantValue : HttpStatus = "Du kan ikke sette maks deltagere til lavere enn antall som allerede deltar" |> BadRequest
     let invalidRemovalOfWaitingList : HttpStatus = "Du kan ikke fjerne venteliste når det er folk på den" |> BadRequest
-    let invalidEditToken : HttpStatus = "Noe er feil med dataen din. Prøv redigeringslenken du fikk på epost når du opprettet arrangmentet" |> BadRequest
     let couldNotRetrieveUserId : HttpStatus = "Kunne ikke hente ut bruker-id" |> BadRequest
     let cannotSeeParticipations : HttpStatus = "Du har ikke tillatelse til å se andres påmeldinger" |> Forbidden
     let shortnameIsInUse shortname: HttpStatus = $"Det finnes allerede et pågående arrangement med kortnavn '{shortname}'" |> BadRequest
