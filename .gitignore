@@ -3,6 +3,10 @@
 # Created by https://www.gitignore.io/api/macos,visualstudiocode,fsharp
 # Edit at https://www.gitignore.io/?templates=macos,visualstudiocode,fsharp
 
+### General ###
+**/.vscode
+**/.ionide
+
 ### fsharp ###
 lib/debug
 lib/release
