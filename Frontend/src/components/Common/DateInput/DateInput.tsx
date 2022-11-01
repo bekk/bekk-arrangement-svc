@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import style from './DateInput.module.scss';
-import {EditDate, månedsNavn} from 'src/types/date';
+import { EditDate, månedsNavn } from 'src/types/date';
 import {
   CalendarDate,
   monthNumber,
@@ -123,9 +123,9 @@ export const DateInput = ({ value, onChange, label }: IProps): JSX.Element => {
               {daysInNextMonth.map((d, i) => (
                 <div
                   key={i}
-                  className={classNames(style.date, style.inactiveDate, {
+                  className={classNames(style.date, style.activeDate, {
                     [style.today]: datesEqual(d, today),
-                    [style.selectedInactiveDate]: datesEqual(d, date),
+                    [style.selectedActiveDate]: datesEqual(d, date),
                   })}
                 >
                   <div

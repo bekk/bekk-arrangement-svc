@@ -34,7 +34,7 @@
   font-weight: 400;
   font-size: 40px;
   line-height: 30px;
-  margin: .5em 0 .75em;
+  margin: 0.5em 0 0.75em;
   & div {
     display: flex;
     align-items: center;
@@ -47,18 +47,18 @@
 
 .table tr {
   background-color: var(--backgroundColor);
-  padding: .35em;
+  padding: 0.35em;
 }
 
 .table th {
-  padding: .625em;
+  padding: 0.625em;
   font-family: $serifFontRegular;
   font-weight: 400;
   font-size: 20px;
   line-height: 30px;
 }
 .table td {
-  padding: .625em;
+  padding: 0.625em;
   width: 200px;
   height: 200px;
   border: 1px solid var(--svart50);
@@ -88,12 +88,12 @@
 
   .table tr {
     display: block;
-    margin-bottom: .625em;
+    margin-bottom: 0.625em;
   }
 
   .table td {
     display: block;
-    font-size: .8em;
+    font-size: 0.8em;
     text-align: right;
     width: 100%;
   }
@@ -112,7 +112,7 @@
   border-radius: 25px;
   color: black !important;
   @media screen and (max-width: 600px) {
-    float:right;
+    float: right;
   }
 }
 
@@ -120,15 +120,15 @@
   color: white !important;
 }
 
-.oldDate {
-  color: var(--svart70)
+.notCurrentMonthDate {
+  color: var(--svart70);
 }
 
-.oldDay {
+.notCurrentMonthDay {
   border: 1px solid var(--svart70);
 }
 
-.arrow  {
+.arrow {
   width: 1.5em;
   height: 1.5em;
 }
@@ -142,7 +142,7 @@
   line-height: 18px;
   &::before {
     display: inline-block;
-    content: "";
+    content: '';
     width: 2px;
     height: 1em;
     margin-right: 0.5em;
