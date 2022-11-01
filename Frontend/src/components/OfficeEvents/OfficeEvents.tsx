@@ -1,43 +1,60 @@
-import React, {useState} from 'react';
-import {WavySubHeader} from "src/components/Common/Header/WavySubHeader";
+import React, { useState } from 'react';
+import { WavySubHeader } from 'src/components/Common/Header/WavySubHeader';
 import style from './OfficeEvents.module.scss';
-import {eachWeekOfInterval, endOfMonth, startOfMonth, addDays, getWeek, addMonths} from "date-fns";
-import classnames from "classnames";
-import {useOfficeEvents} from "src/hooks/cache";
-import {isBad, isLoading, isNotRequested} from "src/remote-data";
-import {dateAsText, dateToStringWithoutTime, månedsNavn} from "src/types/date";
-import {Arrow} from "src/components/Common/Arrow/Arrow";
-import { OfficeEvent} from "src/types/event";
-import {Modal} from "src/components/Common/Modal/Modal";
-import {dateToTime} from "src/types/time";
-import {useHistory} from "react-router";
-import {officeEventRoute, officeEventsMonthKey} from "src/routing";
-import {useParam} from "src/utils/browser-state";
-import {useEffectOnce} from "src/hooks/utils";
-import {Spinner} from "src/components/Common/Spinner/spinner";
+import {
+  eachWeekOfInterval,
+  endOfMonth,
+  startOfMonth,
+  addDays,
+  getWeek,
+  addMonths,
+} from 'date-fns';
+import classnames from 'classnames';
+import { useOfficeEvents } from 'src/hooks/cache';
+import { isBad, isLoading, isNotRequested } from 'src/remote-data';
+import {
+  dateAsText,
+  dateToStringWithoutTime,
+  månedsNavn,
+} from 'src/types/date';
+import { Arrow } from 'src/components/Common/Arrow/Arrow';
+import { OfficeEvent } from 'src/types/event';
+import { Modal } from 'src/components/Common/Modal/Modal';
+import { dateToTime } from 'src/types/time';
+import { useHistory } from 'react-router';
+import { officeEventRoute, officeEventsMonthKey } from 'src/routing';
+import { useParam } from 'src/utils/browser-state';
+import { useEffectOnce } from 'src/hooks/utils';
+import { Spinner } from 'src/components/Common/Spinner/spinner';
 
 export const OfficeEvents = () => {
-  const urlDate = useParam(officeEventsMonthKey)
-  const history = useHistory()
-  const parsedDate = isNaN(Date.parse(urlDate)) ? new Date() : new Date(urlDate);
-  useEffectOnce(() => history.push(officeEventRoute(dateToStringWithoutTime(parsedDate))))
-  const [selectedEvent, setSelectedEvent] = useState<OfficeEvent | undefined>(undefined);
+  const urlDate = useParam(officeEventsMonthKey);
+  const history = useHistory();
+  const parsedDate = isNaN(Date.parse(urlDate))
+    ? new Date()
+    : new Date(urlDate);
+  useEffectOnce(() =>
+    history.push(officeEventRoute(dateToStringWithoutTime(parsedDate)))
+  );
+  const [selectedEvent, setSelectedEvent] = useState<OfficeEvent | undefined>(
+    undefined
+  );
   const [currentDate, setCurrentDate] = useState(parsedDate);
   const incrementMonth = () => {
     const date = addMonths(currentDate, 1);
     setCurrentDate(date);
-    history.push(officeEventRoute(dateToStringWithoutTime(date)))
-  }
+    history.push(officeEventRoute(dateToStringWithoutTime(date)));
+  };
   const decrementMonth = () => {
     const date = addMonths(currentDate, -1);
     setCurrentDate(date);
-    history.push(officeEventRoute(dateToStringWithoutTime(date)))
-  }
+    history.push(officeEventRoute(dateToStringWithoutTime(date)));
+  };
 
   const officeEvents = useOfficeEvents(currentDate);
 
   if (isNotRequested(officeEvents) || isLoading(officeEvents)) {
-    return <Spinner />
+    return <Spinner />;
   }
 
   if (isBad(officeEvents)) {
@@ -48,11 +65,18 @@ export const OfficeEvents = () => {
     );
   }
 
-  const weekdaysAndEvents: DayAndEvents[][] =
-    getWeekdaysInMonth(currentDate).map(weeks =>
-      weeks.map(day => {
-        return { day,
-                 events: officeEvents.data.filter(event => event.startTime.toDateString() === day.toDateString()) }}))
+  const weekdaysAndEvents: DayAndEvents[][] = getWeekdaysInMonth(
+    currentDate
+  ).map((weeks) =>
+    weeks.map((day) => {
+      return {
+        day,
+        events: officeEvents.data.filter(
+          (event) => event.startTime.toDateString() === day.toDateString()
+        ),
+      };
+    })
+  );
 
   return (
     <>
@@ -61,87 +85,143 @@ export const OfficeEvents = () => {
           <h1 className={style.headerText}>Hva skjer i Bekk?</h1>
         </div>
       </WavySubHeader>
-      {selectedEvent !== undefined && <EventModal event={selectedEvent} closeModal={() => setSelectedEvent(undefined)}/> }
+      {selectedEvent !== undefined && (
+        <EventModal
+          event={selectedEvent}
+          closeModal={() => setSelectedEvent(undefined)}
+        />
+      )}
       <table className={style.table}>
         <caption>
           <div>
-            <Arrow onClick={decrementMonth} className={style.arrow} direction="left" color="white" noCircle />
+            <Arrow
+              onClick={decrementMonth}
+              className={style.arrow}
+              direction="left"
+              color="white"
+              noCircle
+            />
             <p>{månedsNavn[currentDate.getMonth()]}</p>
-            <Arrow onClick={incrementMonth} className={style.arrow} direction="right" color="white" noCircle />
+            <Arrow
+              onClick={incrementMonth}
+              className={style.arrow}
+              direction="right"
+              color="white"
+              noCircle
+            />
           </div>
         </caption>
         <thead>
-        <tr>
-          <th>Mandag</th>
-          <th>Tirsdag</th>
-          <th>Onsdag</th>
-          <th>Torsdag</th>
-          <th>Fredag</th>
-          <th>Lørdag</th>
-          <th>Søndag</th>
-        </tr>
+          <tr>
+            <th>Mandag</th>
+            <th>Tirsdag</th>
+            <th>Onsdag</th>
+            <th>Torsdag</th>
+            <th>Fredag</th>
+            <th>Lørdag</th>
+            <th>Søndag</th>
+          </tr>
         </thead>
         <tbody>
-        {weekdaysAndEvents.map((daysAndEvents, i) => <WeekDayCards key={i} daysAndEvents={daysAndEvents} setSelectedEvent={setSelectedEvent}/>)}
+          {weekdaysAndEvents.map((daysAndEvents, i) => (
+            <WeekDayCards
+              key={i}
+              daysAndEvents={daysAndEvents}
+              setSelectedEvent={setSelectedEvent}
+            />
+          ))}
         </tbody>
       </table>
     </>
-  )
-}
+  );
+};
 
-const WeekDayCards = ({daysAndEvents, setSelectedEvent}: { daysAndEvents: DayAndEvents[], setSelectedEvent: (x: OfficeEvent) => void  }) => {
+const WeekDayCards = ({
+  daysAndEvents,
+  setSelectedEvent,
+}: {
+  daysAndEvents: DayAndEvents[];
+  setSelectedEvent: (x: OfficeEvent) => void;
+}) => {
   const currentDate = new Date();
   const isPreviousDay = (day: Date) => day < currentDate;
-  const isToday = (day: Date) => day.toDateString() === currentDate.toDateString();
-  const isNextMonth = (day: Date) => day.getMonth() > currentDate.getMonth()
+  const isToday = (day: Date) =>
+    day.toDateString() === currentDate.toDateString();
+  const isNextMonth = (day: Date) => day.getMonth() > currentDate.getMonth();
   return (
-    <tr key={getWeek(daysAndEvents[0].day)} data-label={getWeek(daysAndEvents[0].day)}>
-      {daysAndEvents.map(dayAndEvents => {
-        const {day, events} = dayAndEvents
+    <tr
+      key={getWeek(daysAndEvents[0].day)}
+      data-label={getWeek(daysAndEvents[0].day)}
+    >
+      {daysAndEvents.map((dayAndEvents) => {
+        const { day, events } = dayAndEvents;
         const borderStyle = classnames({
-          [style.oldDay]: isPreviousDay(day) || isNextMonth(day),
-        })
+          [style.oldDay]: isPreviousDay(day),
+        });
         const dateStyle = classnames({
-          [style.oldDate]: isPreviousDay(day) || isNextMonth(day),
-          [style.currentDate]: isToday(day),
-        })
+          [style.oldDate]: isPreviousDay(day),
+          [style.currentDate]: isToday(day) || isNextMonth(day),
+        });
         const dateHighlighter = classnames({
-          [style.todayHighlighter]: isToday(day)
-        })
+          [style.todayHighlighter]: isToday(day),
+        });
         return (
           <td className={borderStyle} key={day.getDate()}>
             <div className={dateStyle}>
-              <div className={dateHighlighter}>
-                {day.getDate()}
-              </div>
-              {events.map(event => <Event key={`${event.title}:${event.contactPerson}`} event={event} setSelectedEvent={setSelectedEvent}/>)}
+              <div className={dateHighlighter}>{day.getDate()}</div>
+              {events.map((event) => (
+                <Event
+                  key={`${event.title}:${event.contactPerson}`}
+                  event={event}
+                  setSelectedEvent={setSelectedEvent}
+                />
+              ))}
             </div>
           </td>
-        )
+        );
       })}
     </tr>
-  )
-}
+  );
+};
 
-const Event = ({event, setSelectedEvent}: {event: OfficeEvent, setSelectedEvent: (x: OfficeEvent) => void}) => {
+const Event = ({
+  event,
+  setSelectedEvent,
+}: {
+  event: OfficeEvent;
+  setSelectedEvent: (x: OfficeEvent) => void;
+}) => {
   const eventStyle = classnames(style.event, {
     [style.eventSolkontrast]: false,
     [style.eventHavkontrast]: false,
     [style.eventKveldkontrast]: false,
     [style.eventSolnedgangKontrast]: false,
-  })
-  return (<p onClick={() => setSelectedEvent(event)} className={eventStyle}>{event.title}</p>)
-}
-
-const EventModal = ({event, closeModal}: { event: OfficeEvent, closeModal: () => void }) => {
+  });
   return (
-    <Modal closeModal={closeModal} >
-      <div className={style.eventDate}>{dateAsText(event.startTime)}, {dateToTime(event.startTime)} - {dateToTime(event.endTime)}</div>
+    <p onClick={() => setSelectedEvent(event)} className={eventStyle}>
+      {event.title}
+    </p>
+  );
+};
+
+const EventModal = ({
+  event,
+  closeModal,
+}: {
+  event: OfficeEvent;
+  closeModal: () => void;
+}) => {
+  return (
+    <Modal closeModal={closeModal}>
+      <div className={style.eventDate}>
+        {dateAsText(event.startTime)}, {dateToTime(event.startTime)} -{' '}
+        {dateToTime(event.endTime)}
+      </div>
       <div className={style.eventLocation}>
         <div>{event.location} </div>
         <div>{event.contactPerson} </div>
       </div>
-      <hr/>
+      <hr />
       {/*TODO: Her vil vi ha kategori*/}
       <div></div>
       <h2>{event.title}</h2>
@@ -149,20 +229,20 @@ const EventModal = ({event, closeModal}: { event: OfficeEvent, closeModal: () =>
       {/*TODO: Her vil vi ha temaer*/}
       <div></div>
     </Modal>
-  )
-}
+  );
+};
 
 const getWeekdaysInMonth = (date: Date) => {
   const start = startOfMonth(date);
   const end = endOfMonth(date);
-  const eachWeek = eachWeekOfInterval({start, end}, {weekStartsOn: 1})
+  const eachWeek = eachWeekOfInterval({ start, end }, { weekStartsOn: 1 });
   return eachWeek.map((date) => {
     const weekdays = new Array(7).fill(0);
-    return weekdays.map((_, dayInWeek) => addDays(date, dayInWeek))
-  })
-}
+    return weekdays.map((_, dayInWeek) => addDays(date, dayInWeek));
+  });
+};
 
 type DayAndEvents = {
-  day: Date,
-  events: OfficeEvent[]
-}
+  day: Date;
+  events: OfficeEvent[];
+};
