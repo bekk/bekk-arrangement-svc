@@ -156,10 +156,10 @@ const WeekDayCards = ({
       {daysAndEvents.map((dayAndEvents) => {
         const { day, events } = dayAndEvents;
         const borderStyle = classnames({
-          [style.oldDay]: isPreviousDay(day),
+          [style.notCurrentMonthDay]: isPreviousDay(day),
         });
         const dateStyle = classnames({
-          [style.oldDate]: isPreviousDay(day),
+          [style.notCurrentMonthDate]: isPreviousDay(day),
           [style.currentDate]: isToday(day) || isNextMonth(day),
         });
         const dateHighlighter = classnames({
