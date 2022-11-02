@@ -352,6 +352,8 @@ let createEvent =
                     Queries.createParticipantQuestions newEvent.Id writeModel.ParticipantQuestions db
                     |> TaskResult.mapError InternalError
                 db.Commit()
+                let logger = context.GetService<Bekk.Canonical.Logger.Logger>()
+                logger.log ("created_event_with_id", newEvent.Id)
                 let eventAndQuestions = { Event = newEvent; NumberOfParticipants = None; Questions = newQuestions }
                 // Send epost etter registrering
                 let redirectUrlTemplate = HttpUtility.UrlDecode writeModel.EditUrlTemplate
