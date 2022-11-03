@@ -23,3 +23,5 @@ export function useSessionState<T>(initialState: T, key: string) {
     })
   ]
 }
+
+export const clearSessionState = (key: string) => window.sessionStorage.removeItem(key);

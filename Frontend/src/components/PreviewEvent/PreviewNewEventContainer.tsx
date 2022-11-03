@@ -18,6 +18,7 @@ import {
   maxParticipantsLimit,
 } from 'src/types/event';
 import {useSetTitle} from "src/hooks/setTitle";
+import {clearSessionState} from "../../hooks/sessionState";
 
 export const PreviewNewEventContainer = () => {
   const { catchAndNotify } = useNotification();
@@ -49,6 +50,7 @@ export const PreviewNewEventContainer = () => {
       editToken,
     } = await postEvent(event, editUrlTemplate);
     saveEditableEvent({ eventId: id, editToken });
+    clearSessionState("createEvent")
     history.push(
       shortname ? viewEventShortnameRoute(shortname) : viewEventRoute(id)
     );

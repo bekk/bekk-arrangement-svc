@@ -20,6 +20,7 @@ import {
 } from 'src/types/event';
 import {useSetTitle} from "src/hooks/setTitle";
 import {appTitle} from "src/Constants";
+import {clearSessionState} from "../../hooks/sessionState";
 
 export const PreviewEventContainer = () => {
   const { catchAndNotify } = useNotification();
@@ -45,6 +46,7 @@ export const PreviewEventContainer = () => {
 
   const putEditedEvent = catchAndNotify(async () => {
     await putEvent(eventId, event, editToken);
+    clearSessionState(eventId);
     history.push(
       event.shortname
         ? viewEventShortnameRoute(event.shortname)
