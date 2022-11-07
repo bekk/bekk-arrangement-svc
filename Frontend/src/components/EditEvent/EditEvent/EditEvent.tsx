@@ -531,6 +531,12 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
         >
           {buttonText.addParticipantQuestion}
         </Button>
+        <InfoBox title="Formateringshjelp">
+          <p>
+            Spørsmål med svaralternativ (checkbokser) kan skrives slik:
+          </p>
+          <p>// Alternativer: alternativ 1; alternativ 2; alternativ 3</p>
+        </InfoBox>
       </div>
     </div>
   );
