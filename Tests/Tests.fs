@@ -104,11 +104,12 @@ module Container =
         else
         printfn $"Starting container {ContainerName}"
         container [$"start {ContainerName}"] |> ignore
+        async { do! Async.Sleep 5000 } |> Async.RunSynchronously
         waitForContainerRunning ()
 
 module Database =
     let private getConnectionString () : string =
-        let cfg = Api.webapp.Services.GetService(typeof<IConfiguration>) :?> IConfiguration
+        let cfg = Api.webapp().Services.GetService(typeof<IConfiguration>) :?> IConfiguration
         let connectionString = cfg.GetConnectionString("EventDb")
         let cs = SqlConnectionStringBuilder(connectionString)
         cs.InitialCatalog <- ""
@@ -142,9 +143,12 @@ let maybeUpdateDatabase() =
 
 [<EntryPoint>]
 let main args =
+    printfn "main in tests"
     enforceTokenExists()
+    printfn "Enforce token exists"
 
     if Config.manageContainers then
+        printfn "Manage conrtainers"
         if Container.containerMissing() then
             printfn "Container missing. Creating fresh container for tests."
             Container.create()

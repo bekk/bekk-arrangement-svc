@@ -9,6 +9,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Arrangement-Svc", "Arrangem
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Migration", "migration\Migration.csproj", "{0E343984-7B9F-411F-B3FE-C6456C01A865}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "TestProject1", "TestProject1\TestProject1.fsproj", "{B855FD5D-4FC8-4B88-A5D0-4C6834FE4114}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{0E343984-7B9F-411F-B3FE-C6456C01A865}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E343984-7B9F-411F-B3FE-C6456C01A865}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0E343984-7B9F-411F-B3FE-C6456C01A865}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B855FD5D-4FC8-4B88-A5D0-4C6834FE4114}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B855FD5D-4FC8-4B88-A5D0-4C6834FE4114}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B855FD5D-4FC8-4B88-A5D0-4C6834FE4114}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B855FD5D-4FC8-4B88-A5D0-4C6834FE4114}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

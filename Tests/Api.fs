@@ -98,9 +98,11 @@ let private enforceSuccess ((response, content) : ApiResponse) : ApiResponse =
 
 let private toJson data = Encode.Auto.toString(4, data, caseStrategy = CamelCase)
 
-let webapp = new WebApplicationFactory<App.Program>()
+let webapp () =
+    printfn "KLIK KKLAKK"
+    new WebApplicationFactory<App.Program>()
 
-let private client = webapp.CreateClient()
+let private client () = webapp().CreateClient()
 
 let private request (jwt: string option) (url: string) (body: 'a option) (method: HttpMethod) : ApiResponse Task =
     let request = new HttpRequestMessage()
@@ -109,7 +111,7 @@ let private request (jwt: string option) (url: string) (body: 'a option) (method
     body |> Option.iter (fun body -> request.Content <- new StringContent(toJson body, Encoding.UTF8, MediaTypeNames.Application.Json))
     jwt |> Option.iter (fun jwt -> request.Headers.Add("Authorization", $"Bearer {jwt}"))
     task {
-        let! response = request |> client.SendAsync
+        let! response = request |> client().SendAsync
         let! content = response.Content.ReadAsStringAsync()
         return enforceSuccess (response, content)
     }
