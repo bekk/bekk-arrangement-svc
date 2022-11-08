@@ -534,7 +534,7 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
         {event.participantQuestions.length > 0 &&
         <InfoBox title="Formateringshjelp">
           <p>
-            Spørsmål med svaralternativ (checkbokser) kan legges til:
+            Spørsmål:
           </p>
           <p>// Alternativer: alternativ 1; alternativ 2; alternativ 3</p>
         </InfoBox>}
