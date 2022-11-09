@@ -143,7 +143,6 @@ let maybeUpdateDatabase() =
 
 [<EntryPoint>]
 let main args =
-    printfn "main in tests"
     enforceTokenExists()
     printfn "Enforce token exists"
 

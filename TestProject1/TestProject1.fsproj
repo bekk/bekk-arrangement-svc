@@ -8,14 +8,22 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="Tests.fs" />
+        <Compile Include="Utils\Models.fs" />
+        <Compile Include="Utils\Utils.fs" />
+        <Compile Include="Utils\Http.fs" />
+        <Compile Include="Utils\Container.fs" />
+        <Compile Include="Utils\Database.fs" />
+        <Compile Include="Utils\Generator.fs" />
+        <Compile Include="Fixture.fs" />
+        <Compile Include="General.fs" />
         <Compile Include="Program.fs" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="FsUnit.xUnit" Version="5.1.0" />
+        <PackageReference Include="Bogus" Version="34.0.2" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.5" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
+        <PackageReference Include="Thoth.Json.Net" Version="8.0.0" />
         <PackageReference Include="xunit" Version="2.4.1" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
