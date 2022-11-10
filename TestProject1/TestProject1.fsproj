@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Include="Utils\AuthHandler.fs" />
         <Compile Include="Utils\Models.fs" />
         <Compile Include="Utils\Utils.fs" />
         <Compile Include="Utils\Http.fs" />
