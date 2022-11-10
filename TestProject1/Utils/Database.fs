@@ -11,8 +11,6 @@ let private createConnectionString (rawConnectionString: string) : string =
 
 let create connectionString : unit =
     if Container.containerStopped() then failwith "Cannot create database, container not running."
-    printfn "Creating database"
-    printfn "DONNCECTION STIRNG: %A" (createConnectionString connectionString)
     use connection = new SqlConnection(createConnectionString connectionString)
     connection.Open()
     use command = connection.CreateCommand()

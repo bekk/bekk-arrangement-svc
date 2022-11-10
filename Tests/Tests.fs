@@ -144,10 +144,8 @@ let maybeUpdateDatabase() =
 [<EntryPoint>]
 let main args =
     enforceTokenExists()
-    printfn "Enforce token exists"
 
     if Config.manageContainers then
-        printfn "Manage conrtainers"
         if Container.containerMissing() then
             printfn "Container missing. Creating fresh container for tests."
             Container.create()

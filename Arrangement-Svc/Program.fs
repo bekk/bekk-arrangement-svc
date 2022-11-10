@@ -125,7 +125,6 @@ type Program() = class end
 
 [<EntryPoint>]
 let main args =
-    printfn "MAIN IN PROGRAM"
     Log.Logger <-
         LoggerConfiguration()
             // Useful to see ports in use for development

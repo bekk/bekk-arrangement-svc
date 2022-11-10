@@ -98,9 +98,7 @@ let private enforceSuccess ((response, content) : ApiResponse) : ApiResponse =
 
 let private toJson data = Encode.Auto.toString(4, data, caseStrategy = CamelCase)
 
-let webapp () =
-    printfn "KLIK KKLAKK"
-    new WebApplicationFactory<App.Program>()
+let webapp () = new WebApplicationFactory<App.Program>()
 
 let private client () = webapp().CreateClient()
 
