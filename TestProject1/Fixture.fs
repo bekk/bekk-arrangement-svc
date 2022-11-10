@@ -11,8 +11,6 @@ open AuthHandler
 
 type DatabaseFixture() =
     inherit WebApplicationFactory<App.Program>()
-    let mutable updateDb = false
-
     do
         Environment.SetEnvironmentVariable("NO_MIGRATION", "1")
 
@@ -21,17 +19,13 @@ type DatabaseFixture() =
                 printfn "Container missing. Creating fresh container for tests."
                 Container.create ()
                 Container.start ()
-                updateDb <- true
+                Database.create "Server=localhost,1433;User=sa;Password=<YourStrong!Passw0rd>;Database=arrangement-db"
+                Database.migrate "Server=localhost,1433;User=sa;Password=<YourStrong!Passw0rd>;Database=arrangement-db"
             elif Container.containerStopped () then
                 printfn "Container already exists. Reusing container for tests."
                 Container.start ()
             else
                 printfn "Container already up and running. Reusing container for tests."
-
-    do
-        if updateDb then
-            Database.create "Server=localhost,1433;User=sa;Password=<YourStrong!Passw0rd>;Database=arrangement-db"
-            Database.migrate "Server=localhost,1433;User=sa;Password=<YourStrong!Passw0rd>;Database=arrangement-db"
 
     member this.getAuthedClient() =
         this
