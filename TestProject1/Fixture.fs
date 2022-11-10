@@ -1,7 +1,6 @@
 namespace Tests
 
 open Microsoft.AspNetCore.Authentication
-open Microsoft.AspNetCore.Hosting
 open Microsoft.AspNetCore.Mvc.Testing
 open Microsoft.AspNetCore.TestHost
 open Microsoft.Extensions.DependencyInjection
@@ -31,19 +30,29 @@ type DatabaseFixture() =
 
     do
         if updateDb then
-            Database.create ("Server=localhost,1433;User=sa;Password=<YourStrong!Passw0rd>;Database=arrangement-db")
-            Database.migrate ("Server=localhost,1433;User=sa;Password=<YourStrong!Passw0rd>;Database=arrangement-db")
+            Database.create "Server=localhost,1433;User=sa;Password=<YourStrong!Passw0rd>;Database=arrangement-db"
+            Database.migrate "Server=localhost,1433;User=sa;Password=<YourStrong!Passw0rd>;Database=arrangement-db"
 
-    override this.ConfigureWebHost(builder: IWebHostBuilder) =
-        builder.ConfigureTestServices (fun (services: IServiceCollection) ->
-            services
-                .AddAuthentication(fun options ->
-                    options.DefaultAuthenticateScheme <- "Test"
-                    options.DefaultScheme <- "Test"
-                    ())
-                .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Test", (fun options -> ()))
-            |> ignore)
-        |> ignore
+    member this.getAuthedClient() =
+        this
+            .WithWebHostBuilder(fun builder ->
+                builder.ConfigureTestServices (fun (services: IServiceCollection) ->
+                    services
+                        .AddAuthentication(fun options ->
+                            options.DefaultAuthenticateScheme <- "Test"
+                            options.DefaultScheme <- "Test"
+                            ())
+                        .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Test", (fun options -> ()))
+                    |> ignore)
+                |> ignore)
+            .CreateClient()
+
+    member this.getUnauthenticatedClient() =
+        this
+            .WithWebHostBuilder(fun builder ->
+                builder.ConfigureTestServices(fun services -> ())
+                |> ignore)
+            .CreateClient()
 
 [<CollectionDefinition("Database collection")>]
 type DatabaseCollection() =
