@@ -16,6 +16,7 @@
         <Compile Include="Utils\Database.fs" />
         <Compile Include="Utils\Generator.fs" />
         <Compile Include="Fixture.fs" />
+        <Compile Include="TestHelpers.fs" />
         <Compile Include="General.fs" />
         <Compile Include="CreateEvent.fs" />
         <Compile Include="UpdateEvent.fs" />
