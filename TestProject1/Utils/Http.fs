@@ -39,3 +39,14 @@ let updateEvent (client: HttpClient) eventId (event: Models.EventWriteModel) =
         let! response, content = request client $"/api/events/{eventId}" (Some event) HttpMethod.Put
         return response, Decode.fromString innerEventDecoder content
     }
+
+let updateEventWithEditToken (client: HttpClient) eventId editToken (event: Models.EventWriteModel) =
+    // TODO: Denne kan trekkees ut + legge til basepath
+    let url =
+        let builder = UriBuilder($"http://localhost:5000/api/events/{eventId}")
+        builder.Query <- $"editToken={editToken}"
+        builder.ToString()
+    task {
+        let! response, content = request client url (Some event) HttpMethod.Put
+        return response, Decode.fromString innerEventDecoder content
+    }

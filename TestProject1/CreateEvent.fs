@@ -24,7 +24,7 @@ type CreateEvent(fixture: DatabaseFixture) =
     let unauthenticatedClient = fixture.getUnauthenticatedClient()
 
     [<Fact>]
-    member _.``Create event without token should give unauthorized`` () =
+    member _.``Create event without authorization gives unauthorized`` () =
         let event = Generator.generateEvent()
         task {
             let! response, _ = Http.postEvent unauthenticatedClient event
@@ -32,7 +32,7 @@ type CreateEvent(fixture: DatabaseFixture) =
         }
 
     [<Fact>]
-    member _.``Create event with token works`` () =
+    member _.``Create event with authorization works`` () =
         let event = Generator.generateEvent()
         task {
             let! response, _ = Helpers.createEventTest authenticatedClient event
