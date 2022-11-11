@@ -18,6 +18,7 @@
         <Compile Include="Fixture.fs" />
         <Compile Include="General.fs" />
         <Compile Include="CreateEvent.fs" />
+        <Compile Include="UpdateEvent.fs" />
         <Compile Include="Program.fs" />
     </ItemGroup>
 

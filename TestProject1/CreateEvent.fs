@@ -1,12 +1,25 @@
 namespace Tests.CreateEvent
 
+open Xunit
 open System.Net
+
+open Models
 open Tests
 
-open Xunit
+module Helpers =
+    let createEventTest client event =
+        task {
+            let! response, createdEvent = Http.postEvent client event
+
+            match createdEvent with
+            | Error e -> return failwith $"Unable to decode created event: {e}"
+            | Ok createdEvent ->
+                Assert.IsType<CreatedEvent>(createdEvent) |> ignore
+                return response, createdEvent
+        }
 
 [<Collection("Database collection")>]
-type CreateEventGeneral(fixture: DatabaseFixture) =
+type CreateEvent(fixture: DatabaseFixture) =
     let authenticatedClient = fixture.getAuthedClient()
     let unauthenticatedClient = fixture.getUnauthenticatedClient()
 
@@ -22,6 +35,6 @@ type CreateEventGeneral(fixture: DatabaseFixture) =
     member _.``Create event with token works`` () =
         let event = Generator.generateEvent()
         task {
-            let! response, _ = Http.postEvent authenticatedClient event
+            let! response, _ = Helpers.createEventTest authenticatedClient event
             response.EnsureSuccessStatusCode() |> ignore
         }

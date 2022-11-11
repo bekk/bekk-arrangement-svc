@@ -1,9 +1,27 @@
 module Models
 
-type CreatedEvent = {
+open Thoth.Json.Net
+
+type InnerEvent = {
     id: string
-    shortName: string option
-    isCancelled: bool
-    editToken: string
-    event: Models.EventWriteModel
+    title: string
 }
+
+type CreatedEvent = {
+    editToken: string
+    event: InnerEvent
+}
+
+let innerEventDecoder: Decoder<InnerEvent> =
+        Decode.object (fun get ->
+        {
+            id = get.Required.Field "id" Decode.string
+            title = get.Required.Field "title" Decode.string
+        })
+
+let createdEventDecoder: Decoder<CreatedEvent> =
+        Decode.object (fun get ->
+        {
+            editToken = get.Required.Field "editToken" Decode.string
+            event = get.Required.Field "event" innerEventDecoder
+        })
