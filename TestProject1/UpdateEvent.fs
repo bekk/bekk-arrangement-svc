@@ -10,37 +10,63 @@ open Tests
 // TODO: Legg til tester på legge til, sletting og endring av spørsmål
 [<Collection("Database collection")>]
 type UpdateEvent(fixture: DatabaseFixture) =
-    let authenticatedClient = fixture.getAuthedClient()
-    let unauthenticatedClient = fixture.getUnauthenticatedClient()
+    let authenticatedClient =
+        fixture.getAuthedClient ()
+
+    let unauthenticatedClient =
+        fixture.getUnauthenticatedClient ()
 
     [<Fact>]
-    member _.``Edit event without without authorization gives forbidden`` () =
-        let generatedEvent = Generator.generateEvent()
+    member _.``Edit event without without authorization gives forbidden``() =
+        let generatedEvent =
+            Generator.generateEvent ()
+
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
-            let eventToUpdate = { generatedEvent with Title = "This is a new title!"}
+
+            let eventToUpdate =
+                { generatedEvent with Title = "This is a new title!" }
+
             let! response, _ = Http.updateEvent unauthenticatedClient createdEvent.event.id eventToUpdate
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode)
         }
 
     [<Fact>]
-    member _.``Edit event with authorization works`` () =
-        let generatedEvent = Generator.generateEvent()
+    member _.``Edit event with authorization works``() =
+        let generatedEvent =
+            Generator.generateEvent ()
+
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
-            let eventToUpdate = { generatedEvent with Title = "This is a new title!"}
-            let! response, updatedEvent = Helpers.updateEventTest authenticatedClient createdEvent.event.id eventToUpdate
+
+            let eventToUpdate =
+                { generatedEvent with Title = "This is a new title!" }
+
+            let! response, updatedEvent =
+                Helpers.updateEventTest authenticatedClient createdEvent.event.id eventToUpdate
+
             Assert.Equal("This is a new title!", updatedEvent.title)
             response.EnsureSuccessStatusCode() |> ignore
         }
 
     [<Fact>]
-    member _.``Edit event without authorization but with edit token works`` () =
-        let generatedEvent = Generator.generateEvent()
+    member _.``Edit event without authorization but with edit token works``() =
+        let generatedEvent =
+            Generator.generateEvent ()
+
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
-            let eventToUpdate = { generatedEvent with Title = "This is a new title!"}
-            let! response, updatedEvent = Helpers.updateEventWithEditTokenTest unauthenticatedClient createdEvent.event.id createdEvent.editToken eventToUpdate
+
+            let eventToUpdate =
+                { generatedEvent with Title = "This is a new title!" }
+
+            let! response, updatedEvent =
+                Helpers.updateEventWithEditTokenTest
+                    unauthenticatedClient
+                    createdEvent.event.id
+                    createdEvent.editToken
+                    eventToUpdate
+
             Assert.Equal("This is a new title!", updatedEvent.title)
             response.EnsureSuccessStatusCode() |> ignore
         }

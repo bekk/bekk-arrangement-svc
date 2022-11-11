@@ -2,7 +2,6 @@ module Models
 
 open Thoth.Json.Net
 
-// TODO: Cleanup
 type InnerEvent = { id: string; title: string }
 
 type CreatedEvent =
