@@ -130,7 +130,6 @@ type GetEvent(fixture: DatabaseFixture) =
             TestData.createEvent (fun e -> { e with IsExternal = true })
 
         task {
-            // TODO: Create participant kan gjøres bedre
             let! _, createdEvent = Helpers.createEventTest authenticatedClient event
             let! _, created = Helpers.createParticipant authenticatedClient createdEvent.event.id
 
@@ -149,7 +148,6 @@ type GetEvent(fixture: DatabaseFixture) =
             TestData.createEvent (fun e -> { e with IsExternal = false })
 
         task {
-            // TODO: Create participant kan gjøres bedre
             let! _, createdEvent = Helpers.createEventTest authenticatedClient event
             let! _, created = Helpers.createParticipant authenticatedClient createdEvent.event.id
 
@@ -167,7 +165,6 @@ type GetEvent(fixture: DatabaseFixture) =
             TestData.createEvent (fun e -> { e with IsExternal = false })
 
         task {
-            // TODO: Create participant kan gjøres bedre
             let! _, createdEvent = Helpers.createEventTest authenticatedClient event
             let! _, created = Helpers.createParticipant authenticatedClient createdEvent.event.id
 
@@ -220,7 +217,6 @@ type GetEvent(fixture: DatabaseFixture) =
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode)
         }
 
-    // TODO: remove logging
     [<Fact>]
     member _.``Authenticated users can get future events``() =
         task {
@@ -301,18 +297,13 @@ type GetEvent(fixture: DatabaseFixture) =
         let event = TestData.createEvent (fun e -> { e with IsExternal = false; MaxParticipants = Some 3; HasWaitingList = true })
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient event
-            // TODO: FIX THIS
             for _ in 0..7 do
                 let! _ = Helpers.createParticipant authenticatedClient createdEvent.event.id
                 ()
-            let! response, result = Http.getParticipationsAndWaitlist authenticatedClient createdEvent.event.id
-            // TODO: FIX -> trekk ut
-            match result with
-            | Error e -> failwith $"Failed to decode participations and waitlist: {e}"
-            | Ok result ->
-                Assert.Equal(List.length result.attendees, 3)
-                Assert.Equal(List.length result.waitingList, 5)
 
+            let! response, result = Helpers.getParticipationsAndWaitlist authenticatedClient createdEvent.event.id
+            Assert.Equal(List.length result.attendees, 3)
+            Assert.Equal(List.length result.waitingList, 5)
             response.EnsureSuccessStatusCode() |> ignore
         }
 
@@ -335,12 +326,8 @@ type GetEvent(fixture: DatabaseFixture) =
                 let! _ = Helpers.createParticipantForEvent authenticatedClient createdEvent.event.id email participant
                 ()
 
-            // TODO: FIX
-            let! response, content = Http.getParticipationsForEvent authenticatedClient email
-            match content with
-            | Error e -> return failwith $"Error decoding participaitons and answers: {e}"
-            | Ok result ->
-                Assert.Equal(List.length result, 5)
+            let! response, content = Helpers.getParticipationsForEvent authenticatedClient email
+            Assert.Equal(List.length content, 5)
 
             response.EnsureSuccessStatusCode() |> ignore
         }

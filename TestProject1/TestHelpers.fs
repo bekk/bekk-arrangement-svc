@@ -59,3 +59,20 @@ module Helpers =
         let participant = Generator.generateParticipant 0
         let email = Generator.generateEmail ()
         createParticipantForEvent client eventId email participant
+
+
+    let getParticipationsAndWaitlist client eventId =
+        task {
+            let! response, result = Http.getParticipationsAndWaitlist client eventId
+            match result with
+            | Error e -> return failwith $"Failed to decode participations and waitlist: {e}"
+            | Ok result -> return response, result
+        }
+
+    let getParticipationsForEvent client email =
+        task {
+            let! response, content = Http.getParticipationsForEvent client email
+            match content with
+            | Error e -> return failwith $"Error decoding participations and answers: {e}"
+            | Ok result -> return response, result
+        }
