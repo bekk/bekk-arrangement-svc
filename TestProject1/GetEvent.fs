@@ -219,11 +219,12 @@ type GetEvent(fixture: DatabaseFixture) =
 
     [<Fact>]
     member _.``Can get CSV export with edit token``() =
-        let event = Generator.generateEvent ()
+        let event = TestData.createEvent (fun e -> { e with IsExternal = true })
 
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient event
             let! response, _ = Http.getCsvWithEditToken unauthenticatedClient createdEvent.event.id createdEvent.editToken
+
             response.EnsureSuccessStatusCode() |> ignore
         }
 
