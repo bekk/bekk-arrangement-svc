@@ -66,6 +66,15 @@ let updateEventWithEditToken (client: HttpClient) eventId editToken (event: Mode
 
     requestDecode client innerEventDecoder url (Some event) HttpMethod.Put
 
+let getCsvWithEditToken (client: HttpClient) eventId editToken =
+    let url =
+        let builder = uriBuilder $"events/{eventId}"
+        builder.Query <- $"editToken={editToken}"
+        builder.ToString()
+
+    request client url None HttpMethod.Get
+
+
 let getEventIdByShortname (client: HttpClient) (shortname: string) =
     let url =
         let builder = uriBuilder "events/id"

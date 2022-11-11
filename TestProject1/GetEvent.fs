@@ -207,8 +207,25 @@ type GetEvent(fixture: DatabaseFixture) =
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode)
         }
 
-    // TODO: Tester på at kun de som kan hente ut CVS får til det
-    // TODO: Hent ut CSV med edit token
+    [<Fact>]
+    member _.``Authenticated user cannot get CSV export``() =
+        let event = Generator.generateEvent ()
+
+        task {
+            let! _, createdEvent = Helpers.createEventTest authenticatedClient event
+            let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.event.id}/participants/export"
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode)
+        }
+
+    [<Fact>]
+    member _.``Can get CSV export with edit token``() =
+        let event = Generator.generateEvent ()
+
+        task {
+            let! _, createdEvent = Helpers.createEventTest authenticatedClient event
+            let! response, _ = Http.getCsvWithEditToken unauthenticatedClient createdEvent.event.id createdEvent.editToken
+            response.EnsureSuccessStatusCode() |> ignore
+        }
 
     [<Fact>]
     member _.``Unauthenticated users cannot get future events``() =

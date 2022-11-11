@@ -8,6 +8,7 @@ open Tests
 
 
 // TODO: Legg til tester på legge til, sletting og endring av spørsmål
+// TODO: Se på alle de mulige tingene som kan feile når man oppdaterer et event
 [<Collection("Database collection")>]
 type UpdateEvent(fixture: DatabaseFixture) =
     let authenticatedClient =
