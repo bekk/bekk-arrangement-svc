@@ -11,6 +11,7 @@ open AuthHandler
 
 type DatabaseFixture() =
     inherit WebApplicationFactory<App.Program>()
+
     do
         Environment.SetEnvironmentVariable("NO_MIGRATION", "1")
 

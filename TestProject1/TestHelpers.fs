@@ -52,11 +52,17 @@ module Helpers =
                 Assert.IsType<CreatedParticipant>(createdParticipant)
                 |> ignore
 
-                return response, {| WriteModel = participant; Email = email; CreatedModel = createdParticipant |}
+                return
+                    response,
+                    {| WriteModel = participant
+                       Email = email
+                       CreatedModel = createdParticipant |}
         }
 
     let createParticipant client eventId =
-        let participant = Generator.generateParticipant 0
+        let participant =
+            Generator.generateParticipant 0
+
         let email = Generator.generateEmail ()
         createParticipantForEvent client eventId email participant
 
@@ -64,6 +70,7 @@ module Helpers =
     let getParticipationsAndWaitlist client eventId =
         task {
             let! response, result = Http.getParticipationsAndWaitlist client eventId
+
             match result with
             | Error e -> return failwith $"Failed to decode participations and waitlist: {e}"
             | Ok result -> return response, result
@@ -72,6 +79,7 @@ module Helpers =
     let getParticipationsForEvent client email =
         task {
             let! response, content = Http.getParticipationsForEvent client email
+
             match content with
             | Error e -> return failwith $"Error decoding participations and answers: {e}"
             | Ok result -> return response, result
