@@ -67,7 +67,6 @@ type GetEvent(fixture: DatabaseFixture) =
             TestData.createEvent (fun e -> { e with IsExternal = false })
 
         task {
-            // TODO: Denne kan trekkes ut
             let! _, createdEvent = Helpers.createEventTest authenticatedClient event
             let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.event.id}/unfurl"
             response.EnsureSuccessStatusCode() |> ignore
@@ -118,11 +117,7 @@ type GetEvent(fixture: DatabaseFixture) =
             let! _, createdEvent = Helpers.createEventTest authenticatedClient event
 
             for _ in 0..4 do
-                let participant =
-                    Generator.generateParticipant 0
-
-                let email = Generator.generateEmail ()
-                let! _ = Helpers.createParticipant authenticatedClient createdEvent.event.id email participant
+                let! _ = Helpers.createParticipant authenticatedClient createdEvent.event.id
                 ()
 
             let! _, content = Http.get authenticatedClient $"/events/{createdEvent.event.id}/participants/count"
@@ -137,17 +132,12 @@ type GetEvent(fixture: DatabaseFixture) =
         task {
             // TODO: Create participant kan gjøres bedre
             let! _, createdEvent = Helpers.createEventTest authenticatedClient event
-
-            let participant =
-                Generator.generateParticipant 0
-
-            let email = Generator.generateEmail ()
-            let! _ = Helpers.createParticipant authenticatedClient createdEvent.event.id email participant
+            let! _, created = Helpers.createParticipant authenticatedClient createdEvent.event.id
 
             let! response, _ =
                 Http.get
                     unauthenticatedClient
-                    $"/events/{createdEvent.event.id}/participants/{email}/waitinglist-spot"
+                    $"/events/{createdEvent.event.id}/participants/{created.Email}/waitinglist-spot"
 
             response.EnsureSuccessStatusCode() |> ignore
         }
@@ -161,17 +151,12 @@ type GetEvent(fixture: DatabaseFixture) =
         task {
             // TODO: Create participant kan gjøres bedre
             let! _, createdEvent = Helpers.createEventTest authenticatedClient event
-
-            let participant =
-                Generator.generateParticipant 0
-
-            let email = Generator.generateEmail ()
-            let! _ = Helpers.createParticipant authenticatedClient createdEvent.event.id email participant
+            let! _, created = Helpers.createParticipant authenticatedClient createdEvent.event.id
 
             let! response, _ =
                 Http.get
                     unauthenticatedClient
-                    $"/events/{createdEvent.event.id}/participants/{email}/waitinglist-spot"
+                    $"/events/{createdEvent.event.id}/participants/{created.Email}/waitinglist-spot"
 
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode)
         }
@@ -184,17 +169,12 @@ type GetEvent(fixture: DatabaseFixture) =
         task {
             // TODO: Create participant kan gjøres bedre
             let! _, createdEvent = Helpers.createEventTest authenticatedClient event
-
-            let participant =
-                Generator.generateParticipant 0
-
-            let email = Generator.generateEmail ()
-            let! _ = Helpers.createParticipant authenticatedClient createdEvent.event.id email participant
+            let! _, created = Helpers.createParticipant authenticatedClient createdEvent.event.id
 
             let! response, _ =
                 Http.get
                     authenticatedClient
-                    $"/events/{createdEvent.event.id}/participants/{email}/waitinglist-spot"
+                    $"/events/{createdEvent.event.id}/participants/{created.Email}/waitinglist-spot"
 
             response.EnsureSuccessStatusCode() |> ignore
         }
@@ -210,25 +190,19 @@ type GetEvent(fixture: DatabaseFixture) =
 
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient event
-
-            let participant =
-                Generator.generateParticipant 0
-
-            let email = Generator.generateEmail ()
-            let! _ = Helpers.createParticipant authenticatedClient createdEvent.event.id email participant
+            let! _, created = Helpers.createParticipant authenticatedClient createdEvent.event.id
 
             let! _, content =
                 Http.get
                     authenticatedClient
-                    $"/events/{createdEvent.event.id}/participants/{email}/waitinglist-spot"
+                    $"/events/{createdEvent.event.id}/participants/{created.Email}/waitinglist-spot"
 
             Assert.Equal("1", content)
         }
 
     [<Fact>]
     member _.``Unauthenticated user cannot get CSV export``() =
-        let event =
-            TestData.createEvent id
+        let event = Generator.generateEvent ()
 
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient event
@@ -329,11 +303,7 @@ type GetEvent(fixture: DatabaseFixture) =
             let! _, createdEvent = Helpers.createEventTest authenticatedClient event
             // TODO: FIX THIS
             for _ in 0..7 do
-                let participant =
-                    Generator.generateParticipant 0
-
-                let email = Generator.generateEmail ()
-                let! _ = Helpers.createParticipant authenticatedClient createdEvent.event.id email participant
+                let! _ = Helpers.createParticipant authenticatedClient createdEvent.event.id
                 ()
             let! response, result = Http.getParticipationsAndWaitlist authenticatedClient createdEvent.event.id
             // TODO: FIX -> trekk ut
@@ -362,7 +332,7 @@ type GetEvent(fixture: DatabaseFixture) =
             for _ in 0..4 do
                 let event = TestData.createEvent (fun e -> { e with IsExternal = false; MaxParticipants = Some 3; HasWaitingList = true })
                 let! _, createdEvent = Helpers.createEventTest authenticatedClient event
-                let! _ = Helpers.createParticipant authenticatedClient createdEvent.event.id email participant
+                let! _ = Helpers.createParticipantForEvent authenticatedClient createdEvent.event.id email participant
                 ()
 
             // TODO: FIX

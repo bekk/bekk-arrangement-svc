@@ -42,7 +42,7 @@ module Helpers =
                 return response, updatedEvent
         }
 
-    let createParticipant client eventId email participant =
+    let createParticipantForEvent client eventId email participant =
         task {
             let! response, createdParticipant = Http.postParticipant client eventId email participant
 
@@ -52,5 +52,10 @@ module Helpers =
                 Assert.IsType<CreatedParticipant>(createdParticipant)
                 |> ignore
 
-                return response, createdParticipant
+                return response, {| WriteModel = participant; Email = email; CreatedModel = createdParticipant |}
         }
+
+    let createParticipant client eventId =
+        let participant = Generator.generateParticipant 0
+        let email = Generator.generateEmail ()
+        createParticipantForEvent client eventId email participant
