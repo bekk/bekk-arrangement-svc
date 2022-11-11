@@ -7,6 +7,10 @@ open System.Text
 open Models
 open Thoth.Json.Net
 
+let basePath = "http://localhost:5000/api/"
+let uriBuilder path =
+    UriBuilder($"{basePath}{path}")
+
 let private toJson data =
     Encode.Auto.toString (4, data, caseStrategy = CamelCase)
 
@@ -50,11 +54,8 @@ let updateEvent (client: HttpClient) eventId (event: Models.EventWriteModel) =
     }
 
 let updateEventWithEditToken (client: HttpClient) eventId editToken (event: Models.EventWriteModel) =
-    // TODO: Denne kan trekkees ut + legge til basepath
     let url =
-        let builder =
-            UriBuilder($"http://localhost:5000/api/events/{eventId}")
-
+        let builder = uriBuilder $"events/{eventId}"
         builder.Query <- $"editToken={editToken}"
         builder.ToString()
 
@@ -64,11 +65,8 @@ let updateEventWithEditToken (client: HttpClient) eventId editToken (event: Mode
     }
 
 let getEventIdByShortname (client: HttpClient) (shortname: string) =
-    // TODO: Denne kan trekkees ut + legge til basepath
     let url =
-        let builder =
-            UriBuilder($"http://localhost:5000/api/events/id")
-
+        let builder = uriBuilder "events/id"
         builder.Query <- $"shortname={shortname}"
         builder.ToString()
 
