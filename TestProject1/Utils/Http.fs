@@ -77,6 +77,13 @@ let getEventIdByShortname (client: HttpClient) (shortname: string) =
         return response, content
     }
 
+let getParticipationsForEvent (client: HttpClient) email =
+    task {
+        let! response, content = request client $"/api/participants/{email}/events" None HttpMethod.Get
+        return response, (Decode.fromString (participantAndAnswerDecoder |> Decode.list) content)
+    }
+
+
 let getParticipationsAndWaitlist (client: HttpClient) eventId =
     task {
         let! response, content = request client $"/api/events/{eventId}/participants" None HttpMethod.Get

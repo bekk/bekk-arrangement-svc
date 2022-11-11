@@ -329,8 +329,6 @@ type GetEvent(fixture: DatabaseFixture) =
             response.EnsureSuccessStatusCode() |> ignore
         }
 
-
-
     [<Fact>]
     member _.``Unauthenticated users cannot get participants for event``() =
         let event = CreateEvent.TestData.createEvent (fun e -> { e with IsExternal = false; MaxParticipants = Some 3; HasWaitingList = true })
@@ -360,6 +358,35 @@ type GetEvent(fixture: DatabaseFixture) =
             | Ok result ->
                 Assert.Equal(List.length result.attendees, 3)
                 Assert.Equal(List.length result.waitingList, 5)
+
+            response.EnsureSuccessStatusCode() |> ignore
+        }
+
+    [<Fact>]
+    member _.``Unauthenticated users cannot get participations for participant``() =
+        let email = Generator.generateEmail()
+        task {
+            let! response, _ = Http.get unauthenticatedClient $"/api/participants/{email}/events"
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode)
+        }
+
+    [<Fact>]
+    member _.``Authenticated users can get participations for participant``() =
+        task {
+            let participant = Generator.generateParticipant 0
+            let email = Generator.generateEmail()
+            for _ in 0..4 do
+                let event = CreateEvent.TestData.createEvent (fun e -> { e with IsExternal = false; MaxParticipants = Some 3; HasWaitingList = true })
+                let! _, createdEvent = CreateEvent.Helpers.createEventTest authenticatedClient event
+                let! _ = Helpers.createParticipant authenticatedClient createdEvent.event.id email participant
+                ()
+
+            // TODO: FIX
+            let! response, content = Http.getParticipationsForEvent authenticatedClient email
+            match content with
+            | Error e -> return failwith $"Error decoding participaitons and answers: {e}"
+            | Ok result ->
+                Assert.Equal(List.length result, 5)
 
             response.EnsureSuccessStatusCode() |> ignore
         }
