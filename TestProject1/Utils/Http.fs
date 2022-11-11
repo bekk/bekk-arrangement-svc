@@ -18,9 +18,10 @@ let decode<'a> (content: string) = content |> Decode.Auto.fromString<'a>
 let request (client: HttpClient) (url: string) (body: 'a option) (method: HttpMethod) =
     let url =
         if url.StartsWith("/") then
-           $"/api{url}"
+            $"/api{url}"
         else
             $"{url}"
+
     task {
         let request = new HttpRequestMessage()
         request.Method <- method
@@ -35,27 +36,27 @@ let request (client: HttpClient) (url: string) (body: 'a option) (method: HttpMe
         return response, content
     }
 
+let requestDecode client decoder url body method =
+    task {
+        let! response, content = request client url body method
+        return response, Decode.fromString decoder content
+    }
+
 let get (client: HttpClient) (url: string) = request client url None HttpMethod.Get
 
 let postParticipant (client: HttpClient) eventId email (participant: Models.ParticipantWriteModel) =
-    task {
-        let! response, content =
-            request client $"/events/{eventId}/participants/{email}" (Some participant) HttpMethod.Post
-
-        return response, Decode.fromString createdParticipantDecoder content
-    }
+    requestDecode
+        client
+        createdParticipantDecoder
+        $"/events/{eventId}/participants/{email}"
+        (Some participant)
+        HttpMethod.Post
 
 let postEvent (client: HttpClient) (event: Models.EventWriteModel) =
-    task {
-        let! response, content = request client "/events" (Some event) HttpMethod.Post
-        return response, Decode.fromString createdEventDecoder content
-    }
+    requestDecode client createdEventDecoder "/events" (Some event) HttpMethod.Post
 
 let updateEvent (client: HttpClient) eventId (event: Models.EventWriteModel) =
-    task {
-        let! response, content = request client $"/events/{eventId}" (Some event) HttpMethod.Put
-        return response, Decode.fromString innerEventDecoder content
-    }
+    requestDecode client innerEventDecoder $"/events/{eventId}" (Some event) HttpMethod.Put
 
 let updateEventWithEditToken (client: HttpClient) eventId editToken (event: Models.EventWriteModel) =
     let url =
@@ -63,10 +64,7 @@ let updateEventWithEditToken (client: HttpClient) eventId editToken (event: Mode
         builder.Query <- $"editToken={editToken}"
         builder.ToString()
 
-    task {
-        let! response, content = request client url (Some event) HttpMethod.Put
-        return response, Decode.fromString innerEventDecoder content
-    }
+    requestDecode client innerEventDecoder url (Some event) HttpMethod.Put
 
 let getEventIdByShortname (client: HttpClient) (shortname: string) =
     let url =
@@ -74,20 +72,15 @@ let getEventIdByShortname (client: HttpClient) (shortname: string) =
         builder.Query <- $"shortname={shortname}"
         builder.ToString()
 
-    task {
-        let! response, content = request client url None HttpMethod.Get
-        return response, content
-    }
+    request client url None HttpMethod.Get
 
 let getParticipationsForEvent (client: HttpClient) email =
-    task {
-        let! response, content = request client $"/participants/{email}/events" None HttpMethod.Get
-        return response, (Decode.fromString (participantAndAnswerDecoder |> Decode.list) content)
-    }
-
+    requestDecode
+        client
+        (participantAndAnswerDecoder |> Decode.list)
+        $"/participants/{email}/events"
+        None
+        HttpMethod.Get
 
 let getParticipationsAndWaitlist (client: HttpClient) eventId =
-    task {
-        let! response, content = request client $"/events/{eventId}/participants" None HttpMethod.Get
-        return response, Decode.fromString participationsAndWaitingListDecoder content
-    }
+    requestDecode client participationsAndWaitingListDecoder $"/events/{eventId}/participants" None HttpMethod.Get
