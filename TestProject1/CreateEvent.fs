@@ -6,6 +6,10 @@ open System.Net
 open Models
 open Tests
 
+module TestData =
+    let createEvent (f: EventWriteModel -> EventWriteModel): EventWriteModel = Generator.generateEvent() |> f
+
+// TODO: Disse helperne kan endres litt
 module Helpers =
     let createEventTest client event =
         task {

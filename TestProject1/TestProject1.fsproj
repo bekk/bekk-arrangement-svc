@@ -19,6 +19,7 @@
         <Compile Include="General.fs" />
         <Compile Include="CreateEvent.fs" />
         <Compile Include="UpdateEvent.fs" />
+        <Compile Include="GetEvent.fs" />
         <Compile Include="Program.fs" />
     </ItemGroup>
 
