@@ -58,6 +58,26 @@ let postEvent (client: HttpClient) (event: Models.EventWriteModel) =
 let updateEvent (client: HttpClient) eventId (event: Models.EventWriteModel) =
     requestDecode client innerEventDecoder $"/events/{eventId}" (Some event) HttpMethod.Put
 
+let deleteEvent (client: HttpClient) eventId =
+    request client $"/events/{eventId}/delete" None HttpMethod.Delete
+
+let deleteEventWithEditToken (client: HttpClient) eventId editToken =
+    let url =
+        let builder = uriBuilder $"events/{eventId}/delete"
+        builder.Query <- $"editToken={editToken}"
+        builder.ToString()
+    request client url None HttpMethod.Delete
+
+let cancelEvent (client: HttpClient) eventId =
+    request client $"/events/{eventId}" None HttpMethod.Delete
+
+let cancelEventWithEditToken (client: HttpClient) eventId editToken =
+    let url =
+        let builder = uriBuilder $"events/{eventId}"
+        builder.Query <- $"editToken={editToken}"
+        builder.ToString()
+    request client url None HttpMethod.Delete
+
 let updateEventWithEditToken (client: HttpClient) eventId editToken (event: Models.EventWriteModel) =
     let url =
         let builder = uriBuilder $"events/{eventId}"
@@ -93,3 +113,14 @@ let getParticipationsForEvent (client: HttpClient) email =
 
 let getParticipationsAndWaitlist (client: HttpClient) eventId =
     requestDecode client participationsAndWaitingListDecoder $"/events/{eventId}/participants" None HttpMethod.Get
+
+let deleteParticipantFromEvent (client: HttpClient) eventId email =
+    request client $"/events/{eventId}/participants/{email}" None HttpMethod.Delete
+
+let deleteParticipantFromEventWithCancellationToken (client: HttpClient) eventId email cancellationToken =
+    let url =
+        let builder = uriBuilder $"events/{eventId}/participants/{email}"
+        builder.Query <- $"cancellationToken={cancellationToken}"
+        builder.ToString()
+
+    request client url None HttpMethod.Delete
