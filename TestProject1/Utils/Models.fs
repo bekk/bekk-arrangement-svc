@@ -11,7 +11,7 @@ type CreatedEvent =
 type InnerParticipant =
     { name: string
       email: string
-      employeeId: int
+      employeeId: int option
       participantAnswers: string list }
 
 type CreatedParticipant =
@@ -47,7 +47,7 @@ let innerParticipantDecoder: Decoder<InnerParticipant> =
     Decode.object (fun get ->
         { name = get.Required.Field "name" Decode.string
           email = get.Required.Field "email" Decode.string
-          employeeId = get.Required.Field "employeeId" Decode.int
+          employeeId = get.Optional.Field "employeeId" Decode.int
           participantAnswers = get.Required.Field "participantAnswers" (Decode.list Decode.string) })
 
 let createdParticipantDecoder: Decoder<CreatedParticipant> =

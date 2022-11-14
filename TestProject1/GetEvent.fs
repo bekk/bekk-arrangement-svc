@@ -133,12 +133,15 @@ type GetEvent(fixture: DatabaseFixture) =
             let! _, createdEvent = Helpers.createEventTest authenticatedClient event
             let! _, created = Helpers.createParticipant authenticatedClient createdEvent.event.id
 
-            let! response, _ =
-                Http.get
-                    unauthenticatedClient
-                    $"/events/{createdEvent.event.id}/participants/{created.Email}/waitinglist-spot"
+            match created with
+            | Ok created ->
+                let! response, _ =
+                    Http.get
+                        unauthenticatedClient
+                        $"/events/{createdEvent.event.id}/participants/{created.Email}/waitinglist-spot"
 
-            response.EnsureSuccessStatusCode() |> ignore
+                response.EnsureSuccessStatusCode() |> ignore
+            | Error e -> failwith e
         }
 
 
@@ -151,12 +154,15 @@ type GetEvent(fixture: DatabaseFixture) =
             let! _, createdEvent = Helpers.createEventTest authenticatedClient event
             let! _, created = Helpers.createParticipant authenticatedClient createdEvent.event.id
 
-            let! response, _ =
-                Http.get
-                    unauthenticatedClient
-                    $"/events/{createdEvent.event.id}/participants/{created.Email}/waitinglist-spot"
+            match created with
+            | Ok created ->
+                let! response, _ =
+                    Http.get
+                        unauthenticatedClient
+                        $"/events/{createdEvent.event.id}/participants/{created.Email}/waitinglist-spot"
 
-            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode)
+                Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode)
+            | Error e -> failwith e
         }
 
     [<Fact>]
@@ -168,12 +174,16 @@ type GetEvent(fixture: DatabaseFixture) =
             let! _, createdEvent = Helpers.createEventTest authenticatedClient event
             let! _, created = Helpers.createParticipant authenticatedClient createdEvent.event.id
 
-            let! response, _ =
-                Http.get
-                    authenticatedClient
-                    $"/events/{createdEvent.event.id}/participants/{created.Email}/waitinglist-spot"
+            // TODO: Kan disse matchene fikses?
+            match created with
+            | Ok created ->
+                let! response, _ =
+                    Http.get
+                        authenticatedClient
+                        $"/events/{createdEvent.event.id}/participants/{created.Email}/waitinglist-spot"
 
-            response.EnsureSuccessStatusCode() |> ignore
+                response.EnsureSuccessStatusCode() |> ignore
+            | Error e -> failwith e
         }
 
     [<Fact>]
@@ -189,12 +199,15 @@ type GetEvent(fixture: DatabaseFixture) =
             let! _, createdEvent = Helpers.createEventTest authenticatedClient event
             let! _, created = Helpers.createParticipant authenticatedClient createdEvent.event.id
 
-            let! _, content =
-                Http.get
-                    authenticatedClient
-                    $"/events/{createdEvent.event.id}/participants/{created.Email}/waitinglist-spot"
+            match created with
+            | Ok created ->
+                let! _, content =
+                    Http.get
+                        authenticatedClient
+                        $"/events/{createdEvent.event.id}/participants/{created.Email}/waitinglist-spot"
 
-            Assert.Equal("1", content)
+                Assert.Equal("1", content)
+            | Error e -> failwith e
         }
 
     [<Fact>]

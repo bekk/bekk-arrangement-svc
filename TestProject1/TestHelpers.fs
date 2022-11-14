@@ -1,5 +1,6 @@
 namespace Tests
 
+open System.Net
 open Models
 open Xunit
 
@@ -46,17 +47,17 @@ module Helpers =
         task {
             let! response, createdParticipant = Http.postParticipant client eventId email participant
 
-            match createdParticipant with
-            | Error e -> return failwith $"Unable to decode created participant: {e}"
-            | Ok createdParticipant ->
-                Assert.IsType<CreatedParticipant>(createdParticipant)
-                |> ignore
+            return
+                response,
+                Result.map
+                    (fun createdParticipant ->
+                        Assert.IsType<CreatedParticipant>(createdParticipant)
+                        |> ignore
 
-                return
-                    response,
-                    {| WriteModel = participant
-                       Email = email
-                       CreatedModel = createdParticipant |}
+                        {| WriteModel = participant
+                           Email = email
+                           CreatedModel = createdParticipant |})
+                    createdParticipant
         }
 
     let createParticipant client eventId =

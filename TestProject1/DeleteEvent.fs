@@ -44,7 +44,10 @@ type DeleteEvent(fixture: DatabaseFixture) =
 
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
-            let! response, _ = Http.deleteEventWithEditToken unauthenticatedClient createdEvent.event.id createdEvent.editToken
+
+            let! response, _ =
+                Http.deleteEventWithEditToken unauthenticatedClient createdEvent.event.id createdEvent.editToken
+
             response.EnsureSuccessStatusCode() |> ignore
         }
 
@@ -78,7 +81,10 @@ type DeleteEvent(fixture: DatabaseFixture) =
 
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
-            let! response, _ = Http.cancelEventWithEditToken unauthenticatedClient createdEvent.event.id createdEvent.editToken
+
+            let! response, _ =
+                Http.cancelEventWithEditToken unauthenticatedClient createdEvent.event.id createdEvent.editToken
+
             response.EnsureSuccessStatusCode() |> ignore
         }
 
@@ -97,44 +103,103 @@ type DeleteEvent(fixture: DatabaseFixture) =
 
     [<Fact>]
     member _.``Delete participant using cancellation token``() =
-        let generatedEvent = TestData.createEvent (fun e -> {e with ParticipantQuestions = []})
+        let generatedEvent =
+            TestData.createEvent (fun e -> { e with ParticipantQuestions = [] })
 
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
             let! _, participant = Helpers.createParticipant authenticatedClient createdEvent.event.id
-            let! response, _ = Http.deleteParticipantFromEventWithCancellationToken authenticatedClient createdEvent.event.id participant.Email participant.CreatedModel.cancellationToken
-            response.EnsureSuccessStatusCode() |> ignore
+
+            match participant with
+            | Ok participant ->
+                let! response, _ =
+                    Http.deleteParticipantFromEventWithCancellationToken
+                        authenticatedClient
+                        createdEvent.event.id
+                        participant.Email
+                        participant.CreatedModel.cancellationToken
+
+                response.EnsureSuccessStatusCode() |> ignore
+            | Error e -> failwith e
         }
 
     [<Fact>]
     member _.``Deleting participant should delete participant``() =
-        let generatedEvent = TestData.createEvent (fun e -> {e with IsExternal = true; HasWaitingList = true; ParticipantQuestions = []})
+        let generatedEvent =
+            TestData.createEvent (fun e ->
+                { e with
+                    IsExternal = true
+                    HasWaitingList = true
+                    ParticipantQuestions = [] })
 
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
             let! _, participant = Helpers.createParticipant authenticatedClient createdEvent.event.id
-            let! _, contentBeforeDelete = Http.get authenticatedClient $"/events/{createdEvent.event.id}/participants/count"
-            let! _, _ = Http.deleteParticipantFromEventWithCancellationToken authenticatedClient createdEvent.event.id participant.Email participant.CreatedModel.cancellationToken
-            let! _, contentAfterDelete = Http.get authenticatedClient $"/events/{createdEvent.event.id}/participants/count"
-            Assert.Equal(contentBeforeDelete, "1")
-            Assert.Equal(contentAfterDelete, "0")
+
+            let! _, contentBeforeDelete =
+                Http.get authenticatedClient $"/events/{createdEvent.event.id}/participants/count"
+
+            match participant with
+            | Ok participant ->
+                let! _, _ =
+                    Http.deleteParticipantFromEventWithCancellationToken
+                        authenticatedClient
+                        createdEvent.event.id
+                        participant.Email
+                        participant.CreatedModel.cancellationToken
+
+                let! _, contentAfterDelete =
+                    Http.get authenticatedClient $"/events/{createdEvent.event.id}/participants/count"
+
+                Assert.Equal(contentBeforeDelete, "1")
+                Assert.Equal(contentAfterDelete, "0")
+            | Error e -> failwith e
         }
 
     [<Fact>]
     member _.``Deleting participant should update waitlist``() =
-        let generatedEvent = TestData.createEvent (fun e -> {e with IsExternal = true; HasWaitingList = true; MaxParticipants = Some 1; ParticipantQuestions = []})
+        let generatedEvent =
+            TestData.createEvent (fun e ->
+                { e with
+                    IsExternal = true
+                    HasWaitingList = true
+                    MaxParticipants = Some 1
+                    ParticipantQuestions = [] })
 
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
             let! _, firstParticipant = Helpers.createParticipant authenticatedClient createdEvent.event.id
             let! _, secondParticipant = Helpers.createParticipant authenticatedClient createdEvent.event.id
 
-            let! _, secondParticipantSpot = Http.get authenticatedClient $"/events/{createdEvent.event.id}/participants/{secondParticipant.Email}/waitinglist-spot"
-            Assert.Equal(secondParticipantSpot, "1")
-            let! deleteResponse, _ = Http.deleteParticipantFromEventWithCancellationToken authenticatedClient createdEvent.event.id firstParticipant.Email firstParticipant.CreatedModel.cancellationToken
-            deleteResponse.EnsureSuccessStatusCode() |> ignore
-            let! _, secondParticipantSpot = Http.get authenticatedClient $"/events/{createdEvent.event.id}/participants/{secondParticipant.Email}/waitinglist-spot"
-            Assert.Equal(secondParticipantSpot, "0")
-            let! _, participantCount = Http.get authenticatedClient $"/events/{createdEvent.event.id}/participants/count"
-            Assert.Equal(participantCount, "1")
+            match firstParticipant, secondParticipant with
+            | Ok firstParticipant, Ok secondParticipant ->
+                let! _, secondParticipantSpot =
+                    Http.get
+                        authenticatedClient
+                        $"/events/{createdEvent.event.id}/participants/{secondParticipant.Email}/waitinglist-spot"
+
+                Assert.Equal(secondParticipantSpot, "1")
+
+                let! deleteResponse, _ =
+                    Http.deleteParticipantFromEventWithCancellationToken
+                        authenticatedClient
+                        createdEvent.event.id
+                        firstParticipant.Email
+                        firstParticipant.CreatedModel.cancellationToken
+
+                deleteResponse.EnsureSuccessStatusCode() |> ignore
+
+                let! _, secondParticipantSpot =
+                    Http.get
+                        authenticatedClient
+                        $"/events/{createdEvent.event.id}/participants/{secondParticipant.Email}/waitinglist-spot"
+
+                Assert.Equal(secondParticipantSpot, "0")
+
+                let! _, participantCount =
+                    Http.get authenticatedClient $"/events/{createdEvent.event.id}/participants/count"
+
+                Assert.Equal(participantCount, "1")
+            | Error e, _ ->
+                failwith e
         }
