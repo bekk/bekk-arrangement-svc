@@ -68,15 +68,36 @@ type ParticipantTest =
       CreatedModel: CreatedParticipant }
 
 type ResponseBody =
-    | UserMessage of UserMessage
+    | Event of CreatedEvent
     | Participant of ParticipantTest
+    | UserMessage of UserMessage
 
-let useParticipant (responseBody: ResponseBody) f: (ParticipantTest -> unit) =
+let getEvent (responseBody: ResponseBody): CreatedEvent =
     match responseBody with
-    | Participant participantTest -> f participantTest
+    | Event createdEvent -> createdEvent
+    | _ -> failwith "Not a valid created event model"
+
+let useEvent (responseBody: ResponseBody) (f: CreatedEvent -> unit) =
+    responseBody
+    |> getEvent
+    |> f
+
+let getParticipant (responseBody: ResponseBody): ParticipantTest =
+    match responseBody with
+    | Participant participantTest -> participantTest
     | _ -> failwith "Not a valid participant test model"
 
-let useUserMessage (responseBody: ResponseBody) (f: UserMessage -> unit): unit =
+let useParticipant (responseBody: ResponseBody) (f: ParticipantTest -> unit) =
+    responseBody
+    |> getParticipant
+    |> f
+
+let getUserMessage (responseBody: ResponseBody): UserMessage =
     match responseBody with
-    | UserMessage userMessage -> f userMessage
+    | UserMessage userMessage -> userMessage
     | _ -> failwith "Not a valid userMessage"
+
+let useUserMessage (responseBody: ResponseBody) (f: UserMessage -> unit): unit =
+    responseBody
+    |> getUserMessage
+    |> f

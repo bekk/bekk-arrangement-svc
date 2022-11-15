@@ -21,6 +21,7 @@ type DeleteEvent(fixture: DatabaseFixture) =
 
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+            let createdEvent = getEvent createdEvent
             let! response, _ = Http.deleteEvent unauthenticatedClient createdEvent.event.id
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode)
         }
@@ -32,6 +33,7 @@ type DeleteEvent(fixture: DatabaseFixture) =
 
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+            let createdEvent = getEvent createdEvent
 
             let! response, _ = Http.deleteEvent authenticatedClient createdEvent.event.id
             response.EnsureSuccessStatusCode() |> ignore
@@ -44,6 +46,7 @@ type DeleteEvent(fixture: DatabaseFixture) =
 
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+            let createdEvent = getEvent createdEvent
 
             let! response, _ =
                 Http.deleteEventWithEditToken unauthenticatedClient createdEvent.event.id createdEvent.editToken
@@ -58,6 +61,7 @@ type DeleteEvent(fixture: DatabaseFixture) =
 
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+            let createdEvent = getEvent createdEvent
             let! response, _ = Http.cancelEvent unauthenticatedClient createdEvent.event.id
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode)
         }
@@ -69,6 +73,7 @@ type DeleteEvent(fixture: DatabaseFixture) =
 
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+            let createdEvent = getEvent createdEvent
 
             let! response, _ = Http.cancelEvent authenticatedClient createdEvent.event.id
             response.EnsureSuccessStatusCode() |> ignore
@@ -81,6 +86,7 @@ type DeleteEvent(fixture: DatabaseFixture) =
 
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+            let createdEvent = getEvent createdEvent
 
             let! response, _ =
                 Http.cancelEventWithEditToken unauthenticatedClient createdEvent.event.id createdEvent.editToken
@@ -108,19 +114,18 @@ type DeleteEvent(fixture: DatabaseFixture) =
 
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+            let createdEvent = getEvent createdEvent
             let! _, participant = Helpers.createParticipant authenticatedClient createdEvent.event.id
+            let participant = getParticipant participant
 
-            match participant with
-            | Participant participant ->
-                let! response, _ =
-                    Http.deleteParticipantFromEventWithCancellationToken
-                        authenticatedClient
-                        createdEvent.event.id
-                        participant.Email
-                        participant.CreatedModel.cancellationToken
+            let! response, _ =
+                Http.deleteParticipantFromEventWithCancellationToken
+                    authenticatedClient
+                    createdEvent.event.id
+                    participant.Email
+                    participant.CreatedModel.cancellationToken
 
-                response.EnsureSuccessStatusCode() |> ignore
-            | _ -> failwith "ASD"
+            response.EnsureSuccessStatusCode() |> ignore
         }
 
     [<Fact>]
@@ -134,27 +139,26 @@ type DeleteEvent(fixture: DatabaseFixture) =
 
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+            let createdEvent = getEvent createdEvent
             let! _, participant = Helpers.createParticipant authenticatedClient createdEvent.event.id
+            let participant = getParticipant participant
 
-            match participant with
-            | Participant participant ->
-                let! _, contentBeforeDelete =
-                    Http.get authenticatedClient $"/events/{createdEvent.event.id}/participants/count"
+            let! _, contentBeforeDelete =
+                Http.get authenticatedClient $"/events/{createdEvent.event.id}/participants/count"
 
-                let! _, _ =
-                    Http.deleteParticipantFromEventWithCancellationToken
-                        authenticatedClient
-                        createdEvent.event.id
-                        participant.Email
-                        participant.CreatedModel.cancellationToken
+            let! _, _ =
+                Http.deleteParticipantFromEventWithCancellationToken
+                    authenticatedClient
+                    createdEvent.event.id
+                    participant.Email
+                    participant.CreatedModel.cancellationToken
 
-                let! _, contentAfterDelete =
-                    Http.get authenticatedClient $"/events/{createdEvent.event.id}/participants/count"
+            let! _, contentAfterDelete =
+                Http.get authenticatedClient $"/events/{createdEvent.event.id}/participants/count"
 
-                Assert.Equal(contentBeforeDelete, "1")
-                Assert.Equal(contentAfterDelete, "0")
+            Assert.Equal(contentBeforeDelete, "1")
+            Assert.Equal(contentAfterDelete, "0")
 
-            | _ -> failwith "Failed to get participant"
         }
 
     [<Fact>]
@@ -169,38 +173,37 @@ type DeleteEvent(fixture: DatabaseFixture) =
 
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+            let createdEvent = getEvent createdEvent
             let! _, firstParticipant = Helpers.createParticipant authenticatedClient createdEvent.event.id
             let! _, secondParticipant = Helpers.createParticipant authenticatedClient createdEvent.event.id
+            let firstParticipant = getParticipant firstParticipant
+            let secondParticipant = getParticipant secondParticipant
 
-            match firstParticipant, secondParticipant with
-            | Participant firstParticipant, Participant secondParticipant ->
-                let! _, secondParticipantSpot =
-                    Http.get
-                        authenticatedClient
-                        $"/events/{createdEvent.event.id}/participants/{secondParticipant.Email}/waitinglist-spot"
+            let! _, secondParticipantSpot =
+                Http.get
+                    authenticatedClient
+                    $"/events/{createdEvent.event.id}/participants/{secondParticipant.Email}/waitinglist-spot"
 
-                Assert.Equal(secondParticipantSpot, "1")
+            Assert.Equal(secondParticipantSpot, "1")
 
-                let! deleteResponse, _ =
-                    Http.deleteParticipantFromEventWithCancellationToken
-                        authenticatedClient
-                        createdEvent.event.id
-                        firstParticipant.Email
-                        firstParticipant.CreatedModel.cancellationToken
+            let! deleteResponse, _ =
+                Http.deleteParticipantFromEventWithCancellationToken
+                    authenticatedClient
+                    createdEvent.event.id
+                    firstParticipant.Email
+                    firstParticipant.CreatedModel.cancellationToken
 
-                deleteResponse.EnsureSuccessStatusCode() |> ignore
+            deleteResponse.EnsureSuccessStatusCode() |> ignore
 
-                let! _, secondParticipantSpot =
-                    Http.get
-                        authenticatedClient
-                        $"/events/{createdEvent.event.id}/participants/{secondParticipant.Email}/waitinglist-spot"
+            let! _, secondParticipantSpot =
+                Http.get
+                    authenticatedClient
+                    $"/events/{createdEvent.event.id}/participants/{secondParticipant.Email}/waitinglist-spot"
 
-                Assert.Equal(secondParticipantSpot, "0")
+            Assert.Equal(secondParticipantSpot, "0")
 
-                let! _, participantCount =
-                    Http.get authenticatedClient $"/events/{createdEvent.event.id}/participants/count"
+            let! _, participantCount =
+                Http.get authenticatedClient $"/events/{createdEvent.event.id}/participants/count"
 
-                Assert.Equal(participantCount, "1")
-            | _, _ ->
-                failwith "ASDA"
+            Assert.Equal(participantCount, "1")
         }

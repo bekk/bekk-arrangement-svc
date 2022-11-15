@@ -12,13 +12,12 @@ module Helpers =
         task {
             let! response, createdEvent = Http.postEvent client event
 
-            match createdEvent with
-            | Error e -> return failwith $"Unable to decode created event: {e}"
-            | Ok createdEvent ->
-                Assert.IsType<CreatedEvent>(createdEvent)
-                |> ignore
+            let responseBody =
+                match createdEvent with
+                | Ok createdEvent -> Event createdEvent
+                | Error userMessage -> UserMessage userMessage
 
-                return response, createdEvent
+            return response, responseBody
         }
 
     let updateEventTest client eventId event =
@@ -54,8 +53,7 @@ module Helpers =
                       Email = email
                       CreatedModel = createdParticipant }
                     |> Participant
-                | Error userMessage ->
-                    UserMessage userMessage
+                | Error userMessage -> UserMessage userMessage
 
             return response, responseBody
         }

@@ -24,6 +24,7 @@ type UpdateEvent(fixture: DatabaseFixture) =
 
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+            let createdEvent = getEvent createdEvent
 
             let eventToUpdate =
                 { generatedEvent with Title = "This is a new title!" }
@@ -39,6 +40,7 @@ type UpdateEvent(fixture: DatabaseFixture) =
 
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+            let createdEvent = getEvent createdEvent
 
             let eventToUpdate =
                 { generatedEvent with Title = "This is a new title!" }
@@ -57,6 +59,7 @@ type UpdateEvent(fixture: DatabaseFixture) =
 
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+            let createdEvent = getEvent createdEvent
 
             let eventToUpdate =
                 { generatedEvent with Title = "This is a new title!" }

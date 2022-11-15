@@ -3,6 +3,7 @@ namespace Tests.RegisterToEvent
 open Xunit
 open System.Net
 
+open Models
 open Tests
 
 [<Collection("Database collection")>]
@@ -23,6 +24,7 @@ type RegisterToEvent(fixture: DatabaseFixture) =
 
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+            let createdEvent = getEvent createdEvent
             let! response, _ = Helpers.createParticipant unauthenticatedClient createdEvent.event.id
             response.EnsureSuccessStatusCode() |> ignore
         }
@@ -37,6 +39,7 @@ type RegisterToEvent(fixture: DatabaseFixture) =
 
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+            let createdEvent = getEvent createdEvent
             let! response, _ = Helpers.createParticipant unauthenticatedClient createdEvent.event.id
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode)
         }
@@ -51,6 +54,7 @@ type RegisterToEvent(fixture: DatabaseFixture) =
 
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+            let createdEvent = getEvent createdEvent
             let! response, _ = Helpers.createParticipant authenticatedClient createdEvent.event.id
             response.EnsureSuccessStatusCode() |> ignore
         }
@@ -65,6 +69,7 @@ type RegisterToEvent(fixture: DatabaseFixture) =
 
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+            let createdEvent = getEvent createdEvent
             let! response, _ = Helpers.createParticipant authenticatedClient createdEvent.event.id
             response.EnsureSuccessStatusCode() |> ignore
         }
@@ -79,6 +84,7 @@ type RegisterToEvent(fixture: DatabaseFixture) =
 
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+            let createdEvent = getEvent createdEvent
             let! _ = Http.cancelEvent authenticatedClient createdEvent.event.id
             let! _, unauthenticatedResponseBody = Helpers.createParticipant unauthenticatedClient createdEvent.event.id
             let! _, authenticatedResponseBody = Helpers.createParticipant authenticatedClient createdEvent.event.id
@@ -100,6 +106,7 @@ type RegisterToEvent(fixture: DatabaseFixture) =
 
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+            let createdEvent = getEvent createdEvent
             let! _, unauthenticatedResponseBody = Helpers.createParticipant unauthenticatedClient createdEvent.event.id
             let! _, authenticatedResponseBody = Helpers.createParticipant authenticatedClient createdEvent.event.id
 
@@ -121,6 +128,7 @@ type RegisterToEvent(fixture: DatabaseFixture) =
 
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+            let createdEvent = getEvent createdEvent
             let! _, unauthenticatedResponseBody = Helpers.createParticipant unauthenticatedClient createdEvent.event.id
             let! _, authenticatedResponseBody = Helpers.createParticipant authenticatedClient createdEvent.event.id
 
@@ -142,6 +150,7 @@ type RegisterToEvent(fixture: DatabaseFixture) =
 
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+            let createdEvent = getEvent createdEvent
             let! unauthenticatedResponse, _ = Helpers.createParticipant unauthenticatedClient createdEvent.event.id
             let! authenticatedResponse, _ = Helpers.createParticipant authenticatedClient createdEvent.event.id
 
