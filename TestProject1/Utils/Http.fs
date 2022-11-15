@@ -39,7 +39,10 @@ let request (client: HttpClient) (url: string) (body: 'a option) (method: HttpMe
 let requestDecode client decoder url body method =
     task {
         let! response, content = request client url body method
-        return response, Decode.fromString decoder content
+        let decode =
+            Decode.fromString decoder content
+            |> Result.mapError(fun _ -> decodeUserMessage content)
+        return response, decode
     }
 
 let get (client: HttpClient) (url: string) = request client url None HttpMethod.Get

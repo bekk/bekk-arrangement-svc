@@ -1,5 +1,6 @@
 module Models
 
+open Models
 open Thoth.Json.Net
 
 type InnerEvent = { id: string; title: string }
@@ -21,8 +22,7 @@ type CreatedParticipant =
 type ParticipantAndAnswers = { name: string }
 
 let participantAndAnswerDecoder: Decoder<ParticipantAndAnswers> =
-    Decode.object (fun get ->
-        { name = get.Required.Field "name" Decode.string })
+    Decode.object (fun get -> { name = get.Required.Field "name" Decode.string })
 
 type ParticipationsAndWaitlist =
     { attendees: ParticipantAndAnswers list
@@ -54,3 +54,29 @@ let createdParticipantDecoder: Decoder<CreatedParticipant> =
     Decode.object (fun get ->
         { cancellationToken = get.Required.Field "cancellationToken" Decode.string
           participant = get.Required.Field "participant" innerParticipantDecoder })
+
+type UserMessage = { userMessage: string }
+
+let decodeUserMessage content =
+    match Decode.Auto.fromString<UserMessage> content with
+    | Error e -> failwith $"Unable to decode usermessage: {e}"
+    | Ok userMessage -> userMessage
+
+type ParticipantTest =
+    { WriteModel: ParticipantWriteModel
+      Email: string
+      CreatedModel: CreatedParticipant }
+
+type ResponseBody =
+    | UserMessage of UserMessage
+    | Participant of ParticipantTest
+
+let useParticipant (responseBody: ResponseBody) f: (ParticipantTest -> unit) =
+    match responseBody with
+    | Participant participantTest -> f participantTest
+    | _ -> failwith "Not a valid participant test model"
+
+let useUserMessage (responseBody: ResponseBody) (f: UserMessage -> unit): unit =
+    match responseBody with
+    | UserMessage userMessage -> f userMessage
+    | _ -> failwith "Not a valid userMessage"

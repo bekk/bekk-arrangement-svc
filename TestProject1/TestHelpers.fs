@@ -47,17 +47,17 @@ module Helpers =
         task {
             let! response, createdParticipant = Http.postParticipant client eventId email participant
 
-            return
-                response,
-                Result.map
-                    (fun createdParticipant ->
-                        Assert.IsType<CreatedParticipant>(createdParticipant)
-                        |> ignore
+            let responseBody =
+                match createdParticipant with
+                | Ok createdParticipant ->
+                    { WriteModel = participant
+                      Email = email
+                      CreatedModel = createdParticipant }
+                    |> Participant
+                | Error userMessage ->
+                    UserMessage userMessage
 
-                        {| WriteModel = participant
-                           Email = email
-                           CreatedModel = createdParticipant |})
-                    createdParticipant
+            return response, responseBody
         }
 
     let createParticipant client eventId =

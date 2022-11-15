@@ -111,7 +111,7 @@ type DeleteEvent(fixture: DatabaseFixture) =
             let! _, participant = Helpers.createParticipant authenticatedClient createdEvent.event.id
 
             match participant with
-            | Ok participant ->
+            | Participant participant ->
                 let! response, _ =
                     Http.deleteParticipantFromEventWithCancellationToken
                         authenticatedClient
@@ -120,7 +120,7 @@ type DeleteEvent(fixture: DatabaseFixture) =
                         participant.CreatedModel.cancellationToken
 
                 response.EnsureSuccessStatusCode() |> ignore
-            | Error e -> failwith e
+            | _ -> failwith "ASD"
         }
 
     [<Fact>]
@@ -136,11 +136,11 @@ type DeleteEvent(fixture: DatabaseFixture) =
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
             let! _, participant = Helpers.createParticipant authenticatedClient createdEvent.event.id
 
-            let! _, contentBeforeDelete =
-                Http.get authenticatedClient $"/events/{createdEvent.event.id}/participants/count"
-
             match participant with
-            | Ok participant ->
+            | Participant participant ->
+                let! _, contentBeforeDelete =
+                    Http.get authenticatedClient $"/events/{createdEvent.event.id}/participants/count"
+
                 let! _, _ =
                     Http.deleteParticipantFromEventWithCancellationToken
                         authenticatedClient
@@ -153,7 +153,8 @@ type DeleteEvent(fixture: DatabaseFixture) =
 
                 Assert.Equal(contentBeforeDelete, "1")
                 Assert.Equal(contentAfterDelete, "0")
-            | Error e -> failwith e
+
+            | _ -> failwith "Failed to get participant"
         }
 
     [<Fact>]
@@ -172,7 +173,7 @@ type DeleteEvent(fixture: DatabaseFixture) =
             let! _, secondParticipant = Helpers.createParticipant authenticatedClient createdEvent.event.id
 
             match firstParticipant, secondParticipant with
-            | Ok firstParticipant, Ok secondParticipant ->
+            | Participant firstParticipant, Participant secondParticipant ->
                 let! _, secondParticipantSpot =
                     Http.get
                         authenticatedClient
@@ -200,6 +201,6 @@ type DeleteEvent(fixture: DatabaseFixture) =
                     Http.get authenticatedClient $"/events/{createdEvent.event.id}/participants/count"
 
                 Assert.Equal(participantCount, "1")
-            | Error e, _ ->
-                failwith e
+            | _, _ ->
+                failwith "ASDA"
         }

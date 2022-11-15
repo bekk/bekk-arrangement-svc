@@ -134,14 +134,14 @@ type GetEvent(fixture: DatabaseFixture) =
             let! _, created = Helpers.createParticipant authenticatedClient createdEvent.event.id
 
             match created with
-            | Ok created ->
+            | Participant created ->
                 let! response, _ =
                     Http.get
                         unauthenticatedClient
                         $"/events/{createdEvent.event.id}/participants/{created.Email}/waitinglist-spot"
 
                 response.EnsureSuccessStatusCode() |> ignore
-            | Error e -> failwith e
+            |  _ -> "Failwith ASD"
         }
 
 
@@ -155,14 +155,14 @@ type GetEvent(fixture: DatabaseFixture) =
             let! _, created = Helpers.createParticipant authenticatedClient createdEvent.event.id
 
             match created with
-            | Ok created ->
+            | Participant created ->
                 let! response, _ =
                     Http.get
                         unauthenticatedClient
                         $"/events/{createdEvent.event.id}/participants/{created.Email}/waitinglist-spot"
 
                 Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode)
-            | Error e -> failwith e
+            | _ -> failwith "ASDASD"
         }
 
     [<Fact>]
@@ -176,14 +176,14 @@ type GetEvent(fixture: DatabaseFixture) =
 
             // TODO: Kan disse matchene fikses?
             match created with
-            | Ok created ->
+            | Participant created ->
                 let! response, _ =
                     Http.get
                         authenticatedClient
                         $"/events/{createdEvent.event.id}/participants/{created.Email}/waitinglist-spot"
 
                 response.EnsureSuccessStatusCode() |> ignore
-            | Error e -> failwith e
+            | _ -> failwith "ASD"
         }
 
     [<Fact>]
@@ -200,14 +200,14 @@ type GetEvent(fixture: DatabaseFixture) =
             let! _, created = Helpers.createParticipant authenticatedClient createdEvent.event.id
 
             match created with
-            | Ok created ->
+            | Participant created ->
                 let! _, content =
                     Http.get
                         authenticatedClient
                         $"/events/{createdEvent.event.id}/participants/{created.Email}/waitinglist-spot"
 
                 Assert.Equal("1", content)
-            | Error e -> failwith e
+            | _ -> failwith "asd"
         }
 
     [<Fact>]
