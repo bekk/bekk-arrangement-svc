@@ -58,9 +58,12 @@ let createdParticipantDecoder: Decoder<CreatedParticipant> =
 type UserMessage = { userMessage: string }
 
 let decodeUserMessage content =
-    match Decode.Auto.fromString<UserMessage> content with
-    | Error e -> failwith $"Unable to decode usermessage: {e}"
-    | Ok userMessage -> userMessage
+    if content = "" then
+        { userMessage = "" }
+    else
+        match Decode.Auto.fromString<UserMessage> content with
+        | Error e -> failwith $"Unable to decode usermessage: {e}"
+        | Ok userMessage -> userMessage
 
 type ParticipantTest =
     { WriteModel: ParticipantWriteModel
