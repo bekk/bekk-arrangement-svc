@@ -3,7 +3,11 @@ module Models
 open Models
 open Thoth.Json.Net
 
-type InnerEvent = { id: string; title: string }
+type InnerEvent = { id: string
+                    title: string
+                    location: string
+                    organizerName: string
+                    organizerEmail: string }
 
 type CreatedEvent =
     { editToken: string
@@ -36,7 +40,11 @@ let participationsAndWaitingListDecoder: Decoder<ParticipationsAndWaitlist> =
 let innerEventDecoder: Decoder<InnerEvent> =
     Decode.object (fun get ->
         { id = get.Required.Field "id" Decode.string
-          title = get.Required.Field "title" Decode.string })
+          title = get.Required.Field "title" Decode.string
+          location = get.Required.Field "location" Decode.string
+          organizerEmail = get.Required.Field "organizerEmail" Decode.string
+          organizerName = get.Required.Field "organizerName" Decode.string
+          })
 
 let createdEventDecoder: Decoder<CreatedEvent> =
     Decode.object (fun get ->
@@ -71,18 +79,29 @@ type ParticipantTest =
       CreatedModel: CreatedParticipant }
 
 type ResponseBody =
-    | Event of CreatedEvent
+    | CreatedEvent of CreatedEvent
+    | UpdatedEvent of InnerEvent
     | Participant of ParticipantTest
     | UserMessage of UserMessage
 
-let getEvent (responseBody: ResponseBody): CreatedEvent =
+let getCreatedEvent (responseBody: ResponseBody): CreatedEvent =
     match responseBody with
-    | Event createdEvent -> createdEvent
+    | CreatedEvent createdEvent -> createdEvent
     | _ -> failwith "Not a valid created event model"
 
-let useEvent (responseBody: ResponseBody) (f: CreatedEvent -> unit) =
+let useCreatedEvent (responseBody: ResponseBody) (f: CreatedEvent -> unit) =
     responseBody
-    |> getEvent
+    |> getCreatedEvent
+    |> f
+
+let getUpdatedEvent (responseBody: ResponseBody): InnerEvent =
+    match responseBody with
+    | UpdatedEvent updatedEvent -> updatedEvent
+    | _ -> failwith "Not a valid created event model"
+
+let useUpdatedEvent (responseBody: ResponseBody) (f: InnerEvent -> unit) =
+    responseBody
+    |> getUpdatedEvent
     |> f
 
 let getParticipant (responseBody: ResponseBody): ParticipantTest =

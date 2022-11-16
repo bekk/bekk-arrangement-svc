@@ -1,26 +1,77 @@
-module Tests.UpdateEvent
+namespace Tests.UpdateEvent
 
-open Expecto
+open System.Net
+open Xunit
 
-open Api
 open Models
+open Tests
 
-// TODO: User is organizer -> 200 (Hvordan teste dette? Mitt token er alltid admin)
-let tests =
-    testList "Update event" [
-      testTask "Update event with token should work" {
-        let! created = (justContent <| Events.create UsingJwtToken.request id) : System.Threading.Tasks.Task<CreatedEvent>
-        // Note that the extra type information is necessary for the compiler
-        let! (updated : CreatedEvent) = justContent <| Events.update UsingJwtToken.request created (fun (ev : EventWriteModel) -> { ev with Title = "This is a new title!" })
-        let! fetched = justContent <| Events.get UsingJwtToken.request created.id
-        Expect.equal fetched.title updated.event.Title "Title wasn't updated using jwt token"
-      }
 
-      testTask "Update event with edit-token only should work" {
-        let! created = justContent <| Events.create UsingJwtToken.request id
-        // Note that the extra type information is necessary for the compiler
-        let! (updated : CreatedEvent) = justContent <| Events.update (UsingEditToken.request created.editToken) created (fun ev -> { ev with Title = Generator.generateRandomString() })
-        let! fetched = justContent <| Events.get UsingJwtToken.request created.id
-        Expect.equal fetched.title updated.event.Title "Title wasn't updated using edit-token"
-      }
-    ]
+// TODO: Legg til tester på legge til, sletting og endring av spørsmål
+// TODO: Se på alle de mulige tingene som kan feile når man oppdaterer et event
+[<Collection("Database collection")>]
+type UpdateEvent(fixture: DatabaseFixture) =
+    let authenticatedClient =
+        fixture.getAuthedClient
+
+    let unauthenticatedClient =
+        fixture.getUnauthenticatedClient
+
+    [<Fact>]
+    member _.``Edit event without without authorization gives forbidden``() =
+        let generatedEvent =
+            Generator.generateEvent ()
+
+        task {
+            let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+            let createdEvent = getCreatedEvent createdEvent
+
+            let eventToUpdate =
+                { generatedEvent with Title = "This is a new title!" }
+
+            let! response, _ = Http.updateEvent unauthenticatedClient createdEvent.event.id eventToUpdate
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode)
+        }
+
+    [<Fact>]
+    member _.``Edit event with authorization works``() =
+        let generatedEvent =
+            Generator.generateEvent ()
+
+        task {
+            let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+            let createdEvent = getCreatedEvent createdEvent
+
+            let eventToUpdate =
+                { generatedEvent with Title = "This is a new title!" }
+
+            let! response, updatedEvent =
+                Helpers.updateEventTest authenticatedClient createdEvent.event.id eventToUpdate
+            let updatedEvent = getUpdatedEvent updatedEvent
+
+            Assert.Equal("This is a new title!", updatedEvent.title)
+            response.EnsureSuccessStatusCode() |> ignore
+        }
+
+    [<Fact>]
+    member _.``Edit event without authorization but with edit token works``() =
+        let generatedEvent =
+            Generator.generateEvent ()
+
+        task {
+            let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+            let createdEvent = getCreatedEvent createdEvent
+
+            let eventToUpdate =
+                { generatedEvent with Title = "This is a new title!" }
+
+            let! response, updatedEvent =
+                Helpers.updateEventWithEditTokenTest
+                    unauthenticatedClient
+                    createdEvent.event.id
+                    createdEvent.editToken
+                    eventToUpdate
+
+            Assert.Equal("This is a new title!", updatedEvent.title)
+            response.EnsureSuccessStatusCode() |> ignore
+        }

@@ -14,7 +14,7 @@ module Helpers =
 
             let responseBody =
                 match createdEvent with
-                | Ok createdEvent -> Event createdEvent
+                | Ok createdEvent -> CreatedEvent createdEvent
                 | Error userMessage -> UserMessage userMessage
 
             return response, responseBody
@@ -24,11 +24,12 @@ module Helpers =
         task {
             let! response, updatedEvent = Http.updateEvent client eventId event
 
-            match updatedEvent with
-            | Error e -> return failwith $"Unable to decode updated event: {e}"
-            | Ok updatedEvent ->
-                Assert.IsType<InnerEvent>(updatedEvent) |> ignore
-                return response, updatedEvent
+            let responseBody =
+                match updatedEvent with
+                | Ok updatedEvent -> UpdatedEvent updatedEvent
+                | Error userMessage -> UserMessage userMessage
+
+            return response, responseBody
         }
 
     let updateEventWithEditTokenTest client eventId editToken event =

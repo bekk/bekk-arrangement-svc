@@ -1,86 +1,209 @@
-module Tests.DeleteEvent
+namespace Tests.DeleteEvent
 
-open Expecto
+open System.Net
+open Xunit
 
-open TestUtils
-open Api
+open Models
+open Tests
 
-// TODO: User is organizer -> 200 (Hvordan teste dette? Mitt token er alltid admin)
-let tests =
-    testList "Delete event" [
-      testTask "Delete event with token should work" {
-        let! event = TestData.createEvent id
-        do! justEffect <| Events.delete UsingJwtToken.request event
-        do! Expect.expectApiNotfound
-              (fun () -> Events.get UsingJwtToken.request event.id)
-              "Get not returning NotFound for event deleted with jwt token"
-      }
+[<Collection("Database collection")>]
+type DeleteEvent(fixture: DatabaseFixture) =
+    let authenticatedClient =
+        fixture.getAuthedClient
 
-      testTask "Delete event with edit-token only should work" {
-        let! event = TestData.createEvent id
-        do! justEffect <| Events.delete (UsingEditToken.request event.editToken) event
-        do! Expect.expectApiNotfound
-              (fun () -> Events.get UsingJwtToken.request event.id)
-                "Get not returning NotFound for event deleted with edit-token"
-      }
+    let unauthenticatedClient =
+        fixture.getUnauthenticatedClient
 
-      testTask "Cancel event with token should work" {
-        let! event = TestData.createEvent id
-        do! justEffect <| Events.cancel UsingJwtToken.request event
-        let! fetched = justContent <| Events.get UsingJwtToken.request event.id
-        // FIXME: Doesn't compile
-        //Expect.isTrue fetched.isCancelled "Cancel using jwt token didn't mark the event as cancelled"
-        return ()
-      }
+    [<Fact>]
+    member _.``Unauthenticated user with cannot delete event``() =
+        let generatedEvent =
+            Generator.generateEvent ()
 
-      testTask "Cancel event with edit-token only should work" {
-        let! event = TestData.createEvent id
-        do! justEffect <| Events.cancel (UsingEditToken.request event.editToken) event
-        let! fetched = justContent <| Events.get UsingJwtToken.request event.id
-        // FIXME: Doesn't compile
-        //Expect.isTrue fetched.isCancelled "Cancel using edit-token didn't mark the event as cancelled"
-        return ()
-      }
+        task {
+            let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+            let createdEvent = getCreatedEvent createdEvent
+            let! response, _ = Http.deleteEvent unauthenticatedClient createdEvent.event.id
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode)
+        }
 
-      testTask "Delete participant using admin token" {
-        let! event = TestData.createEvent (fun ev -> { ev with  IsExternal = true; HasWaitingList = true; MaxParticipants = Some 1})
-        let! participant = justContent <| Participant.create UsingJwtToken.request event id id
-        do! justEffect <| Participant.delete UsingJwtToken.request participant
-        do! Expect.expectApiMessage
-              (fun () -> UsingJwtToken.request $"/events/{event.id}/participants/count" None |> Api.get)
-              "0"
-              "Expected 0 participants"
-      }
+    [<Fact>]
+    member _.``Authenticated user who created event should be able to delete it``() =
+        let generatedEvent =
+            Generator.generateEvent ()
 
-      testTask "Delete participant using cancellation token" {
-        let! event = TestData.createEvent (fun ev -> { ev with IsExternal = true; HasWaitingList = true; MaxParticipants = Some 1 })
-        let! participant = justContent <| Participant.create UsingJwtToken.request event id id
-        do! justEffect <| Participant.delete (UsingCancellationToken.request participant.cancellationToken) participant
-        do! Expect.expectApiMessage
-              (fun () -> UsingJwtToken.request $"/events/{event.id}/participants/count" None |> Api.get)
-              "0"
-              "Expected 0 participants"
-      }
+        task {
+            let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+            let createdEvent = getCreatedEvent createdEvent
 
-      testTask "Waitlist should be updated when deleting participant" {
-        let! event = TestData.createEvent (fun ev -> { ev with IsExternal = true; HasWaitingList = true; MaxParticipants = Some 1 })
-        let! firstParticipant = justContent <| Participant.create UsingJwtToken.request event id id
-        let! secondParticipant = justContent <| Participant.create UsingJwtToken.request event id id
+            let! response, _ = Http.deleteEvent authenticatedClient createdEvent.event.id
+            response.EnsureSuccessStatusCode() |> ignore
+        }
 
-        do! Expect.expectApiMessage
-              (fun () -> UsingJwtToken.request $"/events/{event.id}/participants/{secondParticipant.email}/waitinglist-spot" None |> Api.get)
-              "1"
-              "Second participant should have first spot in waitlist"
+    [<Fact>]
+    member _.``Unauthenticated user with edit token should be able to delete event``() =
+        let generatedEvent =
+            Generator.generateEvent ()
 
-        do! justEffect <| Participant.delete UsingJwtToken.request firstParticipant
-        do! Expect.expectApiMessage
-              (fun () -> UsingJwtToken.request $"/events/{event.id}/participants/{secondParticipant.email}/waitinglist-spot" None |> Api.get)
-              "0"
-              "Second participant should have first spot in waitlist"
+        task {
+            let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+            let createdEvent = getCreatedEvent createdEvent
 
-        do! Expect.expectApiMessage
-              (fun () -> UsingJwtToken.request $"/events/{event.id}/participants/count" None |> Api.get)
-              "1"
-              "1 participants after deleting the only first"
-      }
-    ]
+            let! response, _ =
+                Http.deleteEventWithEditToken unauthenticatedClient createdEvent.event.id createdEvent.editToken
+
+            response.EnsureSuccessStatusCode() |> ignore
+        }
+
+    [<Fact>]
+    member _.``Unauthenticated user with cannot cancel event``() =
+        let generatedEvent =
+            Generator.generateEvent ()
+
+        task {
+            let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+            let createdEvent = getCreatedEvent createdEvent
+            let! response, _ = Http.cancelEvent unauthenticatedClient createdEvent.event.id
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode)
+        }
+
+    [<Fact>]
+    member _.``Authenticated user who created event should be able to cancel it``() =
+        let generatedEvent =
+            Generator.generateEvent ()
+
+        task {
+            let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+            let createdEvent = getCreatedEvent createdEvent
+
+            let! response, _ = Http.cancelEvent authenticatedClient createdEvent.event.id
+            response.EnsureSuccessStatusCode() |> ignore
+        }
+
+    [<Fact>]
+    member _.``Unauthenticated user with edit token should be able to cancel event``() =
+        let generatedEvent =
+            Generator.generateEvent ()
+
+        task {
+            let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+            let createdEvent = getCreatedEvent createdEvent
+
+            let! response, _ =
+                Http.cancelEventWithEditToken unauthenticatedClient createdEvent.event.id createdEvent.editToken
+
+            response.EnsureSuccessStatusCode() |> ignore
+        }
+
+    // TODO: Implement this when we can add admin claim to token
+    // [<Fact>]
+    // member _.``Admins can delete participants``() =
+    //     let generatedEvent =
+    //         Generator.generateEvent ()
+    //
+    //     task {
+    //         let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+    //         let! _, participant = Helpers.createParticipant authenticatedClient createdEvent.event.id
+    //         let! response, _ = Http.deleteParticipantFromEvent authenticatedClient createdEvent.event.id participant.Email
+    //         response.EnsureSuccessStatusCode() |> ignore
+    //     }
+
+    [<Fact>]
+    member _.``Delete participant using cancellation token``() =
+        let generatedEvent =
+            TestData.createEvent (fun e -> { e with ParticipantQuestions = [] })
+
+        task {
+            let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+            let createdEvent = getCreatedEvent createdEvent
+            let! _, participant = Helpers.createParticipant authenticatedClient createdEvent.event.id
+            let participant = getParticipant participant
+
+            let! response, _ =
+                Http.deleteParticipantFromEventWithCancellationToken
+                    authenticatedClient
+                    createdEvent.event.id
+                    participant.Email
+                    participant.CreatedModel.cancellationToken
+
+            response.EnsureSuccessStatusCode() |> ignore
+        }
+
+    [<Fact>]
+    member _.``Deleting participant should delete participant``() =
+        let generatedEvent =
+            TestData.createEvent (fun e ->
+                { e with
+                    IsExternal = true
+                    HasWaitingList = true
+                    ParticipantQuestions = [] })
+
+        task {
+            let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+            let createdEvent = getCreatedEvent createdEvent
+            let! _, participant = Helpers.createParticipant authenticatedClient createdEvent.event.id
+            let participant = getParticipant participant
+
+            let! _, contentBeforeDelete =
+                Http.get authenticatedClient $"/events/{createdEvent.event.id}/participants/count"
+
+            let! _, _ =
+                Http.deleteParticipantFromEventWithCancellationToken
+                    authenticatedClient
+                    createdEvent.event.id
+                    participant.Email
+                    participant.CreatedModel.cancellationToken
+
+            let! _, contentAfterDelete =
+                Http.get authenticatedClient $"/events/{createdEvent.event.id}/participants/count"
+
+            Assert.Equal(contentBeforeDelete, "1")
+            Assert.Equal(contentAfterDelete, "0")
+
+        }
+
+    [<Fact>]
+    member _.``Deleting participant should update waitlist``() =
+        let generatedEvent =
+            TestData.createEvent (fun e ->
+                { e with
+                    IsExternal = true
+                    HasWaitingList = true
+                    MaxParticipants = Some 1
+                    ParticipantQuestions = [] })
+
+        task {
+            let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
+            let createdEvent = getCreatedEvent createdEvent
+            let! _, firstParticipant = Helpers.createParticipant authenticatedClient createdEvent.event.id
+            let! _, secondParticipant = Helpers.createParticipant authenticatedClient createdEvent.event.id
+            let firstParticipant = getParticipant firstParticipant
+            let secondParticipant = getParticipant secondParticipant
+
+            let! _, secondParticipantSpot =
+                Http.get
+                    authenticatedClient
+                    $"/events/{createdEvent.event.id}/participants/{secondParticipant.Email}/waitinglist-spot"
+
+            Assert.Equal(secondParticipantSpot, "1")
+
+            let! deleteResponse, _ =
+                Http.deleteParticipantFromEventWithCancellationToken
+                    authenticatedClient
+                    createdEvent.event.id
+                    firstParticipant.Email
+                    firstParticipant.CreatedModel.cancellationToken
+
+            deleteResponse.EnsureSuccessStatusCode() |> ignore
+
+            let! _, secondParticipantSpot =
+                Http.get
+                    authenticatedClient
+                    $"/events/{createdEvent.event.id}/participants/{secondParticipant.Email}/waitinglist-spot"
+
+            Assert.Equal(secondParticipantSpot, "0")
+
+            let! _, participantCount =
+                Http.get authenticatedClient $"/events/{createdEvent.event.id}/participants/count"
+
+            Assert.Equal(participantCount, "1")
+        }

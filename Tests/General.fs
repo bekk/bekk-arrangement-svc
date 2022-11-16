@@ -1,21 +1,27 @@
-module Tests.General
+namespace Tests.General
 
-open Expecto
+open System.Net
+open Tests
+open Xunit
 
-open TestUtils
-open Api
+[<Collection("Database collection")>]
+type General(fixture: DatabaseFixture) =
+    let authenticatedClient =
+        fixture.getAuthedClient
 
-let tests =
-  testList "General" [
-      testTask "Health endpoint works" {
-          do! Expect.expectApiMessage
-                  (fun () -> Health.get WithoutToken.request)
-                  "Health check: dette gikk fint"
-                  "Health check failed for unauthenticated user"
+    let unauthenticatedClient =
+        fixture.getUnauthenticatedClient
 
-          do! Expect.expectApiMessage
-                  (fun () -> Health.get UsingJwtToken.request)
-                  "Health check: dette gikk fint"
-                  "Health check failed for authenticated user"
-      }
-  ]
+    [<Fact>]
+    member _.``Health check without authorizaiont works``() =
+        task {
+            let! response, _ = Http.get unauthenticatedClient "/health"
+            response.EnsureSuccessStatusCode() |> ignore
+        }
+
+    [<Fact>]
+    member _.``Health check with authorizaiton token works``() =
+        task {
+            let! response, _ = Http.get authenticatedClient "/health"
+            response.EnsureSuccessStatusCode() |> ignore
+        }
