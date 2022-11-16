@@ -131,8 +131,7 @@ type GetEvent(fixture: DatabaseFixture) =
 
         task {
             let! createdEvent = Helpers.createEventAndGet authenticatedClient event
-            let! _, created = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
-            let created = getParticipant created
+            let! created = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event.Id
 
             let! response, _ =
                 Http.get
@@ -150,8 +149,7 @@ type GetEvent(fixture: DatabaseFixture) =
 
         task {
             let! createdEvent = Helpers.createEventAndGet authenticatedClient event
-            let! _, created = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
-            let created = getParticipant created
+            let! created = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event.Id
 
             let! response, _ =
                 Http.get
@@ -168,8 +166,7 @@ type GetEvent(fixture: DatabaseFixture) =
 
         task {
             let! createdEvent = Helpers.createEventAndGet authenticatedClient event
-            let! _, created = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
-            let created = getParticipant created
+            let! created = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event.Id
 
             let! response, _ =
                 Http.get
@@ -190,8 +187,7 @@ type GetEvent(fixture: DatabaseFixture) =
 
         task {
             let! createdEvent = Helpers.createEventAndGet authenticatedClient event
-            let! _, created = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
-            let created = getParticipant created
+            let! created = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event.Id
 
             let! _, content =
                 Http.get

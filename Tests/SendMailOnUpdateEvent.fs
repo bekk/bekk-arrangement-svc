@@ -36,18 +36,12 @@ type General(fixture: DatabaseFixture) =
 
             let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
 
-            let! _, createdParticipant = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
-
-            let createdParticipant =
-                getParticipant createdParticipant
+            let! createdParticipant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event.Id
 
             emptyDevMailbox ()
 
-            let! _, updatedEvent =
-                Helpers.updateEventTest authenticatedClient createdEvent.Event.Id (updateMap generatedEvent)
-
-            let updatedEvent =
-                getUpdatedEvent updatedEvent
+            let! updatedEvent =
+                Helpers.updateEventAndGet authenticatedClient createdEvent.Event.Id (updateMap generatedEvent)
 
             let devEmail =
                 let mb = getDevMailbox () in

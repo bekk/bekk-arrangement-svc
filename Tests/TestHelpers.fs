@@ -22,13 +22,13 @@ module Helpers =
 
     let createEventAndUse client event f =
         createEvent client event
-        |> Task.map(fun (_, x) -> useCreatedEvent x f)
+        |> Task.map (fun (_, x) -> useCreatedEvent x f)
 
     let createEventAndGet client event =
         createEvent client event
-        |> Task.map (fun (_,x) -> getCreatedEvent x)
+        |> Task.map (fun (_, x) -> getCreatedEvent x)
 
-    let updateEventTest client eventId event =
+    let updateEvent client eventId event =
         task {
             let! response, updatedEvent = Http.updateEvent client eventId event
 
@@ -39,6 +39,15 @@ module Helpers =
 
             return response, responseBody
         }
+
+    let updateEventAndUse client eventId event f =
+        updateEvent client eventId event
+        |> Task.map (fun (_, x) -> useUpdatedEvent x f)
+
+    let rec updateEventAndGet client eventId event =
+        updateEvent client eventId event
+        |> Task.map (fun (_, x) -> getUpdatedEvent x)
+
 
     let updateEventWithEditTokenTest client eventId editToken event =
         task {
@@ -74,6 +83,13 @@ module Helpers =
         let email = Generator.generateEmail ()
         createParticipantForEvent client eventId email participant
 
+    let createParticipantAndUse client eventId f =
+        createParticipant client eventId
+        |> Task.map (fun (_, x) -> useParticipant x f)
+
+    let createParticipantAndGet client eventId =
+        createParticipant client eventId
+        |> Task.map (fun (_, x) -> getParticipant x)
 
     let getParticipationsAndWaitlist client eventId =
         task {

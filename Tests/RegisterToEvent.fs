@@ -84,10 +84,10 @@ type RegisterToEvent(fixture: DatabaseFixture) =
             let! _, unauthenticatedResponseBody = Helpers.createParticipant unauthenticatedClient createdEvent.Event.Id
             let! _, authenticatedResponseBody = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
 
-            Models.useUserMessage unauthenticatedResponseBody (fun userMessage ->
+            useUserMessage unauthenticatedResponseBody (fun userMessage ->
                 Assert.Equal("Arrangementet er kansellert", userMessage.userMessage))
 
-            Models.useUserMessage authenticatedResponseBody (fun userMessage ->
+            useUserMessage authenticatedResponseBody (fun userMessage ->
                 Assert.Equal("Arrangementet er kansellert", userMessage.userMessage))
         }
 
@@ -104,10 +104,10 @@ type RegisterToEvent(fixture: DatabaseFixture) =
             let! _, unauthenticatedResponseBody = Helpers.createParticipant unauthenticatedClient createdEvent.Event.Id
             let! _, authenticatedResponseBody = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
 
-            Models.useUserMessage unauthenticatedResponseBody (fun userMessage ->
+            useUserMessage unauthenticatedResponseBody (fun userMessage ->
                 Assert.Equal("Arrangementet tok sted i fortiden", userMessage.userMessage))
 
-            Models.useUserMessage authenticatedResponseBody (fun userMessage ->
+            useUserMessage authenticatedResponseBody (fun userMessage ->
                 Assert.Equal("Arrangementet tok sted i fortiden", userMessage.userMessage))
         }
 
@@ -125,10 +125,10 @@ type RegisterToEvent(fixture: DatabaseFixture) =
             let! _, unauthenticatedResponseBody = Helpers.createParticipant unauthenticatedClient createdEvent.Event.Id
             let! _, authenticatedResponseBody = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
 
-            Models.useUserMessage unauthenticatedResponseBody (fun userMessage ->
+            useUserMessage unauthenticatedResponseBody (fun userMessage ->
                 Assert.Equal("Arrangementet har ikke plass", userMessage.userMessage))
 
-            Models.useUserMessage authenticatedResponseBody (fun userMessage ->
+            useUserMessage authenticatedResponseBody (fun userMessage ->
                 Assert.Equal("Arrangementet har ikke plass", userMessage.userMessage))
         }
 

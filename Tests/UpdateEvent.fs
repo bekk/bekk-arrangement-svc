@@ -43,8 +43,7 @@ type UpdateEvent(fixture: DatabaseFixture) =
             let eventToUpdate =
                 { generatedEvent with Title = "This is a new title!" }
 
-            let! response, updatedEvent =
-                Helpers.updateEventTest authenticatedClient createdEvent.Event.Id eventToUpdate
+            let! response, updatedEvent = Helpers.updateEvent authenticatedClient createdEvent.Event.Id eventToUpdate
 
             let updatedEvent =
                 getUpdatedEvent updatedEvent
