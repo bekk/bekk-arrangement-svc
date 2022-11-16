@@ -24,6 +24,8 @@
         <Compile Include="DeleteEvent.fs" />
         <Compile Include="GetEvent.fs" />
         <Compile Include="DateTimeCustom.fs" />
+        <Compile Include="OfficeEvents.fs" />
+        <Compile Include="SendMailOnUpdateEvent.fs" />
         <Compile Include="Program.fs" />
     </ItemGroup>
 
