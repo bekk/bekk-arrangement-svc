@@ -8,7 +8,7 @@ module TestData =
     let createEvent (f: EventWriteModel -> EventWriteModel) : EventWriteModel = Generator.generateEvent () |> f
 
 module Helpers =
-    let createEventTest client event =
+    let createEvent client event =
         task {
             let! response, createdEvent = Http.postEvent client event
 
@@ -19,6 +19,14 @@ module Helpers =
 
             return response, responseBody
         }
+
+    let createEventAndUse client event f =
+        createEvent client event
+        |> Task.map(fun (_, x) -> useCreatedEvent x f)
+
+    let createEventAndGet client event =
+        createEvent client event
+        |> Task.map (fun (_,x) -> getCreatedEvent x)
 
     let updateEventTest client eventId event =
         task {

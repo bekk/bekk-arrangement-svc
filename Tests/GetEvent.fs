@@ -23,7 +23,7 @@ type GetEvent(fixture: DatabaseFixture) =
             TestData.createEvent (fun e -> { e with Shortname = Some shortname })
 
         task {
-            let! _, createdEvent = Helpers.createEventTest authenticatedClient event
+            let! _, createdEvent = Helpers.createEvent authenticatedClient event
             let! _, content = Http.getEventIdByShortname unauthenticatedClient shortname
             useCreatedEvent createdEvent (fun createdEvent -> Assert.Equal($"\"{createdEvent.Event.Id}\"", content))
         }
@@ -34,8 +34,7 @@ type GetEvent(fixture: DatabaseFixture) =
             TestData.createEvent (fun e -> { e with IsExternal = true })
 
         task {
-            let! _, createdEvent = Helpers.createEventTest authenticatedClient event
-            let createdEvent = getCreatedEvent createdEvent
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
             let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.Event.Id}"
             response.EnsureSuccessStatusCode() |> ignore
         }
@@ -46,8 +45,7 @@ type GetEvent(fixture: DatabaseFixture) =
             TestData.createEvent (fun e -> { e with IsExternal = false })
 
         task {
-            let! _, createdEvent = Helpers.createEventTest authenticatedClient event
-            let createdEvent = getCreatedEvent createdEvent
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
             let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.Event.Id}"
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode)
         }
@@ -58,8 +56,7 @@ type GetEvent(fixture: DatabaseFixture) =
             TestData.createEvent (fun e -> { e with IsExternal = false })
 
         task {
-            let! _, createdEvent = Helpers.createEventTest authenticatedClient event
-            let createdEvent = getCreatedEvent createdEvent
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
             let! response, _ = Http.get authenticatedClient $"/events/{createdEvent.Event.Id}"
             response.EnsureSuccessStatusCode() |> ignore
         }
@@ -70,8 +67,7 @@ type GetEvent(fixture: DatabaseFixture) =
             TestData.createEvent (fun e -> { e with IsExternal = false })
 
         task {
-            let! _, createdEvent = Helpers.createEventTest authenticatedClient event
-            let createdEvent = getCreatedEvent createdEvent
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
             let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.Event.Id}/unfurl"
             response.EnsureSuccessStatusCode() |> ignore
         }
@@ -82,8 +78,7 @@ type GetEvent(fixture: DatabaseFixture) =
             TestData.createEvent (fun e -> { e with IsExternal = true })
 
         task {
-            let! _, createdEvent = Helpers.createEventTest authenticatedClient event
-            let createdEvent = getCreatedEvent createdEvent
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
             let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.Event.Id}/participants/count"
             response.EnsureSuccessStatusCode() |> ignore
         }
@@ -94,11 +89,7 @@ type GetEvent(fixture: DatabaseFixture) =
             TestData.createEvent (fun e -> { e with IsExternal = false })
 
         task {
-            let! _, createdEvent = Helpers.createEventTest authenticatedClient event
-            // TODO: Disse greiene kan forenkles litt
-            // createEventTestAndGet
-            // createEventTestAndUse
-            let createdEvent = getCreatedEvent createdEvent
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
             let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.Event.Id}/participants/count"
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode)
         }
@@ -109,8 +100,7 @@ type GetEvent(fixture: DatabaseFixture) =
             TestData.createEvent (fun e -> { e with IsExternal = false })
 
         task {
-            let! _, createdEvent = Helpers.createEventTest authenticatedClient event
-            let createdEvent = getCreatedEvent createdEvent
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
             let! response, _ = Http.get authenticatedClient $"/events/{createdEvent.Event.Id}/participants/count"
             response.EnsureSuccessStatusCode() |> ignore
         }
@@ -124,8 +114,7 @@ type GetEvent(fixture: DatabaseFixture) =
                     IsExternal = false })
 
         task {
-            let! _, createdEvent = Helpers.createEventTest authenticatedClient event
-            let createdEvent = getCreatedEvent createdEvent
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
 
             for _ in 0..4 do
                 let! _ = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
@@ -141,8 +130,7 @@ type GetEvent(fixture: DatabaseFixture) =
             TestData.createEvent (fun e -> { e with IsExternal = true })
 
         task {
-            let! _, createdEvent = Helpers.createEventTest authenticatedClient event
-            let createdEvent = getCreatedEvent createdEvent
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
             let! _, created = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
             let created = getParticipant created
 
@@ -161,8 +149,7 @@ type GetEvent(fixture: DatabaseFixture) =
             TestData.createEvent (fun e -> { e with IsExternal = false })
 
         task {
-            let! _, createdEvent = Helpers.createEventTest authenticatedClient event
-            let createdEvent = getCreatedEvent createdEvent
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
             let! _, created = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
             let created = getParticipant created
 
@@ -180,8 +167,7 @@ type GetEvent(fixture: DatabaseFixture) =
             TestData.createEvent (fun e -> { e with IsExternal = false })
 
         task {
-            let! _, createdEvent = Helpers.createEventTest authenticatedClient event
-            let createdEvent = getCreatedEvent createdEvent
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
             let! _, created = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
             let created = getParticipant created
 
@@ -203,8 +189,7 @@ type GetEvent(fixture: DatabaseFixture) =
                     IsExternal = false })
 
         task {
-            let! _, createdEvent = Helpers.createEventTest authenticatedClient event
-            let createdEvent = getCreatedEvent createdEvent
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
             let! _, created = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
             let created = getParticipant created
 
@@ -221,8 +206,7 @@ type GetEvent(fixture: DatabaseFixture) =
         let event = Generator.generateEvent ()
 
         task {
-            let! _, createdEvent = Helpers.createEventTest authenticatedClient event
-            let createdEvent = getCreatedEvent createdEvent
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
             let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.Event.Id}/participants/export"
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode)
         }
@@ -232,8 +216,7 @@ type GetEvent(fixture: DatabaseFixture) =
         let event = Generator.generateEvent ()
 
         task {
-            let! _, createdEvent = Helpers.createEventTest authenticatedClient event
-            let createdEvent = getCreatedEvent createdEvent
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
             let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.Event.Id}/participants/export"
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode)
         }
@@ -244,8 +227,7 @@ type GetEvent(fixture: DatabaseFixture) =
             TestData.createEvent (fun e -> { e with IsExternal = true })
 
         task {
-            let! _, createdEvent = Helpers.createEventTest authenticatedClient event
-            let createdEvent = getCreatedEvent createdEvent
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
 
             let! response, _ =
                 Http.getCsvWithEditToken unauthenticatedClient createdEvent.Event.Id createdEvent.EditToken
@@ -336,8 +318,7 @@ type GetEvent(fixture: DatabaseFixture) =
                     HasWaitingList = true })
 
         task {
-            let! _, createdEvent = Helpers.createEventTest authenticatedClient event
-            let createdEvent = getCreatedEvent createdEvent
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
             let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.Event.Id}/participants"
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode)
         }
@@ -352,8 +333,7 @@ type GetEvent(fixture: DatabaseFixture) =
                     HasWaitingList = true })
 
         task {
-            let! _, createdEvent = Helpers.createEventTest authenticatedClient event
-            let createdEvent = getCreatedEvent createdEvent
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
 
             for _ in 0..7 do
                 let! _ = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
@@ -390,8 +370,11 @@ type GetEvent(fixture: DatabaseFixture) =
                             MaxParticipants = Some 3
                             HasWaitingList = true })
 
-                let! _, createdEvent = Helpers.createEventTest authenticatedClient event
-                let createdEvent = getCreatedEvent createdEvent
+                let! _, createdEvent = Helpers.createEvent authenticatedClient event
+
+                let createdEvent =
+                    getCreatedEvent createdEvent
+
                 let! _ = Helpers.createParticipantForEvent authenticatedClient createdEvent.Event.Id email participant
                 ()
 

@@ -23,8 +23,7 @@ type UpdateEvent(fixture: DatabaseFixture) =
             Generator.generateEvent ()
 
         task {
-            let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
-            let createdEvent = getCreatedEvent createdEvent
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
 
             let eventToUpdate =
                 { generatedEvent with Title = "This is a new title!" }
@@ -39,15 +38,16 @@ type UpdateEvent(fixture: DatabaseFixture) =
             Generator.generateEvent ()
 
         task {
-            let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
-            let createdEvent = getCreatedEvent createdEvent
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
 
             let eventToUpdate =
                 { generatedEvent with Title = "This is a new title!" }
 
             let! response, updatedEvent =
                 Helpers.updateEventTest authenticatedClient createdEvent.Event.Id eventToUpdate
-            let updatedEvent = getUpdatedEvent updatedEvent
+
+            let updatedEvent =
+                getUpdatedEvent updatedEvent
 
             Assert.Equal("This is a new title!", updatedEvent.Title)
             response.EnsureSuccessStatusCode() |> ignore
@@ -59,8 +59,7 @@ type UpdateEvent(fixture: DatabaseFixture) =
             Generator.generateEvent ()
 
         task {
-            let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
-            let createdEvent = getCreatedEvent createdEvent
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
 
             let eventToUpdate =
                 { generatedEvent with Title = "This is a new title!" }

@@ -18,7 +18,7 @@ type CreateEvent(fixture: DatabaseFixture) =
         let event = Generator.generateEvent ()
 
         task {
-            let! response, _ = Http.postEvent unauthenticatedClient event
+            let! response, _ = Helpers.createEvent unauthenticatedClient event
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode)
         }
 
@@ -27,6 +27,6 @@ type CreateEvent(fixture: DatabaseFixture) =
         let event = Generator.generateEvent ()
 
         task {
-            let! response, _ = Helpers.createEventTest authenticatedClient event
+            let! response, _ = Helpers.createEvent authenticatedClient event
             response.EnsureSuccessStatusCode() |> ignore
         }

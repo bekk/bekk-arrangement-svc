@@ -1,6 +1,5 @@
 namespace Tests.SendMailOnUpdateEvent
 
-open System.Net
 open Tests
 open Xunit
 
@@ -17,9 +16,6 @@ type UpdateEventEmailTestResult =
 type General(fixture: DatabaseFixture) =
     let authenticatedClient =
         fixture.getAuthedClient
-
-    let unauthenticatedClient =
-        fixture.getUnauthenticatedClient
 
     let init (updateMap: Models.EventWriteModel -> Models.EventWriteModel) =
         task {
@@ -38,10 +34,7 @@ type General(fixture: DatabaseFixture) =
                         IsExternal = true
                         MaxParticipants = None })
 
-            let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
-
-            let createdEvent =
-                getCreatedEvent createdEvent
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
 
             let! _, createdParticipant = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
 

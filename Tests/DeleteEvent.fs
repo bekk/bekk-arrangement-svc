@@ -20,8 +20,7 @@ type DeleteEvent(fixture: DatabaseFixture) =
             Generator.generateEvent ()
 
         task {
-            let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
-            let createdEvent = getCreatedEvent createdEvent
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
             let! response, _ = Http.deleteEvent unauthenticatedClient createdEvent.Event.Id
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode)
         }
@@ -32,8 +31,7 @@ type DeleteEvent(fixture: DatabaseFixture) =
             Generator.generateEvent ()
 
         task {
-            let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
-            let createdEvent = getCreatedEvent createdEvent
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
 
             let! response, _ = Http.deleteEvent authenticatedClient createdEvent.Event.Id
             response.EnsureSuccessStatusCode() |> ignore
@@ -45,8 +43,7 @@ type DeleteEvent(fixture: DatabaseFixture) =
             Generator.generateEvent ()
 
         task {
-            let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
-            let createdEvent = getCreatedEvent createdEvent
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
 
             let! response, _ =
                 Http.deleteEventWithEditToken unauthenticatedClient createdEvent.Event.Id createdEvent.EditToken
@@ -60,8 +57,7 @@ type DeleteEvent(fixture: DatabaseFixture) =
             Generator.generateEvent ()
 
         task {
-            let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
-            let createdEvent = getCreatedEvent createdEvent
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
             let! response, _ = Http.cancelEvent unauthenticatedClient createdEvent.Event.Id
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode)
         }
@@ -72,8 +68,7 @@ type DeleteEvent(fixture: DatabaseFixture) =
             Generator.generateEvent ()
 
         task {
-            let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
-            let createdEvent = getCreatedEvent createdEvent
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
 
             let! response, _ = Http.cancelEvent authenticatedClient createdEvent.Event.Id
             response.EnsureSuccessStatusCode() |> ignore
@@ -85,8 +80,7 @@ type DeleteEvent(fixture: DatabaseFixture) =
             Generator.generateEvent ()
 
         task {
-            let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
-            let createdEvent = getCreatedEvent createdEvent
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
 
             let! response, _ =
                 Http.cancelEventWithEditToken unauthenticatedClient createdEvent.Event.Id createdEvent.EditToken
@@ -113,8 +107,7 @@ type DeleteEvent(fixture: DatabaseFixture) =
             TestData.createEvent (fun e -> { e with ParticipantQuestions = [] })
 
         task {
-            let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
-            let createdEvent = getCreatedEvent createdEvent
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
             let! _, participant = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
             let participant = getParticipant participant
 
@@ -138,8 +131,7 @@ type DeleteEvent(fixture: DatabaseFixture) =
                     ParticipantQuestions = [] })
 
         task {
-            let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
-            let createdEvent = getCreatedEvent createdEvent
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
             let! _, participant = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
             let participant = getParticipant participant
 
@@ -172,8 +164,7 @@ type DeleteEvent(fixture: DatabaseFixture) =
                     ParticipantQuestions = [] })
 
         task {
-            let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
-            let createdEvent = getCreatedEvent createdEvent
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
             let! _, firstParticipant = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
             let! _, secondParticipant = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
             let firstParticipant = getParticipant firstParticipant
