@@ -25,7 +25,7 @@ type RegisterToEvent(fixture: DatabaseFixture) =
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
             let createdEvent = getCreatedEvent createdEvent
-            let! response, _ = Helpers.createParticipant unauthenticatedClient createdEvent.event.id
+            let! response, _ = Helpers.createParticipant unauthenticatedClient createdEvent.Event.Id
             response.EnsureSuccessStatusCode() |> ignore
         }
 
@@ -40,7 +40,7 @@ type RegisterToEvent(fixture: DatabaseFixture) =
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
             let createdEvent = getCreatedEvent createdEvent
-            let! response, _ = Helpers.createParticipant unauthenticatedClient createdEvent.event.id
+            let! response, _ = Helpers.createParticipant unauthenticatedClient createdEvent.Event.Id
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode)
         }
 
@@ -55,7 +55,7 @@ type RegisterToEvent(fixture: DatabaseFixture) =
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
             let createdEvent = getCreatedEvent createdEvent
-            let! response, _ = Helpers.createParticipant authenticatedClient createdEvent.event.id
+            let! response, _ = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
             response.EnsureSuccessStatusCode() |> ignore
         }
 
@@ -70,7 +70,7 @@ type RegisterToEvent(fixture: DatabaseFixture) =
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
             let createdEvent = getCreatedEvent createdEvent
-            let! response, _ = Helpers.createParticipant authenticatedClient createdEvent.event.id
+            let! response, _ = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
             response.EnsureSuccessStatusCode() |> ignore
         }
 
@@ -85,9 +85,9 @@ type RegisterToEvent(fixture: DatabaseFixture) =
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
             let createdEvent = getCreatedEvent createdEvent
-            let! _ = Http.cancelEvent authenticatedClient createdEvent.event.id
-            let! _, unauthenticatedResponseBody = Helpers.createParticipant unauthenticatedClient createdEvent.event.id
-            let! _, authenticatedResponseBody = Helpers.createParticipant authenticatedClient createdEvent.event.id
+            let! _ = Http.cancelEvent authenticatedClient createdEvent.Event.Id
+            let! _, unauthenticatedResponseBody = Helpers.createParticipant unauthenticatedClient createdEvent.Event.Id
+            let! _, authenticatedResponseBody = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
 
             Models.useUserMessage unauthenticatedResponseBody (fun userMessage ->
                 Assert.Equal("Arrangementet er kansellert", userMessage.userMessage))
@@ -107,8 +107,8 @@ type RegisterToEvent(fixture: DatabaseFixture) =
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
             let createdEvent = getCreatedEvent createdEvent
-            let! _, unauthenticatedResponseBody = Helpers.createParticipant unauthenticatedClient createdEvent.event.id
-            let! _, authenticatedResponseBody = Helpers.createParticipant authenticatedClient createdEvent.event.id
+            let! _, unauthenticatedResponseBody = Helpers.createParticipant unauthenticatedClient createdEvent.Event.Id
+            let! _, authenticatedResponseBody = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
 
             Models.useUserMessage unauthenticatedResponseBody (fun userMessage ->
                 Assert.Equal("Arrangementet tok sted i fortiden", userMessage.userMessage))
@@ -129,8 +129,8 @@ type RegisterToEvent(fixture: DatabaseFixture) =
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
             let createdEvent = getCreatedEvent createdEvent
-            let! _, unauthenticatedResponseBody = Helpers.createParticipant unauthenticatedClient createdEvent.event.id
-            let! _, authenticatedResponseBody = Helpers.createParticipant authenticatedClient createdEvent.event.id
+            let! _, unauthenticatedResponseBody = Helpers.createParticipant unauthenticatedClient createdEvent.Event.Id
+            let! _, authenticatedResponseBody = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
 
             Models.useUserMessage unauthenticatedResponseBody (fun userMessage ->
                 Assert.Equal("Arrangementet har ikke plass", userMessage.userMessage))
@@ -151,8 +151,8 @@ type RegisterToEvent(fixture: DatabaseFixture) =
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
             let createdEvent = getCreatedEvent createdEvent
-            let! unauthenticatedResponse, _ = Helpers.createParticipant unauthenticatedClient createdEvent.event.id
-            let! authenticatedResponse, _ = Helpers.createParticipant authenticatedClient createdEvent.event.id
+            let! unauthenticatedResponse, _ = Helpers.createParticipant unauthenticatedClient createdEvent.Event.Id
+            let! authenticatedResponse, _ = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
 
             unauthenticatedResponse.EnsureSuccessStatusCode()
             |> ignore

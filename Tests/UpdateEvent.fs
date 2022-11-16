@@ -29,7 +29,7 @@ type UpdateEvent(fixture: DatabaseFixture) =
             let eventToUpdate =
                 { generatedEvent with Title = "This is a new title!" }
 
-            let! response, _ = Http.updateEvent unauthenticatedClient createdEvent.event.id eventToUpdate
+            let! response, _ = Http.updateEvent unauthenticatedClient createdEvent.Event.Id eventToUpdate
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode)
         }
 
@@ -46,10 +46,10 @@ type UpdateEvent(fixture: DatabaseFixture) =
                 { generatedEvent with Title = "This is a new title!" }
 
             let! response, updatedEvent =
-                Helpers.updateEventTest authenticatedClient createdEvent.event.id eventToUpdate
+                Helpers.updateEventTest authenticatedClient createdEvent.Event.Id eventToUpdate
             let updatedEvent = getUpdatedEvent updatedEvent
 
-            Assert.Equal("This is a new title!", updatedEvent.title)
+            Assert.Equal("This is a new title!", updatedEvent.Title)
             response.EnsureSuccessStatusCode() |> ignore
         }
 
@@ -68,10 +68,10 @@ type UpdateEvent(fixture: DatabaseFixture) =
             let! response, updatedEvent =
                 Helpers.updateEventWithEditTokenTest
                     unauthenticatedClient
-                    createdEvent.event.id
-                    createdEvent.editToken
+                    createdEvent.Event.Id
+                    createdEvent.EditToken
                     eventToUpdate
 
-            Assert.Equal("This is a new title!", updatedEvent.title)
+            Assert.Equal("This is a new title!", updatedEvent.Title)
             response.EnsureSuccessStatusCode() |> ignore
         }

@@ -43,7 +43,7 @@ type General(fixture: DatabaseFixture) =
             let createdEvent =
                 getCreatedEvent createdEvent
 
-            let! _, createdParticipant = Helpers.createParticipant authenticatedClient createdEvent.event.id
+            let! _, createdParticipant = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
 
             let createdParticipant =
                 getParticipant createdParticipant
@@ -51,7 +51,7 @@ type General(fixture: DatabaseFixture) =
             emptyDevMailbox ()
 
             let! _, updatedEvent =
-                Helpers.updateEventTest authenticatedClient createdEvent.event.id (updateMap generatedEvent)
+                Helpers.updateEventTest authenticatedClient createdEvent.Event.Id (updateMap generatedEvent)
 
             let updatedEvent =
                 getUpdatedEvent updatedEvent
@@ -139,7 +139,7 @@ type General(fixture: DatabaseFixture) =
                 data.Message.Value.Email.Message
 
             let expected =
-                $" endret lokasjon fra {data.CreatedEvent.event.location} til {data.UpdatedEvent.location}"
+                $" endret lokasjon fra {data.CreatedEvent.Event.Location} til {data.UpdatedEvent.Location}"
 
             Assert.Contains(expected, actual)
         }
@@ -185,8 +185,8 @@ type General(fixture: DatabaseFixture) =
             let actual =
                 data.Message.Value.Email.Message
 
-            Assert.Contains(data.UpdatedEvent.organizerName, actual)
-            Assert.Contains(data.UpdatedEvent.organizerEmail, actual)
-            Assert.False(actual.Contains(data.CreatedEvent.event.organizerName))
-            Assert.False(actual.Contains(data.CreatedEvent.event.organizerEmail))
+            Assert.Contains(data.UpdatedEvent.OrganizerName, actual)
+            Assert.Contains(data.UpdatedEvent.OrganizerEmail, actual)
+            Assert.False(actual.Contains(data.CreatedEvent.Event.OrganizerName))
+            Assert.False(actual.Contains(data.CreatedEvent.Event.OrganizerEmail))
         }

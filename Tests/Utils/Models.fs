@@ -3,65 +3,65 @@ module Models
 open Models
 open Thoth.Json.Net
 
-type InnerEvent = { id: string
-                    title: string
-                    location: string
-                    organizerName: string
-                    organizerEmail: string }
+type InnerEvent = { Id: string
+                    Title: string
+                    Location: string
+                    OrganizerName: string
+                    OrganizerEmail: string }
 
 type CreatedEvent =
-    { editToken: string
-      event: InnerEvent }
+    { EditToken: string
+      Event: InnerEvent }
 
 type InnerParticipant =
-    { name: string
-      email: string
-      employeeId: int option
-      participantAnswers: string list }
+    { Name: string
+      Email: string
+      EmployeeId: int option
+      ParticipantAnswers: string list }
 
 type CreatedParticipant =
-    { participant: InnerParticipant
-      cancellationToken: string }
+    { Participant: InnerParticipant
+      CancellationToken: string }
 
-type ParticipantAndAnswers = { name: string }
+type ParticipantAndAnswers = { Name: string }
 
 let participantAndAnswerDecoder: Decoder<ParticipantAndAnswers> =
-    Decode.object (fun get -> { name = get.Required.Field "name" Decode.string })
+    Decode.object (fun get -> { Name = get.Required.Field "name" Decode.string })
 
 type ParticipationsAndWaitlist =
-    { attendees: ParticipantAndAnswers list
-      waitingList: ParticipantAndAnswers list }
+    { Attendees: ParticipantAndAnswers list
+      WaitingList: ParticipantAndAnswers list }
 
 let participationsAndWaitingListDecoder: Decoder<ParticipationsAndWaitlist> =
     Decode.object (fun get ->
-        { attendees = get.Required.Field "attendees" (Decode.list participantAndAnswerDecoder)
-          waitingList = get.Required.Field "waitingList" (Decode.list participantAndAnswerDecoder) })
+        { Attendees = get.Required.Field "attendees" (Decode.list participantAndAnswerDecoder)
+          WaitingList = get.Required.Field "waitingList" (Decode.list participantAndAnswerDecoder) })
 
 let innerEventDecoder: Decoder<InnerEvent> =
     Decode.object (fun get ->
-        { id = get.Required.Field "id" Decode.string
-          title = get.Required.Field "title" Decode.string
-          location = get.Required.Field "location" Decode.string
-          organizerEmail = get.Required.Field "organizerEmail" Decode.string
-          organizerName = get.Required.Field "organizerName" Decode.string
+        { Id = get.Required.Field "id" Decode.string
+          Title = get.Required.Field "title" Decode.string
+          Location = get.Required.Field "location" Decode.string
+          OrganizerEmail = get.Required.Field "organizerEmail" Decode.string
+          OrganizerName = get.Required.Field "organizerName" Decode.string
           })
 
 let createdEventDecoder: Decoder<CreatedEvent> =
     Decode.object (fun get ->
-        { editToken = get.Required.Field "editToken" Decode.string
-          event = get.Required.Field "event" innerEventDecoder })
+        { EditToken = get.Required.Field "editToken" Decode.string
+          Event = get.Required.Field "event" innerEventDecoder })
 
 let innerParticipantDecoder: Decoder<InnerParticipant> =
     Decode.object (fun get ->
-        { name = get.Required.Field "name" Decode.string
-          email = get.Required.Field "email" Decode.string
-          employeeId = get.Optional.Field "employeeId" Decode.int
-          participantAnswers = get.Required.Field "participantAnswers" (Decode.list Decode.string) })
+        { Name = get.Required.Field "name" Decode.string
+          Email = get.Required.Field "email" Decode.string
+          EmployeeId = get.Optional.Field "employeeId" Decode.int
+          ParticipantAnswers = get.Required.Field "participantAnswers" (Decode.list Decode.string) })
 
 let createdParticipantDecoder: Decoder<CreatedParticipant> =
     Decode.object (fun get ->
-        { cancellationToken = get.Required.Field "cancellationToken" Decode.string
-          participant = get.Required.Field "participant" innerParticipantDecoder })
+        { CancellationToken = get.Required.Field "cancellationToken" Decode.string
+          Participant = get.Required.Field "participant" innerParticipantDecoder })
 
 type UserMessage = { userMessage: string }
 

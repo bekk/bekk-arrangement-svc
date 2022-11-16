@@ -25,7 +25,7 @@ type GetEvent(fixture: DatabaseFixture) =
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient event
             let! _, content = Http.getEventIdByShortname unauthenticatedClient shortname
-            useCreatedEvent createdEvent (fun createdEvent -> Assert.Equal($"\"{createdEvent.event.id}\"", content))
+            useCreatedEvent createdEvent (fun createdEvent -> Assert.Equal($"\"{createdEvent.Event.Id}\"", content))
         }
 
     [<Fact>]
@@ -36,7 +36,7 @@ type GetEvent(fixture: DatabaseFixture) =
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient event
             let createdEvent = getCreatedEvent createdEvent
-            let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.event.id}"
+            let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.Event.Id}"
             response.EnsureSuccessStatusCode() |> ignore
         }
 
@@ -48,7 +48,7 @@ type GetEvent(fixture: DatabaseFixture) =
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient event
             let createdEvent = getCreatedEvent createdEvent
-            let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.event.id}"
+            let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.Event.Id}"
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode)
         }
 
@@ -60,7 +60,7 @@ type GetEvent(fixture: DatabaseFixture) =
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient event
             let createdEvent = getCreatedEvent createdEvent
-            let! response, _ = Http.get authenticatedClient $"/events/{createdEvent.event.id}"
+            let! response, _ = Http.get authenticatedClient $"/events/{createdEvent.Event.Id}"
             response.EnsureSuccessStatusCode() |> ignore
         }
 
@@ -72,7 +72,7 @@ type GetEvent(fixture: DatabaseFixture) =
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient event
             let createdEvent = getCreatedEvent createdEvent
-            let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.event.id}/unfurl"
+            let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.Event.Id}/unfurl"
             response.EnsureSuccessStatusCode() |> ignore
         }
 
@@ -84,7 +84,7 @@ type GetEvent(fixture: DatabaseFixture) =
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient event
             let createdEvent = getCreatedEvent createdEvent
-            let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.event.id}/participants/count"
+            let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.Event.Id}/participants/count"
             response.EnsureSuccessStatusCode() |> ignore
         }
 
@@ -99,7 +99,7 @@ type GetEvent(fixture: DatabaseFixture) =
             // createEventTestAndGet
             // createEventTestAndUse
             let createdEvent = getCreatedEvent createdEvent
-            let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.event.id}/participants/count"
+            let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.Event.Id}/participants/count"
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode)
         }
 
@@ -111,7 +111,7 @@ type GetEvent(fixture: DatabaseFixture) =
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient event
             let createdEvent = getCreatedEvent createdEvent
-            let! response, _ = Http.get authenticatedClient $"/events/{createdEvent.event.id}/participants/count"
+            let! response, _ = Http.get authenticatedClient $"/events/{createdEvent.Event.Id}/participants/count"
             response.EnsureSuccessStatusCode() |> ignore
         }
 
@@ -128,10 +128,10 @@ type GetEvent(fixture: DatabaseFixture) =
             let createdEvent = getCreatedEvent createdEvent
 
             for _ in 0..4 do
-                let! _ = Helpers.createParticipant authenticatedClient createdEvent.event.id
+                let! _ = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
                 ()
 
-            let! _, content = Http.get authenticatedClient $"/events/{createdEvent.event.id}/participants/count"
+            let! _, content = Http.get authenticatedClient $"/events/{createdEvent.Event.Id}/participants/count"
             Assert.Equal("5", content)
         }
 
@@ -143,13 +143,13 @@ type GetEvent(fixture: DatabaseFixture) =
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient event
             let createdEvent = getCreatedEvent createdEvent
-            let! _, created = Helpers.createParticipant authenticatedClient createdEvent.event.id
+            let! _, created = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
             let created = getParticipant created
 
             let! response, _ =
                 Http.get
                     unauthenticatedClient
-                    $"/events/{createdEvent.event.id}/participants/{created.Email}/waitinglist-spot"
+                    $"/events/{createdEvent.Event.Id}/participants/{created.Email}/waitinglist-spot"
 
             response.EnsureSuccessStatusCode() |> ignore
         }
@@ -163,13 +163,13 @@ type GetEvent(fixture: DatabaseFixture) =
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient event
             let createdEvent = getCreatedEvent createdEvent
-            let! _, created = Helpers.createParticipant authenticatedClient createdEvent.event.id
+            let! _, created = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
             let created = getParticipant created
 
             let! response, _ =
                 Http.get
                     unauthenticatedClient
-                    $"/events/{createdEvent.event.id}/participants/{created.Email}/waitinglist-spot"
+                    $"/events/{createdEvent.Event.Id}/participants/{created.Email}/waitinglist-spot"
 
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode)
         }
@@ -182,13 +182,13 @@ type GetEvent(fixture: DatabaseFixture) =
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient event
             let createdEvent = getCreatedEvent createdEvent
-            let! _, created = Helpers.createParticipant authenticatedClient createdEvent.event.id
+            let! _, created = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
             let created = getParticipant created
 
             let! response, _ =
                 Http.get
                     authenticatedClient
-                    $"/events/{createdEvent.event.id}/participants/{created.Email}/waitinglist-spot"
+                    $"/events/{createdEvent.Event.Id}/participants/{created.Email}/waitinglist-spot"
 
             response.EnsureSuccessStatusCode() |> ignore
         }
@@ -205,13 +205,13 @@ type GetEvent(fixture: DatabaseFixture) =
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient event
             let createdEvent = getCreatedEvent createdEvent
-            let! _, created = Helpers.createParticipant authenticatedClient createdEvent.event.id
+            let! _, created = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
             let created = getParticipant created
 
             let! _, content =
                 Http.get
                     authenticatedClient
-                    $"/events/{createdEvent.event.id}/participants/{created.Email}/waitinglist-spot"
+                    $"/events/{createdEvent.Event.Id}/participants/{created.Email}/waitinglist-spot"
 
             Assert.Equal("1", content)
         }
@@ -223,7 +223,7 @@ type GetEvent(fixture: DatabaseFixture) =
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient event
             let createdEvent = getCreatedEvent createdEvent
-            let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.event.id}/participants/export"
+            let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.Event.Id}/participants/export"
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode)
         }
 
@@ -234,7 +234,7 @@ type GetEvent(fixture: DatabaseFixture) =
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient event
             let createdEvent = getCreatedEvent createdEvent
-            let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.event.id}/participants/export"
+            let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.Event.Id}/participants/export"
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode)
         }
 
@@ -248,7 +248,7 @@ type GetEvent(fixture: DatabaseFixture) =
             let createdEvent = getCreatedEvent createdEvent
 
             let! response, _ =
-                Http.getCsvWithEditToken unauthenticatedClient createdEvent.event.id createdEvent.editToken
+                Http.getCsvWithEditToken unauthenticatedClient createdEvent.Event.Id createdEvent.EditToken
 
             response.EnsureSuccessStatusCode() |> ignore
         }
@@ -338,7 +338,7 @@ type GetEvent(fixture: DatabaseFixture) =
         task {
             let! _, createdEvent = Helpers.createEventTest authenticatedClient event
             let createdEvent = getCreatedEvent createdEvent
-            let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.event.id}/participants"
+            let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.Event.Id}/participants"
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode)
         }
 
@@ -356,12 +356,12 @@ type GetEvent(fixture: DatabaseFixture) =
             let createdEvent = getCreatedEvent createdEvent
 
             for _ in 0..7 do
-                let! _ = Helpers.createParticipant authenticatedClient createdEvent.event.id
+                let! _ = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
                 ()
 
-            let! response, result = Helpers.getParticipationsAndWaitlist authenticatedClient createdEvent.event.id
-            Assert.Equal(List.length result.attendees, 3)
-            Assert.Equal(List.length result.waitingList, 5)
+            let! response, result = Helpers.getParticipationsAndWaitlist authenticatedClient createdEvent.Event.Id
+            Assert.Equal(List.length result.Attendees, 3)
+            Assert.Equal(List.length result.WaitingList, 5)
             response.EnsureSuccessStatusCode() |> ignore
         }
 
@@ -392,7 +392,7 @@ type GetEvent(fixture: DatabaseFixture) =
 
                 let! _, createdEvent = Helpers.createEventTest authenticatedClient event
                 let createdEvent = getCreatedEvent createdEvent
-                let! _ = Helpers.createParticipantForEvent authenticatedClient createdEvent.event.id email participant
+                let! _ = Helpers.createParticipantForEvent authenticatedClient createdEvent.Event.Id email participant
                 ()
 
             let! response, content = Helpers.getParticipationsForEvent authenticatedClient email
