@@ -9,10 +9,10 @@ open Tests
 [<Collection("Database collection")>]
 type GetEvent(fixture: DatabaseFixture) =
     let authenticatedClient =
-        fixture.getAuthedClient ()
+        fixture.getAuthedClient
 
     let unauthenticatedClient =
-        fixture.getUnauthenticatedClient ()
+        fixture.getUnauthenticatedClient
 
     [<Fact>]
     member _.``Anyone can get event id by shortname``() =

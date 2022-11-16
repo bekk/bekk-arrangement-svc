@@ -9,10 +9,10 @@ open Tests
 [<Collection("Database collection")>]
 type DeleteEvent(fixture: DatabaseFixture) =
     let authenticatedClient =
-        fixture.getAuthedClient ()
+        fixture.getAuthedClient
 
     let unauthenticatedClient =
-        fixture.getUnauthenticatedClient ()
+        fixture.getUnauthenticatedClient
 
     [<Fact>]
     member _.``Unauthenticated user with cannot delete event``() =

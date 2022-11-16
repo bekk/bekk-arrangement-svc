@@ -12,10 +12,10 @@ open Tests
 [<Collection("Database collection")>]
 type UpdateEvent(fixture: DatabaseFixture) =
     let authenticatedClient =
-        fixture.getAuthedClient ()
+        fixture.getAuthedClient
 
     let unauthenticatedClient =
-        fixture.getUnauthenticatedClient ()
+        fixture.getUnauthenticatedClient
 
     [<Fact>]
     member _.``Edit event without without authorization gives forbidden``() =

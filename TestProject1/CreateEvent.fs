@@ -8,10 +8,10 @@ open Tests
 [<Collection("Database collection")>]
 type CreateEvent(fixture: DatabaseFixture) =
     let authenticatedClient =
-        fixture.getAuthedClient ()
+        fixture.getAuthedClient
 
     let unauthenticatedClient =
-        fixture.getUnauthenticatedClient ()
+        fixture.getUnauthenticatedClient
 
     [<Fact>]
     member _.``Create event without authorization gives unauthorized``() =

@@ -7,10 +7,10 @@ open Xunit
 [<Collection("Database collection")>]
 type General(fixture: DatabaseFixture) =
     let authenticatedClient =
-        fixture.getAuthedClient ()
+        fixture.getAuthedClient
 
     let unauthenticatedClient =
-        fixture.getUnauthenticatedClient ()
+        fixture.getUnauthenticatedClient
 
     [<Fact>]
     member _.``Health check without authorizaiont works``() =
