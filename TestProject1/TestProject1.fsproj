@@ -23,6 +23,7 @@
         <Compile Include="UpdateEvent.fs" />
         <Compile Include="DeleteEvent.fs" />
         <Compile Include="GetEvent.fs" />
+        <Compile Include="DateTimeCustom.fs" />
         <Compile Include="Program.fs" />
     </ItemGroup>
 
