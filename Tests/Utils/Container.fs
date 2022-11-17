@@ -63,7 +63,6 @@ let private waitForContainerRunning () : unit =
 
 let create () =
     printfn $"Run container {ContainerName}"
-    // TODO: Fetch password from config
     container [$"create --name {ContainerName} -e \"ACCEPT_EULA=Y\" -e \"SA_PASSWORD=<YourStrong!Passw0rd>\" -p 1433:1433 mcr.microsoft.com/mssql/server:2017-latest"] |> ignore
 
 let rm () =

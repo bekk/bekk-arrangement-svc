@@ -76,12 +76,14 @@ module Helpers =
             return response, responseBody
         }
 
-    let createParticipant client eventId =
+    let createParticipantwithQuestions client eventId numberOfQuestions =
         let participant =
-            Generator.generateParticipant 0
+            Generator.generateParticipant numberOfQuestions
 
         let email = Generator.generateEmail ()
         createParticipantForEvent client eventId email participant
+
+    let createParticipant client eventId = createParticipantwithQuestions client eventId 0
 
     let createParticipantAndUse client eventId f =
         createParticipant client eventId
