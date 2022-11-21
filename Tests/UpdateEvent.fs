@@ -14,6 +14,9 @@ type UpdateEvent(fixture: DatabaseFixture) =
     let unauthenticatedClient =
         fixture.getUnauthenticatedClient
 
+    let clientDifferentUserAdmin =
+        fixture.getAuthedClientWithClaims 40 [ "admin:arrangement" ]
+
     [<Fact>]
     member _.``Edit event without without authorization gives forbidden``() =
         let generatedEvent =
@@ -41,6 +44,26 @@ type UpdateEvent(fixture: DatabaseFixture) =
                 { generatedEvent with Title = "This is a new title!" }
 
             let! response, updatedEvent = Helpers.updateEvent authenticatedClient createdEvent.Event.Id eventToUpdate
+
+            let updatedEvent =
+                getUpdatedEvent updatedEvent
+
+            Assert.Equal("This is a new title!", updatedEvent.Title)
+            response.EnsureSuccessStatusCode() |> ignore
+        }
+
+    [<Fact>]
+    member _.``Admin can edit events``() =
+        let generatedEvent =
+            Generator.generateEvent ()
+
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
+
+            let eventToUpdate =
+                { generatedEvent with Title = "This is a new title!" }
+
+            let! response, updatedEvent = Helpers.updateEvent clientDifferentUserAdmin createdEvent.Event.Id eventToUpdate
 
             let updatedEvent =
                 getUpdatedEvent updatedEvent

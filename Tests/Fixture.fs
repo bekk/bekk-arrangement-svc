@@ -43,11 +43,15 @@ type DatabaseFixture() =
                 |> ignore)
             .CreateClient()
 
-    member this.getAuthedClientWithClaims(permissions: string list) =
+    member this.getAuthedClientWithClaims (employeeId: int) (permissions: string list) =
         this
             .WithWebHostBuilder(fun builder ->
                 builder.ConfigureTestServices (fun (services: IServiceCollection) ->
-                    services.Configure<TestAuthHandlerOptions>(fun (options: TestAuthHandlerOptions) -> options.BekkPermissions <- permissions)
+                    services.Configure<TestAuthHandlerOptions> (fun (options: TestAuthHandlerOptions) ->
+                        options.EmployeeId <- employeeId
+                        options.BekkPermissions <- permissions)
+                    |> ignore
+
                     services
                         .AddAuthentication(fun options ->
                             options.DefaultAuthenticateScheme <- "Test"

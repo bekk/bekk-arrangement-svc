@@ -14,6 +14,9 @@ type GetEvent(fixture: DatabaseFixture) =
     let unauthenticatedClient =
         fixture.getUnauthenticatedClient
 
+    let clientDifferentUserAdmin =
+        fixture.getAuthedClientWithClaims 40 [ "admin:arrangement" ]
+
     [<Fact>]
     member _.``Anyone can get event id by shortname``() =
         let shortname =
@@ -218,6 +221,16 @@ type GetEvent(fixture: DatabaseFixture) =
         }
 
     [<Fact>]
+    member _.``Admin user can get CSV export``() =
+        let event = Generator.generateEvent ()
+
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
+            let! response, _ = Http.get clientDifferentUserAdmin $"/events/{createdEvent.Event.Id}/participants/export"
+            response.EnsureSuccessStatusCode() |> ignore
+        }
+
+    [<Fact>]
     member _.``Can get CSV export with edit token``() =
         let event =
             TestData.createEvent (fun e -> { e with IsExternal = true })
@@ -301,6 +314,13 @@ type GetEvent(fixture: DatabaseFixture) =
     member _.``Authenticated users can get events and participations``() =
         task {
             let! response, _ = Http.get authenticatedClient "/events-and-participations/0"
+            response.EnsureSuccessStatusCode() |> ignore
+        }
+
+    [<Fact>]
+    member _.``Admin can can get events and participations for different users``() =
+        task {
+            let! response, _ = Http.get clientDifferentUserAdmin "/events-and-participations/0"
             response.EnsureSuccessStatusCode() |> ignore
         }
 

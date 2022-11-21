@@ -6,6 +6,9 @@ open Xunit
 open Models
 open Tests
 
+// TODO: Test ting admin kan gjøre
+// Export participations for event
+
 [<Collection("Database collection")>]
 type DeleteEvent(fixture: DatabaseFixture) =
     let authenticatedClient =
@@ -14,8 +17,8 @@ type DeleteEvent(fixture: DatabaseFixture) =
     let unauthenticatedClient =
         fixture.getUnauthenticatedClient
 
-    let clientWithAdminToken =
-        fixture.getAuthedClientWithClaims [ "admin:arrangement" ]
+    let clientDifferentUserAdmin =
+        fixture.getAuthedClientWithClaims 40 [ "admin:arrangement" ]
 
     [<Fact>]
     member _.``Unauthenticated user with cannot delete event``() =
@@ -37,6 +40,18 @@ type DeleteEvent(fixture: DatabaseFixture) =
             let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
 
             let! response, _ = Http.deleteEvent authenticatedClient createdEvent.Event.Id
+            response.EnsureSuccessStatusCode() |> ignore
+        }
+
+    [<Fact>]
+    member _.``Admins can delete event``() =
+        let generatedEvent =
+            Generator.generateEvent ()
+
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
+
+            let! response, _ = Http.deleteEvent clientDifferentUserAdmin createdEvent.Event.Id
             response.EnsureSuccessStatusCode() |> ignore
         }
 
@@ -63,6 +78,17 @@ type DeleteEvent(fixture: DatabaseFixture) =
             let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
             let! response, _ = Http.cancelEvent unauthenticatedClient createdEvent.Event.Id
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode)
+        }
+
+    [<Fact>]
+    member _.``Admins can cancel event``() =
+        let generatedEvent = Generator.generateEvent ()
+
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
+
+            let! response, _ = Http.cancelEvent clientDifferentUserAdmin createdEvent.Event.Id
+            response.EnsureSuccessStatusCode() |> ignore
         }
 
     [<Fact>]
@@ -104,7 +130,7 @@ type DeleteEvent(fixture: DatabaseFixture) =
             let! participant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event.Id
 
             let! response, _ =
-                Http.deleteParticipantFromEvent clientWithAdminToken createdEvent.Event.Id participant.Email
+                Http.deleteParticipantFromEvent clientDifferentUserAdmin createdEvent.Event.Id participant.Email
 
             response.EnsureSuccessStatusCode() |> ignore
         }
