@@ -1,5 +1,6 @@
 namespace Tests
 
+open System.Security.Claims
 open Microsoft.AspNetCore.Authentication
 open Microsoft.AspNetCore.Mvc.Testing
 open Microsoft.AspNetCore.TestHost
@@ -37,24 +38,25 @@ type DatabaseFixture() =
                             options.DefaultAuthenticateScheme <- "Test"
                             options.DefaultScheme <- "Test"
                             ())
-                        .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Test", (fun options -> ()))
+                        .AddScheme<TestAuthHandlerOptions, TestAuthHandler>("Test", (fun options -> ()))
                     |> ignore)
                 |> ignore)
             .CreateClient()
-    // TODO: FIx at denne kan ta inn claims?
-    // member this.getAuthedClientWithClaims() =
-    //     this
-    //         .WithWebHostBuilder(fun builder ->
-    //             builder.ConfigureTestServices (fun (services: IServiceCollection) ->
-    //                 services
-    //                     .AddAuthentication(fun options ->
-    //                         options.DefaultAuthenticateScheme <- "Test"
-    //                         options.DefaultScheme <- "Test"
-    //                         ())
-    //                     .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Test", (fun options -> ()))
-    //                 |> ignore)
-    //             |> ignore)
-    //         .CreateClient()
+
+    member this.getAuthedClientWithClaims(permissions: string list) =
+        this
+            .WithWebHostBuilder(fun builder ->
+                builder.ConfigureTestServices (fun (services: IServiceCollection) ->
+                    services.Configure<TestAuthHandlerOptions>(fun (options: TestAuthHandlerOptions) -> options.BekkPermissions <- permissions)
+                    services
+                        .AddAuthentication(fun options ->
+                            options.DefaultAuthenticateScheme <- "Test"
+                            options.DefaultScheme <- "Test"
+                            ())
+                        .AddScheme<TestAuthHandlerOptions, TestAuthHandler>("Test", (fun options -> ()))
+                    |> ignore)
+                |> ignore)
+            .CreateClient()
 
     member this.getUnauthenticatedClient =
         this

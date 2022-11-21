@@ -14,6 +14,9 @@ type DeleteEvent(fixture: DatabaseFixture) =
     let unauthenticatedClient =
         fixture.getUnauthenticatedClient
 
+    let clientWithAdminToken =
+        fixture.getAuthedClientWithClaims [ "admin:arrangement" ]
+
     [<Fact>]
     member _.``Unauthenticated user with cannot delete event``() =
         let generatedEvent =
@@ -89,17 +92,23 @@ type DeleteEvent(fixture: DatabaseFixture) =
         }
 
     // TODO: Implement this when we can add admin claim to token
-    // [<Fact>]
-    // member _.``Admins can delete participants``() =
-    //     let generatedEvent =
-    //         Generator.generateEvent ()
-    //
-    //     task {
-    //         let! _, createdEvent = Helpers.createEventTest authenticatedClient generatedEvent
-    //         let! _, participant = Helpers.createParticipant authenticatedClient createdEvent.event.id
-    //         let! response, _ = Http.deleteParticipantFromEvent authenticatedClient createdEvent.event.id participant.Email
-    //         response.EnsureSuccessStatusCode() |> ignore
-    //     }
+    [<Fact>]
+    member _.``Admins can delete participants``() =
+        let generatedEvent =
+            TestData.createEvent (fun e ->
+                { e with
+                    MaxParticipants = Some 1
+                    ParticipantQuestions = [] })
+
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
+            let! participant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event.Id
+
+            let! response, _ =
+                Http.deleteParticipantFromEvent clientWithAdminToken createdEvent.Event.Id participant.Email
+
+            response.EnsureSuccessStatusCode() |> ignore
+        }
 
     [<Fact>]
     member _.``Delete participant using cancellation token``() =
