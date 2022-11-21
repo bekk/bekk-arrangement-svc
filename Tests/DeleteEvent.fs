@@ -91,7 +91,6 @@ type DeleteEvent(fixture: DatabaseFixture) =
             response.EnsureSuccessStatusCode() |> ignore
         }
 
-    // TODO: Implement this when we can add admin claim to token
     [<Fact>]
     member _.``Admins can delete participants``() =
         let generatedEvent =
