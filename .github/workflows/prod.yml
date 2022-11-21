@@ -6,6 +6,17 @@ on:
       - released
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+      - name: Test
+        run: dotnet test --no-restore
+
   build:
     name: Build and push docker image
     uses: bekk/bekk-ci-workflows/.github/workflows/build.yml@master
