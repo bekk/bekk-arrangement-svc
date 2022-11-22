@@ -29,20 +29,6 @@ type DatabaseFixture() =
         else
             printfn "Container already up and running. Reusing container for tests."
 
-    member this.getAuthedClient =
-        this
-            .WithWebHostBuilder(fun builder ->
-                builder.ConfigureTestServices (fun (services: IServiceCollection) ->
-                    services
-                        .AddAuthentication(fun options ->
-                            options.DefaultAuthenticateScheme <- "Test"
-                            options.DefaultScheme <- "Test"
-                            ())
-                        .AddScheme<TestAuthHandlerOptions, TestAuthHandler>("Test", (fun options -> ()))
-                    |> ignore)
-                |> ignore)
-            .CreateClient()
-
     member this.getAuthedClientWithClaims (employeeId: int) (permissions: string list) =
         this
             .WithWebHostBuilder(fun builder ->
@@ -61,6 +47,8 @@ type DatabaseFixture() =
                     |> ignore)
                 |> ignore)
             .CreateClient()
+
+    member this.getAuthedClient = this.getAuthedClientWithClaims 0 []
 
     member this.getUnauthenticatedClient =
         this

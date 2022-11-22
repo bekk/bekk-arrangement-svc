@@ -49,6 +49,7 @@ let containerIsStopped () =
 
 let waitForContainer () =
     runCLI $"wait --condition running {ContainerName}"
+    |> ignore
 
 let containerIsRunning () =
     let result =
