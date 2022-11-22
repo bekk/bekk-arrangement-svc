@@ -6,9 +6,6 @@ open Xunit
 open Models
 open Tests
 
-// TODO: Test ting admin kan gjøre
-// Export participations for event
-
 [<Collection("Database collection")>]
 type DeleteEvent(fixture: DatabaseFixture) =
     let authenticatedClient =
@@ -82,7 +79,8 @@ type DeleteEvent(fixture: DatabaseFixture) =
 
     [<Fact>]
     member _.``Admins can cancel event``() =
-        let generatedEvent = Generator.generateEvent ()
+        let generatedEvent =
+            Generator.generateEvent ()
 
         task {
             let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
