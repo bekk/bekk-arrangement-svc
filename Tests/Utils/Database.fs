@@ -10,7 +10,7 @@ let private createConnectionString (rawConnectionString: string) : string =
     cs.ConnectionString
 
 let create connectionString : unit =
-    if Container.containerStopped() then failwith "Cannot create database, container not running."
+    // if Container.containerStopped() then failwith "Cannot create database, container not running."
     use connection = new SqlConnection(createConnectionString connectionString)
     connection.Open()
     use command = connection.CreateCommand()
