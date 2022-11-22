@@ -15,63 +15,45 @@ let ContainerManagerProgram =
     |> Option.ofObj
     |> Option.defaultValue "podman"
 
-let runContainer () =
-    cli{
+
+let runCLI arguments =
+    cli {
         Exec ContainerManagerProgram
-        Arguments $"""run --name {ContainerName} -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=<YourStrong!Passw0rd>" -p 1433:1433 -d mcr.microsoft.com/mssql/server:2017-latest"""
+        Arguments arguments
     }
     |> Command.execute
+
+let runContainer () =
+    runCLI
+        $"""run --name {ContainerName} -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=<YourStrong!Passw0rd>" -p 1433:1433 -d mcr.microsoft.com/mssql/server:2017-latest"""
     |> ignore
-    ()
 
 let startContainer () =
-    cli{
-        Exec ContainerManagerProgram
-        Arguments $"start {ContainerName}"
-    }
-    |> Command.execute
-    |> ignore
-    ()
+    runCLI $"start {ContainerName}" |> ignore
 
 let containerExists () =
     let result =
-        cli {
-            Exec ContainerManagerProgram
-            Arguments $"""ps --all --filter name={ContainerName} --format "{{.ID}}" """
-        }
-        |> Command.execute
+        runCLI $"""ps --all --filter name={ContainerName} --format "{{.ID}}" """
+
     match result.Text with
     | None -> false
     | Some text -> text <> ""
 
-let containerIsStopped() =
+let containerIsStopped () =
     let result =
-        cli {
-            Exec ContainerManagerProgram
-            Arguments $"""ps --all --filter name={ContainerName} --format "{{.Status}}"""
-        }
-        |> Command.execute
+        runCLI $"""ps --all --filter name={ContainerName} --format "{{.Status}}"""
+
     match result.Text with
     | None -> failwith "Error when getting container info"
-    | Some text ->
-        text.Contains "Exited"
+    | Some text -> text.Contains "Exited"
 
-let waitForContainer() =
-     cli {
-         Exec ContainerManagerProgram
-         Arguments $"wait --condition running {ContainerName}"
-     }
-     |> Command.execute
-     |> ignore
+let waitForContainer () =
+    runCLI $"wait --condition running {ContainerName}"
 
-let containerIsRunning() =
+let containerIsRunning () =
     let result =
-        cli {
-            Exec ContainerManagerProgram
-            Arguments $"""ps --all --filter name={ContainerName} --format "{{.Status}}"""
-        }
-        |> Command.execute
+        runCLI $"""ps --all --filter name={ContainerName} --format "{{.Status}}"""
+
     match result.Text with
     | None -> failwith "Error when getting container info"
-    | Some text ->
-        text.Contains "Up"
+    | Some text -> text.Contains "Up"
