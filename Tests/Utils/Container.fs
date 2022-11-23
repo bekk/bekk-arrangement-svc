@@ -41,7 +41,7 @@ let containerExists () =
 
 let containerIsStopped () =
     let result =
-        runCLI $"""ps --all --filter name={ContainerName} --format "{{.Status}}"""
+        runCLI $"""ps --all --filter name={ContainerName} --format "{{{{.Status}}}}" """
 
     match result.Text with
     | None -> failwith "Error when getting container info"
@@ -50,11 +50,7 @@ let containerIsStopped () =
 let waitForContainer () =
     runCLI $"wait --condition running {ContainerName}"
     |> ignore
-
-let containerIsRunning () =
-    let result =
-        runCLI $"""ps --all --filter name={ContainerName} --format "{{.Status}}"""
-
-    match result.Text with
-    | None -> failwith "Error when getting container info"
-    | Some text -> text.Contains "Up"
+    // Even though container is running it is not ready for connections
+    // Need to wait a bit longer
+    // Did not find a clean way of doing this
+    async { do! Async.Sleep 5000 } |> Async.RunSynchronously

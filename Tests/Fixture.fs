@@ -10,6 +10,7 @@ open AuthHandler
 
 type DatabaseFixture() =
     inherit WebApplicationFactory<App.Program>()
+    let connectionString = "Server=localhost,1433;User=sa;Password=<YourStrong!Passw0rd>;Database=arrangement-db"
     do
         Environment.SetEnvironmentVariable("NO_MIGRATION", "1")
         if Config.manageContainers then
@@ -18,14 +19,12 @@ type DatabaseFixture() =
                 printfn "Container missing. Creating fresh container for tests."
                 Container.runContainer()
                 Container.waitForContainer()
-                async { do! Async.Sleep 10000 } |> Async.RunSynchronously
-                Database.create "Server=localhost,1433;User=sa;Password=<YourStrong!Passw0rd>;Database=arrangement-db"
-                Database.migrate "Server=localhost,1433;User=sa;Password=<YourStrong!Passw0rd>;Database=arrangement-db"
+                Database.create connectionString
+                Database.migrate connectionString
             if Container.containerIsStopped () then
                 printfn "Container already exists. Reusing container for tests."
                 Container.startContainer()
                 Container.waitForContainer()
-                async { do! Async.Sleep 10000 } |> Async.RunSynchronously
         else
             printfn "Container already up and running. Reusing container for tests."
 
