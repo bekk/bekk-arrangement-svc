@@ -38,7 +38,7 @@ module "aws-deploy" {
   task_environment       = var.task_environment
   task_secrets           = var.task_secrets
   enable_tracing         = true
-  memory_size            = 512
+  memory_size            = 1024
 }
 
 output "URL" {
