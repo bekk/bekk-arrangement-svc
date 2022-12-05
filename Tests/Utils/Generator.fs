@@ -50,6 +50,10 @@ let private generateDateTimeCustomSoon () : DateTimeCustom.DateTimeCustom =
     { Date = generateDateSoon ()
       Time = generateTimeSoon () }
 
+let generateQuestions numberOfQuestions =
+  [ 0 .. numberOfQuestions ]
+  |> List.map (fun _ -> faker.Lorem.Sentence())
+
 let generateEvent () : Models.EventWriteModel =
     let start = DateTime.Now.AddDays(-1)
     { Title = faker.Company.CompanyName()

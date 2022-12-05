@@ -1,149 +1,199 @@
-module Tests.OfficeEvents
+namespace Tests.OfficeEvents
+
+open Xunit
 
 open OfficeEvents.Parser
 
-open Expecto
+type OfficeEvents() =
+    let n = "\r\n"
+    let n' = $"{n}{n}"
+    let n'' = $"{n}{n}{n}"
+    let n''' = $"{n}{n}{n}{n}"
+    let parseBody body = parse $"<body>{body}</body>"
 
+    let desc desc =
+        { ParseResult.Default with description = desc }
 
-let n    = $"\r\n"
-let n'   = $"{n}{n}"
-let n''  = $"{n}{n}{n}"
-let n''' = $"{n}{n}{n}{n}"
+    let types types =
+        { ParseResult.Default with types = types }
 
-let tests =
-  let parseBody body = parse $"<body>{body}</body>"
-  let desc desc = { ParseResult.Default with description = desc }
-  let types types = { ParseResult.Default with types = types }
-  let themes themes = { ParseResult.Default with themes = themes }
+    let themes themes =
+        { ParseResult.Default with themes = themes }
 
-  let expectParsed body expected =
-    Expect.equal
-      (parseBody body)
-      expected
-      body
+    [<Fact>]
+    member _.``Default result is not empty``() =
+        Assert.NotEqual(ParseResult.Empty, ParseResult.Default)
 
-  testList "EventBodyParser" [
-    testList "default instances" [
-      testCase "Default result isn't empty" <| fun () ->
-        Expect.notEqual
-          ParseResult.Empty
-          ParseResult.Default
-          "Default parse result shouldn't be empty"
+    [<Fact>]
+    member _.``Empty body gives default result``() =
+        Assert.Equal(ParseResult.Default, parse "")
 
-      testCase "empty body gives default result" <| fun () ->
-        Expect.equal
-          (parse "")
-          ParseResult.Default
-          "Empty body not yielding default parse result"
-    ]
+    [<Fact>]
+    member _.``Body can appear top level``() =
+        let actual = parse "<body>title</body>"
 
-    testList "body tag" [
-      testCase "body can appear top-level" <| fun () ->
-        Expect.equal
-          (parse "<body>title</body>")
-          { ParseResult.Empty with description = "title" }
-          "Top-level <body> doesn't work"
+        let expected =
+            { ParseResult.Empty with description = "title" }
 
-      testCase "body can appear as inner tag" <| fun () ->
-        Expect.equal
-          (parse "<html><body>title</body></html>")
-          { ParseResult.Empty with description = "title" }
-          "<body> in <html> doesn't work"
-    ]
+        Assert.Equal(expected, actual)
 
-    testList "Description parsing" [
-      testCase "simple description" <| fun () ->
-        expectParsed
-          "a b"
-          (desc "a b")
+    [<Fact>]
+    member _.``Body can appear as inner tag``() =
+        let actual =
+            parse "<html><body>title</body></html>"
 
-      testCase "single linebreak is replaced with space" <| fun () ->
-        expectParsed
-          $"a{n}b"
-          (desc "a b")
+        let expected =
+            { ParseResult.Empty with description = "title" }
 
-      testCase "double linebreaks is interpreted as double linebreak" <| fun () ->
-        expectParsed
-          $"a{n'}b"
-          (desc $"a{n'}b")
+        Assert.Equal(expected, actual)
 
-      testCase "empty lines is skipped" <| fun () ->
-        expectParsed
-          $"a{n'}{n'}b"
-          (desc $"a{n'}b")
+    [<Fact>]
+    member _.``Simple description``() =
+        let actual = parseBody "a b"
+        let expected = desc "a b"
+        Assert.Equal(expected, actual)
 
-      testCase "Single line html comment is skipped" <| fun () ->
-        expectParsed
-          $"a{n'}<!-- whatever -->{n'}b"
-          (desc $"a{n'}b")
+    [<Fact>]
+    member _.``Single line break is replaced with space``() =
+        let actual = parseBody $"a{n}b"
+        let expected = desc "a b"
+        Assert.Equal(expected, actual)
 
-      testCase "Type line html comment is skipped" <| fun () ->
-        expectParsed
-          $"a{n'}type: t{n'}b"
-          { ParseResult.Empty with description = $"a{n'}b"; types = [ "t" ] }
+    [<Fact>]
+    member _.``Double line break is interpreted as double linebreak``() =
+        let actual = parseBody $"a{n'}b"
+        let expected = desc $"a{n'}b"
+        Assert.Equal(expected, actual)
 
-      testCase "Theme line html comment is skipped" <| fun () ->
-        expectParsed
-          $"a{n'}tema: t{n'}b"
-          { ParseResult.Empty with description = $"a{n'}b"; themes = [ "t" ] }
-    ]
+    [<Fact>]
+    member _.``Empty lines are skipped``() =
+        let actual = parseBody $"a{n'}{n'}b"
+        let expected = desc $"a{n'}b"
+        Assert.Equal(expected, actual)
 
-    testList "type/theme parsing" [
-      testCase "single type is parsed correctly" <| fun () ->
-        expectParsed
-          "type: type1"
-          (types ["type1"])
+    [<Fact>]
+    member _.``Single line HTML comment is skipped``() =
+        let actual =
+            parseBody $"a{n'}<!-- whatever -->{n'}b"
 
-      testCase "type can contain multiple values" <| fun () ->
-        expectParsed
-          "type: t1, t2, , t3, "
-          (types ["t1"; "t2"; "t3"])
+        let expected = desc $"a{n'}b"
+        Assert.Equal(expected, actual)
 
-      testCase "type can be capitalized" <| fun () ->
-        expectParsed
-          "Type: type1"
-          (types ["type1"])
+    [<Fact>]
+    member _.``Type line html comment is skipped``() =
+        let actual = parseBody $"a{n'}type: t{n'}b"
 
-      testCase "text on type/theme line is ignored" <| fun () ->
-        expectParsed
-          "this is ignored type: part of type"
-          { ParseResult.Default with types = [ "part of type" ] }
+        let expected =
+            { ParseResult.Empty with
+                description = $"a{n'}b"
+                types = [ "t" ] }
 
-      testCase "type can appear anywhere" <| fun () ->
-        expectParsed
-          "whatever type: part of type"
-          { ParseResult.Default with types = [ "part of type" ] }
+        Assert.Equal(expected, actual)
 
-      testCase "multiple types on a single line is interpreted as single type" <| fun () ->
-        expectParsed
-          "type: type1 type: type2"
-          { ParseResult.Default with types = [ "type1 type: type2" ] }
+    [<Fact>]
+    member _.``Theme line html comment is skipped``() =
+        let actual = parseBody $"a{n'}tema: t{n'}b"
 
-      testCase "type and theme can appear on the same line" <| fun () ->
-        expectParsed
-          "type: type1 tema: theme1"
-          { ParseResult.Default with types = [ "type1" ]; themes = [ "theme1" ] }
+        let expected =
+            { ParseResult.Empty with
+                description = $"a{n'}b"
+                themes = [ "t" ] }
 
-      testCase "Type and theme can appear multiple times" <| fun () ->
-        expectParsed
-          $"type: type1{n'}tema: theme1{n'}type: type2{n'}tema: theme2"
-          { ParseResult.Default with types = [ "type1"; "type2" ]; themes = [ "theme1"; "theme2" ] }
-    ]
+        Assert.Equal(expected, actual)
 
-    testList "Url to link replacement" [
-      testCase "Url without scheme is replaced" <| fun () ->
-        expectParsed
-          $"www.nrk.no"
-          { ParseResult.Empty with description = """<a target="_blank" href ="//www.nrk.no">www.nrk.no</a>""" }
+    [<Fact>]
+    member _.``Single type is parsed correctly``() =
+        let actual = parseBody "type: type1"
+        let expected = types [ "type1" ]
+        Assert.Equal(expected, actual)
 
-      testCase "Url with http scheme is replaced" <| fun () ->
-        expectParsed
-          $"http://www.nrk.no"
-          { ParseResult.Empty with description = """<a target="_blank" href ="http://www.nrk.no">http://www.nrk.no</a>""" }
+    [<Fact>]
+    member _.``Type can contain multiple values``() =
+        let actual =
+            parseBody "type: t1, t2, , t3, "
 
-      testCase "Url with https scheme is replaced" <| fun () ->
-        expectParsed
-          $"https://www.nrk.no"
-          { ParseResult.Empty with description = """<a target="_blank" href ="https://www.nrk.no">https://www.nrk.no</a>""" }
-    ]
-  ]
+        let expected = types [ "t1"; "t2"; "t3" ]
+        Assert.Equal(expected, actual)
+
+    [<Fact>]
+    member _.``Type can be capitalized``() =
+        let actual = parseBody "Type: type1"
+        let expected = types [ "type1" ]
+        Assert.Equal(expected, actual)
+
+    [<Fact>]
+    member _.``text on type/theme line is ignored``() =
+        let actual =
+            parseBody "this is ignored type: part of type"
+
+        let expected = types [ "part of type" ]
+        Assert.Equal(expected, actual)
+
+    [<Fact>]
+    member _.``type can appear anywhere``() =
+        let actual =
+            parseBody "this is ignored type: part of type"
+
+        let expected = types [ "part of type" ]
+        Assert.Equal(expected, actual)
+
+    [<Fact>]
+    member _.``multiple types on a single line is interpreted as single type``() =
+        let actual =
+            parseBody "type: type1 type: type2"
+
+        let expected = types [ "type1 type: type2" ]
+        Assert.Equal(expected, actual)
+
+    [<Fact>]
+    member _.``type and theme can appear on the same line``() =
+        let actual =
+            parseBody "type: type1 tema: theme1"
+
+        let expected =
+            { ParseResult.Default with
+                types = [ "type1" ]
+                themes = [ "theme1" ] }
+
+        Assert.Equal(expected, actual)
+
+    [<Fact>]
+    member _.``type and theme can appear multiple times``() =
+        let actual =
+            parseBody $"type: type1{n'}tema: theme1{n'}type: type2{n'}tema: theme2"
+
+        let expected =
+            { ParseResult.Default with
+                types = [ "type1"; "type2" ]
+                themes = [ "theme1"; "theme2" ] }
+
+        Assert.Equal(expected, actual)
+
+    [<Fact>]
+    member _.``Url without scheme is replaced``() =
+        let actual = parseBody "www.nrk.no"
+
+        let expected =
+            { ParseResult.Empty with description = """<a target="_blank" href ="//www.nrk.no">www.nrk.no</a>""" }
+
+        Assert.Equal(expected, actual)
+
+    [<Fact>]
+    member _.``Url with http scheme is replaced``() =
+        let actual = parseBody "http://www.nrk.no"
+
+        let expected =
+            { ParseResult.Empty with
+                description = """<a target="_blank" href ="http://www.nrk.no">http://www.nrk.no</a>""" }
+
+        Assert.Equal(expected, actual)
+
+    [<Fact>]
+    member _.``Url with https scheme is replaced``() =
+        let actual = parseBody "https://www.nrk.no"
+
+        let expected =
+            { ParseResult.Empty with
+                description = """<a target="_blank" href ="https://www.nrk.no">https://www.nrk.no</a>""" }
+
+        Assert.Equal(expected, actual)

@@ -1,235 +1,401 @@
-module Tests.GetEvent
+namespace Tests.GetEvent
 
-open Expecto
+open Xunit
+open System.Net
 
-open TestUtils
-open Api
-open Tests.Api
+open Models
+open Tests
 
-let tests =
-    testList "Get event" [
-      testTask "Anyone can get event id by shortname" {
-        let! event = TestData.createEvent (fun ev -> { ev with Shortname = Some <| Generator.generateRandomString() })
-        do! Expect.expectApiMessage
-              (fun () -> UsingShortName.request event.shortName.Value "/events/id" None |> Api.get |> Task.map decode<string>)
-              event.id
-              "ID created and ID fetched should equal"
-      }
+[<Collection("Database collection")>]
+type GetEvent(fixture: DatabaseFixture) =
+    let authenticatedClient =
+        fixture.getAuthedClient
 
-      testTask "External event can be seen by anyone" {
-        let! event = TestData.createEvent (fun ev -> { ev with IsExternal = true })
-        do! Expect.expectApiSuccess
-              (fun () -> Events.get WithoutToken.request event.id)
-              "Unauthenticated user not able to see external event"
-      }
+    let unauthenticatedClient =
+        fixture.getUnauthenticatedClient
 
-      testTask "Internal event cannot be seen if not authenticated" {
-        let! event = TestData.createEvent (fun ev -> { ev with IsExternal = false })
-        do! Expect.expectApiError
-              (fun () -> Events.get WithoutToken.request event.id)
-              "Du må enten være innlogget eller arrangementet må være eksternt for at du skal få tilgang"
-              "Unexpected error"
-      }
+    let clientDifferentUserAdmin =
+        fixture.getAuthedClientWithClaims 40 [ "admin:arrangement" ]
 
-      testTask "Internal event can be seen if authenticated" {
-        let! event = TestData.createEvent (fun ev -> { ev with IsExternal = false })
-        do! Expect.expectApiSuccess
-              (fun () -> Events.get UsingJwtToken.request event.id)
-              "Authenticated users couldn't see internal event"
-      }
+    [<Fact>]
+    member _.``Anyone can get event id by shortname``() =
+        let shortname =
+            Generator.generateRandomString ()
 
-      testTask "Unfurl event can be seen by anyone" {
-        let! event = TestData.createEvent (fun ev -> { ev with IsExternal = false })
-        do! Expect.expectApiSuccess
-              (fun () -> WithoutToken.request $"/events/{event.id}/unfurl" None |> Api.get)
-              "Unauthenticated should be able unfurl internal events"
-      }
+        let event =
+            TestData.createEvent (fun e -> { e with Shortname = Some shortname })
 
-      testTask "Participants can be counted by anyone if event is external" {
-        let! event = TestData.createEvent (fun ev -> { ev with IsExternal = true })
-        do! Expect.expectApiSuccess
-              (fun () -> WithoutToken.request $"/events/{event.id}/participants/count" None |> Api.get)
-              "Unauthenticated user couldn't count participants for internal event"
-      }
+        task {
+            let! _, createdEvent = Helpers.createEvent authenticatedClient event
+            let! _, content = Http.getEventIdByShortname unauthenticatedClient shortname
+            useCreatedEvent createdEvent (fun createdEvent -> Assert.Equal($"\"{createdEvent.Event.Id}\"", content))
+        }
 
-      testTask "Participants cannot be counted by externals if event is internal" {
-        let! event = TestData.createEvent (fun ev -> { ev with IsExternal = false })
-        do! Expect.expectApiForbidden
-              (fun () -> WithoutToken.request $"/events/{event.id}/participants/count" None |> Api.get)
-              "Unexpected error"
-      }
+    [<Fact>]
+    member _.``External events can be seen by anyone``() =
+        let event =
+            TestData.createEvent (fun e -> { e with IsExternal = true })
 
-      testTask "Participants can be counted by authorized user if event is internal" {
-        let! event = TestData.createEvent (fun ev -> { ev with IsExternal = false })
-        do! Expect.expectApiSuccess
-              (fun () -> UsingJwtToken.request $"/events/{event.id}/participants/count" None |> Api.get)
-              "Authorized user unable to count participants"
-      }
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
+            let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.Event.Id}"
+            response.EnsureSuccessStatusCode() |> ignore
+        }
 
-      testTask "Counting participants returns correct number" {
-        let! event = TestData.createEvent (fun ev -> { ev with MaxParticipants = None; IsExternal = false })
-        for _ in 0..4 do
-          do! justEffect <| Participant.create UsingJwtToken.request event id id
-        do! Expect.expectApiMessage
-              (fun () -> UsingJwtToken.request $"/events/{event.id}/participants/count" None |> Api.get)
-              "5"
-              "Event should have 5 participants"
-      }
+    [<Fact>]
+    member _.``Internal events cannot be seen if not authenticated``() =
+        let event =
+            TestData.createEvent (fun e -> { e with IsExternal = false })
 
-      testTask "Can get waitlist spot if event is external" {
-        let! event = TestData.createEvent (fun ev -> { ev with MaxParticipants = None; IsExternal = true; IsHidden = true })
-        let! participant = justContent <| Participant.create UsingJwtToken.request event id id
-        do! Expect.expectApiSuccess
-              (fun () -> UsingJwtToken.request $"/events/{event.id}/participants/{participant.email}/waitinglist-spot" None |> Api.get)
-              "Authenticated unable to get waiting list spot"
-      }
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
+            let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.Event.Id}"
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode)
+        }
 
-      testTask "Can get waitlist spot if event is internal" {
-        let! event = TestData.createEvent (fun ev -> { ev with IsExternal = false; IsHidden = false; HasWaitingList = true })
-        let! participant = justContent <| Participant.create UsingJwtToken.request event id id
-        do! Expect.expectApiSuccess
-              (fun () -> UsingJwtToken.request $"/events/{event.id}/participants/{participant.email}/waitinglist-spot" None |> Api.get)
-              "Authenticated user cannot get waiting-spot for internal event"
-      }
+    [<Fact>]
+    member _.``Internal events can be seen if authenticated``() =
+        let event =
+            TestData.createEvent (fun e -> { e with IsExternal = false })
 
-      // FIXME: Doesn't compile!
-      (*
-      testTask "Find correct waitlist spot" {
-        let! event = TestData.createEvent (fun ev -> { ev with IsExternal = false; IsHidden = false; MaxParticipants = Some 0; HasWaitingList = true })
-        let! participants =
-          Seq.init 5 (fun _ -> justContent <| Participant.create UsingJwtToken.request event id id)
-          |> Task.sequence
-        let! lastParticipant = participants |> Seq.last
-        do! Expect.expectApiMessage
-              (fun () -> UsingJwtToken.request $"/events/{event.id}/participants/{lastParticipant.email}/waitinglist-spot" None |> Api.get)
-              "5"
-              "Event should have 5 participants"
-      }
-      *)
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
+            let! response, _ = Http.get authenticatedClient $"/events/{createdEvent.Event.Id}"
+            response.EnsureSuccessStatusCode() |> ignore
+        }
 
-      // TODO: User is organizer -> 200 (Hvordan teste dette? Mitt token er alltid admin)
-      testTask "Export event CSV with token should work" {
-        let! event = TestData.createEvent (fun ev -> { ev with IsExternal = false; MaxParticipants = None })
-        for _ in 0..4 do
-          do! justEffect <| Participant.create UsingJwtToken.request event id id
-        do! Expect.expectApiSuccess
-              (fun () -> UsingJwtToken.request $"/events/{event.id}/participants/export" None |> Api.get)
-              "Authenticated user cannot export event CSV"
-      }
+    [<Fact>]
+    member _.``Unfurl events can be seen by anyone``() =
+        let event =
+            TestData.createEvent (fun e -> { e with IsExternal = false })
 
-      testTask "Export event csv with edit-token only should work" {
-        let! event = TestData.createEvent (fun ev -> { ev with IsExternal = false; MaxParticipants = None })
-        for _ in 0..4 do
-          do! justEffect <| Participant.create UsingJwtToken.request event id id
-        do! Expect.expectApiSuccess
-              (fun () -> UsingEditToken.request event.editToken $"{basePath}/events/{event.id}/participants/export" None |> Api.get)
-              "User cannot export event CSV using edit-token"
-      }
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
+            let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.Event.Id}/unfurl"
+            response.EnsureSuccessStatusCode() |> ignore
+        }
 
-      testTask "Externals cannot get future events" {
-        do! Expect.expectApiUnauthorized
-              (fun () -> Events.future WithoutToken.request)
-              "Unexpected error"
-      }
+    [<Fact>]
+    member _.``Participants can be counted by anyone if event is external``() =
+        let event =
+            TestData.createEvent (fun e -> { e with IsExternal = true })
 
-      testTask "Internals can get future events" {
-        do! Expect.expectApiSuccess
-              (fun () -> Events.future UsingJwtToken.request)
-              "Unexpected error"
-      }
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
+            let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.Event.Id}/participants/count"
+            response.EnsureSuccessStatusCode() |> ignore
+        }
 
-      testTask "Externals cannot get past events" {
-        do! Expect.expectApiUnauthorized
-              (fun () -> Events.previous WithoutToken.request)
-              "Unexpected error"
-      }
+    [<Fact>]
+    member _.``Participants can not be counted by external if event is internal``() =
+        let event =
+            TestData.createEvent (fun e -> { e with IsExternal = false })
 
-      testTask "Internals can get past events" {
-        do! Expect.expectApiSuccess
-              (fun () -> Events.previous UsingJwtToken.request)
-              "Unexpected error"
-      }
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
+            let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.Event.Id}/participants/count"
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode)
+        }
 
-      testTask "Externals cannot get forside events" {
+    [<Fact>]
+    member _.``Participants can be counted by authorized user if event is internal``() =
+        let event =
+            TestData.createEvent (fun e -> { e with IsExternal = false })
+
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
+            let! response, _ = Http.get authenticatedClient $"/events/{createdEvent.Event.Id}/participants/count"
+            response.EnsureSuccessStatusCode() |> ignore
+        }
+
+    [<Fact>]
+    member _.``Counting participants returns the correct number``() =
+        let event =
+            TestData.createEvent (fun e ->
+                { e with
+                    MaxParticipants = None
+                    IsExternal = false })
+
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
+
+            for _ in 0..4 do
+                let! _ = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
+                ()
+
+            let! _, content = Http.get authenticatedClient $"/events/{createdEvent.Event.Id}/participants/count"
+            Assert.Equal("5", content)
+        }
+
+    [<Fact>]
+    member _.``Unauthenticated user can get waitlist spot when event is external``() =
+        let event =
+            TestData.createEvent (fun e -> { e with IsExternal = true })
+
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
+            let! created = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event.Id
+
+            let! response, _ =
+                Http.get
+                    unauthenticatedClient
+                    $"/events/{createdEvent.Event.Id}/participants/{created.Email}/waitinglist-spot"
+
+            response.EnsureSuccessStatusCode() |> ignore
+        }
+
+
+    [<Fact>]
+    member _.``Unauthenticated user can not get waitlist spot when event is internal``() =
+        let event =
+            TestData.createEvent (fun e -> { e with IsExternal = false })
+
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
+            let! created = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event.Id
+
+            let! response, _ =
+                Http.get
+                    unauthenticatedClient
+                    $"/events/{createdEvent.Event.Id}/participants/{created.Email}/waitinglist-spot"
+
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode)
+        }
+
+    [<Fact>]
+    member _.``Authenticated user can get waitlist spot when event is external``() =
+        let event =
+            TestData.createEvent (fun e -> { e with IsExternal = false })
+
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
+            let! created = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event.Id
+
+            let! response, _ =
+                Http.get
+                    authenticatedClient
+                    $"/events/{createdEvent.Event.Id}/participants/{created.Email}/waitinglist-spot"
+
+            response.EnsureSuccessStatusCode() |> ignore
+        }
+
+    [<Fact>]
+    member _.``Gets the correct waitlist spot``() =
+        let event =
+            TestData.createEvent (fun e ->
+                { e with
+                    HasWaitingList = true
+                    MaxParticipants = Some 0
+                    IsExternal = false })
+
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
+            let! created = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event.Id
+
+            let! _, content =
+                Http.get
+                    authenticatedClient
+                    $"/events/{createdEvent.Event.Id}/participants/{created.Email}/waitinglist-spot"
+
+            Assert.Equal("1", content)
+        }
+
+    [<Fact>]
+    member _.``Unauthenticated user cannot get CSV export``() =
+        let event = Generator.generateEvent ()
+
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
+            let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.Event.Id}/participants/export"
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode)
+        }
+
+    [<Fact>]
+    member _.``Authenticated user cannot get CSV export``() =
+        let event = Generator.generateEvent ()
+
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
+            let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.Event.Id}/participants/export"
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode)
+        }
+
+    [<Fact>]
+    member _.``Admin user can get CSV export``() =
+        let event = Generator.generateEvent ()
+
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
+            let! response, _ = Http.get clientDifferentUserAdmin $"/events/{createdEvent.Event.Id}/participants/export"
+            response.EnsureSuccessStatusCode() |> ignore
+        }
+
+    [<Fact>]
+    member _.``Can get CSV export with edit token``() =
+        let event =
+            TestData.createEvent (fun e -> { e with IsExternal = true })
+
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
+
+            let! response, _ =
+                Http.getCsvWithEditToken unauthenticatedClient createdEvent.Event.Id createdEvent.EditToken
+
+            response.EnsureSuccessStatusCode() |> ignore
+        }
+
+    [<Fact>]
+    member _.``Unauthenticated users cannot get future events``() =
+        task {
+            let! response, _ = Http.get unauthenticatedClient "/events"
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode)
+        }
+
+    [<Fact>]
+    member _.``Authenticated users can get future events``() =
+        task {
+            let! response, _ = Http.get authenticatedClient "/events"
+            response.EnsureSuccessStatusCode() |> ignore
+        }
+
+    [<Fact>]
+    member _.``Unauthenticated users cannot get past events``() =
+        task {
+            let! response, _ = Http.get unauthenticatedClient "/events/previous"
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode)
+        }
+
+    [<Fact>]
+    member _.``Authenticated users can get past events``() =
+        task {
+            let! response, _ = Http.get authenticatedClient "/events/previous"
+            response.EnsureSuccessStatusCode() |> ignore
+        }
+
+    [<Fact>]
+    member _.``Unauthenticated users cannot get forside events``() =
+        task {
+            let email = Generator.generateEmail ()
+            let! response, _ = Http.get unauthenticatedClient $"/events/forside/{email}"
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode)
+        }
+
+    [<Fact>]
+    member _.``Authenticated users can get forside events``() =
+        task {
+            let email = Generator.generateEmail ()
+            let! response, _ = Http.get authenticatedClient $"/events/forside/{email}"
+            response.EnsureSuccessStatusCode() |> ignore
+        }
+
+
+    [<Fact>]
+    member _.``Unauthenticated users cannot get events organized by id``() =
+        task {
+            let! response, _ = Http.get unauthenticatedClient "/events/organizer/0"
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode)
+        }
+
+    [<Fact>]
+    member _.``Authenticated users can get events organized by id``() =
+        task {
+            let! response, _ = Http.get authenticatedClient "/events/organizer/0"
+            response.EnsureSuccessStatusCode() |> ignore
+        }
+
+    [<Fact>]
+    member _.``Unauthenticated users cannot get events and participations``() =
+        task {
+            let! response, _ = Http.get unauthenticatedClient "/events-and-participations/0"
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode)
+        }
+
+    [<Fact>]
+    member _.``Authenticated users can get events and participations``() =
+        task {
+            let! response, _ = Http.get authenticatedClient "/events-and-participations/0"
+            response.EnsureSuccessStatusCode() |> ignore
+        }
+
+    [<Fact>]
+    member _.``Admin can can get events and participations for different users``() =
+        task {
+            let! response, _ = Http.get clientDifferentUserAdmin "/events-and-participations/0"
+            response.EnsureSuccessStatusCode() |> ignore
+        }
+
+    [<Fact>]
+    member _.``Unauthenticated users cannot get participants for event``() =
+        let event =
+            TestData.createEvent (fun e ->
+                { e with
+                    IsExternal = false
+                    MaxParticipants = Some 3
+                    HasWaitingList = true })
+
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
+            let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.Event.Id}/participants"
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode)
+        }
+
+    [<Fact>]
+    member _.``Authenticated users can get participants for event``() =
+        let event =
+            TestData.createEvent (fun e ->
+                { e with
+                    IsExternal = false
+                    MaxParticipants = Some 3
+                    HasWaitingList = true })
+
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
+
+            for _ in 0..7 do
+                let! _ = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
+                ()
+
+            let! response, result = Helpers.getParticipationsAndWaitlist authenticatedClient createdEvent.Event.Id
+            Assert.Equal(List.length result.Attendees, 3)
+            Assert.Equal(List.length result.WaitingList, 5)
+            response.EnsureSuccessStatusCode() |> ignore
+        }
+
+    [<Fact>]
+    member _.``Unauthenticated users cannot get participations for participant``() =
         let email = Generator.generateEmail ()
-        do! Expect.expectApiUnauthorized
-              (fun () -> Events.forside WithoutToken.request email)
-              "Unexpected error"
-      }
 
-      testTask "Internals can get forside events" {
-        let email = Generator.generateEmail ()
-        do! Expect.expectApiSuccess
-              (fun () -> Events.forside UsingJwtToken.request email)
-              "Authenticated user cannot get forside events"
-      }
+        task {
+            let! response, _ = Http.get unauthenticatedClient $"/participants/{email}/events"
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode)
+        }
 
-      testTask "Externals cannot get events organized by id" {
-        do! Expect.expectApiUnauthorized
-              (fun () -> WithoutToken.request "/events/organizer/0" None |> Api.get)
-              "Unexpected error"
-      }
+    [<Fact>]
+    member _.``Authenticated users can get participations for participant``() =
+        task {
+            let participant =
+                Generator.generateParticipant 0
 
-      testTask "Internals can get events organized by id" {
-        do! Expect.expectApiSuccess
-              (fun () -> UsingJwtToken.request "/events/organizer/0" None |> Api.get)
-              "Authenticated user couldn't get organized by id"
-      }
+            let email = Generator.generateEmail ()
 
-      testTask "Externals cannot get events and participations" {
-        do! Expect.expectApiUnauthorized
-              (fun () -> WithoutToken.request "/events-and-participations/0" None |> Api.get)
-              "External couldn't get events and participations"
-      }
+            for _ in 0..4 do
+                let event =
+                    TestData.createEvent (fun e ->
+                        { e with
+                            IsExternal = false
+                            MaxParticipants = Some 3
+                            HasWaitingList = true })
 
-      testTask "Internals can get events and participations" {
-        do! Expect.expectApiSuccess
-              (fun () -> UsingJwtToken.request "/events-and-participations/0" None |> Api.get)
-              "Authenticated user couldn't get events and participations"
-      }
+                let! _, createdEvent = Helpers.createEvent authenticatedClient event
 
-      testTask "Externals cannot get participants for event" {
-        let! event = TestData.createEvent (fun ev -> { ev with IsExternal = false; MaxParticipants = None })
-        do! Expect.expectApiUnauthorized
-              (fun () -> WithoutToken.request $"/events/{event.id}/participants" None |> Api.get)
-              "Unexpected error"
-      }
+                let createdEvent =
+                    getCreatedEvent createdEvent
 
-      // FIXME: Doesn't compile!
-      (*
-      testTask "Internals can get participants for event" {
-        let! event = TestData.createEvent (fun ev -> { ev with IsExternal = false; MaxParticipants = Some 3; HasWaitingList = true })
-        do!
-          List.init 7 (fun _ -> justEffect <| Participant.create UsingJwtToken.request event id id)
-          |> Task.whenAll
-        let! result = UsingJwtToken.request $"/events/{event.id}/participants" None |> Api.get |> Task.map decodeAttendeesAndWaitlist |> justContent
-        Expect.equal (List.length result.attendees) 3 "Got 3 attendees"
-        Expect.equal (List.length result.waitingList) 4 "Got 4 on waitlist"
-      }
-      *)
+                let! _ = Helpers.createParticipantForEvent authenticatedClient createdEvent.Event.Id email participant
+                ()
 
-      testTask "Externals cannot get participations for participant" {
-        let email = Generator.generateEmail()
-        do! Expect.expectApiUnauthorized
-              (fun () -> WithoutToken.request $"/participants/{email}/events" None |> Api.get)
-              "Expected unauthorized"
-      }
+            let! response, content = Helpers.getParticipationsForEvent authenticatedClient email
+            Assert.Equal(List.length content, 5)
 
-      testTask "Internals can get participations for participant" {
-        let! events =
-          List.init 5 (fun _ -> TestData.createEvent (fun ev -> { ev with IsExternal = false; MaxParticipants = Some 3; HasWaitingList = true; ParticipantQuestions = [] }))
-          |> Task.sequence
-        let participant = Generator.generateParticipant 0
-        let email = Generator.generateEmail()
-        do!
-          events
-          |> Seq.map (fun ev -> justEffect <| Participant.create UsingJwtToken.request ev (always participant) (always email))
-          |> Task.whenAll
-        let! numParticipants =
-          UsingJwtToken.request $"/participants/{email}/events" None
-          |> Api.get
-          |> Task.map decodeParticipantEvents
-          |> justContent
-        Expect.equal (List.length numParticipants) 5 "Participant has 5 participations"
-      }
-    ]
+            response.EnsureSuccessStatusCode() |> ignore
+        }

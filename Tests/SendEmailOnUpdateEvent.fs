@@ -1,132 +1,179 @@
-module Tests.SendEmailOnUpdateEvent
+namespace Tests.SendMailOnUpdateEvent
 
-open System.Threading.Tasks
+open Tests
+open Xunit
 
-open Expecto
-
-open TestUtils
-open Api
+open Models
 open Email.Service
 
-type UpdateEventEmailTestResult = {
-   OldEvent: CreatedEvent
-   Participant: RegisteredParticipant
-   NewEvent: CreatedEvent
-   Message: DevEmail option
-}
+type UpdateEventEmailTestResult =
+    { CreatedEvent: CreatedEvent
+      Participant: ParticipantTest
+      UpdatedEvent: InnerEvent
+      Message: DevEmail option }
 
-let tests =
-  // We use sequenced tests as the dev mailbox is a shared resource. Running tests in parallel makes it difficult
-  // to locate just mails for this test
-  testSequenced <| testList "Update event sends email notification"  [
-    let init (createMap: Models.EventWriteModel -> Models.EventWriteModel) (updateMap : Models.EventWriteModel -> Models.EventWriteModel) : UpdateEventEmailTestResult Task =
-      task {
-        let! oldEvent =
-          // Having past events triggers other errors, as do End = now
-          let start = DateTimeCustom.now().ToDateTime().AddDays(1).ToDateTimeCustom()
-          TestData.createEvent (createMap << (fun ev -> { ev with StartDate = start; EndDate = start; IsExternal = true; MaxParticipants = None }))
-        let! participant = justContent <| Participant.create UsingJwtToken.request oldEvent id (always "simen.endsjo@bekk.no")
-        emptyDevMailbox()
-        let! newEvent = justContent <| Events.update UsingJwtToken.request oldEvent updateMap
-        let devEmail =
-          let mb = getDevMailbox() in
-            if List.isEmpty mb
-            then None
-            else Some <| List.exactlyOne mb
-        return
-          { OldEvent = oldEvent
-            Participant = participant
-            NewEvent = newEvent
-            Message = devEmail
-          }
-      }
+[<Collection("Database collection")>]
+type General(fixture: DatabaseFixture) =
+    let authenticatedClient =
+        fixture.getAuthedClient
 
-    testTask "Changing non-triggering fields doesn't send any emails" {
-      let! data = init id (fun ev ->
-        { ev with
-            Description = Generator.generateRandomString()
-            Shortname = Some <| Generator.generateRandomString()
-            Title = Generator.generateRandomString()
-        })
-      Expect.isNone data.Message "No changes shouldn't trigger any emails"
-    }
+    let init (updateMap: Models.EventWriteModel -> Models.EventWriteModel) =
+        task {
+            let start =
+                DateTimeCustom
+                    .now()
+                    .ToDateTime()
+                    .AddDays(1)
+                    .ToDateTimeCustom()
 
-    testTask "Changing start time" {
-      let! data =
-        init
-          id
-          (fun ev ->
-            { ev with
-                StartDate = ev.StartDate.ToDateTime().AddHours(1).ToDateTimeCustom()
-                EndDate = ev.EndDate.ToDateTime().AddHours(1).ToDateTimeCustom() })
-      let actual = data.Message.Value.Email.Message
-      Expect.stringContains
-        actual
-        $" endret tidspunkt fra "
-        "Changing start time didn't trigger expected message"
-    }
+            let generatedEvent =
+                TestData.createEvent (fun e ->
+                    { e with
+                        StartDate = start
+                        EndDate = start
+                        IsExternal = true
+                        MaxParticipants = None })
 
-    testTask "Changing end time" {
-      let! data =
-        init
-          id
-          (fun ev -> { ev with EndDate = ev.EndDate.ToDateTime().AddHours(1).ToDateTimeCustom() })
-      let actual = data.Message.Value.Email.Message
-      Expect.stringContains
-        actual
-        $" endret tidspunkt fra "
-        "Changing end time didn't trigger expected message"
-    }
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
 
-    testTask "Changing location" {
-      let! data = init id (fun ev -> { ev with Location = ev.Location + "_NEW_LOCATION" })
-      let actual = data.Message.Value.Email.Message
-      Expect.stringContains
-        actual
-        $" endret lokasjon fra {data.OldEvent.event.Location} til {data.NewEvent.event.Location}"
-        "Changing location didn't trigger expected message"
-    }
+            let! createdParticipant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event.Id
 
-    testTask "Changing location and time" {
-      let! data = init id (fun ev -> { ev with
-                                        Location = ev.Location + "_NEW_LOCATION"
-                                        StartDate = ev.StartDate.ToDateTime().AddHours(1).ToDateTimeCustom()
-                                        EndDate = ev.EndDate.ToDateTime().AddHours(1).ToDateTimeCustom() })
-      let actual = data.Message.Value.Email.Message
-      Expect.stringContains
-        actual
-        $"har endret tidspunkt og lokasjon"
-        "Changing both location and time didn't state so in the message"
-      Expect.stringContains
-        actual
-        $"- Tidspunkt er endret fra "
-        "Changing both location and time didn't include time diff"
-      Expect.stringContains
-        actual
-        $"- Lokasjon er endret fra "
-        "Changing both location and time didn't include location diff"
-    }
+            emptyDevMailbox ()
 
-    testTask "Changing organizer uses new organizer in message" {
-      let! data = init id (fun ev ->
-        { ev with
-            Location = ev.Location + "_NEW_LOCATION" // just to trigger email
-            OrganizerName = "ORGANIZER_" + Generator.generateRandomString()
-            OrganizerEmail = "ORGANIZER_EMAIL_" + Generator.generateEmail() })
-      let actual = data.Message.Value.Email.Message
-      Expect.stringContains
-        actual
-        data.NewEvent.event.OrganizerName
-        "Couldn't find new organizer name"
-      Expect.stringContains
-        actual
-        data.NewEvent.event.OrganizerEmail
-        "Couldn't find new organizer email"
-      Expect.isFalse
-        (actual.Contains(data.OldEvent.event.OrganizerName))
-        "Name of old organizer exists in email"
-      Expect.isFalse
-        (actual.Contains(data.OldEvent.event.OrganizerEmail))
-        "Email of old organizer exists in email"
-    }
-  ]
+            let! updatedEvent =
+                Helpers.updateEventAndGet authenticatedClient createdEvent.Event.Id (updateMap generatedEvent)
+
+            let devEmail =
+                let mb = getDevMailbox () in
+
+                if List.isEmpty mb then
+                    None
+                else
+                    Some <| List.exactlyOne mb
+
+            return
+                { CreatedEvent = createdEvent
+                  Participant = createdParticipant
+                  UpdatedEvent = updatedEvent
+                  Message = devEmail }
+        }
+
+    [<Fact>]
+    member _.``Changing non-triggering fields do not send any emails``() =
+        task {
+            let! data =
+                init (fun ev ->
+                    { ev with
+                        Description = Generator.generateRandomString ()
+                        Shortname = Some <| Generator.generateRandomString ()
+                        Title = Generator.generateRandomString () })
+
+            Assert.Equal(None, data.Message)
+        }
+
+    [<Fact>]
+    member _.``Changing start time``() =
+        task {
+            let! data =
+                init (fun ev ->
+                    { ev with
+                        StartDate =
+                            ev
+                                .StartDate
+                                .ToDateTime()
+                                .AddHours(1)
+                                .ToDateTimeCustom()
+                        EndDate =
+                            ev
+                                .EndDate
+                                .ToDateTime()
+                                .AddHours(1)
+                                .ToDateTimeCustom() })
+
+            let actual =
+                data.Message.Value.Email.Message
+
+            let expected = " endret tidspunkt fra "
+            Assert.Contains(expected, actual)
+        }
+
+    [<Fact>]
+    member _.``Changing end time``() =
+        task {
+            let! data =
+                init (fun ev ->
+                    { ev with
+                        EndDate =
+                            ev
+                                .EndDate
+                                .ToDateTime()
+                                .AddHours(1)
+                                .ToDateTimeCustom() })
+
+            let actual =
+                data.Message.Value.Email.Message
+
+            let expected = " endret tidspunkt fra "
+            Assert.Contains(expected, actual)
+        }
+
+    [<Fact>]
+    member _.``Changing location``() =
+        task {
+            let! data = init (fun ev -> { ev with Location = ev.Location + "_NEW_LOCATION" })
+
+            let actual =
+                data.Message.Value.Email.Message
+
+            let expected =
+                $" endret lokasjon fra {data.CreatedEvent.Event.Location} til {data.UpdatedEvent.Location}"
+
+            Assert.Contains(expected, actual)
+        }
+
+    [<Fact>]
+    member _.``Changing location and time``() =
+        task {
+            let! data =
+                init (fun ev ->
+                    { ev with
+                        Location = ev.Location + "_NEW_LOCATION"
+                        StartDate =
+                            ev
+                                .StartDate
+                                .ToDateTime()
+                                .AddHours(1)
+                                .ToDateTimeCustom()
+                        EndDate =
+                            ev
+                                .EndDate
+                                .ToDateTime()
+                                .AddHours(1)
+                                .ToDateTimeCustom() })
+
+            let actual =
+                data.Message.Value.Email.Message
+
+            Assert.Contains("har endret tidspunkt og lokasjon", actual)
+            Assert.Contains("- Tidspunkt er endret fra ", actual)
+            Assert.Contains("- Lokasjon er endret fra ", actual)
+        }
+
+    [<Fact>]
+    member _.``Changing organizer uses new organizer in message``() =
+        task {
+            let! data =
+                init (fun ev ->
+                    { ev with
+                        Location = ev.Location + "_NEW_LOCATION" // just to trigger email
+                        OrganizerName = "ORGANIZER_" + Generator.generateRandomString ()
+                        OrganizerEmail = "ORGANIZER_EMAIL_" + Generator.generateEmail () })
+
+            let actual =
+                data.Message.Value.Email.Message
+
+            Assert.Contains(data.UpdatedEvent.OrganizerName, actual)
+            Assert.Contains(data.UpdatedEvent.OrganizerEmail, actual)
+            Assert.False(actual.Contains(data.CreatedEvent.Event.OrganizerName))
+            Assert.False(actual.Contains(data.CreatedEvent.Event.OrganizerEmail))
+        }

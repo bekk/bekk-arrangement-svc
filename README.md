@@ -1,10 +1,11 @@
-# Arrangement Service
+# Skjer - Arrangement backend/frontend
 
 An F# service and frontend for collecting and maintaining data about events.
 
 ## Environments
 
-- Development = https://skjer-dev.bekk.no/
+- Development = https://skjer.bekk.dev/
+- Production = https://skjer.bekk.no/
 
 ## Requirements
 
@@ -91,7 +92,7 @@ Open the `Requests.http` file and you can test from there.
 Some of the end points require a JWT authorized token, you can add this to the `http-client.env.json` file.
 
 ## Tests
-The testing framework we use is [Expecto](https://github.com/haf/expecto).
+The testing framework we use is [XUnit](https://github.com/xunit/xunit).
 
 Mock data is created using [Bogus](https://github.com/bchavez/Bogus).
 
@@ -103,26 +104,20 @@ In order to do this the tests need a running database and a token in order to be
 As we are using MSSQL database and that does not support an in-memory variant, a docker image is needed.
 We did consider using an Sqlite in-memory database, but we went with the docker image so the test and production system use the same database.
 
+The authentication itself has been mocked in `Tests/AuthHandler.fs`.
+This allows us to set up authenticated clients with any claims as well as unauthenticated clients.
+
 If you have a running database on your system, you could use that, but we recommend starting one just for testing, and deleting it after.
 Running the tests will create a new image and database just for testing, and reuse that instance for later test sessions for performance reasons.
-Note that you must remove the Expecto spinner when running tests in parallel as it deadlocks with requestlogging which writes/locks IO in Dispose.
 
 Environment variables:
-- `ARRANGEMENT_SVC_TEST_JWT_TOKEN` : Token used for authentication
 - `NO_CONTAINER_MANAGEMENT` : Don't try to manage test container. Assumes it's up and running.
 - `ARRANGEMENT_SVC_CONTAINER_MANAGER` : Program used for managing the container. Default is `podman`, but `docker` works fine too.
 - `ARRANGEMENT_SVC_TESTCONTAINER` : Container name.
 
 To run tests:
 ```
-$ ARRANGEMENT_SVC_TEST_JWT_TOKEN=MYTOKEN dotnet run --project Tests -- --no-spinner
-```
-
-Alternatively, you can export the variable to avoid typing it each time
-
-```
-$ export ARRANGEMENT_SVC_TEST_JWT_TOKEN=MYTOKEN
-$ dotnet # .. rest as before
+$ dotnet test
 ```
 
 Running tests on changes is also supported by running `dotnet watch run --project Tests`
@@ -131,13 +126,6 @@ It's possible to disable podman integration to avoid requiring sudo password and
 
 ```
 $ NO_CONTAINER_MANAGEMENT=1 NO_MIGRATION=1 dotnet # .. rest as before
-```
-
-The systems can be stress tested by running in a loop
-
-```
-# Run for two minutes
-$ dotnet run -- --no-spinner --stress 2 --stress-memory-limit 2048
 ```
 
 ## Migrating the database

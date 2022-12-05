@@ -10,6 +10,17 @@ on:
       - master
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+      - name: Test
+        run: ARRANGEMENT_SVC_CONTAINER_MANAGER=docker dotnet test --no-restore
+
   build:
     if: contains(github.event.pull_request.title, 'preview')
     name: Build and push docker image

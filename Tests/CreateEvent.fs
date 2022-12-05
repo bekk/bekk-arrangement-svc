@@ -1,21 +1,32 @@
-module Tests.CreateEvent
+namespace Tests.CreateEvent
 
-open Expecto
+open Xunit
+open System.Net
 
-open TestUtils
-open Api
+open Tests
 
-let tests =
-    testList "Create event" [
-      testTask "Create event without token fails" {
-        do! Expect.expectApiUnauthorized
-                (fun () -> Events.create WithoutToken.request id)
-                "Unauthenticated user was able to create event"
-      }
+[<Collection("Database collection")>]
+type CreateEvent(fixture: DatabaseFixture) =
+    let authenticatedClient =
+        fixture.getAuthedClient
 
-      testTask "Create event with authorization token works" {
-        do! Expect.expectApiSuccess
-                (fun () -> Events.create UsingJwtToken.request id)
-                "Authenticated couldn't create event"
-      }
-    ]
+    let unauthenticatedClient =
+        fixture.getUnauthenticatedClient
+
+    [<Fact>]
+    member _.``Create event without authorization gives unauthorized``() =
+        let event = Generator.generateEvent ()
+
+        task {
+            let! response, _ = Helpers.createEvent unauthenticatedClient event
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode)
+        }
+
+    [<Fact>]
+    member _.``Create event with authorization works``() =
+        let event = Generator.generateEvent ()
+
+        task {
+            let! response, _ = Helpers.createEvent authenticatedClient event
+            response.EnsureSuccessStatusCode() |> ignore
+        }
