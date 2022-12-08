@@ -52,12 +52,12 @@
 }
 
 .chevron {
-  transform: rotateZ(180deg);
+  transform: rotateZ(0deg);
   margin-right: 10px;
   transition-duration: 200ms;
   transition-timing-function: ease-in-out;
 }
 
 .chevronOpen {
-  transform: rotateZ(0deg);
+  transform: rotateZ(180deg);
 }
