@@ -68,14 +68,14 @@ let generateEvent () : Models.EventWriteModel =
               Some <| faker.Random.Number(1, 100)
       StartDate = DateTimeCustom.toCustomDateTime start.Date start.TimeOfDay
       EndDate = generateDateTimeCustomFuture ()
-      OpenForRegistrationTime = (DateTimeOffset(start).AddDays(-1).ToUnixTimeMilliseconds().ToString())
+      OpenForRegistrationTime = DateTimeOffset(start).AddDays(-1).ToUnixTimeMilliseconds().ToString()
       CloseRegistrationTime =
           if faker.Hacker.Random.Bool() then
               None
           else
               Some(
-                  (DateTimeOffset(faker.Date.Future(10, refDate = start).Date)
-                      .ToUnixTimeMilliseconds())
+                  DateTimeOffset(faker.Date.Future(10, refDate = start).Date)
+                      .ToUnixTimeMilliseconds()
                       .ToString()
               )
       ParticipantQuestions =

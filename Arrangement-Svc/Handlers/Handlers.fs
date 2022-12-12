@@ -105,7 +105,7 @@ let private participateEvent isBekker numberOfParticipants (event: Models.Event)
     else
         CanParticipate
 
-let registerParticipationHandler (eventId: Guid, email): HttpHandler =
+let registerParticipationHandler (eventId: Guid) (email: string): HttpHandler =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
             taskResult {
@@ -119,10 +119,10 @@ let registerParticipationHandler (eventId: Guid, email): HttpHandler =
                 let config = context.GetService<AppConfig>()
 
                 use db = openTransaction context
-                let! isEventExternal =
-                    Queries.isEventExternal eventId db
-                    |> TaskResult.mapError InternalError
-                do! (isBekker || isEventExternal) |> Result.requireTrue mustBeAuthorizedOrEventMustBeExternal
+                // let! isEventExternal =
+                //     Queries.isEventExternal eventId db
+                //     |> TaskResult.mapError InternalError
+                // do! (isBekker || isEventExternal) |> Result.requireTrue mustBeAuthorizedOrEventMustBeExternal
                 let! eventAndQuestions =
                     Queries.getEvent eventId db
                     |> TaskResult.mapError InternalError
@@ -277,14 +277,14 @@ let getEventIdByShortname =
 
 let getEvent (eventId: Guid) =
     fun (next: HttpFunc) (context: HttpContext) ->
-        let isBekker = context.User.Identity.IsAuthenticated
+        // let isBekker = context.User.Identity.IsAuthenticated
         let result =
             taskResult {
                 use db = openConnection context
-                let! isEventExternal =
-                    Queries.isEventExternal eventId db
-                    |> TaskResult.mapError InternalError
-                do! (isBekker || isEventExternal) |> Result.requireTrue mustBeAuthorizedOrEventMustBeExternal
+                // let! isEventExternal =
+                //     Queries.isEventExternal eventId db
+                //     |> TaskResult.mapError InternalError
+                // do! (isBekker || isEventExternal) |> Result.requireTrue mustBeAuthorizedOrEventMustBeExternal
                 let! eventAndQuestions =
                     Queries.getEvent eventId db
                     |> TaskResult.mapError InternalError
@@ -368,14 +368,14 @@ let cancelEvent (eventId: Guid) =
         let result =
             taskResult {
                 let config = context.GetService<AppConfig>()
-                let userId = getUserId context
-                let userIsAdmin = isAdmin context
-                let editToken = getEditTokenFromQuery context
+                // let userId = getUserId context
+                // let userIsAdmin = isAdmin context
+                // let editToken = getEditTokenFromQuery context
                 use db = openTransaction context
-                let! canEditEvent =
-                    Queries.canEditEvent eventId userIsAdmin userId editToken db
-                    |> TaskResult.mapError InternalError
-                do! canEditEvent |> Result.requireTrue cannotUpdateEvent
+                // let! canEditEvent =
+                //     Queries.canEditEvent eventId userIsAdmin userId editToken db
+                //     |> TaskResult.mapError InternalError
+                // do! canEditEvent |> Result.requireTrue cannotUpdateEvent
                 do! Queries.cancelEvent eventId db
                     |> TaskResult.mapError InternalError
                 let! eventAndQuestions =
@@ -404,14 +404,14 @@ let deleteEvent (eventId: Guid) =
         let result =
             taskResult {
                 let config = context.GetService<AppConfig>()
-                let userId = getUserId context
-                let userIsAdmin = isAdmin context
-                let editToken = getEditTokenFromQuery context
+                // let userId = getUserId context
+                // let userIsAdmin = isAdmin context
+                // let editToken = getEditTokenFromQuery context
                 use db = openTransaction context
-                let! canEditEvent =
-                    Queries.canEditEvent eventId userIsAdmin userId editToken db
-                    |> TaskResult.mapError InternalError
-                do! canEditEvent |> Result.requireTrue cannotUpdateEvent
+                // let! canEditEvent =
+                //     Queries.canEditEvent eventId userIsAdmin userId editToken db
+                //     |> TaskResult.mapError InternalError
+                // do! canEditEvent |> Result.requireTrue cannotUpdateEvent
                 let! eventAndQuestions =
                     Queries.getEvent eventId db
                     |> TaskResult.mapError InternalError
@@ -585,17 +585,17 @@ let updateEvent (eventId: Guid) =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
             taskResult {
-                let userId = getUserId context
-                let userIsAdmin = isAdmin context
-                let editToken = getEditTokenFromQuery context
+                // let userId = getUserId context
+                // let userIsAdmin = isAdmin context
+                // let editToken = getEditTokenFromQuery context
                 let! writeModel =
                     decodeWriteModel<Models.EventWriteModel> context
                     |> TaskResult.mapError BadRequest
                 use db = openTransaction context
-                let! canEditEvent =
-                    Queries.canEditEvent eventId userIsAdmin userId editToken db
-                    |> TaskResult.mapError InternalError
-                do! canEditEvent |> Result.requireTrue cannotUpdateEvent
+                // let! canEditEvent =
+                //     Queries.canEditEvent eventId userIsAdmin userId editToken db
+                //     |> TaskResult.mapError InternalError
+                // do! canEditEvent |> Result.requireTrue cannotUpdateEvent
                 let! oldEvent =
                     Queries.getEvent eventId db
                     |> TaskResult.mapError InternalError
@@ -645,12 +645,12 @@ let getNumberOfParticipantsForEvent (eventId: Guid) =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
             taskResult {
-                let isBekker = context.User.Identity.IsAuthenticated
+                // let isBekker = context.User.Identity.IsAuthenticated
                 use db = openConnection context
-                let! isEventExternal =
-                    Queries.isEventExternal eventId db
-                    |> TaskResult.mapError InternalError
-                do! (isEventExternal || isBekker) |> Result.requireTrue cannotUpdateEvent
+                // let! isEventExternal =
+                //     Queries.isEventExternal eventId db
+                //     |> TaskResult.mapError InternalError
+                // do! (isEventExternal || isBekker) |> Result.requireTrue cannotUpdateEvent
                 let! result =
                     Queries.getNumberOfParticipantsForEvent eventId db
                     |> TaskResult.mapError InternalError
@@ -712,14 +712,14 @@ let exportParticipationsForEvent (eventId: Guid) =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
             taskResult {
-                let editToken = getEditTokenFromQuery context
-                let isAdmin = isAdmin context
-                let userId = getUserId context
+                // let editToken = getEditTokenFromQuery context
+                // let isAdmin = isAdmin context
+                // let userId = getUserId context
                 use db = openConnection context
-                let! canEditEvent =
-                    Queries.canEditEvent eventId isAdmin userId editToken db
-                    |> TaskResult.mapError InternalError
-                do! canEditEvent |> Result.requireTrue cannotUpdateEvent
+                // let! canEditEvent =
+                //     Queries.canEditEvent eventId isAdmin userId editToken db
+                //     |> TaskResult.mapError InternalError
+                // do! canEditEvent |> Result.requireTrue cannotUpdateEvent
                 let! eventAndQuestions =
                     Queries.getEvent eventId db
                     |> TaskResult.mapError InternalError
@@ -738,12 +738,12 @@ let getWaitinglistSpot (eventId: Guid) (email: string) =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
             taskResult {
-                let isBekker = context.User.Identity.IsAuthenticated
+                // let isBekker = context.User.Identity.IsAuthenticated
                 use db = openConnection context
-                let! isEventExternal =
-                    Queries.isEventExternal eventId db
-                    |> TaskResult.mapError InternalError
-                do! (isEventExternal || isBekker) |> Result.requireTrue cannotUpdateEvent
+                // let! isEventExternal =
+                //     Queries.isEventExternal eventId db
+                //     |> TaskResult.mapError InternalError
+                // do! (isEventExternal || isBekker) |> Result.requireTrue cannotUpdateEvent
                 let! eventAndQuestions =
                     Queries.getEvent eventId db
                     |> TaskResult.mapError InternalError
@@ -783,14 +783,14 @@ let deleteParticipantFromEvent (eventId: Guid) (email: string) =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
             taskResult {
-                let isAdmin = isAdmin context
-                let cancellationToken = getCancellationTokenFromQuery context
+                // let isAdmin = isAdmin context
+                // let cancellationToken = getCancellationTokenFromQuery context
                 use db = openTransaction context
-                let! participant =
-                    Queries.getParticipantForEvent eventId email db
-                    |> TaskResult.mapError InternalError
-                do! (isAdmin || (cancellationToken.IsSome && cancellationToken.Value = participant.CancellationToken))
-                    |> Result.requireTrue cannotDeleteParticipation
+                // let! participant =
+                //     Queries.getParticipantForEvent eventId email db
+                //     |> TaskResult.mapError InternalError
+                // do! (isAdmin || (cancellationToken.IsSome && cancellationToken.Value = participant.CancellationToken))
+                //     |> Result.requireTrue cannotDeleteParticipation
                 let! eventAndQuestions =
                     Queries.getEvent eventId db
                     |> TaskResult.mapError InternalError
@@ -827,27 +827,78 @@ let deleteParticipantFromEvent (eventId: Guid) (email: string) =
 
 open GiraffeHelpers
 
+let isBekker (context: HttpContext) =
+    context.User.Identity.IsAuthenticated
+        
+let isEventExternal (eventId: Guid) (context: HttpContext) =
+    let result = 
+        task {
+            use db = openConnection context
+            let! isEventExternal = Queries.isEventExternal eventId db
+            match isEventExternal with
+            | Ok isEventExternal -> return isEventExternal
+            | Error _ -> return false
+        }
+    result.Result
+    
+let canEditEvent (eventId: Guid) (context: HttpContext) =
+    let result = 
+        task {
+            let editToken = getEditTokenFromQuery context
+            let isAdmin = isAdmin context
+            let userId = getUserId context
+            use db = openConnection context
+            let! canEditEvent = Queries.canEditEvent eventId isAdmin userId editToken db
+            match canEditEvent with
+                | Ok canEditEvent -> return canEditEvent
+                | Error _ -> return false
+            }
+    result.Result
+    
+let hasCancellationToken (eventId: Guid) (email: string) (context: HttpContext) =
+    let result =
+        task {
+            let cancellationToken = getCancellationTokenFromQuery context
+            use db = openTransaction context
+            let! participant = Queries.getParticipantForEvent eventId email db
+            match participant with
+            | Ok participant ->
+                let validToken = cancellationToken.IsSome && cancellationToken.Value = participant.CancellationToken
+                return validToken
+            | _ -> return false
+        }
+    result.Result
+    
+let authHandler (stuff: (HttpContext -> bool) list) =
+    fun (next: HttpFunc) (context: HttpContext) ->
+        stuff
+        |> List.map (fun f -> (fun c -> Some (f c))) 
+        |> List.tryPick (fun func -> func context)
+        |> function
+        | Some false -> setStatusCode 401 earlyReturn context
+        | _ -> next context
+
 let routes: HttpHandler =
     choose
         [
           POST
           >=> choose [
-              routef "/api/events/%O/participants/%s" registerParticipationHandler
+              routef "/api/events/%O/participants/%s" (fun (eventId, email) -> authHandler [isBekker; isEventExternal eventId] >=> registerParticipationHandler eventId email)
               // Has authentication
               route "/api/events" >=> isAuthenticated >=> createEvent
           ]
           PUT
           >=> choose [
-              routef "/api/events/%O" updateEvent
+              routef "/api/events/%O" (fun eventId -> authHandler [canEditEvent eventId] >=> updateEvent eventId) 
           ]
           GET
           >=> choose [
             route "/api/events/id" >=> getEventIdByShortname
-            routef "/api/events/%O" getEvent
+            routef "/api/events/%O" (fun eventId -> authHandler [isBekker; isEventExternal eventId] >=> getEvent eventId)
             routef "/api/events/%s/unfurl" getUnfurlEvent
-            routef "/api/events/%O/participants/count" getNumberOfParticipantsForEvent
-            routef "/api/events/%O/participants/%s/waitinglist-spot" (fun (eventId, email) -> getWaitinglistSpot eventId email)
-            routef "/api/events/%O/participants/export" exportParticipationsForEvent
+            routef "/api/events/%O/participants/count" (fun eventId -> authHandler [isBekker; isEventExternal eventId] >=> getNumberOfParticipantsForEvent eventId)
+            routef "/api/events/%O/participants/%s/waitinglist-spot" (fun (eventId, email) -> authHandler [isBekker; isEventExternal eventId] >=> getWaitinglistSpot eventId email)
+            routef "/api/events/%O/participants/export" (fun eventId -> authHandler [canEditEvent eventId] >=> exportParticipationsForEvent eventId)
             // Has authentication
             route "/api/events" >=> isAuthenticated >=> getFutureEvents
             route "/api/events/previous" >=> isAuthenticated >=> getPastEvents
@@ -864,8 +915,8 @@ let routes: HttpHandler =
           ]
           DELETE
           >=> choose [
-              routef "/api/events/%O" cancelEvent
-              routef "/api/events/%O/delete" deleteEvent
-              routef "/api/events/%O/participants/%s" (fun (eventId, email) -> deleteParticipantFromEvent eventId email)
+              routef "/api/events/%O" (fun eventId -> authHandler [canEditEvent eventId] >=> cancelEvent eventId)
+              routef "/api/events/%O/delete" (fun eventId -> authHandler [canEditEvent eventId] >=> deleteEvent eventId)
+              routef "/api/events/%O/participants/%s" (fun (eventId, email) -> authHandler [isAdmin; hasCancellationToken eventId email] >=> deleteParticipantFromEvent eventId email)
           ]
         ]

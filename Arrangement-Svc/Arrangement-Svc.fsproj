@@ -45,7 +45,7 @@
     <Compile Include="Common\DateTime.fs" />
     <Compile Include="Common\DateTimeExtensions.fs" />
     <Compile Include="Common\Auth.fs" /> 
-    <Compile Include="Common\UserMessage.fs" />
+    <Compile Include="Common\UserMessage.fs" /> 
     <Compile Include="Common\DatabaseContext.fs" />
     <Compile Include="Common\GiraffeHelpers.fs" />
     <Compile Include="Models\Models.fs" />

@@ -2,8 +2,6 @@ module Database
 
 open Microsoft.Data.SqlClient
 
-open Utils
-
 let private createConnectionString (rawConnectionString: string) : string =
     let cs = SqlConnectionStringBuilder(rawConnectionString)
     cs.InitialCatalog <- ""
