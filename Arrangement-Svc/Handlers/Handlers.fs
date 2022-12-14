@@ -869,36 +869,41 @@ let hasCancellationToken (eventId: Guid) (email: string) (context: HttpContext) 
         }
     result.Result
     
-let authHandler (stuff: (HttpContext -> bool) list) =
+let authHandler (authenticationFunctions: (HttpContext -> bool) list) (message: string) =
     fun (next: HttpFunc) (context: HttpContext) ->
-        stuff
+        authenticationFunctions
         |> List.map (fun f -> (fun c -> Some (f c))) 
         |> List.tryPick (fun func -> func context)
         |> function
-        | Some false -> setStatusCode 401 earlyReturn context
+        | Some false ->
+            (setStatusCode 403 >=> text message) earlyReturn context
         | _ -> next context
+        
+        
+let foo (next: HttpFunc) (context: HttpContext) =
+    setStatusCode 403 earlyReturn context
 
 let routes: HttpHandler =
     choose
         [
           POST
           >=> choose [
-              routef "/api/events/%O/participants/%s" (fun (eventId, email) -> authHandler [isBekker; isEventExternal eventId] >=> registerParticipationHandler eventId email)
+              routef "/api/events/%O/participants/%s" (fun (eventId, email) -> authHandler [isBekker; isEventExternal eventId] mustBeAuthorizedOrEventMustBeExternal >=> registerParticipationHandler eventId email)
               // Has authentication
               route "/api/events" >=> isAuthenticated >=> createEvent
           ]
           PUT
           >=> choose [
-              routef "/api/events/%O" (fun eventId -> authHandler [canEditEvent eventId] >=> updateEvent eventId) 
+              routef "/api/events/%O" (fun eventId -> authHandler [canEditEvent eventId] cannotUpdateEvent >=> updateEvent eventId) 
           ]
           GET
           >=> choose [
             route "/api/events/id" >=> getEventIdByShortname
-            routef "/api/events/%O" (fun eventId -> authHandler [isBekker; isEventExternal eventId] >=> getEvent eventId)
+            routef "/api/events/%O" (fun eventId -> authHandler [isBekker; isEventExternal eventId] mustBeAuthorizedOrEventMustBeExternal >=> getEvent eventId)
             routef "/api/events/%s/unfurl" getUnfurlEvent
-            routef "/api/events/%O/participants/count" (fun eventId -> authHandler [isBekker; isEventExternal eventId] >=> getNumberOfParticipantsForEvent eventId)
-            routef "/api/events/%O/participants/%s/waitinglist-spot" (fun (eventId, email) -> authHandler [isBekker; isEventExternal eventId] >=> getWaitinglistSpot eventId email)
-            routef "/api/events/%O/participants/export" (fun eventId -> authHandler [canEditEvent eventId] >=> exportParticipationsForEvent eventId)
+            routef "/api/events/%O/participants/count" (fun eventId -> authHandler [isBekker; isEventExternal eventId] cannotUpdateEvent >=> getNumberOfParticipantsForEvent eventId)
+            routef "/api/events/%O/participants/%s/waitinglist-spot" (fun (eventId, email) -> authHandler [isBekker; isEventExternal eventId] cannotUpdateEvent >=> getWaitinglistSpot eventId email)
+            routef "/api/events/%O/participants/export" (fun eventId -> authHandler [canEditEvent eventId] cannotUpdateEvent >=> exportParticipationsForEvent eventId)
             // Has authentication
             route "/api/events" >=> isAuthenticated >=> getFutureEvents
             route "/api/events/previous" >=> isAuthenticated >=> getPastEvents
@@ -915,8 +920,8 @@ let routes: HttpHandler =
           ]
           DELETE
           >=> choose [
-              routef "/api/events/%O" (fun eventId -> authHandler [canEditEvent eventId] >=> cancelEvent eventId)
-              routef "/api/events/%O/delete" (fun eventId -> authHandler [canEditEvent eventId] >=> deleteEvent eventId)
-              routef "/api/events/%O/participants/%s" (fun (eventId, email) -> authHandler [isAdmin; hasCancellationToken eventId email] >=> deleteParticipantFromEvent eventId email)
+              routef "/api/events/%O" (fun eventId -> authHandler [canEditEvent eventId] cannotUpdateEvent >=> cancelEvent eventId)
+              routef "/api/events/%O/delete" (fun eventId -> authHandler [canEditEvent eventId] cannotUpdateEvent >=> deleteEvent eventId)
+              routef "/api/events/%O/participants/%s" (fun (eventId, email) -> authHandler [isAdmin; hasCancellationToken eventId email] cannotDeleteParticipation >=> deleteParticipantFromEvent eventId email)
           ]
         ]
