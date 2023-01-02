@@ -869,19 +869,17 @@ let hasCancellationToken (eventId: Guid) (email: string) (context: HttpContext) 
         }
     result.Result
     
-let authHandler (authenticationFunctions: (HttpContext -> bool) list) (message: string) =
+let authHandler (authenticationFunctions: (HttpContext -> bool) list) (message: HttpStatus) =
     fun (next: HttpFunc) (context: HttpContext) ->
         authenticationFunctions
         |> List.map (fun f -> (fun c -> Some (f c))) 
         |> List.tryPick (fun func -> func context)
         |> function
         | Some false ->
-            (setStatusCode 403 >=> text message) earlyReturn context
+            match message with
+            | Forbidden message -> (setStatusCode 403 >=> text message) earlyReturn context
+            | _ -> (setStatusCode 500 >=> text "Error when attempting to authenticate") earlyReturn context
         | _ -> next context
-        
-        
-let foo (next: HttpFunc) (context: HttpContext) =
-    setStatusCode 403 earlyReturn context
 
 let routes: HttpHandler =
     choose
