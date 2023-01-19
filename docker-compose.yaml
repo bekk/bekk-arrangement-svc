@@ -1,0 +1,14 @@
+version: "3"
+services:
+  database:
+    image: mcr.microsoft.com/mssql/server:2017-latest
+    command: /bin/sh -c "/create-database.sh & /opt/mssql/bin/sqlservr"
+    environment:
+      ACCEPT_EULA: Y
+      MSSQL_SA_PASSWORD: <YourStrong!Passw0rd>
+      MSSQL_PID: Developer
+    ports:
+      - 1433:1433
+    volumes:
+      - ./create-database.sql:/create-database.sql
+      - ./create-database.sh:/create-database.sh
