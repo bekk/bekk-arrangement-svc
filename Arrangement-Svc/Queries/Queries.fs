@@ -1046,3 +1046,31 @@ let deleteParticipantFromEvent eventId email (db: DatabaseContext) =
         with
             | ex -> return Error ex
     }
+    
+    
+let isParticipating eventId email (db: DatabaseContext) =
+    task {
+        let query =
+            "
+            WITH participation as (
+                    SELECT EventId, Email, RegistrationTime, ROW_NUMBER() OVER (
+                    PARTITION BY EventId ORDER BY RegistrationTime
+                ) registrationSpot
+            FROM Participants
+            GROUP BY EventId, RegistrationTime, Email)
+
+            SELECT IIF(myp.RegistrationSpot <= E.MaxParticipants, cast(1 as bit), cast(0 as bit))
+            FROM Events E
+            LEFT OUTER JOIN participation myp ON E.Id = myp.EventId AND myp.Email = @email
+            WHERE E.Id = @eventId
+            "
+        let parameters = dict [
+            "eventId", box eventId
+            "email", box email
+        ]
+        try
+            let! result = db.Connection.QuerySingleAsync<bool>(query, parameters, db.Transaction)
+            return Ok result
+        with
+            | ex -> return Error ex
+    }

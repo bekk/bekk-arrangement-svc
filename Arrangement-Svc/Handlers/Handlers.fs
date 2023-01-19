@@ -176,8 +176,12 @@ let registerParticipationHandler (eventId: Guid, email): HttpHandler =
                 let! participant = participant |> Result.mapError InternalError
                 let! answers = answers |> Result.mapError InternalError
                 db.Commit()
+                use db = openConnection context
+                let! isParticipating =
+                    Queries.isParticipating eventId email db
+                    |> TaskResult.mapError InternalError
                 // Sende epost
-                let isWaitlisted = participate = IsWaitListed
+                let isWaitlisted = isParticipating = false
                 let email =
                     let redirectUrlTemplate =
                         HttpUtility.UrlDecode writeModel.CancelUrlTemplate
