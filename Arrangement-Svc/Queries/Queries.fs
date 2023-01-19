@@ -92,7 +92,7 @@ let getEventsForForside (email: string) (db: DatabaseContext) =
 
         let parameters = dict [
             "email", box email
-            "now", box (DateTime.Now.Date.ToString())
+            "now", box (DateTime.Now.Date.ToString("o"))
         ]
 
         try
@@ -675,7 +675,7 @@ let updateEvent eventId (model: Models.EventWriteModel) (db: DatabaseContext) =
 
         let parameters = dict [
             "eventId", box (eventId.ToString())
-            "now", box (DateTime.Now.Date.ToString())
+            "now", box (DateTime.Now.Date.ToString("o"))
 
             "title", box model.Title
             "description", box model.Description
@@ -738,7 +738,7 @@ let doesShortnameExist (shortname: string option) (db: DatabaseContext) =
 
         let parameters = dict [
             "shortname", box (if shortname.IsSome then shortname.Value else null)
-            "now", box (DateTime.Now.Date.ToString())
+            "now", box (DateTime.Now.Date.ToString("o"))
         ]
 
         try
@@ -887,7 +887,7 @@ let createEvent (writeModel: Models.EventWriteModel) employeeId (db: DatabaseCon
             "customHexColor", (if writeModel.CustomHexColor.IsSome then writeModel.CustomHexColor.Value else box null)
             "shortname", (if writeModel.Shortname.IsSome then writeModel.Shortname.Value else box null)
             "program", (if writeModel.Program.IsSome then writeModel.Program.Value else box null)
-            "now", box (DateTime.Now.Date.ToString())
+            "now", box (DateTime.Now.Date.ToString("o"))
         ]
 
         try
