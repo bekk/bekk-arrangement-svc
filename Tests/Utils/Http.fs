@@ -18,14 +18,14 @@ let decode<'a> (content: string) = content |> Decode.Auto.fromString<'a>
 let request (client: HttpClient) (url: string) (body: 'a option) (method: HttpMethod) =
     let url =
         if url.StartsWith("/") then
-            $"/api{url}"
+            Uri($"/api{url}", UriKind.Relative)
         else
-            $"{url}"
+            Uri(url)
 
     task {
         let request = new HttpRequestMessage()
         request.Method <- method
-        request.RequestUri <- Uri(url)
+        request.RequestUri <- url
 
         body
         |> Option.iter (fun body ->
