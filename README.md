@@ -18,10 +18,21 @@ An F# service and frontend for collecting and maintaining data about events.
 
 - Take a look at https://fsharp.org/use/mac/ to setup your develop environment.
 
-### First time setup
+### Run database locally
 
-- You will need to create the database `arrangement-db` on you local SQL server, if it does not already exist. Use the query `CREATE DATABASE [arrangement-db]`. If you dont have a local SQL server -> https://docs.microsoft.com/en-us/sql/linux/quickstart-install-connect-docker?view=sql-server-ver15&pivots=cs1-cmd
-- In `appsettings.json`, make sure your database is running on this address. If this doesn't work you can try to connect to the development database. You can find the address for the development database in the secrets manager on AWS.
+If you are using Docker, run:
+
+```
+docker compose up
+```
+
+If you are using Podman, install [podman-compose](https://github.com/containers/podman-compose#installation) and run:
+
+```
+podman-compose up
+```
+
+Make sure that you can connect to the database on localhost:1433 with the same credentials used in [`appsettings.Development.json`](Arrangement-Svc/appsettings.Development.json).
 
 ### Running the service
 
@@ -29,32 +40,38 @@ Developing locally you can either run the frontend on its own and proxy to the d
 Or you can run both frontend and backend locally.
 
 Running everything locally:
+
 ```
 $ cd Frontend
 $ npm i
 $ npm start
 ```
+
 In another:
+
 ```
 $ cd Arrangement-svc
 $ dotnet watch run
 ```
 
 If you are only developing frontend you can use and environment variable to proxy to the dev environment
+
 ```
 $ cd Frontend
 $ export PROXY=https://skjer.bekk.dev
-$ npm i 
+$ npm i
 $ npm start
 ```
 
 When running the backend you may not want to run the migrations each time.
 If you do not want to run migrations you can use the environment variable: `NO_MIGRATION`.
+
 ```
 $ NO_MIGRATION=true dotnet run
 ```
 
 Alternatively you can export it so you do not have to type it each time:
+
 ```
 $ export NO_MIGRATION=true
 $ dotnet run
@@ -63,6 +80,7 @@ $ dotnet run
 ## Deploy app
 
 ### Deploy to development
+
 When the program is deployed the frontend is built and hosted by the backend.
 Look in the dockerfile to see how this works.
 
@@ -74,24 +92,29 @@ If you want a preview of the service then append `-preview` to the title of any 
 Create a release from the master branch, and it should deploy to production.
 
 ## Technologies we use
+
 Backend:
+
 - F#
 - [Giraffe](https://github.com/giraffe-fsharp/Giraffe) is the framework we use to setup the web application. It is an easy to use library which builds functional components on top of Kestrel. It also has extensive documentation.
 - [Dapper](https://github.com/DapperLib/Dapper) is the ORM we are using. We went with plain Dapper here as we want to write SQL and escape any heavier ORM. This has some pros and cons, but has been working well for us.
 - [FsToolkit.ErrorHandling](https://github.com/demystifyfp/FsToolkit.ErrorHandling) Is a library we use to better deal with Task and Result types. It allows us to remove some rightward drift (match case pyramids) and also simplify our error handling.
 
 Frontend:
+
 - TypeScript
 - React
 - Sass
 - Lodash
 
-## Trying endpoints 
+## Trying endpoints
+
 While there is no swagger in this project you can use any JetBrains product, like Rider, to test HTTP endpoints.
 Open the `Requests.http` file and you can test from there.
 Some of the end points require a JWT authorized token, you can add this to the `http-client.env.json` file.
 
 ## Tests
+
 The testing framework we use is [XUnit](https://github.com/xunit/xunit).
 
 Mock data is created using [Bogus](https://github.com/bchavez/Bogus).
@@ -111,11 +134,13 @@ If you have a running database on your system, you could use that, but we recomm
 Running the tests will create a new image and database just for testing, and reuse that instance for later test sessions for performance reasons.
 
 Environment variables:
+
 - `NO_CONTAINER_MANAGEMENT` : Don't try to manage test container. Assumes it's up and running.
 - `ARRANGEMENT_SVC_CONTAINER_MANAGER` : Program used for managing the container. Default is `podman`, but `docker` works fine too.
 - `ARRANGEMENT_SVC_TESTCONTAINER` : Container name.
 
 To run tests:
+
 ```
 $ dotnet test
 ```
@@ -134,12 +159,14 @@ $ NO_CONTAINER_MANAGEMENT=1 NO_MIGRATION=1 dotnet # .. rest as before
 - Run `$ dotnet run`
 
 ## Shortnames
+
 Shortnames is a way to change the URL of an event.
 Events are unique in the database, so only 1 row can have a specific shortname at any given time.
 
 A typical event URL is `https://skjer.bekk.no/events/84427e54-54cd-4a74-8a53-cb0e4cc97004` with a shortname however you can replace the GUID with a string -> `https://skjer-dev.bekk.no/events/my-event`.
 Shortnames are added when creating or editing an event.
 A shortname can only be taken if:
+
 - It is not currently used by an active event.
 - The event that has it has ended (`endDate` in the past).
 - The event that has it is cancelled.
