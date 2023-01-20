@@ -2,13 +2,14 @@ version: "3"
 services:
   database:
     image: mcr.microsoft.com/mssql/server:2017-latest
-    command: /bin/sh -c "/create-database.sh & /opt/mssql/bin/sqlservr"
+    command: [
+      "/bin/bash",
+      "-c",
+      "(sleep 20 && /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P $$MSSQL_SA_PASSWORD -Q \"IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'arrangement-db') BEGIN CREATE DATABASE [arrangement-db]; END\") & /opt/mssql/bin/sqlservr"
+    ]
     environment:
       ACCEPT_EULA: Y
       MSSQL_SA_PASSWORD: <YourStrong!Passw0rd>
       MSSQL_PID: Developer
     ports:
       - 1433:1433
-    volumes:
-      - ./create-database.sql:/create-database.sql
-      - ./create-database.sh:/create-database.sh
