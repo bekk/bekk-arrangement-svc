@@ -10,10 +10,18 @@ services:
       - 1433:1433
   tools:
     image: mcr.microsoft.com/mssql-tools
-    command: [
-      "/bin/bash",
-      "-c",
-      "sleep 20 && /opt/mssql-tools/bin/sqlcmd -S database -U sa -P '<YourStrong!Passw0rd>' -Q \"IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'arrangement-db') BEGIN CREATE DATABASE [arrangement-db]; END\""
-    ]
+    command:
+      - /bin/bash
+      - -c
+      - |
+        sleep 30
+        /opt/mssql-tools/bin/sqlcmd \
+          -S database \
+          -U sa \
+          -P $$DB_PASSWORD \
+          -Q "IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = '$$DB_NAME') BEGIN CREATE DATABASE [$$DB_NAME]; END"
+    environment:
+      DB_NAME: arrangement-db
+      DB_PASSWORD: <YourStrong!Passw0rd>
     depends_on:
       - database
