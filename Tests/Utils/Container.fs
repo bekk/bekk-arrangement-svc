@@ -41,7 +41,7 @@ let containerExists () =
 
 let containerIsStopped () =
     let result =
-        runCLI $"""ps --all --filter name={ContainerName} --format "{{{{.Status}}}}" """
+        runCLI $"""ps --all --filter name={ContainerName} --format "{{.Status}}" """
 
     match result.Text with
     | None -> failwith "Error when getting container info"
