@@ -176,6 +176,12 @@ module CalendarLookup =
 module WebApi =
     open Microsoft.AspNetCore.Http
     open Giraffe
+    
+    // Used to add timezone marker to the date-string as microsoft chose not to follow the standard here.
+    // If its not in UTC then something is terribly wrong, so then we just return the string as we get it
+    let generateTimezoneString dateString timeZone =
+        let timezone = if timeZone = "UTC" then "z" else ""
+        $"{dateString}{timezone}"
 
     let get (date: string) (next: HttpFunc) (context: HttpContext) =
         let result =
@@ -204,8 +210,8 @@ module WebApi =
                            Description = body.description
                            Types = body.types
                            Themes = body.themes
-                           StartTime = e.Start.DateTime
-                           EndTime = e.End.DateTime
+                           StartTime = generateTimezoneString e.Start.DateTime e.Start.TimeZone
+                           EndTime = generateTimezoneString e.End.DateTime e.End.TimeZone
                            ContactPerson = e.Organizer.EmailAddress.Name;
                            ModifiedAt = e.LastModifiedDateTime.Value.UtcDateTime;
                            CreatedAt = e.CreatedDateTime.Value.UtcDateTime;
