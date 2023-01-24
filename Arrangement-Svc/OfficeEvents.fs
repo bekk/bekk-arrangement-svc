@@ -180,7 +180,7 @@ module WebApi =
     // Used to add timezone marker to the date-string as microsoft chose not to follow the standard here.
     // If its not in UTC then something is terribly wrong, so then we just return the string as we get it
     let generateTimezoneString dateString timeZone =
-        let timezone = if timeZone = "UTC" then "z" else ""
+        let timezone = if timeZone = "UTC" then "Z" else ""
         $"{dateString}{timezone}"
 
     let get (date: string) (next: HttpFunc) (context: HttpContext) =
