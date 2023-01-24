@@ -10,10 +10,12 @@ open Thoth.Json.Net
 let basePath = "http://localhost:5000/api"
 let uriBuilder path = UriBuilder($"{basePath}/{path}")
 
-let private toJson data =
-    Encode.Auto.toString (4, data, caseStrategy = CamelCase)
+let private extraCoders =
+    Extra.empty
+    |> Extra.withCustom Office.encoder Office.decoder
 
-let decode<'a> (content: string) = content |> Decode.Auto.fromString<'a>
+let private toJson data =       
+    Encode.Auto.toString (4, data, caseStrategy = CamelCase, extra = extraCoders)
 
 let request (client: HttpClient) (url: string) (body: 'a option) (method: HttpMethod) =
     let url =

@@ -2,6 +2,7 @@ module Generator
 
 open System
 open Bogus
+open Models
 
 let private faker = Faker()
 
@@ -109,7 +110,12 @@ let generateEvent () : Models.EventWriteModel =
           if faker.Random.Number(0, 5) <> 0 then
               None
           else
-              Some(faker.Random.Hexadecimal(6)[2..]) }
+              Some(faker.Random.Hexadecimal(6)[2..])
+      Office =
+        if faker.Random.Bool() then
+            None
+        else
+            Some(faker.PickRandom<Office>()) }
 
 let generateEmail () = faker.Internet.Email()
 

@@ -3,6 +3,7 @@ module Queries
 open Dapper
 open System
 open System.Collections.Generic
+open Models
 
 let isEventExternal eventId (db: DatabaseContext) =
     task {
@@ -15,9 +16,9 @@ let isEventExternal eventId (db: DatabaseContext) =
                 SELECT CAST(0 AS BIT);
             "
 
-        let parameters = dict [
-            "eventId", box eventId
-        ]
+        let parameters = {|
+            EventId = eventId
+        |}
 
         try
             let! result = db.Connection.QuerySingleAsync<bool>(query, parameters, db.Transaction)
@@ -38,12 +39,12 @@ let canEditEvent eventId isAdmin (employeeId: int option) editToken (db: Databas
                 SELECT CAST(0 AS BIT);
             "
 
-        let parameters = dict [
-            "eventId", box eventId
-            "isAdmin", box isAdmin
-            "employeeId", if employeeId.IsSome then box employeeId.Value else box null
-            "editToken", box editToken
-        ]
+        let parameters = {|
+            EventId = eventId
+            IsAdmin = isAdmin
+            EmployeeId = employeeId
+            EditToken = editToken
+        |}
 
         try
             let! result = db.Connection.QuerySingleAsync<bool>(query, parameters, db.Transaction)
@@ -77,6 +78,7 @@ let getEventsForForside (email: string) (db: DatabaseContext) =
                    E.CustomHexColor,
                    E.Shortname,
                    E.hasWaitingList,
+                   E.Office,
                    IIF(e.MaxParticipants is null, 1, IIF((SELECT COUNT(*) FROM Participants p0 WHERE p0.EventId = E.Id) < E.MaxParticipants, 1, 0)) as HasRoom,
                    IIF(myp.registrationSpot is null, 0, 1) as IsParticipating,
                    IIF(myp.RegistrationSpot > E.MaxParticipants, 1, 0) as IsWaitlisted,
@@ -87,13 +89,13 @@ let getEventsForForside (email: string) (db: DatabaseContext) =
             WHERE EndDate > @now
               AND IsCancelled = 0
               AND IsHidden = 0
-            GROUP BY E.Id, E.Title, E.Location, E.StartDate, E.EndDate, E.StartTime, E.EndTime, E.OpenForRegistrationTime, E.CloseRegistrationTime, E.MaxParticipants, E.CustomHexColor, E.Shortname, E.hasWaitingList, myp.RegistrationSpot
+            GROUP BY E.Id, E.Title, E.Location, E.StartDate, E.EndDate, E.StartTime, E.EndTime, E.OpenForRegistrationTime, E.CloseRegistrationTime, E.MaxParticipants, E.CustomHexColor, E.Shortname, E.hasWaitingList, E.Office, myp.RegistrationSpot
             "
 
-        let parameters = dict [
-            "email", box email
-            "now", box (DateTime.Now.Date.ToString("o"))
-        ]
+        let parameters = {|
+            Email = email
+            Now = DateTime.Now.Date
+        |}
 
         try
             let! result = db.Connection.QueryAsync<Models.ForsideEvent>(query, parameters, db.Transaction)
@@ -103,7 +105,7 @@ let getEventsForForside (email: string) (db: DatabaseContext) =
             return Error ex
     }
 
-let private getEventAndParticipantQuestions query numParticipantsQuery (parameters: IDictionary<string, Object>) (db: DatabaseContext) =
+let private getEventAndParticipantQuestions query numParticipantsQuery (parameters: obj) (db: DatabaseContext) =
     task {
         try
             let! rows =
@@ -182,6 +184,7 @@ let getFutureEvents (employeeId: int) (db: DatabaseContext) =
                    E.CustomHexColor,
                    E.Shortname,
                    E.Program,
+                   E.Office,
                    P.Id,
                    P.EventId,
                    P.Question,
@@ -193,10 +196,10 @@ let getFutureEvents (employeeId: int) (db: DatabaseContext) =
             AND ((E.IsHidden = 1 AND E.OrganizerId = @employeeId) OR (E.IsHidden = 1 AND PN.isPaameldt = 1) OR E.IsHidden = 0)
             ORDER BY StartDate;
             "
-        let parameters = dict [
-            "employeeId", box employeeId
-            "now", box DateTime.Now.Date
-        ]
+        let parameters = {|
+            EmployeeId = employeeId
+            Now = DateTime.Now.Date
+        |}
 
         let numParticipantsQuery =
             "
@@ -248,6 +251,7 @@ let getPastEvents (employeeId: int) (db: DatabaseContext) =
                    E.CustomHexColor,
                    E.Shortname,
                    E.Program,
+                   E.Office,
                    P.Id,
                    P.EventId,
                    P.Question,
@@ -259,10 +263,10 @@ let getPastEvents (employeeId: int) (db: DatabaseContext) =
             AND ((E.IsHidden = 1 AND E.OrganizerId = @employeeId) OR (E.IsHidden = 1 AND PN.isPaameldt = 1) OR E.IsHidden = 0)
             ORDER BY StartDate DESC;
             "
-        let parameters = dict [
-            "employeeId", box employeeId
-            "now", box DateTime.Now.Date
-        ]
+        let parameters = {|
+            EmployeeId = employeeId
+            Now = DateTime.Now.Date
+        |}
 
         let numParticipantsQuery =
             "
@@ -303,6 +307,7 @@ let getEventsOrganizedByEmail (email: string) (db : DatabaseContext) =
                    E.CustomHexColor,
                    E.Shortname,
                    E.Program,
+                   E.Office,
                    P.Id,
                    P.EventId,
                    P.Question
@@ -311,9 +316,9 @@ let getEventsOrganizedByEmail (email: string) (db : DatabaseContext) =
             WHERE E.OrganizerEmail = @email
             ORDER BY StartDate DESC;
             "
-        let parameters = dict [
-            "email", box email
-        ]
+        let parameters = {|
+            Email = email
+        |}
 
         let numParticipantsQuery =
             "
@@ -354,6 +359,7 @@ let getEventsOrganizedById (id: int) (db: DatabaseContext) =
                    E.CustomHexColor,
                    E.Shortname,
                    E.Program,
+                   E.Office,
                    P.Id,
                    P.EventId,
                    P.Question
@@ -362,9 +368,9 @@ let getEventsOrganizedById (id: int) (db: DatabaseContext) =
             WHERE E.OrganizerId = @id
             ORDER BY StartDate DESC;
             "
-        let parameters = dict [
-            "id", box id
-        ]
+        let parameters = {|
+            Id = id
+        |}
 
         let numParticipantsQuery =
             "
@@ -393,9 +399,9 @@ let getParticipationsById (id: int) (db: DatabaseContext) =
             WHERE P.EmployeeId = @id
             ORDER BY StartDate DESC;
             "
-        let parameters = dict [
-            "id", box id
-        ]
+        let parameters = {|
+            Id = id
+        |}
 
         try
             let! result = db.Connection.QueryAsync<Models.Participant>(query, parameters, db.Transaction)
@@ -414,9 +420,9 @@ let getNumberOfParticipantsForEvent (eventId: Guid) (db: DatabaseContext) =
                 INNER JOIN Events E on E.Id = @eventId
             WHERE EventId = @eventId;
             "
-        let parameters = dict [
-            "eventId", box eventId
-        ]
+        let parameters = {|
+            EventId = eventId
+        |}
 
         try
             let! result = db.Connection.QuerySingleAsync<int>(query, parameters, db.Transaction)
@@ -454,6 +460,7 @@ let getEvent (eventId: Guid) (db: DatabaseContext) =
                    E.CustomHexColor,
                    E.Shortname,
                    E.Program,
+                   E.Office,
                    P.Id,
                    P.EventId,
                    P.Question
@@ -462,9 +469,9 @@ let getEvent (eventId: Guid) (db: DatabaseContext) =
             WHERE E.Id = @eventId
             ORDER BY P.Id;
             "
-        let parameters = dict [
-            "eventId", box eventId
-        ]
+        let parameters = {|
+            EventId = eventId
+        |}
 
         try
             let mutable events = []
@@ -512,10 +519,9 @@ let getParticipantsForEvent (eventId: Guid) (db: DatabaseContext) =
                 WHERE EventId = @eventId
                 ORDER BY RegistrationTime;
                 "
-            let parameters = dict [
-                "eventId", box (eventId.ToString())
-            ]
-
+            let parameters = {|
+                EventId = eventId    
+            |}
         try
             let! result = db.Connection.QueryAsync<Models.Participant>(query, parameters, db.Transaction)
             return
@@ -532,15 +538,15 @@ let addParticipantToEvent (eventId: Guid) email (userId: int option) name depart
         VALUES (@email, @eventId, @currentEpoch, @cancellationToken, @name, @employeeId, @department);
         "
 
-    let parameters = dict [
-        "eventId", box (eventId.ToString())
-        "currentEpoch", box (DateTimeOffset.Now.ToUnixTimeMilliseconds())
-        "email", box email
-        "cancellationToken", box (Guid.NewGuid().ToString())
-        "name", box name
-        "department", box department
-        "employeeId", if userId.IsSome then box userId.Value else box null
-    ]
+    let parameters = {|
+        EventId = eventId
+        CurrentEpoch = DateTimeOffset.Now.ToUnixTimeMilliseconds()
+        Email = email
+        CancellationToken = Guid.NewGuid()
+        Name = name
+        Department = department
+        EmployeeId = userId
+    |}
 
     try
         db.Connection.QuerySingle<Models.Participant>(query, parameters, db.Transaction)
@@ -558,9 +564,9 @@ let getEventQuestions eventId (db: DatabaseContext) =
         WHERE EventId = @eventId
         ORDER BY Id ASC;
         "
-    let parameters = dict [
-        "eventId", box (eventId.ToString())
-    ]
+    let parameters = {|
+        EventId = eventId
+    |}
 
     db.Connection.Query<Models.ParticipantQuestion>(query, parameters, db.Transaction)
     |> Seq.toList
@@ -580,11 +586,11 @@ let createParticipantAnswers (participantAnswers: Models.ParticipantAnswer list)
         SELECT * FROM ParticipantAnswers WHERE
         QuestionId = @questionId AND EventId = @eventId AND Email = @email;
         "
-    let selectParameters = dict [
-        "questionId", box answer.QuestionId
-        "eventId", box answer.EventId
-        "email", box answer.Email
-    ]
+    let selectParameters = {|
+        QuestionId = answer.QuestionId
+        EventId = answer.EventId
+        Email = answer.Email
+    |}
 
     try
         db.Connection.Execute(insertQuery, participantAnswers |> List.toSeq, db.Transaction) |> ignore
@@ -603,9 +609,9 @@ let cancelEvent eventId (db: DatabaseContext) =
             WHERE Id = @eventId;
             "
 
-        let parameters = dict [
-            "eventId", box eventId
-        ]
+        let parameters = {|
+            EventId = eventId
+        |}
 
         try
             let! _ = db.Connection.ExecuteAsync(cancelQuery, parameters, db.Transaction)
@@ -629,9 +635,9 @@ let deleteEvent eventId (db: DatabaseContext) =
             WHERE Id = @eventId;
             "
 
-        let parameters = dict [
-            "eventId", box eventId
-        ]
+        let parameters = {|
+            EventId = eventId
+        |}
 
         try
             let! _ = db.Connection.ExecuteAsync(deleteQuery, parameters, db.Transaction)
@@ -668,35 +674,36 @@ let updateEvent eventId (model: Models.EventWriteModel) (db: DatabaseContext) =
                 CloseRegistrationTime = @closeRegistrationTime,
                 CustomHexColor = @customHexColor,
                 Shortname = @shortname,
-                Program = @program
+                Program = @program,
+                Office = @office
             OUTPUT INSERTED.*
             WHERE Id = @eventId;
             "
 
-        let parameters = dict [
-            "eventId", box (eventId.ToString())
-            "now", box (DateTime.Now.Date.ToString("o"))
-
-            "title", box model.Title
-            "description", box model.Description
-            "location", box model.Location
-            "organizerEmail", box model.OrganizerEmail
-            "startDate", box (DateTimeCustom.customToDateTime model.StartDate.Date)
-            "startTime", box (DateTimeCustom.customToTimeSpan model.StartDate.Time)
-            "endDate", box (DateTimeCustom.customToDateTime model.EndDate.Date)
-            "endTime", box (DateTimeCustom.customToTimeSpan model.EndDate.Time)
-            "maxParticipants", (if model.MaxParticipants.IsSome then box model.MaxParticipants.Value else box null)
-            "organizerName", box model.OrganizerName
-            "openForRegistrationTime", box model.OpenForRegistrationTime
-            "hasWaitingList", box model.HasWaitingList
-            "isCancelled", box false
-            "isExternal", box model.IsExternal
-            "isHidden", box model.IsHidden
-            "closeRegistrationTime", (if model.CloseRegistrationTime.IsSome then box model.CloseRegistrationTime.Value else box null)
-            "customHexColor", (if model.CustomHexColor.IsSome then model.CustomHexColor.Value else box null)
-            "shortname", (if model.Shortname.IsSome then model.Shortname.Value else box null)
-            "program", (if model.Program.IsSome then model.Program.Value else box null)
-        ]
+        let parameters = {|
+            EventId = eventId
+            Now = DateTime.Now.Date
+            Title = model.Title
+            Description = model.Description
+            Location = model.Location
+            OrganizerEmail = model.OrganizerEmail
+            StartDate = DateTimeCustom.customToDateTime model.StartDate.Date
+            StartTime = DateTimeCustom.customToTimeSpan model.StartDate.Time
+            EndDate = DateTimeCustom.customToDateTime model.EndDate.Date
+            EndTime = DateTimeCustom.customToTimeSpan model.EndDate.Time
+            MaxParticipants = model.MaxParticipants
+            OrganizerName = model.OrganizerName
+            OpenForRegistrationTime = model.OpenForRegistrationTime
+            HasWaitingList = model.HasWaitingList
+            IsCancelled = false
+            IsExternal = model.IsExternal
+            IsHidden = model.IsHidden
+            CloseRegistrationTime = model.CloseRegistrationTime
+            CustomHexColor = model.CustomHexColor
+            Shortname = model.Shortname
+            Program = model.Program
+            Office = model.Office
+        |}
 
         try
             let! result = db.Connection.QuerySingleAsync<Models.Event>(query, parameters, db.Transaction)
@@ -714,9 +721,9 @@ let getEventIdByShortname shortname (db: DatabaseContext) =
             SELECT Id FROM Events
             WHERE Shortname = @shortname
             "
-        let parameters = dict [
-            "shortname", box shortname
-        ]
+        let parameters = {|
+            Shortname = shortname
+        |}
 
         try
             let! result = db.Connection.QuerySingleOrDefaultAsync<Guid>(query, parameters, db.Transaction)
@@ -736,10 +743,10 @@ let doesShortnameExist (shortname: string option) (db: DatabaseContext) =
             WHERE Shortname = @shortname AND (EndDate > @now AND IsCancelled = 0)
             "
 
-        let parameters = dict [
-            "shortname", box (if shortname.IsSome then shortname.Value else null)
-            "now", box (DateTime.Now.Date.ToString("o"))
-        ]
+        let parameters = {|
+            Shortname = shortname
+            Now = DateTime.Now.Date
+        |}
 
         try
             if shortname.IsNone then
@@ -776,9 +783,9 @@ let createParticipantQuestions (eventId: Guid) (participantQuestions: string lis
                 SELECT * FROM ParticipantQuestions
                 WHERE EventId = @eventId
                 "
-            let selectParameters = dict [
-                "eventId", box (eventId.ToString())
-            ]
+            let selectParameters = {|
+                EventId = eventId
+            |}
 
             try
                 let! _ = db.Connection.ExecuteAsync(insertQuery, insertParameters, db.Transaction)
@@ -796,9 +803,9 @@ let deleteParticipantQuestions (eventId: Guid) (db: DatabaseContext) =
             WHERE EventId = @eventId
             "
 
-        let parameters = dict [
-            "eventId", box (eventId.ToString())
-        ]
+        let parameters = {|
+            EventId = eventId
+        |}
 
         try
             let! result = db.Connection.ExecuteAsync(query, parameters, db.Transaction)
@@ -837,7 +844,8 @@ let createEvent (writeModel: Models.EventWriteModel) employeeId (db: DatabaseCon
                     CloseRegistrationTime,
                     CustomHexColor,
                     Shortname,
-                    Program)
+                    Program,
+                    Office)
             OUTPUT INSERTED.*
             VALUES (@eventId,
                     @title,
@@ -860,35 +868,38 @@ let createEvent (writeModel: Models.EventWriteModel) employeeId (db: DatabaseCon
                     @closeRegistrationTime,
                     @customHexColor,
                     @shortname,
-                    @Program)
+                    @program,
+                    @office)
             "
         let newEventId = Guid.NewGuid()
         let newEditToken = Guid.NewGuid()
-        let parameters = dict [
-            "eventId", box newEventId
-            "title", box writeModel.Title
-            "description", box writeModel.Description
-            "location", box writeModel.Location
-            "organizerEmail", box writeModel.OrganizerEmail
-            "startDate", box (DateTimeCustom.customToDateTime writeModel.StartDate.Date)
-            "startTime", box (DateTimeCustom.customToTimeSpan writeModel.StartDate.Time)
-            "endDate", box (DateTimeCustom.customToDateTime writeModel.EndDate.Date)
-            "endTime", box (DateTimeCustom.customToTimeSpan writeModel.EndDate.Time)
-            "maxParticipants", if writeModel.MaxParticipants.IsSome then box writeModel.MaxParticipants.Value else box null
-            "organizerName", box writeModel.OrganizerName
-            "openForRegistrationTime", box writeModel.OpenForRegistrationTime
-            "editToken", box newEditToken
-            "hasWaitingList", box writeModel.HasWaitingList
-            "isCancelled", box false
-            "isExternal", box writeModel.IsExternal
-            "organizerId", box employeeId
-            "isHidden", box writeModel.IsHidden
-            "closeRegistrationTime", (if writeModel.CloseRegistrationTime.IsSome then box writeModel.CloseRegistrationTime.Value else box null)
-            "customHexColor", (if writeModel.CustomHexColor.IsSome then writeModel.CustomHexColor.Value else box null)
-            "shortname", (if writeModel.Shortname.IsSome then writeModel.Shortname.Value else box null)
-            "program", (if writeModel.Program.IsSome then writeModel.Program.Value else box null)
-            "now", box (DateTime.Now.Date.ToString("o"))
-        ]
+
+        let parameters = {|
+            EventId = newEventId
+            Title = writeModel.Title
+            Description = writeModel.Description
+            Location = writeModel.Location
+            OrganizerEmail = writeModel.OrganizerEmail
+            StartDate = DateTimeCustom.customToDateTime writeModel.StartDate.Date
+            StartTime = DateTimeCustom.customToTimeSpan writeModel.StartDate.Time
+            EndDate = DateTimeCustom.customToDateTime writeModel.EndDate.Date
+            EndTime = DateTimeCustom.customToTimeSpan writeModel.EndDate.Time
+            MaxParticipants = writeModel.MaxParticipants
+            OrganizerName = writeModel.OrganizerName
+            OpenForRegistrationTime = writeModel.OpenForRegistrationTime
+            EditToken = newEditToken
+            HasWaitingList = writeModel.HasWaitingList
+            IsCancelled = false
+            IsExternal = writeModel.IsExternal
+            OrganizerId = employeeId
+            IsHidden = writeModel.IsHidden
+            CloseRegistrationTime = writeModel.CloseRegistrationTime
+            CustomHexColor = writeModel.CustomHexColor
+            Shortname = writeModel.Shortname
+            Program = writeModel.Program
+            Office = writeModel.Office
+            Now = DateTime.Now.Date
+        |}
 
         try
             let! result = db.Connection.QuerySingleAsync<Models.Event>(update_shortname_and_insert_event, parameters, db.Transaction)
@@ -911,10 +922,10 @@ let getParticipantForEvent eventId email (db: DatabaseContext) =
             WHERE EventId = @eventId AND Email = @email
             "
 
-        let parameters = dict [
-            "eventId", box eventId
-            "email", box email
-        ]
+        let parameters = {|
+            EventId = eventId
+            Email = email
+        |}
 
         try
             let! result = db.Connection.QuerySingleAsync<Models.Participant>(query, parameters, db.Transaction)
@@ -943,9 +954,9 @@ let getParticipantsAndAnswersForEvent (eventId: Guid) (db: DatabaseContext) =
             ORDER BY RegistrationTime;
             "
 
-        let parameters = dict [
-            "eventId", box eventId
-        ]
+        let parameters = {|
+            EventId = eventId
+        |}
 
         let participants = Dictionary<Models.Participant, Models.ParticipantAnswer list>()
 
@@ -995,9 +1006,9 @@ let getParticipationsForParticipant email (db: DatabaseContext) =
             WHERE P.Email = @email
             "
 
-        let parameters = dict [
-            "email", box email
-        ]
+        let parameters = {|
+            Email = email
+        |}
 
         let participants = Dictionary<Models.Participant, Models.ParticipantAnswer list>()
 
@@ -1035,10 +1046,10 @@ let deleteParticipantFromEvent eventId email (db: DatabaseContext) =
             WHERE EventId = @eventId AND Email = @email
             "
 
-        let parameters = dict [
-            "eventId", box eventId
-            "email", box email
-        ]
+        let parameters = {|
+            EventId = eventId
+            Email = email
+        |}
 
         try
             let! result = db.Connection.QuerySingleAsync<Models.Participant>(query, parameters, db.Transaction)
