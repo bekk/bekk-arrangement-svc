@@ -4,6 +4,8 @@ open Xunit
 open System.Net
 
 open Tests
+open Models
+open Http
 
 [<Collection("Database collection")>]
 type CreateEvent(fixture: DatabaseFixture) =
@@ -29,4 +31,23 @@ type CreateEvent(fixture: DatabaseFixture) =
         task {
             let! response, _ = Helpers.createEvent authenticatedClient event
             response.EnsureSuccessStatusCode() |> ignore
+        }
+    
+    [<Fact>]
+    member _.``Create event with office``() =
+        let event =
+            TestData.createEvent (fun e -> { e with Office = Some Office.Trondheim })
+
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
+
+            let! event = getEvent authenticatedClient createdEvent.Event.Id
+
+            Assert.True(Result.isOk event)
+            let actual =
+                event
+                |> Result.map (fun e -> e.Office)
+                |> Result.toOption
+                |> Option.flatten
+            Assert.Equal(Some Office.Trondheim, actual)
         }

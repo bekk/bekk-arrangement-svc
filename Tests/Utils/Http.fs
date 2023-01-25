@@ -12,10 +12,15 @@ let uriBuilder path = UriBuilder($"{basePath}/{path}")
 
 let private extraCoders =
     Extra.empty
+    |> Extra.withCustom DateTimeCustom.DateTimeCustom.encoder DateTimeCustom.DateTimeCustom.decoder 
     |> Extra.withCustom Office.encoder Office.decoder
+    |> Extra.withInt64
 
 let private toJson data =       
     Encode.Auto.toString (4, data, caseStrategy = CamelCase, extra = extraCoders)
+
+let private autoDecoder<'T> : Decoder<'T> =
+    Decode.Auto.generateDecoderCached<'T>(caseStrategy = CamelCase, extra = extraCoders)
 
 let request (client: HttpClient) (url: string) (body: 'a option) (method: HttpMethod) =
     let url =
@@ -38,7 +43,7 @@ let request (client: HttpClient) (url: string) (body: 'a option) (method: HttpMe
         return response, content
     }
 
-let requestDecode client decoder url body method =
+let requestDecode<'a, 'b> client (decoder: Decoder<'a>) url (body: 'b option) method =
     task {
         let! response, content = request client url body method
         let decode =
@@ -48,6 +53,13 @@ let requestDecode client decoder url body method =
     }
 
 let get (client: HttpClient) (url: string) = request client url None HttpMethod.Get
+
+let getEvent (client: HttpClient) (eventId: string) =
+    task {
+        let! (_, content) = get client $"/events/{eventId}"
+        let event : Result<Event, string> = Decode.fromString autoDecoder content
+        return event
+    }
 
 let postParticipant (client: HttpClient) eventId email (participant: Models.ParticipantWriteModel) =
     requestDecode
