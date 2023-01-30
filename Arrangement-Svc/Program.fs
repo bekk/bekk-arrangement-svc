@@ -21,6 +21,7 @@ open Serilog.Formatting.Json
 open migrator
 open Config
 open Email.SendgridApiModels
+open TypeHandlers
 
 let webApp (next: HttpFunc) (context: HttpContext) =
     choose [ Health.healthCheck; AuthHandler.config; Handlers.routes ] next context
@@ -118,6 +119,7 @@ let configureServices (configuration : IConfiguration) (services: IServiceCollec
                 TokenValidationParameters
                     (ValidateIssuer = false, ValidAudiences = audiences))
     |> ignore
+    DapperConfig.RegisterTypeHandlers()
 
 // To test WebApplication using WebApplicationFactory, we need a Program type.
 // This is a hack to get it to compile. The Program will be created for us with the EntryPoint function by the compiler.

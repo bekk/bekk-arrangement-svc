@@ -17,10 +17,14 @@ open UserMessage
 open UserMessage.ResponseMessages
 open Middleware
 
+let private extraCoders =
+    Extra.empty
+    |> Extra.withCustom Office.encoder Office.decoder
+
 let private decodeWriteModel<'T> (context: HttpContext) =
     task {
         let! body = context.ReadBodyFromRequestAsync()
-        let result = Decode.Auto.fromString<'T> (body, caseStrategy = CamelCase)
+        let result = Decode.Auto.fromString<'T> (body, caseStrategy = CamelCase, extra = extraCoders)
         return result
     }
 

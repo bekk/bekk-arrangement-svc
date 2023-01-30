@@ -53,6 +53,7 @@
     <Compile Include="Models\EmailModels.fs" />
     <Compile Include="Models\CalendarInvite.fs" />
     <Compile Include="Queries\Queries.fs" />
+    <Compile Include="Queries\TypeHandlers.fs" />
     <Compile Include="Service\EmailService.fs" />
     <Compile Include="Middleware\RequestLogging.fs" />
     <Compile Include="Middleware\RetryOnDeadlock.fs" />

@@ -3,6 +3,30 @@ module Models
 open Models
 open Thoth.Json.Net
 
+type Event = {
+    Id: string
+    Title: string
+    Description: string
+    Location: string
+    StartDate: DateTimeCustom.DateTimeCustom
+    EndDate: DateTimeCustom.DateTimeCustom
+    OpenForRegistrationTime: int64
+    CloseRegistrationTime: int64 option
+    OrganizerName: string
+    OrganizerEmail: string
+    MaxParticipants: int option
+    ParticipantQuestions: string[]
+    Program: string option
+    HasWaitingList: bool
+    IsCancelled: bool
+    IsExternal: bool
+    IsHidden: bool
+    NumberOfParticipants: int
+    Shortname: string option
+    CustomHexColor: string option
+    Office: Office option
+}
+
 type InnerEvent = { Id: string
                     Title: string
                     Location: string

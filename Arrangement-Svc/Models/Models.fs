@@ -98,6 +98,32 @@ module Validate =
         else
             Decode.fail "E-post må inneholde alfakrøll (@)"
 
+type Office =
+    | Oslo = 0
+    | Trondheim = 1
+
+module Office =
+    let toString (office: Office) =
+        Enum.GetName<Office>(office)
+
+    let fromString (value: string) =
+        let (ok, office) = Enum.TryParse<Office>(value)
+        if ok then
+            Some office
+        else
+            None
+
+    let encoder (office : Office) =
+        Encode.string (toString office)
+
+    let decoder : Decoder<Office> =
+        Decode.string
+        |> Decode.andThen (fun value ->
+            match fromString(value) with
+            | Some office -> Decode.succeed office
+            | None -> Decode.fail "Ugyldig kontor"
+        )
+        
 type EventWriteModel =
     { Title: string
       Description: string
@@ -119,6 +145,7 @@ type EventWriteModel =
       IsHidden: bool
       Shortname: string option
       CustomHexColor: string option
+      Office: Office option
     }
 
 module EventWriteModel =
@@ -152,7 +179,9 @@ module EventWriteModel =
               CustomHexColor = get.Optional.Field "customHexColor"
                           (Decode.string |> Decode.andThen Validate.customHexColor)
               Shortname =  get.Optional.Field "shortname"
-                          (Decode.string |> Decode.andThen Validate.shortname) })
+                          (Decode.string |> Decode.andThen Validate.shortname)
+              Office = get.Optional.Field "office" Office.decoder })
+
 
 [<CLIMutable>]
 type Event =
@@ -178,6 +207,7 @@ type Event =
       OrganizerId: int
       CustomHexColor: string option
       Shortname: string option
+      Office: Office option
     }
 
 type EventAndQuestions = {
@@ -205,6 +235,7 @@ type ForsideEvent = {
     HasRoom: bool
     IsWaitlisted: bool
     PositionInWaitlist: int
+    Office: Office option
 }
 
 module Event =
@@ -241,6 +272,8 @@ module Event =
                     "shortname", Encode.string event.Shortname.Value
                 if event.CustomHexColor.IsSome then
                     "customHexColor", Encode.string event.CustomHexColor.Value
+                if event.Office.IsSome then
+                    "office", Office.encoder event.Office.Value
                 "numberOfParticipants", Encode.int (Option.defaultValue 0 eventAndQuestions.NumberOfParticipants)
             ]
         encoding
@@ -269,6 +302,8 @@ module Event =
                 "isParticipating", Encode.bool event.IsParticipating
                 "isWaitlisted", Encode.bool event.IsWaitlisted
                 "positionInWaitlist", Encode.int event.PositionInWaitlist
+                if event.Office.IsSome then
+                    "office", Office.encoder event.Office.Value
             ]
         encoding
 
