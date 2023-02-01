@@ -137,8 +137,8 @@ let registerParticipationHandler (eventId: Guid, email): HttpHandler =
                     Queries.getNumberOfParticipantsForEvent eventId db
                     |> TaskResult.mapError InternalError
 
-                // Verdien blir ignorert da vi nå kun bruker dette til å kaste Error casene som feil.
-                // Om arrangemenet har plass eller man er ventelista henter vi ut fra databasen lenger ned
+                // Verdien blir ignorert da vi nå kun bruker dette til å returnere riktig feil til brukeren.
+                // Om arrangemenet har plass eller man er ventelista henter vi ut fra databasen lenger ned.
                 let! _ =
                     match participateEvent isBekker numberOfParticipants eventAndQuestions.Event with
                         | NotExternal ->
