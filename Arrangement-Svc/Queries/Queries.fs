@@ -86,7 +86,7 @@ let getEventsForForside (email: string) (db: DatabaseContext) =
             FROM Events E
                      LEFT OUTER JOIN participation PN ON E.id = PN.EventId
                      LEFT OUTER JOIN participation myp ON E.Id = myp.EventId AND myp.Email = @email
-            WHERE EndDate > @now
+            WHERE EndDate >= @now
               AND IsCancelled = 0
               AND IsHidden = 0
             GROUP BY E.Id, E.Title, E.Location, E.StartDate, E.EndDate, E.StartTime, E.EndTime, E.OpenForRegistrationTime, E.CloseRegistrationTime, E.MaxParticipants, E.CustomHexColor, E.Shortname, E.hasWaitingList, E.Office, myp.RegistrationSpot
