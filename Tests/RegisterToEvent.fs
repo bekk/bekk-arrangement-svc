@@ -198,7 +198,7 @@ type RegisterToEvent(fixture: DatabaseFixture) =
         }
         
     [<Fact>]
-    member _.``Emails sent when event is full with mailbox has the correct amount of participating and waitlisted emails``() =
+    member _.``Emails sent when event is full has the correct amount of participating and waitlisted emails``() =
         let generatedEvent =
             TestData.createEvent (fun e ->
                 { e with MaxParticipants = Some 2
