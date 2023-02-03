@@ -137,7 +137,9 @@ let registerParticipationHandler (eventId: Guid, email): HttpHandler =
                     Queries.getNumberOfParticipantsForEvent eventId db
                     |> TaskResult.mapError InternalError
 
-                let! participate =
+                // Verdien blir ignorert da vi nå kun bruker dette til å returnere riktig feil til brukeren.
+                // Om arrangemenet har plass eller man er ventelista henter vi ut fra databasen lenger ned.
+                let! _ =
                     match participateEvent isBekker numberOfParticipants eventAndQuestions.Event with
                         | NotExternal ->
                             Error "Arrangementet er ikke eksternt"
@@ -149,10 +151,7 @@ let registerParticipationHandler (eventId: Guid, email): HttpHandler =
                             Error "Arrangementet tok sted i fortiden"
                         | NoRoom ->
                             Error "Arrangementet har ikke plass"
-                        | IsWaitListed ->
-                            Ok IsWaitListed
-                        | CanParticipate ->
-                            Ok CanParticipate
+                        | IsWaitListed | CanParticipate -> Ok ()
                     |> Result.mapError (fun e -> BadRequest e)
 
                 let! participant, answers =
@@ -185,7 +184,7 @@ let registerParticipationHandler (eventId: Guid, email): HttpHandler =
                     Queries.isParticipating eventId email db
                     |> TaskResult.mapError InternalError
                 // Sende epost
-                let isWaitlisted = isParticipating = false
+                let isWaitlisted = eventAndQuestions.Event.HasWaitingList && isParticipating = false
                 let email =
                     let redirectUrlTemplate =
                         HttpUtility.UrlDecode writeModel.CancelUrlTemplate

@@ -5,6 +5,7 @@ open System.Net
 
 open Models
 open Tests
+open Email.Service
 
 [<Collection("Database collection")>]
 type RegisterToEvent(fixture: DatabaseFixture) =
@@ -13,6 +14,9 @@ type RegisterToEvent(fixture: DatabaseFixture) =
 
     let unauthenticatedClient =
         fixture.getUnauthenticatedClient
+        
+    let isParticipatingEmail (email: DevEmail) = email.Email.Message.Contains "Du er nå påmeldt"
+    let isWaitlistedEmail (email: DevEmail) = email.Email.Message.Contains "Du er nå på venteliste"
 
     [<Fact>]
     member _.``Unauthenticated user can join external event``() =
@@ -151,4 +155,93 @@ type RegisterToEvent(fixture: DatabaseFixture) =
 
             authenticatedResponse.EnsureSuccessStatusCode()
             |> ignore
+        }
+        
+    [<Fact>]
+    member _.``Email gets sent when registering``() =
+        let generatedEvent =
+            TestData.createEvent (fun e ->
+                { e with
+                    IsExternal = true
+                    MaxParticipants = None })
+
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
+            // Clear the mailbox after the event was created
+            emptyDevMailbox ()
+            let! _, _ = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
+            
+            let mailbox = getDevMailbox ()
+            
+            Assert.Equal(1, List.length mailbox)
+        }
+        
+    [<Fact>]
+    member _.``Emails sent when event is full is waitlist email``() =
+        let generatedEvent =
+            TestData.createEvent (fun e ->
+                { e with MaxParticipants = Some 0 })
+
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
+            // Clear the mailbox after the event was created
+            emptyDevMailbox ()
+            let! _, _ = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
+            let! _, _ = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
+            let! _, _ = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
+            let! _, _ = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
+            let! _, _ = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
+            
+            let mailbox = getDevMailbox ()
+            
+            Assert.True(List.forall isWaitlistedEmail mailbox)
+        }
+        
+    [<Fact>]
+    member _.``Emails sent when event is full has the correct amount of participating and waitlisted emails``() =
+        let generatedEvent =
+            TestData.createEvent (fun e ->
+                { e with MaxParticipants = Some 2
+                         HasWaitingList = true })
+
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
+            // Clear the mailbox after the event was created
+            emptyDevMailbox ()
+            let! _, _ = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
+            let! _, _ = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
+            let! _, _ = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
+            let! _, _ = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
+            let! _, _ = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
+            
+            let mailbox = getDevMailbox ()
+            
+            let participating = List.filter isParticipatingEmail mailbox
+            let waitlisted = List.filter isWaitlistedEmail mailbox
+            
+            Assert.Equal(5, List.length mailbox)
+            Assert.Equal(2, List.length participating)
+            Assert.Equal(3, List.length waitlisted)
+        }
+        
+    [<Fact>]
+    member _.``Emails with no max-participants and no waitinglist sends participating email``() =
+        let generatedEvent =
+            TestData.createEvent (fun e ->
+                { e with MaxParticipants = None
+                         HasWaitingList = false })
+
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
+            // Clear the mailbox after the event was created
+            emptyDevMailbox ()
+            let! _, _ = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
+            let! _, _ = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
+            let! _, _ = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
+            let! _, _ = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
+            let! _, _ = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
+            
+            let mailbox = getDevMailbox ()
+            
+            Assert.True(List.forall isParticipatingEmail mailbox)
         }
