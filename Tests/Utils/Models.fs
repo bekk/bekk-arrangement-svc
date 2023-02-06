@@ -121,7 +121,7 @@ let useCreatedEvent (responseBody: ResponseBody) (f: CreatedEvent -> unit) =
 let getUpdatedEvent (responseBody: ResponseBody): InnerEvent =
     match responseBody with
     | UpdatedEvent updatedEvent -> updatedEvent
-    | _ -> failwith $"Not a valid created event model"
+    | _ -> failwith "Not a valid created event model"
 
 let useUpdatedEvent (responseBody: ResponseBody) (f: InnerEvent -> unit) =
     responseBody
