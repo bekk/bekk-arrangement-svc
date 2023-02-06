@@ -119,6 +119,7 @@ let generateEvent () : Models.EventWriteModel =
 
 let generateEmail () = faker.Internet.Email()
 
+let generateName () = faker.Company.CompanyName()
 let generateRandomString () = faker.Lorem.Paragraph()[0..199]
 
 let generateParticipant (number_of_questions: int): Models.ParticipantWriteModel =
