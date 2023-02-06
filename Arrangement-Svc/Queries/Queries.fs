@@ -3,7 +3,6 @@ module Queries
 open Dapper
 open System
 open System.Collections.Generic
-open Models
 
 let isEventExternal eventId (db: DatabaseContext) =
     task {
@@ -99,6 +98,34 @@ let getEventsForForside (email: string) (db: DatabaseContext) =
 
         try
             let! result = db.Connection.QueryAsync<Models.ForsideEvent>(query, parameters, db.Transaction)
+            return Ok result
+        with
+        | ex ->
+            return Error ex
+    }
+    
+let getEventsForBekkno (db: DatabaseContext) =
+    task {
+        let query =
+            "
+            SELECT E.Id,
+                    E.Title,
+                    E.Location,
+                    E.StartDate,
+                    E.IsExternal,
+                    IIF(e.MaxParticipants is null, 1, IIF((SELECT COUNT(*) FROM Participants p0 WHERE p0.EventId = E.Id) < E.MaxParticipants, 1, 0)) as HasRoom
+            FROM Events E
+            WHERE EndDate >= @now
+                AND IsCancelled = 0
+                AND IsHidden = 0
+            "
+
+        let parameters = {|
+            Now = DateTime.Now.Date
+        |}
+
+        try
+            let! result = db.Connection.QueryAsync<Models.BekknoEvent>(query, parameters, db.Transaction)
             return Ok result
         with
         | ex ->

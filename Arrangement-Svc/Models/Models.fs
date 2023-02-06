@@ -107,7 +107,7 @@ module Office =
         Enum.GetName<Office>(office)
 
     let fromString (value: string) =
-        let (ok, office) = Enum.TryParse<Office>(value)
+        let ok, office = Enum.TryParse<Office>(value)
         if ok then
             Some office
         else
@@ -182,7 +182,6 @@ module EventWriteModel =
                           (Decode.string |> Decode.andThen Validate.shortname)
               Office = get.Optional.Field "office" Office.decoder })
 
-
 [<CLIMutable>]
 type Event =
     { Id: Guid
@@ -238,6 +237,16 @@ type ForsideEvent = {
     Office: Office option
 }
 
+[<CLIMutable>]
+type BekknoEvent = {
+    Id: Guid
+    Title: string
+    Location: string
+    StartDate: DateTime
+    IsExternal: bool
+    HasRoom: bool
+}
+
 module Event =
     let encodeEventAndQuestions (eventAndQuestions: EventAndQuestions) =
         let event = eventAndQuestions.Event
@@ -275,6 +284,18 @@ module Event =
                 if event.Office.IsSome then
                     "office", Office.encoder event.Office.Value
                 "numberOfParticipants", Encode.int (Option.defaultValue 0 eventAndQuestions.NumberOfParticipants)
+            ]
+        encoding
+        
+    let encodeBekkno (event: BekknoEvent) =
+        let encoding =
+            Encode.object [
+                "id", Encode.guid event.Id
+                "title", Encode.string event.Title
+                "location", Encode.string event.Location
+                "startDate", Encode.datetime event.StartDate
+                "isExternal", Encode.bool event.IsExternal
+                "hasRoom", Encode.bool event.HasRoom
             ]
         encoding
 

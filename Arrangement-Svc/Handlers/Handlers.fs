@@ -225,6 +225,20 @@ let getFutureEvents (next: HttpFunc) (context: HttpContext) =
             return result
         }
     jsonResult result next context
+    
+let getEventsForBekkno =
+    fun (next: HttpFunc) (context: HttpContext) ->
+        let result =
+            taskResult {
+                use db = openConnection context
+                let! events =
+                    Queries.getEventsForBekkno db
+                    |> TaskResult.mapError InternalError
+                return events
+                       |> Seq.map Event.encodeBekkno
+                       |> Encode.seq
+            }
+        jsonResult result next context
 
 let getPastEvents (next: HttpFunc) (context: HttpContext) =
         let result =
@@ -846,6 +860,7 @@ let routes: HttpHandler =
           GET
           >=> choose [
             route "/api/events/id" >=> getEventIdByShortname
+            route "/api/bekkno" >=> getEventsForBekkno
             routef "/api/events/%O" getEvent
             routef "/api/events/%s/unfurl" getUnfurlEvent
             routef "/api/events/%O/participants/count" getNumberOfParticipantsForEvent
