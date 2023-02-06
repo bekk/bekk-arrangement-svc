@@ -104,7 +104,7 @@ let getEventsForForside (email: string) (db: DatabaseContext) =
             return Error ex
     }
     
-let getEventsForBekkno (db: DatabaseContext) =
+let getEventsSummary (db: DatabaseContext) =
     task {
         let query =
             "
@@ -125,7 +125,7 @@ let getEventsForBekkno (db: DatabaseContext) =
         |}
 
         try
-            let! result = db.Connection.QueryAsync<Models.BekknoEvent>(query, parameters, db.Transaction)
+            let! result = db.Connection.QueryAsync<Models.EventSummary>(query, parameters, db.Transaction)
             return Ok result
         with
         | ex ->

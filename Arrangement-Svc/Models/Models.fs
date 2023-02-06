@@ -238,7 +238,7 @@ type ForsideEvent = {
 }
 
 [<CLIMutable>]
-type BekknoEvent = {
+type EventSummary = {
     Id: Guid
     Title: string
     Location: string
@@ -287,7 +287,7 @@ module Event =
             ]
         encoding
         
-    let encodeBekkno (event: BekknoEvent) =
+    let encodeSummary (event: EventSummary) =
         let encoding =
             Encode.object [
                 "id", Encode.guid event.Id
