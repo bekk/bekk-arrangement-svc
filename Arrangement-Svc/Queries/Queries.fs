@@ -111,7 +111,7 @@ let getEventsSummary (db: DatabaseContext) =
             SELECT E.Id,
                    E.Title,
                    E.StartDate,
-                   E.IsExternal,
+                   E.IsExternal
             FROM Events E
             WHERE EndDate >= @now
                 AND IsCancelled = 0
