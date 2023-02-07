@@ -17,14 +17,10 @@ open UserMessage
 open UserMessage.ResponseMessages
 open Middleware
 
-let private extraCoders =
-    Extra.empty
-    |> Extra.withCustom Office.encoder Office.decoder
-
 let private decodeWriteModel<'T> (context: HttpContext) =
     task {
         let! body = context.ReadBodyFromRequestAsync()
-        let result = Decode.Auto.fromString<'T> (body, caseStrategy = CamelCase, extra = extraCoders)
+        let result = Decode.fromString EventWriteModel.decoder body
         return result
     }
 
@@ -109,7 +105,7 @@ let private participateEvent isBekker numberOfParticipants (event: Models.Event)
     else
         CanParticipate
 
-let registerParticipationHandler (eventId: Guid, email): HttpHandler =
+let registerParticipation (eventId: Guid, email): HttpHandler =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
             taskResult {
@@ -199,7 +195,7 @@ let registerParticipationHandler (eventId: Guid, email): HttpHandler =
             }
         jsonResult result next context
 
-let getEventsForForsideHandler (email: string) =
+let getEventsForForside (email: string) =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
             taskResult {
@@ -229,6 +225,20 @@ let getFutureEvents (next: HttpFunc) (context: HttpContext) =
             return result
         }
     jsonResult result next context
+    
+let getEventsSummary =
+    fun (next: HttpFunc) (context: HttpContext) ->
+        let result =
+            taskResult {
+                use db = openConnection context
+                let! events =
+                    Queries.getEventsSummary db
+                    |> TaskResult.mapError InternalError
+                return events
+                       |> Seq.map Event.encodeSummary
+                       |> Encode.seq
+            }
+        jsonResult result next context
 
 let getPastEvents (next: HttpFunc) (context: HttpContext) =
         let result =
@@ -839,7 +849,7 @@ let routes: HttpHandler =
         [
           POST
           >=> choose [
-              routef "/api/events/%O/participants/%s" registerParticipationHandler
+              routef "/api/events/%O/participants/%s" registerParticipation
               // Has authentication
               route "/api/events" >=> isAuthenticated >=> createEvent
           ]
@@ -850,6 +860,7 @@ let routes: HttpHandler =
           GET
           >=> choose [
             route "/api/events/id" >=> getEventIdByShortname
+            route "/api/events/summary" >=> getEventsSummary
             routef "/api/events/%O" getEvent
             routef "/api/events/%s/unfurl" getUnfurlEvent
             routef "/api/events/%O/participants/count" getNumberOfParticipantsForEvent
@@ -858,7 +869,7 @@ let routes: HttpHandler =
             // Has authentication
             route "/api/events" >=> isAuthenticated >=> getFutureEvents
             route "/api/events/previous" >=> isAuthenticated >=> getPastEvents
-            routef "/api/events/forside/%s" (isAuthenticatedf getEventsForForsideHandler)
+            routef "/api/events/forside/%s" (isAuthenticatedf getEventsForForside)
             routef "/api/events/organizer/%s" (isAuthenticatedf getEventsOrganizedBy)
             routef "/api/events-and-participations/%i" (isAuthenticatedf getEventsAndParticipations)
             routef "/api/events/%O/participants" (isAuthenticatedf getParticipantsForEvent)

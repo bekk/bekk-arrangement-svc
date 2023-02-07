@@ -65,8 +65,8 @@ type General(fixture: DatabaseFixture) =
                 init (fun ev ->
                     { ev with
                         Description = Generator.generateRandomString ()
-                        Shortname = Some <| Generator.generateRandomString ()
-                        Title = Generator.generateRandomString () })
+                        Shortname = Some <| Generator.generateName()
+                        Title = Generator.generateName () })
 
             Assert.Equal(None, data.Message)
         }
@@ -166,7 +166,7 @@ type General(fixture: DatabaseFixture) =
                 init (fun ev ->
                     { ev with
                         Location = ev.Location + "_NEW_LOCATION" // just to trigger email
-                        OrganizerName = "ORGANIZER_" + Generator.generateRandomString ()
+                        OrganizerName = "ORGANIZER_" + Generator.generateName ()
                         OrganizerEmail = "ORGANIZER_EMAIL_" + Generator.generateEmail () })
 
             let actual =

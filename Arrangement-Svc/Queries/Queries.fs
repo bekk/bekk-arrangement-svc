@@ -3,7 +3,6 @@ module Queries
 open Dapper
 open System
 open System.Collections.Generic
-open Models
 
 let isEventExternal eventId (db: DatabaseContext) =
     task {
@@ -99,6 +98,32 @@ let getEventsForForside (email: string) (db: DatabaseContext) =
 
         try
             let! result = db.Connection.QueryAsync<Models.ForsideEvent>(query, parameters, db.Transaction)
+            return Ok result
+        with
+        | ex ->
+            return Error ex
+    }
+    
+let getEventsSummary (db: DatabaseContext) =
+    task {
+        let query =
+            "
+            SELECT E.Id,
+                   E.Title,
+                   E.StartDate,
+                   E.IsExternal,
+            FROM Events E
+            WHERE EndDate >= @now
+                AND IsCancelled = 0
+                AND IsHidden = 0
+            "
+
+        let parameters = {|
+            Now = DateTime.Now.Date
+        |}
+
+        try
+            let! result = db.Connection.QueryAsync<Models.EventSummary>(query, parameters, db.Transaction)
             return Ok result
         with
         | ex ->

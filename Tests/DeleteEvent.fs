@@ -5,6 +5,7 @@ open Xunit
 
 open Models
 open Tests
+open Email.Service
 
 [<Collection("Database collection")>]
 type DeleteEvent(fixture: DatabaseFixture) =
@@ -13,6 +14,9 @@ type DeleteEvent(fixture: DatabaseFixture) =
 
     let unauthenticatedClient =
         fixture.getUnauthenticatedClient
+        
+    let isAvmeldtEmail (email: DevEmail) = email.Email.Message.Contains "Vi bekrefter at du nå er avmeldt"
+    let participantIsAvmeldt (email: DevEmail) = email.Email.Message.Contains "har meldt seg av"
 
     let clientDifferentUserAdmin =
         fixture.getAuthedClientWithClaims 40 [ "admin:arrangement" ]
@@ -225,4 +229,25 @@ type DeleteEvent(fixture: DatabaseFixture) =
                 Http.get authenticatedClient $"/events/{createdEvent.Event.Id}/participants/count"
 
             Assert.Equal(participantCount, "1")
+        }
+    
+    [<Fact>]
+    member _.``Deleting a participant should generate 2 emails``() =
+        let generatedEvent =
+            TestData.createEvent (fun e ->
+                { e with
+                    MaxParticipants = Some 1
+                    ParticipantQuestions = [] })
+
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
+            let! participant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event.Id
+
+            emptyDevMailbox ()
+            let! _ = Http.deleteParticipantFromEvent clientDifferentUserAdmin createdEvent.Event.Id participant.Email
+            let mailbox = getDevMailbox ()
+
+            Assert.Equal(2, List.length mailbox)
+            Assert.True(List.exists isAvmeldtEmail mailbox)
+            Assert.True(List.exists participantIsAvmeldt mailbox)
         }
