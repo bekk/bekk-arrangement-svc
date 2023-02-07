@@ -241,10 +241,8 @@ type ForsideEvent = {
 type EventSummary = {
     Id: Guid
     Title: string
-    Location: string
     StartDate: DateTime
     IsExternal: bool
-    HasRoom: bool
 }
 
 module Event =
@@ -292,10 +290,8 @@ module Event =
             Encode.object [
                 "id", Encode.guid event.Id
                 "title", Encode.string event.Title
-                "location", Encode.string event.Location
                 "startDate", Encode.datetime event.StartDate
                 "isExternal", Encode.bool event.IsExternal
-                "hasRoom", Encode.bool event.HasRoom
             ]
         encoding
 

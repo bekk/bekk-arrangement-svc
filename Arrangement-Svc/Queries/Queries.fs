@@ -109,11 +109,9 @@ let getEventsSummary (db: DatabaseContext) =
         let query =
             "
             SELECT E.Id,
-                    E.Title,
-                    E.Location,
-                    E.StartDate,
-                    E.IsExternal,
-                    IIF(e.MaxParticipants is null, 1, IIF((SELECT COUNT(*) FROM Participants p0 WHERE p0.EventId = E.Id) < E.MaxParticipants, 1, 0)) as HasRoom
+                   E.Title,
+                   E.StartDate,
+                   E.IsExternal,
             FROM Events E
             WHERE EndDate >= @now
                 AND IsCancelled = 0
