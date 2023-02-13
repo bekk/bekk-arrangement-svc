@@ -28,8 +28,8 @@ export const Filter = () => {
             </button>
             {showFilterOptions &&
                 <div className={style.filters}>
-                    <h3>Type</h3>
-                    <Kontor />
+                    <Type/>
+                    <Kontor/>
                 </div>}
         </div>
     )
@@ -37,17 +37,38 @@ export const Filter = () => {
 
 const Kontor = () => {
     return (
-        <>
+        <div>
             <h3>Kontor</h3>
-            <CheckBox onDarkBackground label="Eplemost" isChecked={true} onChange={() => { }}/>
-        </>
+            <CheckBox onDarkBackground label="Oslo" isChecked={true} onChange={() => {
+            }}/>
+            <CheckBox onDarkBackground label="Trondheim" isChecked={true} onChange={() => {
+            }}/>
+            <CheckBox onDarkBackground label="Alle" isChecked={true} onChange={() => {
+            }}/>
+        </div>
     )
 }
 
 const Type = () => {
     return (
         <div>
-            <p>hei</p>
+            <h3>Type</h3>
+            <div className={style.typeContainer}>
+                <div>
+                    <CheckBox onDarkBackground label="Kommende arrangementer" isChecked={true} onChange={() => {
+                    }}/>
+                    <CheckBox onDarkBackground label="Tidligere arrangementer" isChecked={true} onChange={() => {
+                    }}/>
+                    <CheckBox onDarkBackground label="Mine arrangementer" isChecked={true} onChange={() => {
+                    }}/>
+                </div>
+                <div>
+                    <CheckBox onDarkBackground label="Åpent arrangement" isChecked={true} onChange={() => {
+                    }}/>
+                    <CheckBox onDarkBackground label="Lukket arrangement" isChecked={true} onChange={() => {
+                    }}/>
+                </div>
+            </div>
         </div>
     )
 }

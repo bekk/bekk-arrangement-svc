@@ -3,8 +3,8 @@
 @import 'src/style/fonts';
 
 .filter {
-  width: 64px;
-  height: 64px;
+  width: 32px;
+  height: 32px;
   cursor: pointer;
   &:hover {
     background-color: var(--natt);
@@ -24,7 +24,6 @@
   background-color: var(--natt);
   & circle {
     fill: var(--natt);
-
   };
   & circle:first-of-type {
     transform: translateX(7px);
@@ -52,4 +51,8 @@
 .container {
   display: flex;
   flex-direction: column;
+}
+
+.typeContainer {
+  display: flex;
 }
