@@ -1,0 +1,36 @@
+@import 'src/style/constants';
+@import 'src/style/colors';
+@import 'src/style/fonts';
+
+.filter {
+  width: 64px;
+  height: 64px;
+  cursor: pointer;
+  &:hover {
+    background-color: var(--natt);
+  }
+}
+
+.filterOpen {
+  background-color: var(--natt);
+}
+
+.buttonReset {
+  border: none;
+  margin: 0;
+  padding: 0;
+  width: auto;
+  overflow: visible;
+  background-color: transparent;
+}
+
+.filters {
+  display: flex;
+  color: white;
+  font-family: $fontLight;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+}
