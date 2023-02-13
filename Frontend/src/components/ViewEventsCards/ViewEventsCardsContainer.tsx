@@ -11,13 +11,13 @@ import { authenticateUser, isAuthenticated } from 'src/auth';
 import { WavySubHeader } from 'src/components/Common/Header/WavySubHeader';
 import { IEvent } from 'src/types/event';
 import { isInOrder } from 'src/types/date-time';
-import { Dropdown } from 'src/components/Common/Dropdown/Dropdown';
 import {
   useSavedEditableEvents,
   useSavedParticipations,
 } from 'src/hooks/saved-tokens';
 import {useSetTitle} from "src/hooks/setTitle";
 import {appTitle} from "src/Constants";
+import {Filter} from "../Common/Filter/Filter";
 
 export const ViewEventsCardsContainer = () => {
   const [selectedOption, setSelectedOption] = useState(1);
@@ -52,11 +52,12 @@ export const ViewEventsCardsContainer = () => {
       </WavySubHeader>
       <Page>
         <div className={style.headerContainer}>
-          <Dropdown
-            items={options}
-            onChange={(option) => setSelectedOption(option)}
-            selectedId={selectedOption}
-          />
+          <Filter />
+          {/*<Dropdown*/}
+          {/*  items={options}*/}
+          {/*  onChange={(option) => setSelectedOption(option)}*/}
+          {/*  selectedId={selectedOption}*/}
+          {/*/>*/}
         </div>
         {showEvents(selectedOption)}
       </Page>
