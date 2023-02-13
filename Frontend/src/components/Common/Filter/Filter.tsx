@@ -29,9 +29,7 @@ export const Filter = () => {
             {showFilterOptions &&
                 <div className={style.filters}>
                     <h3>Type</h3>
-                    <h3>Kontor</h3>
-                    <CheckBox onDarkBackground label="Eplemost" isChecked={true} onChange={() => {
-                    }}/>
+                    <Kontor />
                 </div>}
         </div>
     )
@@ -39,9 +37,10 @@ export const Filter = () => {
 
 const Kontor = () => {
     return (
-        <div>
-            <p>hei</p>
-        </div>
+        <>
+            <h3>Kontor</h3>
+            <CheckBox onDarkBackground label="Eplemost" isChecked={true} onChange={() => { }}/>
+        </>
     )
 }
 

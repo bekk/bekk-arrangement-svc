@@ -8,11 +8,30 @@
   cursor: pointer;
   &:hover {
     background-color: var(--natt);
+    & circle {
+      fill: var(--natt);
+    }
+  }
+  & circle {
+    fill: black;
+    transition-property: transform;
+    transition-duration: 250ms;
+    transition-timing-function: ease-in-out;
   }
 }
 
 .filterOpen {
   background-color: var(--natt);
+  & circle {
+    fill: var(--natt);
+
+  };
+  & circle:first-of-type {
+    transform: translateX(7px);
+  }
+  & circle:last-of-type {
+    transform: translateX(-7px);
+  }
 }
 
 .buttonReset {
