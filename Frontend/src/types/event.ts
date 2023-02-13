@@ -8,7 +8,7 @@ import {
   WithId,
   parseQuestions,
   toEditMaxAttendees,
-  parseShortname, parseProgram,
+  parseShortname, parseProgram, parseOffice,
 } from '.';
 import {
   IDateTime,
@@ -44,6 +44,8 @@ import { viewEventShortnameRoute } from 'src/routing';
 import { toEditTime } from 'src/types/time';
 import {array, date, decodeType, record, string} from "typescript-json-decoder";
 
+// Office-events are events read from Microsoft Office.
+// They have nothing to do with the following `Office` type.
 export type OfficeEvent = decodeType<typeof OfficeEventDecoder>;
 export const OfficeEventDecoder = record({
   contactPerson: string,
@@ -64,10 +66,16 @@ export interface INewEventViewModel {
   editToken: string;
 }
 
+export type Office =
+    | "Oslo"
+    | "Trondheim"
+    | "Alle"
+
 export interface IEventViewModel {
   title: string;
   description: string;
   location: string;
+  office?: Office
   startDate: IDateTime;
   endDate: IDateTime;
   openForRegistrationTime: TimeInstanceContract;
@@ -90,6 +98,7 @@ export interface IEventWriteModel {
   title: string;
   description: string;
   location: string;
+  office?: Office
   startDate: IDateTime;
   endDate: IDateTime;
   openForRegistrationTime: TimeInstanceContract;
@@ -126,6 +135,7 @@ export interface IEvent {
   title: string;
   description: string;
   location: string;
+  office: Office
   start: IDateTime;
   end: IDateTime;
   openForRegistrationTime: TimeInstance;
@@ -148,6 +158,7 @@ export interface IEditEvent {
   title: string;
   description: string;
   location: string;
+  office: Office
   start: EditDateTime;
   end: EditDateTime;
   openForRegistrationTime: TimeInstanceEdit;
@@ -170,6 +181,7 @@ export const parseEditEvent = ({
   title,
   description,
   location,
+  office,
   start,
   end,
   openForRegistrationTime,
@@ -191,6 +203,7 @@ export const parseEditEvent = ({
     title: parseTitle(title),
     description: parseDescription(description),
     location: parseLocation(location),
+    office: parseOffice(office),
     start: parseEditDateTime(start),
     end: parseEditDateTime(end),
     openForRegistrationTime: parseEditTimeInstance(openForRegistrationTime),
@@ -248,6 +261,7 @@ export const toEventWriteModel = (
 export const parseEventViewModel = (eventView: IEventViewModel): IEvent => {
   const title = parseTitle(eventView.title);
   const location = parseLocation(eventView.location);
+  const office = parseOffice(eventView.office)
   const description = parseDescription(eventView.description);
 
   const start = parseDateViewModel(eventView.startDate);
@@ -282,6 +296,7 @@ export const parseEventViewModel = (eventView: IEventViewModel): IEvent => {
   const event = {
     title,
     location,
+    office,
     description,
     start,
     end,
@@ -310,6 +325,7 @@ export const toEditEvent = ({
   title,
   description,
   location,
+  office,
   start,
   end,
   openForRegistrationTime,
@@ -330,6 +346,7 @@ export const toEditEvent = ({
   title,
   description,
   location,
+  office,
   start: toEditDateTime(start),
   end: toEditDateTime(end),
   openForRegistrationTime: toEditTimeInstance(openForRegistrationTime),
@@ -357,6 +374,7 @@ export const initialEditEvent = (email?: string, name?: string): IEditEvent => {
     title: '',
     description: '',
     location: '',
+    office: "Alle",
     start: {
       date: toEditDate(dateToIDate(eventStartDate)),
       time: toEditTime({ hour: 17, minute: 0 }),

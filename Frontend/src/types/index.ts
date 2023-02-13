@@ -1,9 +1,9 @@
 import {
   MaxParticipants,
   isMaxParticipantsLimited,
-  maxParticipantsLimit,
+  maxParticipantsLimit, Office,
 } from 'src/types/event';
-import { validate, IError } from './validation';
+import {validate, IError, ErrorType} from './validation';
 
 export type Optional<T> = T | undefined;
 export type WithId<T> = T & { id: string };
@@ -34,6 +34,19 @@ export const parseLocation = (value: string): string | IError[] => {
     'Sted kan ha maks 60 tegn': value.length > 60,
   });
   return validator.resolve(value);
+}
+
+export const parseOffice = (value?: string): Office | IError[] => {
+  if (value === undefined)
+    return "Alle";
+
+  if (value === "Oslo")
+    return "Oslo"
+
+  if (value === "Trondheim")
+    return "Trondheim";
+
+  return [ { message: 'Gyldige verdier er "Oslo", "Trondheim" eller ingenting', type: "Error"} ];
 };
 
 export const parseTitle = (value: string): string | IError[] => {

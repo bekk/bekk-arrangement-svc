@@ -17,10 +17,6 @@
     line-height: calc(var(--checkbox-box-size) * 1.25);
 }
 
-.checkbox:not(:first-child) {
-    margin-top: var(--checkbox-vertical-margin);
-}
-
 .checkbox input[type='checkbox'] {
     opacity: 0;
     margin: 0;

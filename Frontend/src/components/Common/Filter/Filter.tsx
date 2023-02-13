@@ -4,11 +4,6 @@ import {FilterIcon} from "../Icons/FilterIcon";
 import classNames from "classnames";
 import {CheckBox} from "../Checkbox/CheckBox";
 
-type Kontor =
-    | "Oslo"
-    | "Trondheim"
-    | "Alle"
-
 type Type =
     | "Kommende"
     | "Tidligere"

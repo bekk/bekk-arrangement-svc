@@ -33,6 +33,7 @@ import { ValidationResult } from 'src/components/Common/ValidationResult/Validat
 import { datesInOrder, EditDate, parseEditDate } from 'src/types/date';
 import { EditTime, parseEditTime, toEditTime } from 'src/types/time';
 import { InfoBox } from 'src/components/Common/InfoBox/InfoBox';
+import { CheckBox } from 'src/components/Common/Checkbox/CheckBox';
 
 interface IProps {
   eventResult: IEditEvent;
@@ -113,6 +114,11 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
               })
             }
           />
+        </div>
+        <div className={style.office}>
+          <CheckBox label="Oslo" isChecked={event.office === "Oslo"} onChange={() => {}}/>
+          <CheckBox label="Trondheim" isChecked={event.office === "Trondheim"} onChange={() => {}}/>
+          <CheckBox label="Alle" isChecked={event.office === "Alle"} onChange={() => {}}/>
         </div>
         <div>
           <div
