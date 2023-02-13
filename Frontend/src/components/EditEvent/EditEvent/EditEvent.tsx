@@ -116,9 +116,15 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
           />
         </div>
         <div className={style.office}>
-          <CheckBox label="Oslo" isChecked={event.office === "Oslo"} onChange={() => {}}/>
-          <CheckBox label="Trondheim" isChecked={event.office === "Trondheim"} onChange={() => {}}/>
-          <CheckBox label="Alle" isChecked={event.office === "Alle"} onChange={() => {}}/>
+          <CheckBox label="Oslo"
+                    isChecked={event.office === "Oslo"}
+                    onChange={() => updateEvent({...event, office: "Oslo",})}/>
+          <CheckBox label="Trondheim"
+                    isChecked={event.office === "Trondheim"}
+                    onChange={() => updateEvent({...event, office: "Trondheim",})}/>
+          <CheckBox label="Alle"
+                    isChecked={event.office === "Alle"}
+                    onChange={() => updateEvent({...event, office: "Alle",})}/>
         </div>
         <div>
           <div
