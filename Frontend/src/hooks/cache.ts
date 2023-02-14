@@ -1,5 +1,5 @@
-import { cachedRemoteData, hasLoaded } from 'src/remote-data';
-import {IEvent, OfficeEvent, parseEventViewModel} from 'src/types/event';
+import {cachedRemoteData, hasLoaded, RemoteData} from 'src/remote-data';
+import {IEvent, IEventViewModel, OfficeEvent, parseEventViewModel} from 'src/types/event';
 import {useCallback, useMemo} from 'react';
 import {
   getEvent,
@@ -18,6 +18,8 @@ import { isInThePast } from 'src/types/date-time';
 import { getEmailNameAndDepartment } from 'src/api/employeeSvc';
 import { getEmployeeId } from 'src/auth';
 import { EventState } from 'src/components/ViewEventsCards/ParticipationState';
+import {FilterOptions} from "../components/ViewEventsCards/ViewEventsCardsContainer";
+import {WithId} from "../types";
 
 //**  Event  **//
 
@@ -32,6 +34,17 @@ export const useEvent = (id: string) => {
     }, [id]),
   });
 };
+
+export const useFilteredEvents = (filter: FilterOptions): Map<string, RemoteData<IEvent>> => {
+ return eventCache.useAll(
+     useCallback(async () => {
+       const futureEvents = filter.kommende ? await getEvents() : []
+       const pastEvents = filter.tidligere ? await getPastEvents() : []
+       const allEvents = [...futureEvents, ...pastEvents];
+       return allEvents.map(({ id, ...event }) => [id, parseEventViewModel(event)]) as [string, IEvent][];
+     }, [filter.kommende, filter.tidligere])
+ )
+}
 
 export const useEvents = () => {
   return eventCache.useAll(
