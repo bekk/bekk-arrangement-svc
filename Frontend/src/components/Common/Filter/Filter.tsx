@@ -1,18 +1,51 @@
-import React, {useState} from 'react';
+import React, { useState} from 'react';
 import style from './Filter.module.scss';
 import {FilterIcon} from "../Icons/FilterIcon";
 import classNames from "classnames";
 import {CheckBox} from "../Checkbox/CheckBox";
+import {useUrlBoolState} from "../../../hooks/useUrlBoolState";
 
-type Type =
-    | "Kommende"
-    | "Tidligere"
-    | "Mine"
-    | "Åpent"
-    | "Lukket"
+type UpdateBoolFunction = (state: boolean) => void;
+
+type OfficeType = {
+    oslo: [boolean, UpdateBoolFunction]
+    trondheim: [boolean, UpdateBoolFunction]
+    alle: [boolean, UpdateBoolFunction]
+}
+
+type TypeDate = {
+    kommende: [boolean, UpdateBoolFunction]
+    tidligere: [boolean, UpdateBoolFunction]
+    mine: [boolean, UpdateBoolFunction]
+    apent: [boolean, UpdateBoolFunction]
+    lukket: [boolean, UpdateBoolFunction]
+}
 
 export const Filter = () => {
     const [showFilterOptions, setShowFilterOptions] = useState(false);
+
+    const [oslo, setOslo] = useUrlBoolState(false, "Oslo")
+    const [trondheim, setTrondheim] = useUrlBoolState(false, "trondheim")
+    const [alle, setAlle] = useUrlBoolState(true, "alle")
+    const officeData: OfficeType = {
+        oslo: [oslo, setOslo],
+        trondheim: [trondheim, setTrondheim],
+        alle: [alle, setAlle]
+    }
+
+    const [kommende, setKommende] = useUrlBoolState(true, "kommende")
+    const [tidligere, setTidligere] = useUrlBoolState(false, "tidligere")
+    const [mine, setMine] = useUrlBoolState(false, "mine")
+    const [apent, setApent] = useUrlBoolState(false, "apent")
+    const [lukket, setLukket] = useUrlBoolState(false, "lukket")
+
+    const typeData: TypeDate = {
+        kommende: [kommende, setKommende],
+        tidligere: [tidligere, setTidligere],
+        mine: [mine, setMine],
+        apent: [apent, setApent],
+        lukket: [lukket, setLukket],
+    }
 
     const filterStyles = classNames(style.filter, {[style.filterOpen]: showFilterOptions})
 
@@ -23,45 +56,53 @@ export const Filter = () => {
             </button>
             {showFilterOptions &&
                 <div className={style.filters}>
-                    <Type/>
-                    <Kontor/>
+                    <Type typeData={typeData}/>
+                    <Kontor kontorData={officeData}/>
                 </div>}
         </div>
     )
 };
 
-const Kontor = () => {
+const Kontor = ({kontorData}: {kontorData: OfficeType}) => {
+    const [oslo, setOslo] = kontorData.oslo;
+    const [trondheim, setTrondheim] = kontorData.trondheim;
+    const [alle, setAlle] = kontorData.alle;
     return (
         <div>
             <h3>Kontor</h3>
-            <CheckBox onDarkBackground label="Oslo" isChecked={true} onChange={() => {
-            }}/>
-            <CheckBox onDarkBackground label="Trondheim" isChecked={true} onChange={() => {
-            }}/>
-            <CheckBox onDarkBackground label="Alle" isChecked={true} onChange={() => {
-            }}/>
+            <CheckBox onDarkBackground label="Oslo" isChecked={oslo} onChange={() =>
+                setOslo(!oslo)}/>
+            <CheckBox onDarkBackground label="Trondheim" isChecked={trondheim} onChange={() =>
+                setTrondheim(!trondheim)}/>
+            <CheckBox onDarkBackground label="Alle" isChecked={alle} onChange={() =>
+                setAlle(!alle)}/>
         </div>
     )
 }
 
-const Type = () => {
+const Type = ({typeData}: {typeData: TypeDate}) => {
+    const [kommende, setKommende] = typeData.kommende
+    const [tidligere, setTidligere] = typeData.tidligere
+    const [mine, setMine] = typeData.mine
+    const [apent, setApent] = typeData.apent
+    const [lukket, setLukket] = typeData.lukket
     return (
         <div>
             <h3>Type</h3>
             <div className={style.typeContainer}>
                 <div>
-                    <CheckBox onDarkBackground label="Kommende arrangementer" isChecked={true} onChange={() => {
-                    }}/>
-                    <CheckBox onDarkBackground label="Tidligere arrangementer" isChecked={true} onChange={() => {
-                    }}/>
-                    <CheckBox onDarkBackground label="Mine arrangementer" isChecked={true} onChange={() => {
-                    }}/>
+                    <CheckBox onDarkBackground label="Kommende arrangementer" isChecked={kommende} onChange={() =>
+                        setKommende(!kommende)}/>
+                    <CheckBox onDarkBackground label="Tidligere arrangementer" isChecked={tidligere} onChange={() =>
+                        setTidligere(!tidligere)}/>
+                    <CheckBox onDarkBackground label="Mine arrangementer" isChecked={mine} onChange={() =>
+                        setMine(!mine)}/>
                 </div>
                 <div>
-                    <CheckBox onDarkBackground label="Åpent arrangement" isChecked={true} onChange={() => {
-                    }}/>
-                    <CheckBox onDarkBackground label="Lukket arrangement" isChecked={true} onChange={() => {
-                    }}/>
+                    <CheckBox onDarkBackground label="Åpent arrangement" isChecked={apent} onChange={() =>
+                        setApent(!apent)}/>
+                    <CheckBox onDarkBackground label="Lukket arrangement" isChecked={lukket} onChange={() =>
+                        setLukket(!lukket)}/>
                 </div>
             </div>
         </div>
