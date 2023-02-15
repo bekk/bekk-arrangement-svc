@@ -23,7 +23,6 @@ import {
 import { dateToITime, stringifyTime } from 'src/types/time';
 import style from './ViewEvent.module.scss';
 import { useSetTitle } from 'src/hooks/setTitle';
-import { useFilteredEvents } from '../../hooks/cache';
 
 interface IProps {
   eventId?: string;
