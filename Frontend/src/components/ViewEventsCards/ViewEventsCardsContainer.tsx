@@ -1,4 +1,4 @@
-import React, { useState} from 'react';
+import React, {useState} from 'react';
 import style from './ViewEventsCards.module.scss';
 import {createRoute} from 'src/routing';
 import {hasLoaded, RemoteData} from 'src/remote-data';
@@ -9,13 +9,14 @@ import {Button} from 'src/components/Common/Button/Button';
 import {useHistory} from 'react-router';
 import {authenticateUser, isAuthenticated} from 'src/auth';
 import {WavySubHeader} from 'src/components/Common/Header/WavySubHeader';
-import {IEvent, IEventViewModel} from 'src/types/event';
-import {isInOrder} from 'src/types/date-time';
+import {IEvent} from 'src/types/event';
+import {isInOrder, isInTheFuture, isInThePast} from 'src/types/date-time';
 
 import {useSetTitle} from "src/hooks/setTitle";
 import {appTitle} from "src/Constants";
 import {Filter} from "../Common/Filter/Filter";
-import {WithId} from "../../types";
+import {dateToIDate} from "../../types/date";
+import {useSavedEditableEvents, useSavedParticipations} from "../../hooks/saved-tokens";
 
 export type FilterOptions = {
     oslo: boolean
@@ -42,10 +43,15 @@ const initialFilterOptions = {
 export const ViewEventsCardsContainer = () => {
     const [filterOptions, setFilterOptions] = useState(initialFilterOptions);
     useSetTitle(appTitle)
+    const savedEditableEvents = useSavedEditableEvents();
+    const savedParticipations = useSavedParticipations();
 
-    const filteredEvents = sortEvents(useFilteredEvents(filterOptions)).filter(event => {
-        return filterOptions.oslo && FilterOslo(event[1]) || filterOptions.trondheim && FilterTrondheim(event[1]);
-    })
+    const filteredEvents = sortEvents(useFilteredEvents(filterOptions)).filter(event =>
+        (
+            ( (!filterOptions.tidligere && !filterOptions.kommende && !filterOptions.mine) || (filterOptions.tidligere && filterTidligere(event[1])) || (filterOptions.kommende && filterKommende(event[1])) || (filterOptions.mine && filterMine(event[0], savedEditableEvents, savedParticipations)) ) &&
+            ( (!filterOptions.apent && !filterOptions.lukket) || (filterOptions.apent && filterApent(event[1])) || (filterOptions.lukket && filterLukket(event[1])) )
+        )
+    )
 
     return (
         <>
@@ -90,5 +96,17 @@ const sortEvents = (events: Map<string, RemoteData<IEvent>>) => {
     );
 };
 
-const FilterOslo = (event: IEvent) => event.office === "Oslo"
-const FilterTrondheim = (event: IEvent) => event.office === "Trondheim"
+const filterOslo = (event: IEvent) => event.office === "Oslo"
+const filterTrondheim = (event: IEvent) => event.office === "Trondheim"
+const filterAlle = (event: IEvent) => event.office === "Alle"
+const filterKommende = (event: IEvent) => {
+    return isInTheFuture(event.start)
+}
+const filterTidligere = (event: IEvent) => {
+    return isInThePast(event.start)
+}
+const filterMine = (id: string, savedEditableEvents: any, savedParticipations: any) => {
+    return savedEditableEvents.savedEvents.map((x: any) => x.eventId).includes(id) || savedParticipations.savedParticipations.map((x: any) => x.eventId).includes(id)
+}
+const filterApent = (event: IEvent) => event.isExternal
+const filterLukket = (event: IEvent) => !event.isExternal

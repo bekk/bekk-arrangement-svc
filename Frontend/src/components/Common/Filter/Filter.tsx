@@ -38,7 +38,7 @@ export const Filter = ({setFilterState}: { setFilterState: SetFilterState }) => 
     }
 
     const [kommende, setKommende] = useUrlBoolState(true, "kommende")
-    const [tidligere, setTidligere] = useUrlBoolState(false, "tidligere")
+    const [tidligere, setTidligere] = useUrlBoolState(true, "tidligere")
     const [mine, setMine] = useUrlBoolState(false, "mine")
     const [apent, setApent] = useUrlBoolState(true, "apent")
     const [lukket, setLukket] = useUrlBoolState(false, "lukket")
