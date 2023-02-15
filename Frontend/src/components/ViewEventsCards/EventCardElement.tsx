@@ -68,8 +68,8 @@ export const EventCardElement = ({ eventId, event }: IProps) => {
     ? EventState.Laster
     : event.numberOfParticipants < maxParticipantsLimit(event.maxParticipants)
     ? EventState.Plass
-    : event.numberOfParticipants >= maxParticipantsLimit(event.maxParticipants) &&
-      event.hasWaitingList
+    : event.numberOfParticipants >=
+        maxParticipantsLimit(event.maxParticipants) && event.hasWaitingList
     ? EventState.PlassPaVenteliste
     : EventState.Fullt;
 
@@ -122,6 +122,12 @@ export const EventCardElement = ({ eventId, event }: IProps) => {
           <LocationIcon color="white" />
         </div>
         <div className={style.iconText}>{event.location}</div>
+      </div>
+      <div className={style.location}>
+        <div className={style.locationIcon}>
+          <LocationIcon color="white" />
+        </div>
+        <div className={style.iconText}>{event.office}</div>
       </div>
       {event.isHidden && (
         <p className={style.hidden}>

@@ -23,7 +23,7 @@ import {
 import { dateToITime, stringifyTime } from 'src/types/time';
 import style from './ViewEvent.module.scss';
 import { useSetTitle } from 'src/hooks/setTitle';
-import {useFilteredEvents} from "../../hooks/cache";
+import { useFilteredEvents } from '../../hooks/cache';
 
 interface IProps {
   eventId?: string;
@@ -54,16 +54,14 @@ export const ViewEvent = ({
         <div className={style.editGroup}>
           <Button
             onClick={() => history.push(editEventRoute(eventId))}
-            color={'Secondary'}
-          >
+            color={'Secondary'}>
             Rediger
           </Button>
           <Button
             displayAsLink
             onLightBackground
             onClick={() => gotoDuplicate(toEditEvent(incrementOneWeek(event)))}
-            color={'Secondary'}
-          >
+            color={'Secondary'}>
             Dupliser
           </Button>
         </div>
@@ -71,8 +69,7 @@ export const ViewEvent = ({
       <WavySubHeader
         eventId={eventId}
         eventTitle={event.title}
-        customHexColor={event.customHexColor}
-      >
+        customHexColor={event.customHexColor}>
         <div className={style.headerContainer}>
           <h1 className={style.header}>{event.title}</h1>
         </div>
@@ -86,7 +83,7 @@ export const ViewEvent = ({
             <p>{event.location}</p>
           </div>
           <div className={style.iconTextContainer}>
-            {/*TODO: Trenger vi et ikon her?*/}
+            <LocationIcon color="black" className={style.icon} />
             <p>{event.office}</p>
           </div>
           {userIsLoggedIn() && (
@@ -118,9 +115,9 @@ export const ViewEvent = ({
             <Description description={event.description} />
           </p>
           {event.program && (
-              <p className={style.program}>
-                <Program program={event.program} />
-              </p>
+            <p className={style.program}>
+              <Program program={event.program} />
+            </p>
           )}
         </div>
         <p>—</p>
@@ -196,20 +193,20 @@ const Description = ({ description }: { description: string }) => {
   );
 };
 
-const Program = ({program}: {program: string | undefined}) => {
-  if (program === undefined) return null
+const Program = ({ program }: { program: string | undefined }) => {
+  if (program === undefined) return null;
   const paragraphs = program.split('\n');
 
   return (
-      <>
-        {paragraphs.map((paragraph, i) => (
-            <div key={`${paragraph}:${i}`} className={style.paragraph}>
-              {formatLinks(paragraph).map(formatHeadersAndStuff)}
-            </div>
-        ))}
-      </>
+    <>
+      {paragraphs.map((paragraph, i) => (
+        <div key={`${paragraph}:${i}`} className={style.paragraph}>
+          {formatLinks(paragraph).map(formatHeadersAndStuff)}
+        </div>
+      ))}
+    </>
   );
-}
+};
 
 const formatLinks = (line: string): (string | JSX.Element)[] => {
   const linkRegex = /(https?:\/\/[^\s]+)/;
