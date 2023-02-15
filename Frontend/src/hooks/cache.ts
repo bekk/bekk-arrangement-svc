@@ -40,8 +40,8 @@ export const useFilteredEvents = (filter: FilterOptions): Map<string, RemoteData
      useCallback(async () => {
        // Her henter vi kun for den tidsrammen vi ønsker
        // Dersom dette hentes ut 1 gang caches det
-       const futureEvents = filter.kommende ? await getEvents() : []
-       const pastEvents = filter.tidligere ? await getPastEvents() : []
+       const futureEvents = (!filter.kommende && !filter.tidligere) || filter.kommende ? await getEvents() : []
+       const pastEvents = (!filter.kommende && !filter.tidligere) || filter.tidligere ? await getPastEvents() : []
        const allEvents = [...futureEvents, ...pastEvents];
        return allEvents.map(({ id, ...event }) => [id, parseEventViewModel(event)]) as [string, IEvent][];
      }, [filter.kommende, filter.tidligere])

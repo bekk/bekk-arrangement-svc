@@ -48,8 +48,12 @@ export const ViewEventsCardsContainer = () => {
 
     const filteredEvents = sortEvents(useFilteredEvents(filterOptions)).filter(event =>
         (
-            ( (!filterOptions.tidligere && !filterOptions.kommende && !filterOptions.mine) || (filterOptions.tidligere && filterTidligere(event[1])) || (filterOptions.kommende && filterKommende(event[1])) || (filterOptions.mine && filterMine(event[0], savedEditableEvents, savedParticipations)) ) &&
-            ( (!filterOptions.apent && !filterOptions.lukket) || (filterOptions.apent && filterApent(event[1])) || (filterOptions.lukket && filterLukket(event[1])) )
+            // ( (!filterOptions.tidligere && !filterOptions.kommende && !filterOptions.mine) || (filterOptions.tidligere && filterTidligere(event[1])) || (filterOptions.kommende && filterKommende(event[1])) || (filterOptions.mine && filterMine(event[0], savedEditableEvents, savedParticipations)) ) &&
+            filterType(filterOptions, event, savedEditableEvents, savedEditableEvents) &&
+                filterAccess(filterOptions, event) &&
+                filterOffice(filterOptions, event)
+            //( (!filterOptions.apent && !filterOptions.lukket) || (filterOptions.apent && filterApent(event[1])) || (filterOptions.lukket && filterLukket(event[1])) ) &&
+            // ( (!filterOptions.oslo && !filterOptions.trondheim && !filterOptions.alle) || (filterOptions.oslo && filterOslo(event[1])) || (filterOptions.trondheim && filterTrondheim(event[1])) || (filterOptions.alle && filterAlle(event[1])))
         )
     )
 
@@ -95,6 +99,15 @@ const sortEvents = (events: Map<string, RemoteData<IEvent>>) => {
         isInOrder({first: a.start, last: b.start}) ? -1 : 1
     );
 };
+
+const filterType = (filterOptions: FilterOptions, event: [string, IEvent], savedEditableEvents:any, savedParticipations: any) =>
+    ( (!filterOptions.tidligere && !filterOptions.kommende && !filterOptions.mine) || (filterOptions.tidligere && filterTidligere(event[1])) || (filterOptions.kommende && filterKommende(event[1])) || (filterOptions.mine && filterMine(event[0], savedEditableEvents, savedParticipations)) ) ;
+
+const filterAccess = (filterOptions: FilterOptions, event: [string, IEvent]) =>
+    ( (!filterOptions.apent && !filterOptions.lukket) || (filterOptions.apent && filterApent(event[1])) || (filterOptions.lukket && filterLukket(event[1])) )
+
+const filterOffice = (filterOptions: FilterOptions, event: [string, IEvent]) =>
+    ( (!filterOptions.oslo && !filterOptions.trondheim && !filterOptions.alle) || (filterOptions.oslo && filterOslo(event[1])) || (filterOptions.trondheim && filterTrondheim(event[1])) || (filterOptions.alle && filterAlle(event[1])))
 
 const filterOslo = (event: IEvent) => event.office === "Oslo"
 const filterTrondheim = (event: IEvent) => event.office === "Trondheim"
