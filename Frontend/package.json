@@ -39,11 +39,8 @@
       "last 1 safari version"
     ]
   },
-  "prettier": {
-    "trailingComma": "es5",
-    "singleQuote": true
-  },
   "devDependencies": {
+    "prettier": "2.8.2",
     "@bekk/storybook": "2.5.1",
     "@types/lodash": "^4.14.185",
     "@types/react": "^18.0.20",
