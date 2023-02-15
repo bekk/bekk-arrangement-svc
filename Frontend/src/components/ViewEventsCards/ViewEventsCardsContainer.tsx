@@ -10,11 +10,16 @@ import { useHistory } from 'react-router';
 import { authenticateUser, isAuthenticated } from 'src/auth';
 import { WavySubHeader } from 'src/components/Common/Header/WavySubHeader';
 import { IEvent } from 'src/types/event';
-import { isInOrder, isInTheFuture, isInThePast } from 'src/types/date-time';
+import { isInOrder } from 'src/types/date-time';
 
 import { useSetTitle } from 'src/hooks/setTitle';
 import { appTitle } from 'src/Constants';
-import { Filter } from '../Common/Filter/Filter';
+import {
+  Filter,
+  filterAccess,
+  filterOffice,
+  filterType,
+} from '../Common/Filter/Filter';
 import {
   useSavedEditableEvents,
   useSavedParticipations,
@@ -54,8 +59,8 @@ export const ViewEventsCardsContainer = () => {
         filterType(
           filterOptions,
           event,
-          savedEditableEvents,
-          savedParticipations
+          savedEditableEvents.savedEvents,
+          savedParticipations.savedParticipations
         ) &&
         filterAccess(filterOptions, event) &&
         filterOffice(filterOptions, event)
@@ -108,50 +113,3 @@ const sortEvents = (events: [string, IEvent][]) => {
     isInOrder({ first: a.start, last: b.start }) ? 1 : -1
   );
 };
-
-const filterType = (
-  filterOptions: FilterOptions,
-  event: [string, IEvent],
-  savedEditableEvents: any,
-  savedParticipations: any
-) =>
-  (!filterOptions.tidligere &&
-    !filterOptions.kommende &&
-    !filterOptions.mine) ||
-  (filterOptions.tidligere && filterTidligere(event[1])) ||
-  (filterOptions.kommende && filterKommende(event[1])) ||
-  (filterOptions.mine &&
-    filterMine(event[0], savedEditableEvents, savedParticipations));
-
-const filterAccess = (filterOptions: FilterOptions, event: [string, IEvent]) =>
-  (!filterOptions.apent && !filterOptions.lukket) ||
-  (filterOptions.apent && filterApent(event[1])) ||
-  (filterOptions.lukket && filterLukket(event[1]));
-
-const filterOffice = (filterOptions: FilterOptions, event: [string, IEvent]) =>
-  (!filterOptions.oslo && !filterOptions.trondheim && !filterOptions.alle) ||
-  (filterOptions.oslo && filterOslo(event[1])) ||
-  (filterOptions.trondheim && filterTrondheim(event[1])) ||
-  (filterOptions.alle && filterAlle(event[1]));
-
-const filterOslo = (event: IEvent) => event.office === 'Oslo';
-const filterTrondheim = (event: IEvent) => event.office === 'Trondheim';
-const filterAlle = (event: IEvent) => event.office === 'Alle';
-const filterKommende = (event: IEvent) => {
-  return isInTheFuture(event.start);
-};
-const filterTidligere = (event: IEvent) => {
-  return isInThePast(event.start);
-};
-const filterMine = (
-  id: string,
-  savedEditableEvents: any,
-  savedParticipations: any
-) =>
-  savedEditableEvents.savedEvents.map((x: any) => x.eventId).includes(id) ||
-  savedParticipations.savedParticipations
-    .map((x: any) => x.eventId)
-    .includes(id);
-
-const filterApent = (event: IEvent) => event.isExternal;
-const filterLukket = (event: IEvent) => !event.isExternal;

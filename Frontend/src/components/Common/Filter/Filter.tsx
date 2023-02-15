@@ -4,9 +4,13 @@ import { FilterIcon } from '../Icons/FilterIcon';
 import classNames from 'classnames';
 import { CheckBox } from '../Checkbox/CheckBox';
 import { useUrlBoolState } from '../../../hooks/useUrlBoolState';
+import { IEvent } from '../../../types/event';
+import { isInTheFuture, isInThePast } from '../../../types/date-time';
 import { FilterOptions } from '../../ViewEventsCards/ViewEventsCardsContainer';
+import { EditEventToken, Participation } from '../../../hooks/saved-tokens';
 
 type UpdateBoolFunction = (state: boolean) => void;
+type SetFilterState = (filterOptions: FilterOptions) => void;
 
 type OfficeType = {
   oslo: [boolean, UpdateBoolFunction];
@@ -21,8 +25,6 @@ type TypeData = {
   apent: [boolean, UpdateBoolFunction];
   lukket: [boolean, UpdateBoolFunction];
 };
-
-type SetFilterState = (filterOptions: FilterOptions) => void;
 
 export const Filter = ({
   setFilterState,
@@ -168,3 +170,60 @@ const Type = ({ typeData }: { typeData: TypeData }) => {
     </div>
   );
 };
+
+export const filterType = (
+  filterOptions: FilterOptions,
+  event: [string, IEvent],
+  savedEvents: EditEventToken[],
+  savedParticipations: Participation[]
+) =>
+  // Dersom ingenting er valgt, vis alt
+  (!filterOptions.tidligere &&
+    !filterOptions.kommende &&
+    !filterOptions.mine) ||
+  // Vis det som er valgt
+  (filterOptions.tidligere && filterTidligere(event[1])) ||
+  (filterOptions.kommende && filterKommende(event[1])) ||
+  (filterOptions.mine &&
+    filterMine(event[0], savedEvents, savedParticipations));
+
+export const filterAccess = (
+  filterOptions: FilterOptions,
+  event: [string, IEvent]
+) =>
+  // Dersom ingenting er valgt, vis alt
+  (!filterOptions.apent && !filterOptions.lukket) ||
+  // Vis det som er valgt
+  (filterOptions.apent && filterApent(event[1])) ||
+  (filterOptions.lukket && filterLukket(event[1]));
+
+export const filterOffice = (
+  filterOptions: FilterOptions,
+  event: [string, IEvent]
+) =>
+  // Dersom ingenting er valgt, vis alt
+  (!filterOptions.oslo && !filterOptions.trondheim && !filterOptions.alle) ||
+  // Vis det som er valgt
+  (filterOptions.oslo && filterOslo(event[1])) ||
+  (filterOptions.trondheim && filterTrondheim(event[1])) ||
+  (filterOptions.alle && filterAlle(event[1]));
+
+const filterOslo = (event: IEvent) => event.office === 'Oslo';
+const filterTrondheim = (event: IEvent) => event.office === 'Trondheim';
+const filterAlle = (event: IEvent) => event.office === 'Alle';
+const filterKommende = (event: IEvent) => {
+  return isInTheFuture(event.start);
+};
+const filterTidligere = (event: IEvent) => {
+  return isInThePast(event.start);
+};
+const filterMine = (
+  id: string,
+  savedEvents: EditEventToken[],
+  savedParticipations: Participation[]
+) =>
+  savedEvents.map((x: any) => x.eventId).includes(id) ||
+  savedParticipations.map((x: any) => x.eventId).includes(id);
+
+const filterApent = (event: IEvent) => event.isExternal;
+const filterLukket = (event: IEvent) => !event.isExternal;
