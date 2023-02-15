@@ -33,7 +33,7 @@ export const Filter = ({
 
   const [oslo, setOslo] = useUrlBoolState(false, 'Oslo');
   const [trondheim, setTrondheim] = useUrlBoolState(false, 'trondheim');
-  const [alle, setAlle] = useUrlBoolState(true, 'alle');
+  const [alle, setAlle] = useUrlBoolState(false, 'alle');
 
   const officeData: OfficeType = {
     oslo: [oslo, setOslo],
@@ -42,9 +42,9 @@ export const Filter = ({
   };
 
   const [kommende, setKommende] = useUrlBoolState(true, 'kommende');
-  const [tidligere, setTidligere] = useUrlBoolState(true, 'tidligere');
+  const [tidligere, setTidligere] = useUrlBoolState(false, 'tidligere');
   const [mine, setMine] = useUrlBoolState(false, 'mine');
-  const [apent, setApent] = useUrlBoolState(true, 'apent');
+  const [apent, setApent] = useUrlBoolState(false, 'apent');
   const [lukket, setLukket] = useUrlBoolState(false, 'lukket');
 
   useEffect(

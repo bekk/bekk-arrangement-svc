@@ -8,7 +8,9 @@ import {
   WithId,
   parseQuestions,
   toEditMaxAttendees,
-  parseShortname, parseProgram, parseOffice,
+  parseShortname,
+  parseProgram,
+  parseOffice,
 } from '.';
 import {
   IDateTime,
@@ -42,7 +44,13 @@ import { parseName } from 'src/types/participant';
 
 import { viewEventShortnameRoute } from 'src/routing';
 import { toEditTime } from 'src/types/time';
-import {array, date, decodeType, record, string} from "typescript-json-decoder";
+import {
+  array,
+  date,
+  decodeType,
+  record,
+  string,
+} from 'typescript-json-decoder';
 
 // Office-events are events read from Microsoft Office.
 // They have nothing to do with the following `Office` type.
@@ -58,7 +66,7 @@ export const OfficeEventDecoder = record({
   startTime: date,
   themes: array(string),
   title: string,
-  types: array(string)
+  types: array(string),
 });
 
 export interface INewEventViewModel {
@@ -66,16 +74,13 @@ export interface INewEventViewModel {
   editToken: string;
 }
 
-export type Office =
-    | "Oslo"
-    | "Trondheim"
-    | "Alle"
+export type Office = 'Oslo' | 'Trondheim' | 'Alle';
 
 export interface IEventViewModel {
   title: string;
   description: string;
   location: string;
-  office?: Office
+  office?: Office;
   startDate: IDateTime;
   endDate: IDateTime;
   openForRegistrationTime: TimeInstanceContract;
@@ -98,7 +103,7 @@ export interface IEventWriteModel {
   title: string;
   description: string;
   location: string;
-  office?: Office
+  office?: Office;
   startDate: IDateTime;
   endDate: IDateTime;
   openForRegistrationTime: TimeInstanceContract;
@@ -135,7 +140,7 @@ export interface IEvent {
   title: string;
   description: string;
   location: string;
-  office: Office
+  office: Office;
   start: IDateTime;
   end: IDateTime;
   openForRegistrationTime: TimeInstance;
@@ -144,7 +149,7 @@ export interface IEvent {
   organizerEmail: Email;
   maxParticipants: MaxParticipants<number>;
   participantQuestions: string[];
-  program?: string
+  program?: string;
   hasWaitingList: boolean;
   isCancelled: boolean;
   isExternal: boolean;
@@ -158,7 +163,7 @@ export interface IEditEvent {
   title: string;
   description: string;
   location: string;
-  office: Office
+  office: Office;
   start: EditDateTime;
   end: EditDateTime;
   openForRegistrationTime: TimeInstanceEdit;
@@ -214,9 +219,7 @@ export const parseEditEvent = ({
     organizerEmail: parseEditEmail(organizerEmail),
     maxParticipants: parseMaxAttendees(maxParticipants),
     participantQuestions: parseQuestions(participantQuestions),
-    program: program
-      ? parseProgram(program)
-      : undefined,
+    program: program ? parseProgram(program) : undefined,
     hasWaitingList,
     isCancelled,
     isExternal,
@@ -250,6 +253,7 @@ export const toEventWriteModel = (
   closeRegistrationTime: event.closeRegistrationTime
     ? toTimeInstanceWriteModel(event.closeRegistrationTime)
     : undefined,
+  office: event.office === 'Alle' ? undefined : event.office,
   organizerEmail: toEmailWriteModel(event.organizerEmail),
   startDate: event.start,
   endDate: event.end,
@@ -261,7 +265,7 @@ export const toEventWriteModel = (
 export const parseEventViewModel = (eventView: IEventViewModel): IEvent => {
   const title = parseTitle(eventView.title);
   const location = parseLocation(eventView.location);
-  const office = parseOffice(eventView.office)
+  const office = parseOffice(eventView.office);
   const description = parseDescription(eventView.description);
 
   const start = parseDateViewModel(eventView.startDate);
@@ -283,7 +287,9 @@ export const parseEventViewModel = (eventView: IEventViewModel): IEvent => {
         ])
       : (['unlimited'] as ['unlimited'])
   );
-  const program = eventView.program ? parseProgram(eventView.program) : undefined;
+  const program = eventView.program
+    ? parseProgram(eventView.program)
+    : undefined;
   const participantQuestions = parseQuestions(eventView.participantQuestions);
   const hasWaitingList = eventView.hasWaitingList;
   const isCancelled = eventView.isCancelled;
@@ -374,7 +380,7 @@ export const initialEditEvent = (email?: string, name?: string): IEditEvent => {
     title: '',
     description: '',
     location: '',
-    office: "Alle",
+    office: 'Alle',
     start: {
       date: toEditDate(dateToIDate(eventStartDate)),
       time: toEditTime({ hour: 17, minute: 0 }),

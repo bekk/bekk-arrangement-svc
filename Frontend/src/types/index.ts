@@ -1,9 +1,10 @@
 import {
   MaxParticipants,
   isMaxParticipantsLimited,
-  maxParticipantsLimit, Office,
+  maxParticipantsLimit,
+  Office,
 } from 'src/types/event';
-import {validate, IError, ErrorType} from './validation';
+import { validate, IError, ErrorType } from './validation';
 
 export type Optional<T> = T | undefined;
 export type WithId<T> = T & { id: string };
@@ -17,7 +18,7 @@ export const parseDescription = (value: string): string | IError[] => {
   return validator.resolve(value);
 };
 
-export const parseProgram = (value: string): string | undefined | IError[]  => {
+export const parseProgram = (value: string): string | undefined | IError[] => {
   if (value === undefined) {
     return undefined;
   }
@@ -26,7 +27,7 @@ export const parseProgram = (value: string): string | undefined | IError[]  => {
     'Programmet må ha minst 5 tegn': value.length < 5,
   });
   return validator.resolve(value);
-}
+};
 
 export const parseLocation = (value: string): string | IError[] => {
   const validator = validate<string>({
@@ -34,19 +35,25 @@ export const parseLocation = (value: string): string | IError[] => {
     'Sted kan ha maks 60 tegn': value.length > 60,
   });
   return validator.resolve(value);
-}
+};
 
 export const parseOffice = (value?: string): Office | IError[] => {
-  if (value === undefined)
-    return "Alle";
+  // Den kommer som undefined fra backend
+  if (value === undefined) return 'Alle';
 
-  if (value === "Oslo")
-    return "Oslo"
+  if (value === 'Oslo') return 'Oslo';
 
-  if (value === "Trondheim")
-    return "Trondheim";
+  // Man kan velge alle når man redigerer
+  if (value === 'Alle') return 'Alle';
 
-  return [ { message: 'Gyldige verdier er "Oslo", "Trondheim" eller ingenting', type: "Error"} ];
+  if (value === 'Trondheim') return 'Trondheim';
+
+  return [
+    {
+      message: 'Gyldige verdier er "Oslo", "Trondheim" eller "Alle"',
+      type: 'Error',
+    },
+  ];
 };
 
 export const parseTitle = (value: string): string | IError[] => {

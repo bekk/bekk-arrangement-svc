@@ -11,6 +11,9 @@
     & circle {
       fill: var(--natt);
     }
+    & rect {
+      stroke: currentColor;
+    }
   }
   & circle {
     fill: black;
@@ -22,6 +25,9 @@
 
 .filterOpen {
   background-color: var(--natt);
+  & rect {
+    stroke: currentColor;
+  }
   & circle {
     fill: var(--natt);
   };

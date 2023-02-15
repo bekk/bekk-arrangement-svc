@@ -1,10 +1,11 @@
-import {cachedRemoteData, hasLoaded, RemoteData} from 'src/remote-data';
-import {IEvent, IEventViewModel, OfficeEvent, parseEventViewModel} from 'src/types/event';
-import {useCallback, useMemo} from 'react';
+import { cachedRemoteData, RemoteData } from 'src/remote-data';
+import { IEvent, OfficeEvent, parseEventViewModel } from 'src/types/event';
+import { useCallback, useMemo } from 'react';
 import {
   getEvent,
   getEventIdByShortname,
-  getEvents, getNumberOfParticipantsForEvent,
+  getEvents,
+  getNumberOfParticipantsForEvent,
   getOfficeEventsByDate,
   getParticipantsForEvent,
   getPastEvents,
@@ -14,12 +15,10 @@ import {
   parseParticipantViewModel,
   IParticipantsWithWaitingList,
 } from 'src/types/participant';
-import { isInThePast } from 'src/types/date-time';
 import { getEmailNameAndDepartment } from 'src/api/employeeSvc';
 import { getEmployeeId } from 'src/auth';
 import { EventState } from 'src/components/ViewEventsCards/ParticipationState';
-import {FilterOptions} from "../components/ViewEventsCards/ViewEventsCardsContainer";
-import {WithId} from "../types";
+import { FilterOptions } from '../components/ViewEventsCards/ViewEventsCardsContainer';
 
 //**  Event  **//
 
@@ -35,40 +34,27 @@ export const useEvent = (id: string) => {
   });
 };
 
-export const useFilteredEvents = (filter: FilterOptions): Map<string, RemoteData<IEvent>> => {
- return eventCache.useAll(
-     useCallback(async () => {
-       // Her henter vi kun for den tidsrammen vi ønsker
-       // Dersom dette hentes ut 1 gang caches det
-       const futureEvents = (!filter.kommende && !filter.tidligere) || filter.kommende ? await getEvents() : []
-       const pastEvents = (!filter.kommende && !filter.tidligere) || filter.tidligere ? await getPastEvents() : []
-       const allEvents = [...futureEvents, ...pastEvents];
-       return allEvents.map(({ id, ...event }) => [id, parseEventViewModel(event)]) as [string, IEvent][];
-     }, [filter.kommende, filter.tidligere])
- )
-}
-
-export const useEvents = () => {
+export const useFilteredEvents = (
+  filter: FilterOptions
+): Map<string, RemoteData<IEvent>> => {
   return eventCache.useAll(
     useCallback(async () => {
-      const eventContracts = await getEvents()
-      return eventContracts
-        .map(({ id, ...event }) => {
-          return [id, parseEventViewModel(event)];
-        });
-    }, [])
-  );
-};
-
-export const usePastEvents = () => {
-  return eventCache.useAll(
-    useCallback(async () => {
-      const pastEvents = await getPastEvents()
-      return pastEvents
-        .map(({ id, ...event }) => {
-          return [id, parseEventViewModel(event)];
-        });
-    }, [])
+      // Her henter vi kun for den tidsrammen vi ønsker
+      // Dersom dette hentes ut 1 gang caches det
+      const futureEvents =
+        (!filter.kommende && !filter.tidligere) || filter.kommende
+          ? await getEvents()
+          : [];
+      const pastEvents =
+        (!filter.kommende && !filter.tidligere) || filter.tidligere
+          ? await getPastEvents()
+          : [];
+      const allEvents = [...futureEvents, ...pastEvents];
+      return allEvents.map(({ id, ...event }) => [
+        id,
+        parseEventViewModel(event),
+      ]) as [string, IEvent][];
+    }, [filter.kommende, filter.tidligere])
   );
 };
 
@@ -89,18 +75,9 @@ export const useOfficeEvents = (date: Date) => {
   return officeEventCache.useOne({
     key: dateKey,
     fetcher: useCallback(async () => {
-      return getOfficeEventsByDate(dateKey)
+      return getOfficeEventsByDate(dateKey);
     }, [dateKey]),
   });
-}
-
-export const useUpcomingEvents = () => {
-  const map = useEvents();
-  return new Map(
-    [...map].filter(
-      ([_, event]) => hasLoaded(event) && !isInThePast(event.data.end)
-    )
-  );
 };
 
 //**  Participant  **//
