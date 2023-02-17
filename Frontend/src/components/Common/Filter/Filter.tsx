@@ -115,8 +115,12 @@ export const Filter = ({
     lukket: [lukket, setLukket],
   };
 
-  const filterStyles = classNames(style.filter, {
+  const filterIconStyles = classNames(style.filter, {
     [style.filterOpen]: showFilterOptions,
+  });
+
+  const filterStyles = classNames(style.filterOptions, {
+    [style.filterOptionsOpen]: showFilterOptions,
   });
 
   return (
@@ -124,14 +128,12 @@ export const Filter = ({
       <button
         className={style.buttonReset}
         onClick={() => setShowFilterOptions(!showFilterOptions)}>
-        <FilterIcon className={filterStyles} />
+        <FilterIcon className={filterIconStyles} />
       </button>
-      {showFilterOptions && (
-        <div className={style.filters}>
-          <Type typeData={typeData} />
-          <Office kontorData={officeData} />
-        </div>
-      )}
+      <div className={filterStyles}>
+        <Type typeData={typeData} />
+        <Office kontorData={officeData} />
+      </div>
     </div>
   );
 };

@@ -40,6 +40,7 @@
 }
 
 .buttonReset {
+  align-self: end;
   border: none;
   margin: 0;
   padding: 0;
@@ -48,11 +49,18 @@
   background-color: transparent;
 }
 
-.filters {
+.filterOptions {
   display: flex;
   color: white;
   font-family: $fontLight;
   gap: 50px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 250ms ease-in-out;
+}
+
+.filterOptionsOpen {
+  max-height: 200px;
 }
 
 .container {
