@@ -1,5 +1,5 @@
 import { cachedRemoteData, RemoteData } from 'src/remote-data';
-import { IEvent, OfficeEvent, parseEventViewModel } from 'src/types/event';
+import { IEvent, parseEventViewModel } from 'src/types/event';
 import { useCallback, useMemo } from 'react';
 import {
   getEvent,
@@ -19,6 +19,7 @@ import { getEmailNameAndDepartment } from 'src/api/employeeSvc';
 import { getEmployeeId } from 'src/auth';
 import { EventState } from 'src/components/ViewEventsCards/ParticipationState';
 import { FilterOptions } from '../components/ViewEventsCards/ViewEventsCardsContainer';
+import { OfficeEvent } from '../types/OfficeEvent';
 
 //**  Event  **//
 

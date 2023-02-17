@@ -44,30 +44,6 @@ import { parseName } from 'src/types/participant';
 
 import { viewEventShortnameRoute } from 'src/routing';
 import { toEditTime } from 'src/types/time';
-import {
-  array,
-  date,
-  decodeType,
-  record,
-  string,
-} from 'typescript-json-decoder';
-
-// Office-events are events read from Microsoft Office.
-// They have nothing to do with the following `Office` type.
-export type OfficeEvent = decodeType<typeof OfficeEventDecoder>;
-export const OfficeEventDecoder = record({
-  contactPerson: string,
-  createdAt: date,
-  description: string,
-  endTime: date,
-  id: string,
-  location: string,
-  modifiedAt: date,
-  startTime: date,
-  themes: array(string),
-  title: string,
-  types: array(string),
-});
 
 export interface INewEventViewModel {
   event: WithId<IEventViewModel>;
