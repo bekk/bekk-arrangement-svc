@@ -3,11 +3,11 @@ import style from './Filter.module.scss';
 import { FilterIcon } from '../Icons/FilterIcon';
 import classNames from 'classnames';
 import { CheckBox } from '../Checkbox/CheckBox';
-import { useUrlBoolState } from '../../../hooks/useUrlBoolState';
 import { IEvent } from '../../../types/event';
 import { isInTheFuture, isInThePast } from '../../../types/date-time';
 import { FilterOptions } from '../../ViewEventsCards/ViewEventsCardsContainer';
 import { EditEventToken, Participation } from '../../../hooks/saved-tokens';
+import { useUrlState } from '../../../hooks/useUrlState';
 
 type UpdateBoolFunction = (state: boolean) => void;
 type SetFilterState = (filterOptions: FilterOptions) => void;
@@ -26,6 +26,9 @@ type TypeData = {
   lukket: [boolean, UpdateBoolFunction];
 };
 
+const serializeBool = (bool: boolean) => (bool ? '1' : '0');
+const deserializeBool = (string: string) => string === '1';
+
 export const Filter = ({
   setFilterState,
 }: {
@@ -33,9 +36,24 @@ export const Filter = ({
 }) => {
   const [showFilterOptions, setShowFilterOptions] = useState(false);
 
-  const [oslo, setOslo] = useUrlBoolState(false, 'Oslo');
-  const [trondheim, setTrondheim] = useUrlBoolState(false, 'trondheim');
-  const [alle, setAlle] = useUrlBoolState(false, 'alle');
+  const [oslo, setOslo] = useUrlState<boolean>(
+    false,
+    'Oslo',
+    serializeBool,
+    deserializeBool
+  );
+  const [trondheim, setTrondheim] = useUrlState<boolean>(
+    false,
+    'trondheim',
+    serializeBool,
+    deserializeBool
+  );
+  const [alle, setAlle] = useUrlState<boolean>(
+    false,
+    'alle',
+    serializeBool,
+    deserializeBool
+  );
 
   const officeData: OfficeType = {
     oslo: [oslo, setOslo],
@@ -43,11 +61,36 @@ export const Filter = ({
     alle: [alle, setAlle],
   };
 
-  const [kommende, setKommende] = useUrlBoolState(true, 'kommende');
-  const [tidligere, setTidligere] = useUrlBoolState(false, 'tidligere');
-  const [mine, setMine] = useUrlBoolState(false, 'mine');
-  const [apent, setApent] = useUrlBoolState(false, 'apent');
-  const [lukket, setLukket] = useUrlBoolState(false, 'lukket');
+  const [kommende, setKommende] = useUrlState<boolean>(
+    true,
+    'kommende',
+    serializeBool,
+    deserializeBool
+  );
+  const [tidligere, setTidligere] = useUrlState<boolean>(
+    false,
+    'tidligere',
+    serializeBool,
+    deserializeBool
+  );
+  const [mine, setMine] = useUrlState<boolean>(
+    false,
+    'mine',
+    serializeBool,
+    deserializeBool
+  );
+  const [apent, setApent] = useUrlState<boolean>(
+    false,
+    'apent',
+    serializeBool,
+    deserializeBool
+  );
+  const [lukket, setLukket] = useUrlState<boolean>(
+    false,
+    'lukket',
+    serializeBool,
+    deserializeBool
+  );
 
   useEffect(
     () =>
