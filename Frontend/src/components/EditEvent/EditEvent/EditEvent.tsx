@@ -12,7 +12,8 @@ import {
   parseMaxAttendees,
   parseLocation,
   parseQuestions,
-  parseShortname, parseProgram,
+  parseShortname,
+  parseProgram,
 } from 'src/types';
 import { ValidatedTextInput } from 'src/components/Common/ValidatedTextInput/ValidatedTextInput';
 import { DateTimeInputWithTimezone } from 'src/components/Common/DateTimeInput/DateTimeInputWithTimezone';
@@ -34,6 +35,7 @@ import { datesInOrder, EditDate, parseEditDate } from 'src/types/date';
 import { EditTime, parseEditTime, toEditTime } from 'src/types/time';
 import { InfoBox } from 'src/components/Common/InfoBox/InfoBox';
 import { CheckBox } from 'src/components/Common/Checkbox/CheckBox';
+import { RadioButton } from '../../Common/RadioButton/RadioButton';
 
 interface IProps {
   eventResult: IEditEvent;
@@ -65,13 +67,11 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
     }
   };
 
-  const [hasProgram, _setHasProgram] = useState(
-      event.program !== undefined
-  );
+  const [hasProgram, _setHasProgram] = useState(event.program !== undefined);
   const setHasProgram = (hasProgram: boolean) => {
-    _setHasProgram(hasProgram)
+    _setHasProgram(hasProgram);
     if (!hasProgram) {
-      updateEvent({...event, program: undefined})
+      updateEvent({ ...event, program: undefined });
     }
   };
 
@@ -116,15 +116,21 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
           />
         </div>
         <div className={style.office}>
-          <CheckBox label="Oslo"
-                    isChecked={event.office === "Oslo"}
-                    onChange={() => updateEvent({...event, office: "Oslo",})}/>
-          <CheckBox label="Trondheim"
-                    isChecked={event.office === "Trondheim"}
-                    onChange={() => updateEvent({...event, office: "Trondheim",})}/>
-          <CheckBox label="Alle"
-                    isChecked={event.office === "Alle"}
-                    onChange={() => updateEvent({...event, office: "Alle",})}/>
+          <RadioButton
+            onChange={() => updateEvent({ ...event, office: 'Oslo' })}
+            checked={event.office === 'Oslo'}
+            label="Oslo"
+          />
+          <RadioButton
+            label="Trondheim"
+            checked={event.office === 'Trondheim'}
+            onChange={() => updateEvent({ ...event, office: 'Trondheim' })}
+          />
+          <RadioButton
+            label="Alle"
+            checked={event.office === 'Alle'}
+            onChange={() => updateEvent({ ...event, office: 'Alle' })}
+          />
         </div>
         <div>
           <div
@@ -132,8 +138,7 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
               isMultiDayEvent
                 ? style.startEndDateContainer
                 : style.startDateContainer
-            }
-          >
+            }>
             <div className={style.startDate}>
               <DateInput
                 value={event.start.date}
@@ -228,8 +233,7 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
               setMultiDay(!isMultiDayEvent);
             }}
             displayAsLink
-            onLightBackground
-          >
+            onLightBackground>
             {isMultiDayEvent ? buttonText.removeEndDate : buttonText.addEndDate}
           </Button>
         </div>
@@ -252,44 +256,42 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
           <FormattingHelper />
         </div>
         {!hasProgram && (
-            <Button
-                color="Secondary"
-                displayAsLink
-                onLightBackground
-                className={style.participantQuestion}
-                onClick={() => setHasProgram(true)}
-            >
-              {buttonText.addProgram}
-            </Button>
+          <Button
+            color="Secondary"
+            displayAsLink
+            onLightBackground
+            className={style.participantQuestion}
+            onClick={() => setHasProgram(true)}>
+            {buttonText.addProgram}
+          </Button>
         )}
         {hasProgram && (
-            <div>
-              <ValidatedTextArea
-                  className={style.textAreaContainer}
-                  label={labels.program}
-                  placeholder={placeholders.program}
-                  value={event.program!!}
-                  validation={parseProgram}
-                  onLightBackground
-                  minRow={8}
-                  onChange={(program) =>
-                      updateEvent({
-                        ...event,
-                        program,
-                      })
-                  }
-              />
-              <FormattingHelper />
-              <Button
-                  color="Secondary"
-                  displayAsLink
-                  onLightBackground
-                  className={style.programButton}
-                  onClick={() => setHasProgram(false)}
-              >
-                {buttonText.removeProgram}
-              </Button>
-            </div>
+          <div>
+            <ValidatedTextArea
+              className={style.textAreaContainer}
+              label={labels.program}
+              placeholder={placeholders.program}
+              value={event.program!!}
+              validation={parseProgram}
+              onLightBackground
+              minRow={8}
+              onChange={(program) =>
+                updateEvent({
+                  ...event,
+                  program,
+                })
+              }
+            />
+            <FormattingHelper />
+            <Button
+              color="Secondary"
+              displayAsLink
+              onLightBackground
+              className={style.programButton}
+              onClick={() => setHasProgram(false)}>
+              {buttonText.removeProgram}
+            </Button>
+          </div>
         )}
       </div>
 
@@ -362,8 +364,7 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
                   closeRegistrationTime: event.openForRegistrationTime,
                 });
               }
-            }}
-          >
+            }}>
             {event.closeRegistrationTime
               ? buttonText.removeRegistrationEndDate
               : buttonText.addRegistrationEndDate}
@@ -523,8 +524,7 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
                     .slice(1)
                     .reverse(),
                 })
-              }
-            >
+              }>
               {buttonText.removeParticipantQuestion}
             </Button>
           )}
@@ -539,21 +539,19 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
               ...event,
               participantQuestions: event.participantQuestions.concat(['']),
             })
-          }
-        >
+          }>
           {buttonText.addParticipantQuestion}
         </Button>
-        {event.participantQuestions.length > 0 &&
-        <InfoBox title="Formateringshjelp">
-          <p>
-            Spørsmål:
-          </p>
-          <p>// Alternativer: alternativ 1; alternativ 2; alternativ 3</p>
-        </InfoBox>}
+        {event.participantQuestions.length > 0 && (
+          <InfoBox title="Formateringshjelp">
+            <p>Spørsmål:</p>
+            <p>// Alternativer: alternativ 1; alternativ 2; alternativ 3</p>
+          </InfoBox>
+        )}
       </div>
     </div>
   );
-}
+};
 
 function useDebounce(timeout = 300) {
   const timer = useRef<number>();
@@ -669,17 +667,17 @@ const setStartEndDates = ({ start, end }: State, message: Action): State => {
 
 const FormattingHelper = () => {
   return (
-      <InfoBox title="Formateringshjelp">
-        <ul className={style.listStyle}>
-          <li>Bullet points med bindestrek (-)</li>
-          <li>Overskrift med skigard (#)</li>
-          <li>Lenker kan limes inn direkte</li>
-          <li>Bold med dobbel asterisk (**) rundt teksten</li>
-          <li>Italics med én asterisk (*) rundt teksten</li>
-        </ul>
-      </InfoBox>
-  )
-}
+    <InfoBox title="Formateringshjelp">
+      <ul className={style.listStyle}>
+        <li>Bullet points med bindestrek (-)</li>
+        <li>Overskrift med skigard (#)</li>
+        <li>Lenker kan limes inn direkte</li>
+        <li>Bold med dobbel asterisk (**) rundt teksten</li>
+        <li>Italics med én asterisk (*) rundt teksten</li>
+      </ul>
+    </InfoBox>
+  );
+};
 
 const labels = {
   title: 'Tittel*',
@@ -714,7 +712,8 @@ const placeholders = {
   organizerEmail: 'kari.nordmann@bekk.no',
   participantQuestion: 'Allergier, preferanser eller noe annet på hjertet?',
   limitSpots: 'F.eks. 10',
-  program: 'Legg inn program for eventen. Vi støtter samme pseudomarkdown som for beskrivelsen.'
+  program:
+    'Legg inn program for eventen. Vi støtter samme pseudomarkdown som for beskrivelsen.',
 };
 
 const helpText = {
@@ -734,5 +733,5 @@ const buttonText = {
   addParticipantQuestion: '+ Legg til spørsmål til deltakere',
   removeParticipantQuestion: '- Fjern spørsmål',
   addProgram: '+ Legg til program',
-  removeProgram: '- Fjern program'
+  removeProgram: '- Fjern program',
 };

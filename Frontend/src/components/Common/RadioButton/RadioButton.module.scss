@@ -1,0 +1,33 @@
+@import "../../../style/colors";
+@import "../../../style/constants";
+@import "../../../style/fonts";
+
+.radioButton {
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  background-clip: content-box;
+  width: fit-content;
+  cursor: pointer;
+  height: 18px;
+  width: 18px;
+  background-color: transparent;
+  padding: 4px;
+  margin-right: 10px;
+  box-shadow: 0 0 0 1px var(--svart);
+  border-radius: 50%;
+
+  &:checked {
+    background-color: var(--natt);
+  }
+}
+
+.radioButtonLabel {
+  font-family: $fontRegular;
+  font-size: 16px;
+  color: var(--svart);
+
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
