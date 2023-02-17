@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import style from './ViewEventsCards.module.scss';
 import { createRoute } from 'src/routing';
 import { hasLoaded, RemoteData } from 'src/remote-data';
@@ -49,22 +49,29 @@ const initialFilterOptions = {
 
 export const ViewEventsCardsContainer = () => {
   const [filterOptions, setFilterOptions] = useState(initialFilterOptions);
+  const [filteredEvents, setFilteredEvents] = useState<[string, IEvent][]>([]);
   useSetTitle(appTitle);
   const savedEditableEvents = useSavedEditableEvents();
   const savedParticipations = useSavedParticipations();
 
-  const filteredEvents = sortEvents(
-    eventMapToList(useFilteredEvents(filterOptions)).filter(
-      (event) =>
-        filterType(
-          filterOptions,
-          event,
-          savedEditableEvents.savedEvents,
-          savedParticipations.savedParticipations
-        ) &&
-        filterAccess(filterOptions, event) &&
-        filterOffice(filterOptions, event)
-    )
+  const fetchedEvents = eventMapToList(useFilteredEvents(filterOptions)).filter(
+    (event) =>
+      filterType(
+        filterOptions,
+        event,
+        savedEditableEvents.savedEvents,
+        savedParticipations.savedParticipations
+      ) &&
+      filterAccess(filterOptions, event) &&
+      filterOffice(filterOptions, event)
+  );
+
+  useEffect(
+    () => {
+      setFilteredEvents(sortEvents(fetchedEvents));
+    },
+    // https://github.com/facebook/react/issues/14476 Dan Abramov says this is OK
+    [JSON.stringify(fetchedEvents)]
   );
 
   return (

@@ -23,7 +23,7 @@ export const useUrlBoolState = (initialValue: boolean, key: string) => {
   useEffect(() => {
     if (urlValue && urlValue !== state) setState(deserializeBool(urlValue));
     if (!urlValue && initialValue) setState(initialValue);
-  }, [urlValue]);
+  }, [urlValue, initialValue, state]);
 
   return [deserializeBool(state), setState] as const;
 };
