@@ -2,8 +2,8 @@ import { useHistory } from 'react-router';
 import { useEffect, useState } from 'react';
 
 export const useUrlBoolState = (initialValue: boolean, key: string) => {
-  const serializeBool = (bool: boolean) => (bool ? 'true' : 'false');
-  const deserializeBool = (string: string) => string === 'true';
+  const serializeBool = (bool: boolean) => (bool ? '1' : '0');
+  const deserializeBool = (string: string) => string === '1';
   const history = useHistory();
   const search = new URLSearchParams(history.location.search);
 
