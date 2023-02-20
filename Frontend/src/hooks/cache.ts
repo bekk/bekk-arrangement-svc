@@ -18,8 +18,8 @@ import {
 import { getEmailNameAndDepartment } from 'src/api/employeeSvc';
 import { getEmployeeId } from 'src/auth';
 import { EventState } from 'src/components/ViewEventsCards/ParticipationState';
-import { FilterOptions } from '../components/ViewEventsCards/ViewEventsCardsContainer';
 import { OfficeEvent } from '../types/OfficeEvent';
+import { FilterOptions } from '../components/Common/Filter/Filter';
 
 //**  Event  **//
 

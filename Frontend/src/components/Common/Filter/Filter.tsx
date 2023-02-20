@@ -5,12 +5,22 @@ import classNames from 'classnames';
 import { CheckBox } from '../Checkbox/CheckBox';
 import { IEvent } from '../../../types/event';
 import { isInTheFuture, isInThePast } from '../../../types/date-time';
-import { FilterOptions } from '../../ViewEventsCards/ViewEventsCardsContainer';
 import { EditEventToken, Participation } from '../../../hooks/saved-tokens';
 import { useUrlState } from '../../../hooks/useUrlState';
+import { filter } from 'lodash';
+
+export type FilterOptions = {
+  oslo: boolean;
+  trondheim: boolean;
+  alle: boolean;
+  kommende: boolean;
+  tidligere: boolean;
+  mine: boolean;
+  apent: boolean;
+  lukket: boolean;
+};
 
 type UpdateBoolFunction = (state: boolean) => void;
-type SetFilterState = (filterOptions: FilterOptions) => void;
 
 type OfficeType = {
   oslo: [boolean, UpdateBoolFunction];
@@ -30,26 +40,28 @@ const serializeBool = (bool: boolean) => (bool ? '1' : '0');
 const deserializeBool = (string: string) => string === '1';
 
 export const Filter = ({
+  filterState,
   setFilterState,
 }: {
-  setFilterState: SetFilterState;
+  filterState: FilterOptions;
+  setFilterState: (filterOptions: FilterOptions) => void;
 }) => {
   const [showFilterOptions, setShowFilterOptions] = useState(false);
 
   const [oslo, setOslo] = useUrlState<boolean>(
-    false,
+    filterState.oslo,
     'Oslo',
     serializeBool,
     deserializeBool
   );
   const [trondheim, setTrondheim] = useUrlState<boolean>(
-    false,
+    filterState.trondheim,
     'trondheim',
     serializeBool,
     deserializeBool
   );
   const [alle, setAlle] = useUrlState<boolean>(
-    false,
+    filterState.alle,
     'alle',
     serializeBool,
     deserializeBool
@@ -62,31 +74,31 @@ export const Filter = ({
   };
 
   const [kommende, setKommende] = useUrlState<boolean>(
-    true,
+    filterState.kommende,
     'kommende',
     serializeBool,
     deserializeBool
   );
   const [tidligere, setTidligere] = useUrlState<boolean>(
-    false,
+    filterState.tidligere,
     'tidligere',
     serializeBool,
     deserializeBool
   );
   const [mine, setMine] = useUrlState<boolean>(
-    false,
+    filterState.mine,
     'mine',
     serializeBool,
     deserializeBool
   );
   const [apent, setApent] = useUrlState<boolean>(
-    false,
+    filterState.apent,
     'apent',
     serializeBool,
     deserializeBool
   );
   const [lukket, setLukket] = useUrlState<boolean>(
-    false,
+    filterState.lukket,
     'lukket',
     serializeBool,
     deserializeBool

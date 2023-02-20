@@ -18,6 +18,7 @@ import {
   Filter,
   filterAccess,
   filterOffice,
+  FilterOptions,
   filterType,
 } from '../Common/Filter/Filter';
 import {
@@ -25,18 +26,7 @@ import {
   useSavedParticipations,
 } from '../../hooks/saved-tokens';
 
-export type FilterOptions = {
-  oslo: boolean;
-  trondheim: boolean;
-  alle: boolean;
-  kommende: boolean;
-  tidligere: boolean;
-  mine: boolean;
-  apent: boolean;
-  lukket: boolean;
-};
-
-const initialFilterOptions = {
+const initialFilterOptions: FilterOptions = {
   oslo: false,
   trondheim: false,
   alle: false,
@@ -84,7 +74,10 @@ export const ViewEventsCardsContainer = () => {
       </WavySubHeader>
       <Page>
         <div className={style.headerContainer}>
-          <Filter setFilterState={setFilterOptions} />
+          <Filter
+            filterState={initialFilterOptions}
+            setFilterState={setFilterOptions}
+          />
         </div>
         <div className={style.grid}>
           {filteredEvents.map(([id, event]) => (
