@@ -8,6 +8,7 @@ export const FilterIcon = (props: { className?: string }) => {
       viewBox="0 0 23 23"
       xmlns="http://www.w3.org/2000/svg"
       className={props.className}>
+      <title>Filtrer arrangementer</title>
       <path d="m19 7h-14" stroke="white" />
       <rect x=".5" y=".5" width="22" height="22" stroke="white" />
       <circle
