@@ -5,15 +5,15 @@ import { useEffect, useState } from 'react';
  * Stores T as state in URL.
  * Functions as Reacts SetState.
  *
- * @param initialValue - The initial value of type T to store
  * @param key - The key used to store the value in the url
+ * @param initialValue - The initial value of type T to store
  * @param serialize - A function that serializes T to a string
  * @param deserialize - A function that deserializes string to T
  * @returns Returns a stateful value, and a function to update it.
  */
 export const useUrlState = <T>(
-  initialValue: T,
   key: string,
+  initialValue: T,
   serialize: (value: T) => string,
   deserialize: (value: string) => T
 ) => {
