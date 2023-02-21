@@ -806,6 +806,9 @@ let deleteParticipantFromEvent (eventId: Guid) (email: string) =
                 let! participant =
                     Queries.getParticipantForEvent eventId email db
                     |> TaskResult.mapError InternalError
+                let! participant =
+                    participant
+                    |> Result.requireSome (participantNotFound email eventId)
                 do! (isAdmin || (cancellationToken.IsSome && cancellationToken.Value = participant.CancellationToken))
                     |> Result.requireTrue cannotDeleteParticipation
                 let! eventAndQuestions =

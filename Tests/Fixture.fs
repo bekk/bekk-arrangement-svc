@@ -2,6 +2,7 @@ namespace Tests
 
 open Microsoft.AspNetCore.Mvc.Testing
 open Microsoft.AspNetCore.TestHost
+open Microsoft.Data.SqlClient
 open Microsoft.Extensions.DependencyInjection
 open Xunit
 open System
@@ -29,23 +30,24 @@ type DatabaseFixture() =
             printfn "Container already up and running. Reusing container for tests."
 
     member this.getAuthedClientWithClaims (employeeId: int) (permissions: string list) =
-        this
-            .WithWebHostBuilder(fun builder ->
-                builder.ConfigureTestServices (fun (services: IServiceCollection) ->
-                    services.Configure<TestAuthHandlerOptions> (fun (options: TestAuthHandlerOptions) ->
-                        options.EmployeeId <- employeeId
-                        options.BekkPermissions <- permissions)
-                    |> ignore
+        let a =
+            this
+                .WithWebHostBuilder(fun builder ->
+                    builder.ConfigureTestServices (fun (services: IServiceCollection) ->
+                        services.Configure<TestAuthHandlerOptions> (fun (options: TestAuthHandlerOptions) ->
+                            options.EmployeeId <- employeeId
+                            options.BekkPermissions <- permissions)
+                        |> ignore
 
-                    services
-                        .AddAuthentication(fun options ->
-                            options.DefaultAuthenticateScheme <- "Test"
-                            options.DefaultScheme <- "Test"
-                            ())
-                        .AddScheme<TestAuthHandlerOptions, TestAuthHandler>("Test", (fun options -> ()))
+                        services
+                            .AddAuthentication(fun options ->
+                                options.DefaultAuthenticateScheme <- "Test"
+                                options.DefaultScheme <- "Test"
+                                ())
+                            .AddScheme<TestAuthHandlerOptions, TestAuthHandler>("Test", (fun options -> ()))
+                        |> ignore)
                     |> ignore)
-                |> ignore)
-            .CreateClient()
+        a.CreateClient()
 
     member this.getAuthedClient = this.getAuthedClientWithClaims 0 []
 
@@ -55,6 +57,10 @@ type DatabaseFixture() =
                 builder.ConfigureTestServices(fun services -> ())
                 |> ignore)
             .CreateClient()
+            
+    member this.dbContext =
+        let cn = new SqlConnection(connectionString)
+        new DatabaseContext(cn, null)
 
 [<CollectionDefinition("Database collection")>]
 type DatabaseCollection() =
