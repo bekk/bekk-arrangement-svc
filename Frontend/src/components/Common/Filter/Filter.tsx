@@ -7,7 +7,6 @@ import { IEvent } from '../../../types/event';
 import { isInTheFuture, isInThePast } from '../../../types/date-time';
 import { EditEventToken, Participation } from '../../../hooks/saved-tokens';
 import { useUrlState } from '../../../hooks/useUrlState';
-import { filter } from 'lodash';
 
 export type FilterOptions = {
   oslo: boolean;

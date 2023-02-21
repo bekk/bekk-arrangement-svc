@@ -27,10 +27,10 @@ import {
 } from '../../hooks/saved-tokens';
 
 const initialFilterOptions: FilterOptions = {
-  oslo: false,
-  trondheim: false,
-  alle: false,
-  kommende: false,
+  oslo: true,
+  trondheim: true,
+  alle: true,
+  kommende: true,
   tidligere: false,
   mine: false,
   apent: false,
