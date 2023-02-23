@@ -30,24 +30,23 @@ type DatabaseFixture() =
             printfn "Container already up and running. Reusing container for tests."
 
     member this.getAuthedClientWithClaims (employeeId: int) (permissions: string list) =
-        let a =
-            this
-                .WithWebHostBuilder(fun builder ->
-                    builder.ConfigureTestServices (fun (services: IServiceCollection) ->
-                        services.Configure<TestAuthHandlerOptions> (fun (options: TestAuthHandlerOptions) ->
-                            options.EmployeeId <- employeeId
-                            options.BekkPermissions <- permissions)
-                        |> ignore
+        this
+            .WithWebHostBuilder(fun builder ->
+                builder.ConfigureTestServices (fun (services: IServiceCollection) ->
+                    services.Configure<TestAuthHandlerOptions> (fun (options: TestAuthHandlerOptions) ->
+                        options.EmployeeId <- employeeId
+                        options.BekkPermissions <- permissions)
+                    |> ignore
 
-                        services
-                            .AddAuthentication(fun options ->
-                                options.DefaultAuthenticateScheme <- "Test"
-                                options.DefaultScheme <- "Test"
-                                ())
-                            .AddScheme<TestAuthHandlerOptions, TestAuthHandler>("Test", (fun options -> ()))
-                        |> ignore)
+                    services
+                        .AddAuthentication(fun options ->
+                            options.DefaultAuthenticateScheme <- "Test"
+                            options.DefaultScheme <- "Test"
+                            ())
+                        .AddScheme<TestAuthHandlerOptions, TestAuthHandler>("Test", (fun options -> ()))
                     |> ignore)
-        a.CreateClient()
+                |> ignore)
+            .CreateClient()
 
     member this.getAuthedClient = this.getAuthedClientWithClaims 0 []
 
