@@ -3,7 +3,6 @@ namespace Tests.General
 open Models
 open Tests
 open Xunit
-open Xunit.Abstractions
 
 [<Collection("Database collection")>]
 type Queries(fixture: DatabaseFixture) =
