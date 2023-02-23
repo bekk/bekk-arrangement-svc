@@ -1,5 +1,6 @@
 namespace Tests.General
 
+open Models
 open Tests
 open Xunit
 
@@ -89,7 +90,56 @@ type Queries(fixture: DatabaseFixture) =
             | Ok canEdit -> Assert.False(canEdit)
             | Error e -> failwith $"Test failed: {e}"
         }
-    
+                
+    [<Fact>]
+    member _.``Getting events from forside. Has correct user specific info when is waitlisted``() =
+        let event = TestData.createEvent (fun e -> { e with IsExternal = false; HasWaitingList = true; MaxParticipants = Some 0 })
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
+            let! _ = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event.Id
+            let! _ = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event.Id
+            let! createdParticipant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event.Id
+            let! getEventsForForside = Queries.getEventsForForside createdParticipant.Email fixture.dbContext
+            
+            match getEventsForForside with
+            | Error e -> failwith $"Test failed: {e}"
+            | Ok events ->
+                let returnedEvent =
+                    events
+                    |> Seq.tryFind (fun (x: ForsideEvent) -> x.Id.ToString() = createdEvent.Event.Id)
+                match returnedEvent with
+                | None -> failwith "Test failed: Could not find event"
+                | Some event ->
+                    Assert.True(event.HasWaitingList)
+                    Assert.True(event.IsParticipating)
+                    Assert.False(event.HasRoom)
+                    Assert.True(event.IsWaitlisted)
+                    Assert.Equal(3, event.PositionInWaitlist)
+        }
+        
+    [<Fact>]
+    member _.``Getting events from forside. Has correct user specific info when is not waitlisted``() =
+        let event = TestData.createEvent (fun e -> { e with IsExternal = false; MaxParticipants = None })
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
+            let! createdParticipant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event.Id
+            let! getEventsForForside = Queries.getEventsForForside createdParticipant.Email fixture.dbContext
+            
+            match getEventsForForside with
+            | Error e -> failwith $"Test failed: {e}"
+            | Ok events ->
+                let returnedEvent =
+                    events
+                    |> Seq.tryFind (fun (x: ForsideEvent) -> x.Id.ToString() = createdEvent.Event.Id)
+                match returnedEvent with
+                | None -> failwith "Test failed: Could not find event"
+                | Some event ->
+                    Assert.True(event.HasWaitingList)
+                    Assert.True(event.IsParticipating)
+                    Assert.True(event.HasRoom)
+                    Assert.False(event.IsWaitlisted)
+                    Assert.Equal(0, event.PositionInWaitlist)
+        }
     [<Fact>]
     member _.``Querying non-existing participant gives no result``() =
         task {
