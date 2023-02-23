@@ -119,7 +119,7 @@ type Queries(fixture: DatabaseFixture) =
         
     [<Fact>]
     member _.``Getting events from forside. Has correct user specific info when is not waitlisted``() =
-        let event = TestData.createEvent (fun e -> { e with IsExternal = false; MaxParticipants = None })
+        let event = TestData.createEvent (fun e -> { e with IsExternal = false; HasWaitingList = false; MaxParticipants = None })
         task {
             let! createdEvent = Helpers.createEventAndGet authenticatedClient event
             let! createdParticipant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event.Id
@@ -134,7 +134,7 @@ type Queries(fixture: DatabaseFixture) =
                 match returnedEvent with
                 | None -> failwith "Test failed: Could not find event"
                 | Some event ->
-                    Assert.True(event.HasWaitingList)
+                    Assert.False(event.HasWaitingList)
                     Assert.True(event.IsParticipating)
                     Assert.True(event.HasRoom)
                     Assert.False(event.IsWaitlisted)
