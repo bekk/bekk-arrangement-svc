@@ -31,7 +31,8 @@ type InnerEvent = { Id: string
                     Title: string
                     Location: string
                     OrganizerName: string
-                    OrganizerEmail: string }
+                    OrganizerEmail: string
+                    OrganizerId: int }
 
 type CreatedEvent =
     { EditToken: string
@@ -68,6 +69,7 @@ let innerEventDecoder: Decoder<InnerEvent> =
           Location = get.Required.Field "location" Decode.string
           OrganizerEmail = get.Required.Field "organizerEmail" Decode.string
           OrganizerName = get.Required.Field "organizerName" Decode.string
+          OrganizerId = get.Required.Field "organizerId" Decode.int
           })
 
 let createdEventDecoder: Decoder<CreatedEvent> =

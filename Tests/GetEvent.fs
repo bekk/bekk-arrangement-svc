@@ -399,3 +399,4 @@ type GetEvent(fixture: DatabaseFixture) =
 
             response.EnsureSuccessStatusCode() |> ignore
         }
+        
