@@ -58,8 +58,8 @@ type DatabaseFixture() =
             .CreateClient()
             
     member this.dbContext =
-        let cn = new SqlConnection(connectionString)
-        new DatabaseContext(cn, null)
+        let databaseConnection = new SqlConnection(connectionString)
+        new DatabaseContext(databaseConnection, null)
 
 [<CollectionDefinition("Database collection")>]
 type DatabaseCollection() =
