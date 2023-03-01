@@ -15,8 +15,8 @@ export type FilterOptions = {
   kommende: boolean;
   tidligere: boolean;
   mine: boolean;
-  apent: boolean;
-  lukket: boolean;
+  eksternt: boolean;
+  internt: boolean;
 };
 
 type UpdateBoolFunction = (state: boolean) => void;
@@ -31,8 +31,8 @@ type TypeData = {
   kommende: [boolean, UpdateBoolFunction];
   tidligere: [boolean, UpdateBoolFunction];
   mine: [boolean, UpdateBoolFunction];
-  apent: [boolean, UpdateBoolFunction];
-  lukket: [boolean, UpdateBoolFunction];
+  eksternt: [boolean, UpdateBoolFunction];
+  internt: [boolean, UpdateBoolFunction];
 };
 
 export const Filter = ({
@@ -66,8 +66,11 @@ export const Filter = ({
     filterState.tidligere
   );
   const [mine, setMine] = useUrlBoolState('mine', filterState.mine);
-  const [apent, setApent] = useUrlBoolState('apent', filterState.apent);
-  const [lukket, setLukket] = useUrlBoolState('lukket', filterState.lukket);
+  const [eksternt, setEksternt] = useUrlBoolState(
+    'eksternt',
+    filterState.eksternt
+  );
+  const [internt, setInternt] = useUrlBoolState('internt', filterState.internt);
 
   useEffect(
     () =>
@@ -78,18 +81,18 @@ export const Filter = ({
         kommende,
         tidligere,
         mine,
-        apent,
-        lukket,
+        eksternt,
+        internt,
       }),
-    [oslo, trondheim, alle, kommende, tidligere, mine, apent, lukket]
+    [oslo, trondheim, alle, kommende, tidligere, mine, eksternt, internt]
   );
 
   const typeData: TypeData = {
     kommende: [kommende, setKommende],
     tidligere: [tidligere, setTidligere],
     mine: [mine, setMine],
-    apent: [apent, setApent],
-    lukket: [lukket, setLukket],
+    eksternt: [eksternt, setEksternt],
+    internt: [internt, setInternt],
   };
 
   const filterIconStyles = classNames(style.filter, {
@@ -148,8 +151,8 @@ const Type = ({ typeData }: { typeData: TypeData }) => {
   const [kommende, setKommende] = typeData.kommende;
   const [tidligere, setTidligere] = typeData.tidligere;
   const [mine, setMine] = typeData.mine;
-  const [apent, setApent] = typeData.apent;
-  const [lukket, setLukket] = typeData.lukket;
+  const [eksternt, setEksternt] = typeData.eksternt;
+  const [internt, setInternt] = typeData.internt;
   return (
     <>
       <div>
@@ -183,15 +186,15 @@ const Type = ({ typeData }: { typeData: TypeData }) => {
           <div>
             <CheckBox
               onDarkBackground
-              label="Åpent arrangement"
-              isChecked={apent}
-              onChange={() => setApent(!apent)}
+              label="Eksternt"
+              isChecked={eksternt}
+              onChange={() => setEksternt(!eksternt)}
             />
             <CheckBox
               onDarkBackground
-              label="Lukket arrangement"
-              isChecked={lukket}
-              onChange={() => setLukket(!lukket)}
+              label="Internt"
+              isChecked={internt}
+              onChange={() => setInternt(!internt)}
             />
           </div>
         </div>
@@ -221,10 +224,10 @@ export const filterAccess = (
   event: [string, IEvent]
 ) =>
   // Dersom ingenting er valgt, vis alt
-  (!filterOptions.apent && !filterOptions.lukket) ||
+  (!filterOptions.eksternt && !filterOptions.internt) ||
   // Vis det som er valgt
-  (filterOptions.apent && filterApent(event[1])) ||
-  (filterOptions.lukket && filterLukket(event[1]));
+  (filterOptions.eksternt && filterEksternt(event[1])) ||
+  (filterOptions.internt && filterInternt(event[1]));
 
 export const filterOffice = (
   filterOptions: FilterOptions,
@@ -254,8 +257,8 @@ const filterMine = (
   savedEvents.map((x: any) => x.eventId).includes(id) ||
   savedParticipations.map((x: any) => x.eventId).includes(id);
 
-const filterApent = (event: IEvent) => event.isExternal;
-const filterLukket = (event: IEvent) => !event.isExternal;
+const filterEksternt = (event: IEvent) => event.isExternal;
+const filterInternt = (event: IEvent) => !event.isExternal;
 const serializeBool = (bool: boolean) => (bool ? '1' : '0');
 const deserializeBool = (string: string) => string === '1';
 const useUrlBoolState = (key: string, value: boolean) =>

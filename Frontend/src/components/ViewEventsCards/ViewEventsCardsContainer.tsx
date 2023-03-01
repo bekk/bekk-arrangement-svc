@@ -33,8 +33,8 @@ const initialFilterOptions: FilterOptions = {
   kommende: true,
   tidligere: false,
   mine: false,
-  apent: false,
-  lukket: false,
+  eksternt: false,
+  internt: false,
 };
 
 export const ViewEventsCardsContainer = () => {
