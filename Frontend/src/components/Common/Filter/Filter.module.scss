@@ -51,6 +51,7 @@
 
 .filterOptions {
   display: flex;
+  justify-content: flex-end;
   color: white;
   font-family: $fontLight;
   gap: 50px;
@@ -69,7 +70,8 @@
   width: 100%
 }
 
-.typeContainer {
+.column {
   display: flex;
-  gap: 50px;
+  flex-direction: column;
+  gap: 15px;
 }

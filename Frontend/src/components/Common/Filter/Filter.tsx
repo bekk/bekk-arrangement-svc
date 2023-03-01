@@ -123,7 +123,7 @@ const Office = ({ kontorData }: { kontorData: OfficeType }) => {
   const [trondheim, setTrondheim] = kontorData.trondheim;
   const [alle, setAlle] = kontorData.alle;
   return (
-    <div>
+    <div className={style.column}>
       <h3>Kontor</h3>
       <CheckBox
         onDarkBackground
@@ -155,49 +155,41 @@ const Type = ({ typeData }: { typeData: TypeData }) => {
   const [internt, setInternt] = typeData.internt;
   return (
     <>
-      <div>
+      <div className={style.column}>
         <h3>Type</h3>
-        <div className={style.typeContainer}>
-          <div>
-            <CheckBox
-              onDarkBackground
-              label="Kommende arrangementer"
-              isChecked={kommende}
-              onChange={() => setKommende(!kommende)}
-            />
-            <CheckBox
-              onDarkBackground
-              label="Tidligere arrangementer"
-              isChecked={tidligere}
-              onChange={() => setTidligere(!tidligere)}
-            />
-            <CheckBox
-              onDarkBackground
-              label="Mine arrangementer"
-              isChecked={mine}
-              onChange={() => setMine(!mine)}
-            />
-          </div>
-        </div>
+        <CheckBox
+          onDarkBackground
+          label="Kommende arrangementer"
+          isChecked={kommende}
+          onChange={() => setKommende(!kommende)}
+        />
+        <CheckBox
+          onDarkBackground
+          label="Tidligere arrangementer"
+          isChecked={tidligere}
+          onChange={() => setTidligere(!tidligere)}
+        />
+        <CheckBox
+          onDarkBackground
+          label="Mine arrangementer"
+          isChecked={mine}
+          onChange={() => setMine(!mine)}
+        />
       </div>
-      <div>
+      <div className={style.column}>
         <h3>Tilgjengelighet</h3>
-        <div className={style.typeContainer}>
-          <div>
-            <CheckBox
-              onDarkBackground
-              label="Eksternt"
-              isChecked={eksternt}
-              onChange={() => setEksternt(!eksternt)}
-            />
-            <CheckBox
-              onDarkBackground
-              label="Internt"
-              isChecked={internt}
-              onChange={() => setInternt(!internt)}
-            />
-          </div>
-        </div>
+        <CheckBox
+          onDarkBackground
+          label="Eksternt"
+          isChecked={eksternt}
+          onChange={() => setEksternt(!eksternt)}
+        />
+        <CheckBox
+          onDarkBackground
+          label="Internt"
+          isChecked={internt}
+          onChange={() => setInternt(!internt)}
+        />
       </div>
     </>
   );
