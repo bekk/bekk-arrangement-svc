@@ -73,5 +73,7 @@
 .column {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  > *:not(:first-child) {
+    margin-bottom: 15px;
+  }
 }
