@@ -151,45 +151,52 @@ const Type = ({ typeData }: { typeData: TypeData }) => {
   const [apent, setApent] = typeData.apent;
   const [lukket, setLukket] = typeData.lukket;
   return (
-    <div>
-      <h3>Type</h3>
-      <div className={style.typeContainer}>
-        <div>
-          <CheckBox
-            onDarkBackground
-            label="Kommende arrangementer"
-            isChecked={kommende}
-            onChange={() => setKommende(!kommende)}
-          />
-          <CheckBox
-            onDarkBackground
-            label="Tidligere arrangementer"
-            isChecked={tidligere}
-            onChange={() => setTidligere(!tidligere)}
-          />
-          <CheckBox
-            onDarkBackground
-            label="Mine arrangementer"
-            isChecked={mine}
-            onChange={() => setMine(!mine)}
-          />
-        </div>
-        <div>
-          <CheckBox
-            onDarkBackground
-            label="Åpent arrangement"
-            isChecked={apent}
-            onChange={() => setApent(!apent)}
-          />
-          <CheckBox
-            onDarkBackground
-            label="Lukket arrangement"
-            isChecked={lukket}
-            onChange={() => setLukket(!lukket)}
-          />
+    <>
+      <div>
+        <h3>Type</h3>
+        <div className={style.typeContainer}>
+          <div>
+            <CheckBox
+              onDarkBackground
+              label="Kommende arrangementer"
+              isChecked={kommende}
+              onChange={() => setKommende(!kommende)}
+            />
+            <CheckBox
+              onDarkBackground
+              label="Tidligere arrangementer"
+              isChecked={tidligere}
+              onChange={() => setTidligere(!tidligere)}
+            />
+            <CheckBox
+              onDarkBackground
+              label="Mine arrangementer"
+              isChecked={mine}
+              onChange={() => setMine(!mine)}
+            />
+          </div>
         </div>
       </div>
-    </div>
+      <div>
+        <h3>Tilgjengelighet</h3>
+        <div className={style.typeContainer}>
+          <div>
+            <CheckBox
+              onDarkBackground
+              label="Åpent arrangement"
+              isChecked={apent}
+              onChange={() => setApent(!apent)}
+            />
+            <CheckBox
+              onDarkBackground
+              label="Lukket arrangement"
+              isChecked={lukket}
+              onChange={() => setLukket(!lukket)}
+            />
+          </div>
+        </div>
+      </div>
+    </>
   );
 };
 
