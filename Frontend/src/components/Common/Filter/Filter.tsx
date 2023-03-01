@@ -42,7 +42,10 @@ export const Filter = ({
   filterState: FilterOptions;
   setFilterState: (filterOptions: FilterOptions) => void;
 }) => {
-  const [showFilterOptions, setShowFilterOptions] = useState(false);
+  const [showFilterOptions, setShowFilterOptions] = useUrlBoolState(
+    'filter',
+    false
+  );
 
   const [oslo, setOslo] = useUrlBoolState('Oslo', filterState.oslo);
   const [trondheim, setTrondheim] = useUrlBoolState(
