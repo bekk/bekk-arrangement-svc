@@ -1,20 +1,16 @@
-import {useLayoutEffect, useEffect } from 'react';
+import { useLayoutEffect, useEffect } from 'react';
 import React from 'react';
-import {IEditEvent, toEditEvent, parseEditEvent, initialEditEvent} from 'src/types/event';
+import { IEditEvent, toEditEvent, parseEditEvent } from 'src/types/event';
 import { deleteEvent } from 'src/api/arrangementSvc';
 import { useHistory } from 'react-router';
 import { EditEvent } from './EditEvent/EditEvent';
 import style from './EditEventContainer.module.scss';
 import { eventsRoute, editTokenKey, previewEventRoute } from 'src/routing';
 import { hasLoaded } from 'src/remote-data';
-import {
-  useQuery,
-  useParam,
-} from 'src/utils/browser-state';
+import { useQuery, useParam } from 'src/utils/browser-state';
 import { useNotification } from 'src/components/NotificationHandler/NotificationHandler';
 import { Page } from 'src/components/Page/Page';
 import { Button } from 'src/components/Common/Button/Button';
-import { BlockLink } from 'src/components/Common/BlockLink/BlockLink';
 import { isValid } from 'src/types/validation';
 import { eventIdKey } from 'src/routing';
 import { ButtonWithPromptModal } from 'src/components/Common/ButtonWithConfirmModal/ButtonWithPromptModal';
@@ -22,15 +18,18 @@ import { useEvent } from 'src/hooks/cache';
 import { useGotoEventPreview } from 'src/hooks/history';
 import { useEditToken, useSavedEditableEvents } from 'src/hooks/saved-tokens';
 import classnames from 'classnames';
-import {useSetTitle} from "src/hooks/setTitle";
-import {Spinner} from "src/components/Common/Spinner/spinner";
-import {useSessionState} from "src/hooks/sessionState";
+import { useSetTitle } from 'src/hooks/setTitle';
+import { Spinner } from 'src/components/Common/Spinner/spinner';
+import { useSessionState } from 'src/hooks/sessionState';
 
 const useEditEvent = () => {
   const eventId = useParam(eventIdKey);
   const remoteEvent = useEvent(eventId);
 
-  const [editEvent, setEditEvent] = useSessionState<IEditEvent | undefined>(undefined, eventId);
+  const [editEvent, setEditEvent] = useSessionState<IEditEvent | undefined>(
+    undefined,
+    eventId
+  );
   useLayoutEffect(() => {
     if (hasLoaded(remoteEvent) && !editEvent) {
       setEditEvent(toEditEvent(remoteEvent.data));
@@ -56,7 +55,7 @@ const useSaveThisEditToken = ({ eventId }: { eventId: string }) => {
 export const EditEventContainer = () => {
   const { eventId, validEvent, editEvent, setEditEvent, errors } =
     useEditEvent();
-  useSetTitle(`Rediger ${editEvent?.title}`)
+  useSetTitle(`Rediger ${editEvent?.title}`);
 
   const { catchAndNotify } = useNotification();
   const history = useHistory();
@@ -67,7 +66,7 @@ export const EditEventContainer = () => {
   const editToken = useEditToken(eventId);
 
   if (!editEvent) {
-    return <Spinner />
+    return <Spinner />;
   }
 
   const onDeleteEvent = catchAndNotify(
@@ -82,7 +81,6 @@ export const EditEventContainer = () => {
       <h1 className={style.header}>Rediger arrangement</h1>
       <EditEvent eventResult={editEvent} updateEvent={setEditEvent} />
       <div className={style.buttonContainer}>
-        <BlockLink to={eventsRoute}>Avbryt</BlockLink>
         <div className={style.groupedButtons}>
           <ButtonWithPromptModal
             text={'Avlys arrangement'}

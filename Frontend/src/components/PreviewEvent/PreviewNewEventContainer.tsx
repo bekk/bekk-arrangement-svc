@@ -17,8 +17,8 @@ import {
   isMaxParticipantsLimited,
   maxParticipantsLimit,
 } from 'src/types/event';
-import {useSetTitle} from "src/hooks/setTitle";
-import {clearSessionState} from "../../hooks/sessionState";
+import { useSetTitle } from 'src/hooks/setTitle';
+import { clearSessionState } from '../../hooks/sessionState';
 
 export const PreviewNewEventContainer = () => {
   const { catchAndNotify } = useNotification();
@@ -27,7 +27,7 @@ export const PreviewNewEventContainer = () => {
   const { saveEditableEvent } = useSavedEditableEvents();
 
   const event = usePreviewEvent();
-  useSetTitle(`Forhåndsvisning ${event?.title}`)
+  useSetTitle(`Forhåndsvisning ${event?.title}`);
   if (!event) {
     return <div>Det finnes ingen event å forhåndsvise</div>;
   }
@@ -50,7 +50,7 @@ export const PreviewNewEventContainer = () => {
       editToken,
     } = await postEvent(event, editUrlTemplate);
     saveEditableEvent({ eventId: id, editToken });
-    clearSessionState("createEvent")
+    clearSessionState('createEvent');
     history.push(
       shortname ? viewEventShortnameRoute(shortname) : viewEventRoute(id)
     );
@@ -70,9 +70,9 @@ export const PreviewNewEventContainer = () => {
       </div>
       <div className={style.buttonContainer}>
         <Button color={'Secondary'} onClick={returnToCreate}>
-          Tilbake til redigering
+          Tilbake
         </Button>
-        <Button onClick={postNewEvent}>Opprett arrangement</Button>
+        <Button onClick={postNewEvent}>Opprett</Button>
       </div>
     </Page>
   );
