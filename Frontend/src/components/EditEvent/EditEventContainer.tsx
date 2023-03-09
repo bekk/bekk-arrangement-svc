@@ -21,6 +21,7 @@ import classnames from 'classnames';
 import { useSetTitle } from 'src/hooks/setTitle';
 import { Spinner } from 'src/components/Common/Spinner/spinner';
 import { useSessionState } from 'src/hooks/sessionState';
+import { BlockLink } from '../Common/BlockLink/BlockLink';
 
 const useEditEvent = () => {
   const eventId = useParam(eventIdKey);
@@ -81,6 +82,9 @@ export const EditEventContainer = () => {
       <h1 className={style.header}>Rediger arrangement</h1>
       <EditEvent eventResult={editEvent} updateEvent={setEditEvent} />
       <div className={style.buttonContainer}>
+        <BlockLink onLightBackground to={eventsRoute}>
+          Avbryt
+        </BlockLink>
         <div className={style.groupedButtons}>
           <ButtonWithPromptModal
             text={'Avlys arrangement'}
