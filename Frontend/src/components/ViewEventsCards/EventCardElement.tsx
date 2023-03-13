@@ -36,6 +36,7 @@ import {
 } from 'src/types/event';
 import { stringifyTime } from 'src/types/time';
 import style from './EventCardElement.module.scss';
+import { OfficeIcon } from '../Common/Icons/OfficeIcon';
 
 interface IProps {
   eventId: string;
@@ -124,8 +125,8 @@ export const EventCardElement = ({ eventId, event }: IProps) => {
         <div className={style.iconText}>{event.location}</div>
       </div>
       <div className={style.location}>
-        <div className={style.locationIcon}>
-          <LocationIcon color="white" />
+        <div className={style.officeIcon}>
+          <OfficeIcon color="white" />
         </div>
         <div className={style.iconText}>{event.office}</div>
       </div>

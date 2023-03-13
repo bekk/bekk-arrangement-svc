@@ -23,6 +23,7 @@ import {
 import { dateToITime, stringifyTime } from 'src/types/time';
 import style from './ViewEvent.module.scss';
 import { useSetTitle } from 'src/hooks/setTitle';
+import { OfficeIcon } from '../Common/Icons/OfficeIcon';
 
 interface IProps {
   eventId?: string;
@@ -82,7 +83,7 @@ export const ViewEvent = ({
             <p>{event.location}</p>
           </div>
           <div className={style.iconTextContainer}>
-            <LocationIcon color="black" className={style.icon} />
+            <OfficeIcon color="black" className={style.icon} />
             <p>{event.office}</p>
           </div>
           {userIsLoggedIn() && (
