@@ -40,7 +40,7 @@ module Validate =
             Decode.fail "Programmet må ha minst 5 tegn"
         else
             Decode.succeed program
-        
+
     let location (location: string) =
         if location.Length < 3 then
             Decode.fail "Tittel må ha minst 3 tegn"
@@ -98,32 +98,22 @@ module Validate =
         else
             Decode.fail "E-post må inneholde alfakrøll (@)"
 
-type Office =
-    | Oslo = 0
-    | Trondheim = 1
-
+[<AutoOpen>]
 module Office =
-    let toString (office: Office) =
-        Enum.GetName<Office>(office)
-
-    let fromString (value: string) =
-        let ok, office = Enum.TryParse<Office>(value)
-        if ok then
-            Some office
-        else
-            None
-
-    let encoder (office : Office) =
-        Encode.string (toString office)
-
-    let decoder : Decoder<Office> =
+    type Office =
+        | Oslo
+        | Trondheim
+    let decoder: Decoder<Office> =
         Decode.string
         |> Decode.andThen (fun value ->
-            match fromString(value) with
-            | Some office -> Decode.succeed office
-            | None -> Decode.fail "Ugyldig kontor"
+            match value with
+            | "Oslo" -> Decode.succeed Oslo
+            | "Trondheim" -> Decode.succeed Trondheim
+            | _ -> Decode.fail "Ugyldig kontor"
         )
-        
+    let encoder (office: Office) =
+        Encode.string (office.ToString())
+
 type EventWriteModel =
     { Title: string
       Description: string
@@ -145,7 +135,7 @@ type EventWriteModel =
       IsHidden: bool
       Shortname: string option
       CustomHexColor: string option
-      Office: Office option
+      Offices: Office list
     }
 
 module EventWriteModel =
@@ -180,7 +170,7 @@ module EventWriteModel =
                           (Decode.string |> Decode.andThen Validate.customHexColor)
               Shortname =  get.Optional.Field "shortname"
                           (Decode.string |> Decode.andThen Validate.shortname)
-              Office = get.Optional.Field "office" Office.decoder })
+              Offices = get.Required.Field "offices" (Decode.list Office.decoder) })
 
 [<CLIMutable>]
 type Event =
@@ -206,7 +196,7 @@ type Event =
       OrganizerId: int
       CustomHexColor: string option
       Shortname: string option
-      Office: Office option
+      Offices: string
     }
 
 type EventAndQuestions = {
@@ -234,7 +224,7 @@ type ForsideEvent = {
     HasRoom: bool
     IsWaitlisted: bool
     PositionInWaitlist: int
-    Office: Office option
+    Offices: string
 }
 
 [<CLIMutable>]
@@ -265,8 +255,8 @@ module Event =
                     participantQuestions
                     |> List.map (fun q -> Encode.string q.Question)
                     |> Encode.list
-                if event.Program.IsSome then   
-                    "program", Encode.string event.Program.Value    
+                if event.Program.IsSome then
+                    "program", Encode.string event.Program.Value
                 "openForRegistrationTime", Encode.int64 event.OpenForRegistrationTime
                 if event.CloseRegistrationTime.IsSome then
                     "closeRegistrationTime", Encode.int64 event.CloseRegistrationTime.Value
@@ -279,12 +269,14 @@ module Event =
                     "shortname", Encode.string event.Shortname.Value
                 if event.CustomHexColor.IsSome then
                     "customHexColor", Encode.string event.CustomHexColor.Value
-                if event.Office.IsSome then
-                    "office", Office.encoder event.Office.Value
+                "offices",
+                    event.Offices.Split ","
+                    |> Seq.map Encode.string
+                    |> Encode.seq
                 "numberOfParticipants", Encode.int (Option.defaultValue 0 eventAndQuestions.NumberOfParticipants)
             ]
         encoding
-        
+
     let encodeSummary (event: EventSummary) =
         let encoding =
             Encode.object [
@@ -319,8 +311,10 @@ module Event =
                 "isParticipating", Encode.bool event.IsParticipating
                 "isWaitlisted", Encode.bool event.IsWaitlisted
                 "positionInWaitlist", Encode.int event.PositionInWaitlist
-                if event.Office.IsSome then
-                    "office", Office.encoder event.Office.Value
+                "offices",
+                    event.Offices.Split ","
+                    |> Seq.map Encode.string
+                    |> Encode.seq
             ]
         encoding
 

@@ -77,7 +77,7 @@ let getEventsForForside (email: string) (db: DatabaseContext) =
                    E.CustomHexColor,
                    E.Shortname,
                    E.hasWaitingList,
-                   E.Office,
+                   E.Offices,
                    IIF(e.MaxParticipants is null, 1, IIF((SELECT COUNT(*) FROM Participants p0 WHERE p0.EventId = E.Id) < E.MaxParticipants, 1, 0)) as HasRoom,
                    IIF(myp.registrationSpot is null, 0, 1) as IsParticipating,
                    IIF(myp.RegistrationSpot > E.MaxParticipants, 1, 0) as IsWaitlisted,
@@ -88,7 +88,7 @@ let getEventsForForside (email: string) (db: DatabaseContext) =
             WHERE EndDate >= @now
               AND IsCancelled = 0
               AND IsHidden = 0
-            GROUP BY E.Id, E.Title, E.Location, E.StartDate, E.EndDate, E.StartTime, E.EndTime, E.OpenForRegistrationTime, E.CloseRegistrationTime, E.MaxParticipants, E.CustomHexColor, E.Shortname, E.hasWaitingList, E.Office, myp.RegistrationSpot
+            GROUP BY E.Id, E.Title, E.Location, E.StartDate, E.EndDate, E.StartTime, E.EndTime, E.OpenForRegistrationTime, E.CloseRegistrationTime, E.MaxParticipants, E.CustomHexColor, E.Shortname, E.hasWaitingList, E.Offices, myp.RegistrationSpot
             "
 
         let parameters = {|
@@ -103,7 +103,7 @@ let getEventsForForside (email: string) (db: DatabaseContext) =
         | ex ->
             return Error ex
     }
-    
+
 let getEventsSummary (db: DatabaseContext) =
     task {
         let query =
@@ -209,7 +209,7 @@ let getFutureEvents (employeeId: int) (db: DatabaseContext) =
                    E.CustomHexColor,
                    E.Shortname,
                    E.Program,
-                   E.Office,
+                   E.Offices,
                    P.Id,
                    P.EventId,
                    P.Question,
@@ -276,7 +276,7 @@ let getPastEvents (employeeId: int) (db: DatabaseContext) =
                    E.CustomHexColor,
                    E.Shortname,
                    E.Program,
-                   E.Office,
+                   E.Offices,
                    P.Id,
                    P.EventId,
                    P.Question,
@@ -332,7 +332,7 @@ let getEventsOrganizedByEmail (email: string) (db : DatabaseContext) =
                    E.CustomHexColor,
                    E.Shortname,
                    E.Program,
-                   E.Office,
+                   E.Offices,
                    P.Id,
                    P.EventId,
                    P.Question
@@ -384,7 +384,7 @@ let getEventsOrganizedById (id: int) (db: DatabaseContext) =
                    E.CustomHexColor,
                    E.Shortname,
                    E.Program,
-                   E.Office,
+                   E.Offices,
                    P.Id,
                    P.EventId,
                    P.Question
@@ -485,7 +485,7 @@ let getEvent (eventId: Guid) (db: DatabaseContext) =
                    E.CustomHexColor,
                    E.Shortname,
                    E.Program,
-                   E.Office,
+                   E.Offices,
                    P.Id,
                    P.EventId,
                    P.Question
@@ -545,7 +545,7 @@ let getParticipantsForEvent (eventId: Guid) (db: DatabaseContext) =
                 ORDER BY RegistrationTime;
                 "
             let parameters = {|
-                EventId = eventId    
+                EventId = eventId
             |}
         try
             let! result = db.Connection.QueryAsync<Models.Participant>(query, parameters, db.Transaction)
@@ -700,7 +700,7 @@ let updateEvent eventId (model: Models.EventWriteModel) (db: DatabaseContext) =
                 CustomHexColor = @customHexColor,
                 Shortname = @shortname,
                 Program = @program,
-                Office = @office
+                Offices = @offices
             OUTPUT INSERTED.*
             WHERE Id = @eventId;
             "
@@ -727,7 +727,10 @@ let updateEvent eventId (model: Models.EventWriteModel) (db: DatabaseContext) =
             CustomHexColor = model.CustomHexColor
             Shortname = model.Shortname
             Program = model.Program
-            Office = model.Office
+            Offices =
+                model.Offices
+                |> List.map (fun office -> office.ToString())
+                |> String.concat ","
         |}
 
         try
@@ -870,7 +873,7 @@ let createEvent (writeModel: Models.EventWriteModel) employeeId (db: DatabaseCon
                     CustomHexColor,
                     Shortname,
                     Program,
-                    Office)
+                    Offices)
             OUTPUT INSERTED.*
             VALUES (@eventId,
                     @title,
@@ -894,7 +897,7 @@ let createEvent (writeModel: Models.EventWriteModel) employeeId (db: DatabaseCon
                     @customHexColor,
                     @shortname,
                     @program,
-                    @office)
+                    @offices)
             "
         let newEventId = Guid.NewGuid()
         let newEditToken = Guid.NewGuid()
@@ -922,7 +925,10 @@ let createEvent (writeModel: Models.EventWriteModel) employeeId (db: DatabaseCon
             CustomHexColor = writeModel.CustomHexColor
             Shortname = writeModel.Shortname
             Program = writeModel.Program
-            Office = writeModel.Office
+            Offices =
+                writeModel.Offices
+                |> List.map (fun office -> office.ToString())
+                |> String.concat ","
             Now = DateTime.Now.Date
         |}
 
@@ -1082,8 +1088,8 @@ let deleteParticipantFromEvent eventId email (db: DatabaseContext) =
         with
             | ex -> return Error ex
     }
-    
-    
+
+
 let isParticipating eventId email (db: DatabaseContext) =
     task {
         let query =
