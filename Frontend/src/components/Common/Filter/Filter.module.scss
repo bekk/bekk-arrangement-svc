@@ -51,18 +51,26 @@
 
 .filterOptions {
   display: flex;
+  flex-direction: column;
   justify-content: flex-end;
   color: white;
   font-family: $fontLight;
-  gap: 50px;
   max-height: 0;
   overflow: hidden;
   transition: max-height 250ms ease-in-out;
   margin-top: 50px;
+
+  @media #{$desktop} {
+      flex-direction: row;
+      gap: 50px;
+  }
 }
 
 .filterOptionsOpen {
-  max-height: 200px;
+  max-height: 1000px;
+  @media #{$desktop} {
+      max-height: 200px;
+  }
 }
 
 .container {
