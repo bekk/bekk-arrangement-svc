@@ -120,18 +120,18 @@ export const EventCardElement = ({ eventId, event }: IProps) => {
       <div className={style.smallFont}>{dateTimeText}</div>
       <div className={titleStyle}>{event.title}</div>
       <div className={style.location}>
-        <div className={style.locationIcon}>
-          <LocationIcon color="white" />
-        </div>
-        <div className={style.iconText}>{event.location}</div>
-      </div>
-      <div className={style.location}>
         <div className={style.officeIcon}>
           <OfficeIcon color="white" />
         </div>
         <div className={style.iconText}>
           {pickedOfficeToOfficeList(event.offices).join(', ')}
         </div>
+      </div>
+      <div className={style.location}>
+        <div className={style.locationIcon}>
+          <LocationIcon color="white" />
+        </div>
+        <div className={style.iconText}>{event.location}</div>
       </div>
       {event.isHidden && (
         <p className={style.hidden}>

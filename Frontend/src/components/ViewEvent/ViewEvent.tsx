@@ -80,12 +80,12 @@ export const ViewEvent = ({
             <DateSection startDate={event.start} endDate={event.end} />
           </div>
           <div className={style.iconTextContainer}>
-            <LocationIcon color="black" className={style.icon} />
-            <p>{event.location}</p>
-          </div>
-          <div className={style.iconTextContainer}>
             <OfficeIcon color="black" className={style.icon} />
             <p>{pickedOfficeToOfficeList(event.offices).join(', ')}</p>
+          </div>
+          <div className={style.iconTextContainer}>
+            <LocationIcon color="black" className={style.icon} />
+            <p>{event.location}</p>
           </div>
           {userIsLoggedIn() && (
             <div className={style.iconTextContainer}>

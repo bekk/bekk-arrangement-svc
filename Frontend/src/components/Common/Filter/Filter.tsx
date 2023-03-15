@@ -121,7 +121,7 @@ const Office = ({ kontorData }: { kontorData: OfficeType }) => {
   const [trondheim, setTrondheim] = kontorData.trondheim;
   return (
     <div className={style.column}>
-      <h3>Kontor</h3>
+      <h3>Hvor</h3>
       <CheckBox
         onDarkBackground
         label="Oslo"
@@ -147,37 +147,37 @@ const Type = ({ typeData }: { typeData: TypeData }) => {
   return (
     <>
       <div className={style.column}>
-        <h3>Type</h3>
+        <h3>Type arrangementer</h3>
         <CheckBox
           onDarkBackground
-          label="Kommende arrangementer"
+          label="Kommende"
           isChecked={kommende}
           onChange={() => setKommende(!kommende)}
         />
         <CheckBox
           onDarkBackground
-          label="Tidligere arrangementer"
+          label="Tidligere"
           isChecked={tidligere}
           onChange={() => setTidligere(!tidligere)}
         />
         <CheckBox
           onDarkBackground
-          label="Mine arrangementer"
+          label="Mine"
           isChecked={mine}
           onChange={() => setMine(!mine)}
         />
       </div>
       <div className={style.column}>
-        <h3>Tilgjengelighet</h3>
+        <h3>For Hvem</h3>
         <CheckBox
           onDarkBackground
-          label="Eksternt"
+          label="Eksterne"
           isChecked={eksternt}
           onChange={() => setEksternt(!eksternt)}
         />
         <CheckBox
           onDarkBackground
-          label="Internt"
+          label="Internte"
           isChecked={internt}
           onChange={() => setInternt(!internt)}
         />
