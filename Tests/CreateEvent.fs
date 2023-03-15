@@ -32,11 +32,11 @@ type CreateEvent(fixture: DatabaseFixture) =
             let! response, _ = Helpers.createEvent authenticatedClient event
             response.EnsureSuccessStatusCode() |> ignore
         }
-    
+
     [<Fact>]
     member _.``Create event with office``() =
         let event =
-            TestData.createEvent (fun e -> { e with Office = Some Office.Trondheim })
+            TestData.createEvent (fun e -> { e with Offices = [ Trondheim ] })
 
         task {
             let! createdEvent = Helpers.createEventAndGet authenticatedClient event
@@ -46,8 +46,8 @@ type CreateEvent(fixture: DatabaseFixture) =
             Assert.True(Result.isOk event)
             let actual =
                 event
-                |> Result.map (fun e -> e.Office)
+                |> Result.map (fun e -> e.Offices)
                 |> Result.toOption
                 |> Option.flatten
-            Assert.Equal(Some Office.Trondheim, actual)
+            Assert.Equal(Some Trondheim, actual)
         }

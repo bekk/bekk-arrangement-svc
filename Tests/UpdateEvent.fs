@@ -266,20 +266,18 @@ type UpdateEvent(fixture: DatabaseFixture) =
                     userMessage.userMessage
                 ))
         }
-    
+
     static member CanChangeOfficeData =
         [
-            [| None; Some Office.Trondheim |]
-            [| Some Office.Trondheim; Some Office.Oslo |]
-            [| Some Office.Oslo; None |]
+            [| Oslo; Trondheim |]
+            [| Trondheim; Oslo |]
         ]
-
     [<Theory>]
     [<MemberData(nameof(UpdateEvent.CanChangeOfficeData))>]
     member _.``Can change office`` fromOffice toOffice =
         task {
             let generatedEvent =
-                TestData.createEvent (fun e -> { e with Office = fromOffice })
+                TestData.createEvent (fun e -> { e with Offices = [ fromOffice ] })
 
             let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
 
@@ -287,7 +285,7 @@ type UpdateEvent(fixture: DatabaseFixture) =
                 Helpers.updateEvent
                     authenticatedClient
                     createdEvent.Event.Id
-                    { generatedEvent with Office = toOffice }
+                    { generatedEvent with Offices = [ toOffice ]}
 
             response.EnsureSuccessStatusCode() |> ignore
         }

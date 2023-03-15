@@ -12,11 +12,10 @@ let uriBuilder path = UriBuilder($"{basePath}/{path}")
 
 let private extraCoders =
     Extra.empty
-    |> Extra.withCustom DateTimeCustom.DateTimeCustom.encoder DateTimeCustom.DateTimeCustom.decoder 
-    |> Extra.withCustom Office.encoder Office.decoder
+    |> Extra.withCustom DateTimeCustom.DateTimeCustom.encoder DateTimeCustom.DateTimeCustom.decoder
     |> Extra.withInt64
 
-let private toJson data =       
+let private toJson data =
     Encode.Auto.toString (4, data, caseStrategy = CamelCase, extra = extraCoders)
 
 let private autoDecoder<'T> : Decoder<'T> =

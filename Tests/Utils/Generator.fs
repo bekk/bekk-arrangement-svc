@@ -111,11 +111,12 @@ let generateEvent () : Models.EventWriteModel =
               None
           else
               Some(faker.Random.Hexadecimal(6)[2..])
-      Office =
-        if faker.Random.Bool() then
-            None
-        else
-            Some(faker.PickRandom<Office>()) }
+      Offices =
+          if faker.Random.Bool() then
+              [ Oslo ]
+          else
+              [ Oslo; Trondheim ]
+    }
 
 let generateEmail () = faker.Internet.Email()
 
