@@ -35,7 +35,6 @@ import { datesInOrder, EditDate, parseEditDate } from 'src/types/date';
 import { EditTime, parseEditTime, toEditTime } from 'src/types/time';
 import { InfoBox } from 'src/components/Common/InfoBox/InfoBox';
 import { CheckBox } from 'src/components/Common/Checkbox/CheckBox';
-import { RadioButton } from '../../Common/RadioButton/RadioButton';
 
 interface IProps {
   eventResult: IEditEvent;
@@ -116,20 +115,28 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
           />
         </div>
         <div className={style.office}>
-          <RadioButton
-            onChange={() => updateEvent({ ...event, office: 'Oslo' })}
-            checked={event.office === 'Oslo'}
+          <CheckBox
+            onChange={() =>
+              updateEvent({
+                ...event,
+                offices: { ...event.offices, Oslo: !event.offices.Oslo },
+              })
+            }
+            isChecked={event.offices.Oslo}
             label="Oslo"
           />
-          <RadioButton
+          <CheckBox
+            onChange={() =>
+              updateEvent({
+                ...event,
+                offices: {
+                  ...event.offices,
+                  Trondheim: !event.offices.Trondheim,
+                },
+              })
+            }
+            isChecked={event.offices.Trondheim}
             label="Trondheim"
-            checked={event.office === 'Trondheim'}
-            onChange={() => updateEvent({ ...event, office: 'Trondheim' })}
-          />
-          <RadioButton
-            label="Alle"
-            checked={event.office === 'Alle'}
-            onChange={() => updateEvent({ ...event, office: 'Alle' })}
           />
         </div>
         <div>

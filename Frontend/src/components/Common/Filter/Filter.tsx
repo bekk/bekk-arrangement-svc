@@ -11,7 +11,6 @@ import { useUrlState } from '../../../hooks/useUrlState';
 export type FilterOptions = {
   oslo: boolean;
   trondheim: boolean;
-  alle: boolean;
   kommende: boolean;
   tidligere: boolean;
   mine: boolean;
@@ -24,7 +23,6 @@ type UpdateBoolFunction = (state: boolean) => void;
 type OfficeType = {
   oslo: [boolean, UpdateBoolFunction];
   trondheim: [boolean, UpdateBoolFunction];
-  alle: [boolean, UpdateBoolFunction];
 };
 
 type TypeData = {
@@ -52,12 +50,10 @@ export const Filter = ({
     'trondheim',
     filterState.trondheim
   );
-  const [alle, setAlle] = useUrlBoolState('alle', filterState.alle);
 
   const officeData: OfficeType = {
     oslo: [oslo, setOslo],
     trondheim: [trondheim, setTrondheim],
-    alle: [alle, setAlle],
   };
 
   const [kommende, setKommende] = useUrlBoolState(
@@ -80,14 +76,13 @@ export const Filter = ({
       setFilterState({
         oslo,
         trondheim,
-        alle,
         kommende,
         tidligere,
         mine,
         eksternt,
         internt,
       }),
-    [oslo, trondheim, alle, kommende, tidligere, mine, eksternt, internt]
+    [oslo, trondheim, kommende, tidligere, mine, eksternt, internt]
   );
 
   const typeData: TypeData = {
@@ -124,7 +119,6 @@ export const Filter = ({
 const Office = ({ kontorData }: { kontorData: OfficeType }) => {
   const [oslo, setOslo] = kontorData.oslo;
   const [trondheim, setTrondheim] = kontorData.trondheim;
-  const [alle, setAlle] = kontorData.alle;
   return (
     <div className={style.column}>
       <h3>Kontor</h3>
@@ -139,12 +133,6 @@ const Office = ({ kontorData }: { kontorData: OfficeType }) => {
         label="Trondheim"
         isChecked={trondheim}
         onChange={() => setTrondheim(!trondheim)}
-      />
-      <CheckBox
-        onDarkBackground
-        label="Alle"
-        isChecked={alle}
-        onChange={() => setAlle(!alle)}
       />
     </div>
   );
@@ -229,15 +217,13 @@ export const filterOffice = (
   event: [string, IEvent]
 ) =>
   // Dersom ingenting er valgt, vis alt
-  (!filterOptions.oslo && !filterOptions.trondheim && !filterOptions.alle) ||
+  (!filterOptions.oslo && !filterOptions.trondheim) ||
   // Vis det som er valgt
   (filterOptions.oslo && filterOslo(event[1])) ||
-  (filterOptions.trondheim && filterTrondheim(event[1])) ||
-  (filterOptions.alle && filterAlle(event[1]));
+  (filterOptions.trondheim && filterTrondheim(event[1]));
 
-const filterOslo = (event: IEvent) => event.office === 'Oslo';
-const filterTrondheim = (event: IEvent) => event.office === 'Trondheim';
-const filterAlle = (event: IEvent) => event.office === 'Alle';
+const filterOslo = (event: IEvent) => event.offices.Oslo;
+const filterTrondheim = (event: IEvent) => event.offices.Trondheim;
 const filterKommende = (event: IEvent) => {
   return isInTheFuture(event.start);
 };

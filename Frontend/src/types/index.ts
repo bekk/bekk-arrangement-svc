@@ -3,6 +3,7 @@ import {
   isMaxParticipantsLimited,
   maxParticipantsLimit,
   Office,
+  PickedOffice,
 } from 'src/types/event';
 import { validate, IError, ErrorType } from './validation';
 
@@ -37,23 +38,24 @@ export const parseLocation = (value: string): string | IError[] => {
   return validator.resolve(value);
 };
 
-export const parseOffice = (value?: string): Office | IError[] => {
-  // Den kommer som undefined fra backend
-  if (value === undefined) return 'Alle';
+export const parseOffices = (value?: Office[]): PickedOffice => {
+  if (value === undefined) return { Oslo: true, Trondheim: true };
 
-  if (value === 'Oslo') return 'Oslo';
+  return {
+    Oslo: value.includes('Oslo'),
+    Trondheim: value.includes('Trondheim'),
+  };
+};
 
-  // Man kan velge alle når man redigerer
-  if (value === 'Alle') return 'Alle';
+export const parsePickedOffices = (
+  value: PickedOffice
+): PickedOffice | IError[] => {
+  if (value.Oslo || value.Trondheim) return value;
 
-  if (value === 'Trondheim') return 'Trondheim';
-
-  return [
-    {
-      message: 'Gyldige verdier er "Oslo", "Trondheim" eller "Alle"',
-      type: 'Error',
-    },
-  ];
+  const validator = validate<PickedOffice>({
+    'Kontor må være valgt': !value.Oslo || !value.Trondheim,
+  });
+  return validator.resolve(value);
 };
 
 export const parseTitle = (value: string): string | IError[] => {

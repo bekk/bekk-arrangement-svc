@@ -33,6 +33,7 @@ import {
   IEvent,
   isMaxParticipantsLimited,
   maxParticipantsLimit,
+  pickedOfficeToOfficeList,
 } from 'src/types/event';
 import { stringifyTime } from 'src/types/time';
 import style from './EventCardElement.module.scss';
@@ -128,7 +129,9 @@ export const EventCardElement = ({ eventId, event }: IProps) => {
         <div className={style.officeIcon}>
           <OfficeIcon color="white" />
         </div>
-        <div className={style.iconText}>{event.office}</div>
+        <div className={style.iconText}>
+          {pickedOfficeToOfficeList(event.offices).join(', ')}
+        </div>
       </div>
       {event.isHidden && (
         <p className={style.hidden}>

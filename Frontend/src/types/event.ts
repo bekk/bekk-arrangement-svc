@@ -10,7 +10,8 @@ import {
   toEditMaxAttendees,
   parseShortname,
   parseProgram,
-  parseOffice,
+  parseOffices,
+  parsePickedOffices,
 } from '.';
 import {
   IDateTime,
@@ -50,13 +51,17 @@ export interface INewEventViewModel {
   editToken: string;
 }
 
-export type Office = 'Oslo' | 'Trondheim' | 'Alle';
+export type Office = 'Oslo' | 'Trondheim';
+export type PickedOffice = {
+  Oslo: boolean;
+  Trondheim: boolean;
+};
 
 export interface IEventViewModel {
   title: string;
   description: string;
   location: string;
-  office?: Office;
+  offices: Office[];
   startDate: IDateTime;
   endDate: IDateTime;
   openForRegistrationTime: TimeInstanceContract;
@@ -79,7 +84,7 @@ export interface IEventWriteModel {
   title: string;
   description: string;
   location: string;
-  office?: Office;
+  offices: Office[];
   startDate: IDateTime;
   endDate: IDateTime;
   openForRegistrationTime: TimeInstanceContract;
@@ -116,7 +121,7 @@ export interface IEvent {
   title: string;
   description: string;
   location: string;
-  office: Office;
+  offices: PickedOffice;
   start: IDateTime;
   end: IDateTime;
   openForRegistrationTime: TimeInstance;
@@ -139,7 +144,7 @@ export interface IEditEvent {
   title: string;
   description: string;
   location: string;
-  office: Office;
+  offices: PickedOffice;
   start: EditDateTime;
   end: EditDateTime;
   openForRegistrationTime: TimeInstanceEdit;
@@ -162,7 +167,7 @@ export const parseEditEvent = ({
   title,
   description,
   location,
-  office,
+  offices,
   start,
   end,
   openForRegistrationTime,
@@ -184,7 +189,7 @@ export const parseEditEvent = ({
     title: parseTitle(title),
     description: parseDescription(description),
     location: parseLocation(location),
-    office: parseOffice(office),
+    offices: parsePickedOffices(offices),
     start: parseEditDateTime(start),
     end: parseEditDateTime(end),
     openForRegistrationTime: parseEditTimeInstance(openForRegistrationTime),
@@ -229,7 +234,7 @@ export const toEventWriteModel = (
   closeRegistrationTime: event.closeRegistrationTime
     ? toTimeInstanceWriteModel(event.closeRegistrationTime)
     : undefined,
-  office: event.office === 'Alle' ? undefined : event.office,
+  offices: pickedOfficeToOfficeList(event.offices),
   organizerEmail: toEmailWriteModel(event.organizerEmail),
   startDate: event.start,
   endDate: event.end,
@@ -241,7 +246,7 @@ export const toEventWriteModel = (
 export const parseEventViewModel = (eventView: IEventViewModel): IEvent => {
   const title = parseTitle(eventView.title);
   const location = parseLocation(eventView.location);
-  const office = parseOffice(eventView.office);
+  const offices = parseOffices(eventView.offices);
   const description = parseDescription(eventView.description);
 
   const start = parseDateViewModel(eventView.startDate);
@@ -278,7 +283,7 @@ export const parseEventViewModel = (eventView: IEventViewModel): IEvent => {
   const event = {
     title,
     location,
-    office,
+    offices,
     description,
     start,
     end,
@@ -307,7 +312,7 @@ export const toEditEvent = ({
   title,
   description,
   location,
-  office,
+  offices,
   start,
   end,
   openForRegistrationTime,
@@ -328,7 +333,7 @@ export const toEditEvent = ({
   title,
   description,
   location,
-  office,
+  offices,
   start: toEditDateTime(start),
   end: toEditDateTime(end),
   openForRegistrationTime: toEditTimeInstance(openForRegistrationTime),
@@ -356,7 +361,7 @@ export const initialEditEvent = (email?: string, name?: string): IEditEvent => {
     title: '',
     description: '',
     location: '',
-    office: 'Alle',
+    offices: { Oslo: true, Trondheim: true },
     start: {
       date: toEditDate(dateToIDate(eventStartDate)),
       time: toEditTime({ hour: 17, minute: 0 }),
@@ -397,4 +402,12 @@ export const incrementOneWeek = (event: IEvent): IEvent => {
       event.closeRegistrationTime &&
       addWeekToTimeInstance(event.closeRegistrationTime),
   };
+};
+
+export const pickedOfficeToOfficeList = (
+  pickedOffice: PickedOffice
+): Office[] => {
+  return Object.keys(pickedOffice).filter(
+    (y: string) => pickedOffice[y as keyof PickedOffice]
+  ) as Office[];
 };

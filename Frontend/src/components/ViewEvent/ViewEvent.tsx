@@ -17,6 +17,7 @@ import {
   incrementOneWeek,
   isMaxParticipantsLimited,
   maxParticipantsLimit,
+  pickedOfficeToOfficeList,
   toEditEvent,
   urlFromShortname,
 } from 'src/types/event';
@@ -84,7 +85,7 @@ export const ViewEvent = ({
           </div>
           <div className={style.iconTextContainer}>
             <OfficeIcon color="black" className={style.icon} />
-            <p>{event.office}</p>
+            <p>{pickedOfficeToOfficeList(event.offices).join(', ')}</p>
           </div>
           {userIsLoggedIn() && (
             <div className={style.iconTextContainer}>

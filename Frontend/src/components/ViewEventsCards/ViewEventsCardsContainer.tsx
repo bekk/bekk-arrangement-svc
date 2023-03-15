@@ -29,7 +29,6 @@ import { Plus } from '../Common/Icons/Plus';
 const initialFilterOptions: FilterOptions = {
   oslo: true,
   trondheim: true,
-  alle: true,
   kommende: true,
   tidligere: false,
   mine: false,
