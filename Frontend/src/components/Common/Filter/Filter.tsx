@@ -168,7 +168,7 @@ const Type = ({ typeData }: { typeData: TypeData }) => {
         />
       </div>
       <div className={style.column}>
-        <h3>For Hvem</h3>
+        <h3>For hvem</h3>
         <CheckBox
           onDarkBackground
           label="Eksterne"
