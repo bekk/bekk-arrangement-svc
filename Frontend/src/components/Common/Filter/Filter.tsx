@@ -177,7 +177,7 @@ const Type = ({ typeData }: { typeData: TypeData }) => {
         />
         <CheckBox
           onDarkBackground
-          label="Internte"
+          label="Interne"
           isChecked={internt}
           onChange={() => setInternt(!internt)}
         />
