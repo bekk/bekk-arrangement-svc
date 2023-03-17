@@ -16,6 +16,7 @@ import { appTitle } from 'src/Constants';
 import {
   Filter,
   filterAccess,
+  filterKunMine,
   filterOffice,
   FilterOptions,
   filterType,
@@ -46,14 +47,15 @@ export const ViewEventsCardsContainer = () => {
 
   const fetchedEvents = eventMapToList(useFilteredEvents(filterOptions)).filter(
     (event) =>
-      filterType(
+      filterType(filterOptions, event) &&
+      filterAccess(filterOptions, event) &&
+      filterOffice(filterOptions, event) &&
+      filterKunMine(
         filterOptions,
         event,
         savedEditableEvents.savedEvents,
         savedParticipations.savedParticipations
-      ) &&
-      filterAccess(filterOptions, event) &&
-      filterOffice(filterOptions, event)
+      )
   );
 
   useEffect(

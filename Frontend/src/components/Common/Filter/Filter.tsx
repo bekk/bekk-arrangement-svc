@@ -5,7 +5,11 @@ import classNames from 'classnames';
 import { CheckBox } from '../Checkbox/CheckBox';
 import { IEvent } from '../../../types/event';
 import { isInTheFuture, isInThePast } from '../../../types/date-time';
-import { EditEventToken, Participation } from '../../../hooks/saved-tokens';
+import {
+  EditEventToken,
+  Participation,
+  useSavedParticipations,
+} from '../../../hooks/saved-tokens';
 import { useUrlState } from '../../../hooks/useUrlState';
 
 export type FilterOptions = {
@@ -162,7 +166,7 @@ const Type = ({ typeData }: { typeData: TypeData }) => {
         />
         <CheckBox
           onDarkBackground
-          label="Mine"
+          label="Kun mine"
           isChecked={mine}
           onChange={() => setMine(!mine)}
         />
@@ -188,17 +192,21 @@ const Type = ({ typeData }: { typeData: TypeData }) => {
 
 export const filterType = (
   filterOptions: FilterOptions,
+  event: [string, IEvent]
+) =>
+  // Dersom ingenting er valgt, vis alt
+  (!filterOptions.tidligere && !filterOptions.kommende) ||
+  // Vis det som er valgt
+  (filterOptions.tidligere && filterTidligere(event[1])) ||
+  (filterOptions.kommende && filterKommende(event[1]));
+
+export const filterKunMine = (
+  filterOptions: FilterOptions,
   event: [string, IEvent],
   savedEvents: EditEventToken[],
   savedParticipations: Participation[]
 ) =>
-  // Dersom ingenting er valgt, vis alt
-  (!filterOptions.tidligere &&
-    !filterOptions.kommende &&
-    !filterOptions.mine) ||
-  // Vis det som er valgt
-  (filterOptions.tidligere && filterTidligere(event[1])) ||
-  (filterOptions.kommende && filterKommende(event[1])) ||
+  !filterOptions.mine ||
   (filterOptions.mine &&
     filterMine(event[0], savedEvents, savedParticipations));
 
