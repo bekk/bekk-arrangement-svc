@@ -3,7 +3,7 @@ import style from './ViewEventsCards.module.scss';
 import { createRoute } from 'src/routing';
 import { hasLoaded, RemoteData } from 'src/remote-data';
 import { Page } from 'src/components/Page/Page';
-import { useFilteredEvents } from 'src/hooks/cache';
+import { useEvents } from 'src/hooks/cache';
 import { EventCardElement } from 'src/components/ViewEventsCards/EventCardElement';
 import { Button } from 'src/components/Common/Button/Button';
 import { useHistory } from 'react-router';
@@ -45,7 +45,7 @@ export const ViewEventsCardsContainer = () => {
   const savedParticipations = useSavedParticipations();
   const history = useHistory();
 
-  const fetchedEvents = eventMapToList(useFilteredEvents(filterOptions)).filter(
+  const fetchedEvents = eventMapToList(useEvents()).filter(
     (event) =>
       filterType(filterOptions, event) &&
       filterAccess(filterOptions, event) &&

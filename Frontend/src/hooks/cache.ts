@@ -19,7 +19,6 @@ import { getEmailNameAndDepartment } from 'src/api/employeeSvc';
 import { getEmployeeId } from 'src/auth';
 import { EventState } from 'src/components/ViewEventsCards/ParticipationState';
 import { OfficeEvent } from '../types/OfficeEvent';
-import { FilterOptions } from '../components/Common/Filter/Filter';
 
 //**  Event  **//
 
@@ -35,27 +34,18 @@ export const useEvent = (id: string) => {
   });
 };
 
-export const useFilteredEvents = (
-  filter: FilterOptions
+export const useEvents = (
 ): Map<string, RemoteData<IEvent>> => {
   return eventCache.useAll(
     useCallback(async () => {
-      // Her henter vi kun for den tidsrammen vi ønsker
-      // Dersom dette hentes ut 1 gang caches det
-      const futureEvents =
-        (!filter.kommende && !filter.tidligere) || filter.kommende
-          ? await getEvents()
-          : [];
-      const pastEvents =
-        (!filter.kommende && !filter.tidligere) || filter.tidligere
-          ? await getPastEvents()
-          : [];
+      const futureEvents = await getEvents();
+      const pastEvents = await getPastEvents();
       const allEvents = [...futureEvents, ...pastEvents];
       return allEvents.map(({ id, ...event }) => [
         id,
         parseEventViewModel(event),
       ]) as [string, IEvent][];
-    }, [filter.kommende, filter.tidligere])
+    }, [])
   );
 };
 
