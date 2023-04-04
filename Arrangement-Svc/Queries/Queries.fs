@@ -3,6 +3,7 @@ module Queries
 open Dapper
 open System
 open System.Collections.Generic
+open Models
 
 let isEventExternal eventId (db: DatabaseContext) =
     task {

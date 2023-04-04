@@ -24,7 +24,7 @@ type Event = {
     NumberOfParticipants: int
     Shortname: string option
     CustomHexColor: string option
-    Offices: Office option
+    Offices: Office list
 }
 
 type InnerEvent = { Id: string

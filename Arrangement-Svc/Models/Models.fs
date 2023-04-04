@@ -103,16 +103,22 @@ module Office =
     type Office =
         | Oslo
         | Trondheim
+        | Annet
+        with override this.ToString() =
+            match this with
+            | Oslo -> "Oslo"
+            | Trondheim -> "Trondheim"
+            | Annet -> ""
     let decoder: Decoder<Office> =
         Decode.string
         |> Decode.andThen (fun value ->
             match value with
             | "Oslo" -> Decode.succeed Oslo
             | "Trondheim" -> Decode.succeed Trondheim
+            | "" -> Decode.succeed Annet
             | _ -> Decode.fail "Ugyldig kontor"
         )
-    let encoder (office: Office) =
-        Encode.string (office.ToString())
+    let encoder (office: Office) = Encode.string (office.ToString())
 
 type EventWriteModel =
     { Title: string
