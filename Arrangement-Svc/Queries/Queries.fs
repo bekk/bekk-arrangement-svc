@@ -3,7 +3,6 @@ module Queries
 open Dapper
 open System
 open System.Collections.Generic
-open Models
 
 let isEventExternal eventId (db: DatabaseContext) =
     task {
@@ -729,9 +728,12 @@ let updateEvent eventId (model: Models.EventWriteModel) (db: DatabaseContext) =
             Shortname = model.Shortname
             Program = model.Program
             Offices =
-                model.Offices
-                |> List.map (fun office -> office.ToString())
-                |> String.concat ","
+                match model.Offices with
+                | Some offices ->
+                    offices
+                    |> List.map (fun office -> office.ToString())
+                    |> String.concat ","
+                | None -> null
         |}
 
         try
@@ -927,9 +929,12 @@ let createEvent (writeModel: Models.EventWriteModel) employeeId (db: DatabaseCon
             Shortname = writeModel.Shortname
             Program = writeModel.Program
             Offices =
-                writeModel.Offices
-                |> List.map (fun office -> office.ToString())
-                |> String.concat ","
+                match writeModel.Offices with
+                | Some offices ->
+                    offices
+                    |> List.map (fun office -> office.ToString())
+                    |> String.concat ","
+                | None -> null
             Now = DateTime.Now.Date
         |}
 

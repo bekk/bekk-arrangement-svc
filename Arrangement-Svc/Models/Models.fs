@@ -103,19 +103,16 @@ module Office =
     type Office =
         | Oslo
         | Trondheim
-        | Annet
         with override this.ToString() =
-            match this with
-            | Oslo -> "Oslo"
-            | Trondheim -> "Trondheim"
-            | Annet -> ""
+                match this with
+                | Oslo -> "Oslo"
+                | Trondheim -> "Trondheim"
     let decoder: Decoder<Office> =
         Decode.string
         |> Decode.andThen (fun value ->
             match value with
             | "Oslo" -> Decode.succeed Oslo
             | "Trondheim" -> Decode.succeed Trondheim
-            | "" -> Decode.succeed Annet
             | _ -> Decode.fail "Ugyldig kontor"
         )
     let encoder (office: Office) = Encode.string (office.ToString())
@@ -141,7 +138,7 @@ type EventWriteModel =
       IsHidden: bool
       Shortname: string option
       CustomHexColor: string option
-      Offices: Office list
+      Offices: Option<Office list>
     }
 
 module EventWriteModel =
@@ -176,7 +173,7 @@ module EventWriteModel =
                           (Decode.string |> Decode.andThen Validate.customHexColor)
               Shortname =  get.Optional.Field "shortname"
                           (Decode.string |> Decode.andThen Validate.shortname)
-              Offices = get.Required.Field "offices" (Decode.list Office.decoder) })
+              Offices = get.Optional.Field "offices" (Decode.list Office.decoder) })
 
 [<CLIMutable>]
 type Event =
@@ -202,7 +199,7 @@ type Event =
       OrganizerId: int
       CustomHexColor: string option
       Shortname: string option
-      Offices: string
+      Offices: string option
     }
 
 type EventAndQuestions = {
@@ -230,7 +227,7 @@ type ForsideEvent = {
     HasRoom: bool
     IsWaitlisted: bool
     PositionInWaitlist: int
-    Offices: string
+    Offices: string option
 }
 
 [<CLIMutable>]
@@ -275,10 +272,11 @@ module Event =
                     "shortname", Encode.string event.Shortname.Value
                 if event.CustomHexColor.IsSome then
                     "customHexColor", Encode.string event.CustomHexColor.Value
-                "offices",
-                    event.Offices.Split ","
-                    |> Seq.map Encode.string
-                    |> Encode.seq
+                if event.Offices.IsSome then
+                    "offices",
+                        event.Offices.Value.Split ","
+                        |> Seq.map Encode.string
+                        |> Encode.seq
                 "numberOfParticipants", Encode.int (Option.defaultValue 0 eventAndQuestions.NumberOfParticipants)
             ]
         encoding
@@ -317,10 +315,11 @@ module Event =
                 "isParticipating", Encode.bool event.IsParticipating
                 "isWaitlisted", Encode.bool event.IsWaitlisted
                 "positionInWaitlist", Encode.int event.PositionInWaitlist
-                "offices",
-                    event.Offices.Split ","
-                    |> Seq.map Encode.string
-                    |> Encode.seq
+                if event.Offices.IsSome then
+                    "offices",
+                        event.Offices.Value.Split ","
+                        |> Seq.map Encode.string
+                        |> Encode.seq
             ]
         encoding
 

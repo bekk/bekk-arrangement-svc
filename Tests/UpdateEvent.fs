@@ -277,7 +277,7 @@ type UpdateEvent(fixture: DatabaseFixture) =
     member _.``Can change office`` fromOffice toOffice =
         task {
             let generatedEvent =
-                TestData.createEvent (fun e -> { e with Offices = [ fromOffice ] })
+                TestData.createEvent (fun e -> { e with Offices = Some [ fromOffice ] })
 
             let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
 
@@ -285,7 +285,9 @@ type UpdateEvent(fixture: DatabaseFixture) =
                 Helpers.updateEvent
                     authenticatedClient
                     createdEvent.Event.Id
-                    { generatedEvent with Offices = [ toOffice ]}
+                    { generatedEvent with Offices = Some [ toOffice ]}
 
             response.EnsureSuccessStatusCode() |> ignore
         }
+
+        // TODO CHANGE TO NO OFFICE
