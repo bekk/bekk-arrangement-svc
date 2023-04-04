@@ -730,9 +730,12 @@ let updateEvent eventId (model: Models.EventWriteModel) (db: DatabaseContext) =
             Offices =
                 match model.Offices with
                 | Some offices ->
-                    offices
-                    |> List.map (fun office -> office.ToString())
-                    |> String.concat ","
+                    if List.isEmpty offices then
+                        null
+                    else
+                        offices
+                        |> List.map (fun office -> office.ToString())
+                        |> String.concat ","
                 | None -> null
         |}
 
@@ -931,10 +934,14 @@ let createEvent (writeModel: Models.EventWriteModel) employeeId (db: DatabaseCon
             Offices =
                 match writeModel.Offices with
                 | Some offices ->
-                    offices
-                    |> List.map (fun office -> office.ToString())
-                    |> String.concat ","
-                | None -> null
+                    if List.isEmpty offices then
+                        null
+                    else
+                        offices
+                        |> List.map (fun office -> office.ToString())
+                        |> String.concat ","
+                | None ->
+                    null
             Now = DateTime.Now.Date
         |}
 

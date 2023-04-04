@@ -119,23 +119,26 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
             onChange={() =>
               updateEvent({
                 ...event,
-                offices: { ...event.offices, Oslo: !event.offices.Oslo },
+                offices: {
+                    Oslo: !event.offices?.Oslo,
+                    Trondheim: event.offices?.Trondheim || false
+                },
               })
             }
-            isChecked={event.offices.Oslo}
+            isChecked={event.offices?.Oslo || false}
             label="Oslo"
           />
           <CheckBox
             onChange={() =>
               updateEvent({
                 ...event,
-                offices: {
-                  ...event.offices,
-                  Trondheim: !event.offices.Trondheim,
-                },
+                  offices: {
+                      Oslo: event.offices?.Oslo || false,
+                      Trondheim: !event.offices?.Trondheim
+                  },
               })
             }
-            isChecked={event.offices.Trondheim}
+            isChecked={event.offices?.Trondheim || false}
             label="Trondheim"
           />
         </div>

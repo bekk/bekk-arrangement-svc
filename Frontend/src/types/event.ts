@@ -61,7 +61,7 @@ export interface IEventViewModel {
   title: string;
   description: string;
   location: string;
-  offices: Office[];
+  offices?: Office[];
   startDate: IDateTime;
   endDate: IDateTime;
   openForRegistrationTime: TimeInstanceContract;
@@ -84,7 +84,7 @@ export interface IEventWriteModel {
   title: string;
   description: string;
   location: string;
-  offices: Office[];
+  offices?: Office[];
   startDate: IDateTime;
   endDate: IDateTime;
   openForRegistrationTime: TimeInstanceContract;
@@ -121,7 +121,7 @@ export interface IEvent {
   title: string;
   description: string;
   location: string;
-  offices: PickedOffice;
+  offices?: PickedOffice;
   start: IDateTime;
   end: IDateTime;
   openForRegistrationTime: TimeInstance;
@@ -144,7 +144,7 @@ export interface IEditEvent {
   title: string;
   description: string;
   location: string;
-  offices: PickedOffice;
+  offices?: PickedOffice;
   start: EditDateTime;
   end: EditDateTime;
   openForRegistrationTime: TimeInstanceEdit;
@@ -189,7 +189,7 @@ export const parseEditEvent = ({
     title: parseTitle(title),
     description: parseDescription(description),
     location: parseLocation(location),
-    offices: parsePickedOffices(offices),
+    offices: offices && parsePickedOffices(offices),
     start: parseEditDateTime(start),
     end: parseEditDateTime(end),
     openForRegistrationTime: parseEditTimeInstance(openForRegistrationTime),
@@ -405,8 +405,10 @@ export const incrementOneWeek = (event: IEvent): IEvent => {
 };
 
 export const pickedOfficeToOfficeList = (
-  pickedOffice: PickedOffice
-): Office[] => {
+  pickedOffice?: PickedOffice
+): Office[] | undefined => {
+  if (pickedOffice === undefined) return undefined;
+
   return Object.keys(pickedOffice).filter(
     (y: string) => pickedOffice[y as keyof PickedOffice]
   ) as Office[];

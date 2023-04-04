@@ -38,8 +38,8 @@ export const parseLocation = (value: string): string | IError[] => {
   return validator.resolve(value);
 };
 
-export const parseOffices = (value?: Office[]): PickedOffice => {
-  if (value === undefined) return { Oslo: true, Trondheim: true };
+export const parseOffices = (value?: Office[]): PickedOffice | undefined => {
+  if (value === undefined) return undefined;
 
   return {
     Oslo: value.includes('Oslo'),
@@ -53,7 +53,6 @@ export const parsePickedOffices = (
   if (value.Oslo || value.Trondheim) return value;
 
   const validator = validate<PickedOffice>({
-    'Kontor må være valgt': !value.Oslo || !value.Trondheim,
   });
   return validator.resolve(value);
 };

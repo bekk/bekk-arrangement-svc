@@ -228,10 +228,10 @@ export const filterOffice = (
   (!filterOptions.oslo && !filterOptions.trondheim) ||
   // Vis det som er valgt
   (filterOptions.oslo && filterOslo(event[1])) ||
-  (filterOptions.trondheim && filterTrondheim(event[1]));
+  (filterOptions.trondheim && filterTrondheim(event[1])) || event[1].offices === undefined;
 
-const filterOslo = (event: IEvent) => event.offices.Oslo;
-const filterTrondheim = (event: IEvent) => event.offices.Trondheim;
+const filterOslo = (event: IEvent) => event.offices?.Oslo;
+const filterTrondheim = (event: IEvent) => event.offices?.Trondheim;
 const filterKommende = (event: IEvent) => {
   return isInTheFuture(event.start);
 };
