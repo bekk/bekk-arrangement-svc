@@ -68,7 +68,7 @@ export const PreviewEventContainer = () => {
       </div>
       <div className={style.buttonContainer}>
         <Button color={'Secondary'} onClick={returnToEdit}>
-          Tilbake til redigering
+          Tilbake
         </Button>
         <Button onClick={putEditedEvent}>Lagre</Button>
       </div>

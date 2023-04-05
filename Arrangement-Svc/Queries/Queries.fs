@@ -972,10 +972,14 @@ let getParticipantForEvent eventId email (db: DatabaseContext) =
         |}
 
         try
-            let! result = db.Connection.QuerySingleAsync<Models.Participant>(query, parameters, db.Transaction)
-            return Ok result
+            let! result = db.Connection.QuerySingleOrDefaultAsync<Models.Participant>(query, parameters, db.Transaction)
+            if isNull (box result) then
+                return Ok None
+            else
+                return Ok (Some result)
         with
-            | ex -> return Error ex
+            | ex ->
+                return Error ex
     }
 
 let getParticipantsAndAnswersForEvent (eventId: Guid) (db: DatabaseContext) =

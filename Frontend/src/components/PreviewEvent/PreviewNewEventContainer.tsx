@@ -70,9 +70,9 @@ export const PreviewNewEventContainer = () => {
       </div>
       <div className={style.buttonContainer}>
         <Button color={'Secondary'} onClick={returnToCreate}>
-          Tilbake til redigering
+          Tilbake
         </Button>
-        <Button onClick={postNewEvent}>Opprett arrangement</Button>
+        <Button onClick={postNewEvent}>Opprett</Button>
       </div>
     </Page>
   );

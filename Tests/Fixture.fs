@@ -2,6 +2,7 @@ namespace Tests
 
 open Microsoft.AspNetCore.Mvc.Testing
 open Microsoft.AspNetCore.TestHost
+open Microsoft.Data.SqlClient
 open Microsoft.Extensions.DependencyInjection
 open Xunit
 open System
@@ -55,6 +56,10 @@ type DatabaseFixture() =
                 builder.ConfigureTestServices(fun services -> ())
                 |> ignore)
             .CreateClient()
+            
+    member this.dbContext =
+        let databaseConnection = new SqlConnection(connectionString)
+        new DatabaseContext(databaseConnection, null)
 
 [<CollectionDefinition("Database collection")>]
 type DatabaseCollection() =
