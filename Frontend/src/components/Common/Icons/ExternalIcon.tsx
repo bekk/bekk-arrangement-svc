@@ -12,8 +12,7 @@ export const ExternalIcon = ({ color, className }: IconProps) => {
         viewBox="0 0 15 18"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className={className}
-      > 
+        className={className}>
         <title>Stilisert mann med pil mot høyre</title>
         <path d="M14 18V11H1V18" stroke={color} strokeWidth="0.7" />
         <path

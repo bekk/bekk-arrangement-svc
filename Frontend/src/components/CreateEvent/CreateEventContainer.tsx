@@ -1,4 +1,4 @@
-import React  from 'react';
+import React from 'react';
 import { IEditEvent, initialEditEvent, parseEditEvent } from 'src/types/event';
 import { eventsRoute, previewNewEventRoute } from 'src/routing';
 import { useAuthentication } from 'src/auth';
@@ -11,20 +11,23 @@ import { isValid } from 'src/types/validation';
 import { useDuplicateEvent, useGotoEventPreview } from 'src/hooks/history';
 import { useEmailNameAndDepartment } from 'src/hooks/cache';
 import { hasLoaded } from 'src/remote-data';
-import {useSetTitle} from "src/hooks/setTitle";
-import {appTitle} from "src/Constants";
-import {useSessionState} from "src/hooks/sessionState";
+import { useSetTitle } from 'src/hooks/setTitle';
+import { appTitle } from 'src/Constants';
+import { useSessionState } from 'src/hooks/sessionState';
 
 export const CreateEventContainer = () => {
   useAuthentication();
-  useSetTitle(appTitle)
+  useSetTitle(appTitle);
 
   const duplicateEvent = useDuplicateEvent();
 
   const emailAndName = useEmailNameAndDepartment();
   const { email, name } = (hasLoaded(emailAndName) && emailAndName.data) || {};
 
-  const [event, setEvent] = useSessionState<IEditEvent>(duplicateEvent ?? initialEditEvent(email, name), "createEvent");
+  const [event, setEvent] = useSessionState<IEditEvent>(
+    duplicateEvent ?? initialEditEvent(email, name),
+    'createEvent'
+  );
   const validEvent = validateEvent(event);
   const errors = parseEditEvent(event);
 
@@ -49,8 +52,7 @@ export const CreateEventContainer = () => {
               {Array.isArray(errors) &&
                 errors.map((x) => <li key={x.message}>{x.message}</li>)}
             </ul>
-          }
-        >
+          }>
           Forhåndsvisning
         </Button>
         <BlockLink to={eventsRoute} onLightBackground>

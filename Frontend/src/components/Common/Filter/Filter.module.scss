@@ -1,0 +1,88 @@
+@import 'src/style/constants';
+@import 'src/style/colors';
+@import 'src/style/fonts';
+
+.filter {
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  &:hover {
+    background-color: var(--natt);
+    & circle {
+      fill: var(--natt);
+    }
+    & rect {
+      stroke: currentColor;
+    }
+  }
+  & circle {
+    fill: black;
+    transition-property: transform;
+    transition-duration: 250ms;
+    transition-timing-function: ease-in-out;
+  }
+}
+
+.filterOpen {
+  background-color: var(--natt);
+  & rect {
+    stroke: currentColor;
+  }
+  & circle {
+    fill: var(--natt);
+  }
+  & circle:first-of-type {
+    transform: translateX(7px);
+  }
+  & circle:last-of-type {
+    transform: translateX(-7px);
+  }
+}
+
+.buttonReset {
+  align-self: end;
+  border: none;
+  margin: 0;
+  padding: 0;
+  width: auto;
+  overflow: visible;
+  background-color: transparent;
+}
+
+.filterOptions {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  color: white;
+  font-family: $fontLight;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 250ms ease-in-out;
+  margin-top: 50px;
+
+  @media #{$desktop} {
+    flex-direction: row;
+    gap: 50px;
+  }
+}
+
+.filterOptionsOpen {
+  max-height: 1000px;
+  @media #{$desktop} {
+    max-height: 200px;
+  }
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  > *:not(:first-child) {
+    margin-bottom: 15px;
+  }
+}

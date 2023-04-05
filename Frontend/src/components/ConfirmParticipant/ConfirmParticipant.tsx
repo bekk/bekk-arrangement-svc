@@ -14,9 +14,9 @@ import { useParam } from 'src/utils/browser-state';
 import { useEvent, useWaitinglistSpot } from 'src/hooks/cache';
 import { Page } from 'src/components/Page/Page';
 import { WavySubHeader } from 'src/components/Common/Header/WavySubHeader';
-import {useSetTitle} from "src/hooks/setTitle";
-import {appTitle} from "src/Constants";
-import {Spinner} from "src/components/Common/Spinner/spinner";
+import { useSetTitle } from 'src/hooks/setTitle';
+import { appTitle } from 'src/Constants';
+import { Spinner } from 'src/components/Common/Spinner/spinner';
 
 export const ConfirmParticipant = () => {
   const eventId = useParam(eventIdKey);
@@ -24,10 +24,10 @@ export const ConfirmParticipant = () => {
 
   const remoteEvent = useEvent(eventId);
   const remoteWaitinglistSpot = useWaitinglistSpot(eventId, participantEmail);
-  useSetTitle(appTitle)
+  useSetTitle(appTitle);
 
   if (!hasLoaded(remoteEvent) || !hasLoaded(remoteWaitinglistSpot)) {
-    return <Spinner />
+    return <Spinner />;
   }
 
   const event = remoteEvent.data;

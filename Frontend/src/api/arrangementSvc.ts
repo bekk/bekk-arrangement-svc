@@ -1,7 +1,7 @@
 import {
   IEvent,
   IEventViewModel,
-  INewEventViewModel, OfficeEvent, OfficeEventDecoder,
+  INewEventViewModel,
   toEventWriteModel,
 } from 'src/types/event';
 import { post, get, del, put, getResponse } from './crud';
@@ -16,13 +16,14 @@ import { queryStringStringify } from 'src/utils/browser-state';
 import { toEmailWriteModel } from 'src/types/email';
 import { EditEventToken, Participation } from 'src/hooks/saved-tokens';
 import { cancelParticipantRoute } from 'src/routing';
+import { OfficeEvent, OfficeEventDecoder } from '../types/OfficeEvent';
 
 export const postEvent = (
   event: IEvent,
   editUrlTemplate: string
 ): Promise<INewEventViewModel> =>
   post({
-    host: "",
+    host: '',
     path: '/api/events',
     body: toEventWriteModel(event, editUrlTemplate),
   });
@@ -31,37 +32,36 @@ export const putEvent = (
   eventId: string,
   event: IEvent,
   editToken?: string
-): Promise<IEventViewModel> =>
-  {
-    const cancelParticipationUrlTemplate =
-      document.location.origin +
-      cancelParticipantRoute({
-        eventId: '{eventId}',
-        email: '{email}',
-        cancellationToken: '{cancellationToken}',
-      });
-    return put({
-      host: "",
-      path: `/api/events/${eventId}${queryStringStringify({ editToken })}`,
-      body: toEventWriteModel(event, '', cancelParticipationUrlTemplate),
+): Promise<IEventViewModel> => {
+  const cancelParticipationUrlTemplate =
+    document.location.origin +
+    cancelParticipantRoute({
+      eventId: '{eventId}',
+      email: '{email}',
+      cancellationToken: '{cancellationToken}',
     });
-  };
+  return put({
+    host: '',
+    path: `/api/events/${eventId}${queryStringStringify({ editToken })}`,
+    body: toEventWriteModel(event, '', cancelParticipationUrlTemplate),
+  });
+};
 
 export const getEvent = (eventId: string): Promise<IEventViewModel> =>
   get({
-    host: "",
+    host: '',
     path: `/api/events/${eventId}`,
   });
 
 export const getEvents = (): Promise<WithId<IEventViewModel>[]> =>
   get({
-    host: "",
+    host: '',
     path: `/api/events`,
   });
 
 export const getPastEvents = (): Promise<WithId<IEventViewModel>[]> =>
   get({
-    host: "",
+    host: '',
     path: `/api/events/previous`,
   });
 
@@ -71,7 +71,7 @@ export const deleteEvent = (
   editToken?: string
 ) =>
   del({
-    host: "",
+    host: '',
     path: `/api/events/${eventId}${queryStringStringify({ editToken })}`,
     body: cancellationMessage,
   });
@@ -81,7 +81,7 @@ export const getParticipantsForEvent = (
   editToken?: string
 ): Promise<IParticipantViewModelsWithWaitingList> =>
   get({
-    host: "",
+    host: '',
     path: `/api/events/${eventId}/participants${queryStringStringify({
       editToken,
     })}`,
@@ -91,7 +91,7 @@ export const getNumberOfParticipantsForEvent = (
   eventId: string
 ): Promise<number> =>
   get({
-    host: "",
+    host: '',
     path: `/api/events/${eventId}/participants/count`,
   });
 
@@ -99,7 +99,7 @@ export const getParticipantExportResponse = (
   eventId: string
 ): Promise<Response> =>
   getResponse({
-    host: "",
+    host: '',
     path: `/api/events/${eventId}/participants/export`,
   });
 
@@ -108,7 +108,7 @@ export const getWaitinglistSpot = (
   email: string
 ): Promise<number> =>
   get({
-    host: "",
+    host: '',
     path: `/api/events/${eventId}/participants/${encodeURIComponent(
       email
     )}/waitinglist-spot`,
@@ -120,7 +120,7 @@ export const postParticipant = (
   cancelUrlTemplate: string
 ): Promise<INewParticipantViewModel> =>
   post({
-    host: "",
+    host: '',
     path: `/api/events/${eventId}/participants/${encodeURIComponent(
       toEmailWriteModel(participant.email)
     )}`,
@@ -137,7 +137,7 @@ export const deleteParticipant = ({
   cancellationToken?: string;
 }) =>
   del({
-    host: "",
+    host: '',
     path: `/api/events/${eventId}/participants/${encodeURIComponent(
       participantEmail
     )}${queryStringStringify({ cancellationToken })}`,
@@ -150,13 +150,13 @@ export const getEventsAndParticipationsForEmployee = (
   participations: Participation[];
 }> =>
   get({
-    host: "",
+    host: '',
     path: `/api/events-and-participations/${employeeId}`,
   });
 
 export const getEventIdByShortname = (shortname: string): Promise<string> =>
   get({
-    host: "",
+    host: '',
     path: `/api/events/id${queryStringStringify({
       shortname: encodeURIComponent(shortname),
     })}`,
@@ -164,6 +164,6 @@ export const getEventIdByShortname = (shortname: string): Promise<string> =>
 
 export const getOfficeEventsByDate = (date: string): Promise<OfficeEvent[]> =>
   get({
-    host: "",
-    path: `/api/office-events/${date}`
-  }).then(x => x.map(OfficeEventDecoder))
+    host: '',
+    path: `/api/office-events/${date}`,
+  }).then((x) => x.map(OfficeEventDecoder));

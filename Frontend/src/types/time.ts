@@ -41,8 +41,7 @@ export const parseTimeViewModel = identityFunction;
 export const toTimeWriteModel = identityFunction;
 
 // Util functions
-export const dateToTime = (date: Date) =>
-  stringifyTime(dateToITime(date))
+export const dateToTime = (date: Date) => stringifyTime(dateToITime(date));
 
 export const stringifyTime = ({ hour, minute }: ITime): string =>
   `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;

@@ -30,12 +30,10 @@ export const WavySubHeader = ({
     <div
       className={style.subHeaderContainer}
       onMouseMove={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
+      onMouseLeave={() => setIsHovered(false)}>
       <div
         style={{ backgroundColor: colorCode }}
-        className={classNames(style.contentContainer, colorStyle)}
-      >
+        className={classNames(style.contentContainer, colorStyle)}>
         {children}
       </div>
       <div className={style.sineCurve}>

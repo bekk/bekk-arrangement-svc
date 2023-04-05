@@ -2,8 +2,10 @@ import {
   MaxParticipants,
   isMaxParticipantsLimited,
   maxParticipantsLimit,
+  Office,
+  PickedOffice,
 } from 'src/types/event';
-import { validate, IError } from './validation';
+import { validate, IError, ErrorType } from './validation';
 
 export type Optional<T> = T | undefined;
 export type WithId<T> = T & { id: string };
@@ -17,7 +19,7 @@ export const parseDescription = (value: string): string | IError[] => {
   return validator.resolve(value);
 };
 
-export const parseProgram = (value: string): string | undefined | IError[]  => {
+export const parseProgram = (value: string): string | undefined | IError[] => {
   if (value === undefined) {
     return undefined;
   }
@@ -26,13 +28,31 @@ export const parseProgram = (value: string): string | undefined | IError[]  => {
     'Programmet må ha minst 5 tegn': value.length < 5,
   });
   return validator.resolve(value);
-}
+};
 
 export const parseLocation = (value: string): string | IError[] => {
   const validator = validate<string>({
     'Sted må ha minst tre tegn': value.length < 3,
     'Sted kan ha maks 60 tegn': value.length > 60,
   });
+  return validator.resolve(value);
+};
+
+export const parseOffices = (value?: Office[]): PickedOffice | undefined => {
+  if (value === undefined) return undefined;
+
+  return {
+    Oslo: value.includes('Oslo'),
+    Trondheim: value.includes('Trondheim'),
+  };
+};
+
+export const parsePickedOffices = (
+  value: PickedOffice
+): PickedOffice | IError[] => {
+  if (value.Oslo || value.Trondheim) return value;
+
+  const validator = validate<PickedOffice>({});
   return validator.resolve(value);
 };
 

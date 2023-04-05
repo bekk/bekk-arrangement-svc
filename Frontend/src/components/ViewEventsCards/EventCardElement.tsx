@@ -33,9 +33,11 @@ import {
   IEvent,
   isMaxParticipantsLimited,
   maxParticipantsLimit,
+  pickedOfficeToOfficeList,
 } from 'src/types/event';
 import { stringifyTime } from 'src/types/time';
 import style from './EventCardElement.module.scss';
+import { OfficeIcon } from '../Common/Icons/OfficeIcon';
 
 interface IProps {
   eventId: string;
@@ -68,8 +70,8 @@ export const EventCardElement = ({ eventId, event }: IProps) => {
     ? EventState.Laster
     : event.numberOfParticipants < maxParticipantsLimit(event.maxParticipants)
     ? EventState.Plass
-    : event.numberOfParticipants >= maxParticipantsLimit(event.maxParticipants) &&
-      event.hasWaitingList
+    : event.numberOfParticipants >=
+        maxParticipantsLimit(event.maxParticipants) && event.hasWaitingList
     ? EventState.PlassPaVenteliste
     : EventState.Fullt;
 
@@ -117,6 +119,17 @@ export const EventCardElement = ({ eventId, event }: IProps) => {
     <Link className={cardStyle} to={viewRoute}>
       <div className={style.smallFont}>{dateTimeText}</div>
       <div className={titleStyle}>{event.title}</div>
+      {event.offices && (
+        <div className={style.location}>
+          <div className={style.officeIcon}>
+            <OfficeIcon color="white" />
+          </div>
+
+          <div className={style.iconText}>
+            {(pickedOfficeToOfficeList(event.offices) || []).join(', ')}
+          </div>
+        </div>
+      )}
       <div className={style.location}>
         <div className={style.locationIcon}>
           <LocationIcon color="white" />

@@ -8,7 +8,10 @@ import {
   WithId,
   parseQuestions,
   toEditMaxAttendees,
-  parseShortname, parseProgram,
+  parseShortname,
+  parseProgram,
+  parseOffices,
+  parsePickedOffices,
 } from '.';
 import {
   IDateTime,
@@ -42,32 +45,23 @@ import { parseName } from 'src/types/participant';
 
 import { viewEventShortnameRoute } from 'src/routing';
 import { toEditTime } from 'src/types/time';
-import {array, date, decodeType, record, string} from "typescript-json-decoder";
-
-export type OfficeEvent = decodeType<typeof OfficeEventDecoder>;
-export const OfficeEventDecoder = record({
-  contactPerson: string,
-  createdAt: date,
-  description: string,
-  endTime: date,
-  id: string,
-  location: string,
-  modifiedAt: date,
-  startTime: date,
-  themes: array(string),
-  title: string,
-  types: array(string)
-});
 
 export interface INewEventViewModel {
   event: WithId<IEventViewModel>;
   editToken: string;
 }
 
+export type Office = 'Oslo' | 'Trondheim';
+export type PickedOffice = {
+  Oslo: boolean;
+  Trondheim: boolean;
+};
+
 export interface IEventViewModel {
   title: string;
   description: string;
   location: string;
+  offices?: Office[];
   startDate: IDateTime;
   endDate: IDateTime;
   openForRegistrationTime: TimeInstanceContract;
@@ -90,6 +84,7 @@ export interface IEventWriteModel {
   title: string;
   description: string;
   location: string;
+  offices?: Office[];
   startDate: IDateTime;
   endDate: IDateTime;
   openForRegistrationTime: TimeInstanceContract;
@@ -126,6 +121,7 @@ export interface IEvent {
   title: string;
   description: string;
   location: string;
+  offices?: PickedOffice;
   start: IDateTime;
   end: IDateTime;
   openForRegistrationTime: TimeInstance;
@@ -134,7 +130,7 @@ export interface IEvent {
   organizerEmail: Email;
   maxParticipants: MaxParticipants<number>;
   participantQuestions: string[];
-  program?: string
+  program?: string;
   hasWaitingList: boolean;
   isCancelled: boolean;
   isExternal: boolean;
@@ -148,6 +144,7 @@ export interface IEditEvent {
   title: string;
   description: string;
   location: string;
+  offices?: PickedOffice;
   start: EditDateTime;
   end: EditDateTime;
   openForRegistrationTime: TimeInstanceEdit;
@@ -170,6 +167,7 @@ export const parseEditEvent = ({
   title,
   description,
   location,
+  offices,
   start,
   end,
   openForRegistrationTime,
@@ -191,6 +189,7 @@ export const parseEditEvent = ({
     title: parseTitle(title),
     description: parseDescription(description),
     location: parseLocation(location),
+    offices: offices && parsePickedOffices(offices),
     start: parseEditDateTime(start),
     end: parseEditDateTime(end),
     openForRegistrationTime: parseEditTimeInstance(openForRegistrationTime),
@@ -201,9 +200,7 @@ export const parseEditEvent = ({
     organizerEmail: parseEditEmail(organizerEmail),
     maxParticipants: parseMaxAttendees(maxParticipants),
     participantQuestions: parseQuestions(participantQuestions),
-    program: program
-      ? parseProgram(program)
-      : undefined,
+    program: program ? parseProgram(program) : undefined,
     hasWaitingList,
     isCancelled,
     isExternal,
@@ -237,6 +234,7 @@ export const toEventWriteModel = (
   closeRegistrationTime: event.closeRegistrationTime
     ? toTimeInstanceWriteModel(event.closeRegistrationTime)
     : undefined,
+  offices: pickedOfficeToOfficeList(event.offices),
   organizerEmail: toEmailWriteModel(event.organizerEmail),
   startDate: event.start,
   endDate: event.end,
@@ -248,6 +246,7 @@ export const toEventWriteModel = (
 export const parseEventViewModel = (eventView: IEventViewModel): IEvent => {
   const title = parseTitle(eventView.title);
   const location = parseLocation(eventView.location);
+  const offices = parseOffices(eventView.offices);
   const description = parseDescription(eventView.description);
 
   const start = parseDateViewModel(eventView.startDate);
@@ -269,7 +268,9 @@ export const parseEventViewModel = (eventView: IEventViewModel): IEvent => {
         ])
       : (['unlimited'] as ['unlimited'])
   );
-  const program = eventView.program ? parseProgram(eventView.program) : undefined;
+  const program = eventView.program
+    ? parseProgram(eventView.program)
+    : undefined;
   const participantQuestions = parseQuestions(eventView.participantQuestions);
   const hasWaitingList = eventView.hasWaitingList;
   const isCancelled = eventView.isCancelled;
@@ -282,6 +283,7 @@ export const parseEventViewModel = (eventView: IEventViewModel): IEvent => {
   const event = {
     title,
     location,
+    offices,
     description,
     start,
     end,
@@ -310,6 +312,7 @@ export const toEditEvent = ({
   title,
   description,
   location,
+  offices,
   start,
   end,
   openForRegistrationTime,
@@ -330,6 +333,7 @@ export const toEditEvent = ({
   title,
   description,
   location,
+  offices,
   start: toEditDateTime(start),
   end: toEditDateTime(end),
   openForRegistrationTime: toEditTimeInstance(openForRegistrationTime),
@@ -357,6 +361,7 @@ export const initialEditEvent = (email?: string, name?: string): IEditEvent => {
     title: '',
     description: '',
     location: '',
+    offices: { Oslo: true, Trondheim: true },
     start: {
       date: toEditDate(dateToIDate(eventStartDate)),
       time: toEditTime({ hour: 17, minute: 0 }),
@@ -397,4 +402,14 @@ export const incrementOneWeek = (event: IEvent): IEvent => {
       event.closeRegistrationTime &&
       addWeekToTimeInstance(event.closeRegistrationTime),
   };
+};
+
+export const pickedOfficeToOfficeList = (
+  pickedOffice?: PickedOffice
+): Office[] | undefined => {
+  if (pickedOffice === undefined) return undefined;
+
+  return Object.keys(pickedOffice).filter(
+    (y: string) => pickedOffice[y as keyof PickedOffice]
+  ) as Office[];
 };

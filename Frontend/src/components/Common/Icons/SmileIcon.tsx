@@ -8,8 +8,7 @@ export const SmileIcon = (props: { className: string }) => {
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={props.className}
-    >
+      className={props.className}>
       <g>
         <path
           d="M12 0C5.4 0 0 5.4 0 12C0 18.6 5.4 24 12 24C18.6 24 24 18.6 24 12C24 5.4 18.6 0 12 0ZM12 22.8C6 22.8 1.2 18 1.2 12C1.2 6 6 1.2 12 1.2C18 1.2 22.9 6 22.9 12C22.9 18 18 22.8 12 22.8Z"

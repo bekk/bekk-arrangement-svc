@@ -1,6 +1,11 @@
 import { useLayoutEffect, useEffect } from 'react';
 import React from 'react';
-import { IEditEvent, toEditEvent, parseEditEvent } from 'src/types/event';
+import {
+  IEditEvent,
+  toEditEvent,
+  parseEditEvent,
+  initialEditEvent,
+} from 'src/types/event';
 import { deleteEvent } from 'src/api/arrangementSvc';
 import { useHistory } from 'react-router';
 import { EditEvent } from './EditEvent/EditEvent';
@@ -11,6 +16,7 @@ import { useQuery, useParam } from 'src/utils/browser-state';
 import { useNotification } from 'src/components/NotificationHandler/NotificationHandler';
 import { Page } from 'src/components/Page/Page';
 import { Button } from 'src/components/Common/Button/Button';
+import { BlockLink } from 'src/components/Common/BlockLink/BlockLink';
 import { isValid } from 'src/types/validation';
 import { eventIdKey } from 'src/routing';
 import { ButtonWithPromptModal } from 'src/components/Common/ButtonWithConfirmModal/ButtonWithPromptModal';
@@ -21,7 +27,6 @@ import classnames from 'classnames';
 import { useSetTitle } from 'src/hooks/setTitle';
 import { Spinner } from 'src/components/Common/Spinner/spinner';
 import { useSessionState } from 'src/hooks/sessionState';
-import { BlockLink } from '../Common/BlockLink/BlockLink';
 
 const useEditEvent = () => {
   const eventId = useParam(eventIdKey);
@@ -82,17 +87,14 @@ export const EditEventContainer = () => {
       <h1 className={style.header}>Rediger arrangement</h1>
       <EditEvent eventResult={editEvent} updateEvent={setEditEvent} />
       <div className={style.buttonContainer}>
-        <BlockLink onLightBackground to={eventsRoute}>
-          Avbryt
-        </BlockLink>
+        <BlockLink to={eventsRoute}>Avbryt</BlockLink>
         <div className={style.groupedButtons}>
           <ButtonWithPromptModal
             text={'Avlys arrangement'}
             onConfirm={onDeleteEvent}
             placeholder="Arrangementet er avlyst pga. ..."
             textareaLabel="Send en forklarende tekst på e-post til alle påmeldte deltakere:"
-            className={classnames(style.button, style.redButton)}
-          >
+            className={classnames(style.button, style.redButton)}>
             <>
               <p>
                 Er du sikker på at du vil avlyse arrangementet? <br />
@@ -112,8 +114,7 @@ export const EditEventContainer = () => {
                 {Array.isArray(errors) &&
                   errors.map((x) => <li key={x.message}>{x.message}</li>)}
               </ul>
-            }
-          >
+            }>
             Forhåndsvis endringer
           </Button>
         </div>

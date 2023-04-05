@@ -22,9 +22,9 @@ export const isIErrorList = (errors: any): errors is IError[] =>
 export const isValid = <T>(notErrors: T): notErrors is Exclude<T, IError[]> =>
   !isIErrorList(notErrors);
 
-export function assertIsValid<T>(
-  validValue: { [K in keyof T]: T[K] | IError[] }
-): asserts validValue is T {
+export function assertIsValid<T>(validValue: {
+  [K in keyof T]: T[K] | IError[];
+}): asserts validValue is T {
   if (Object.values(validValue).some(isIErrorList)) {
     throw new UserNotification(
       'Kunne ikke parses av følgende grunner: ' +

@@ -25,6 +25,10 @@
     fill: black;
   }
 
+  &:hover .officeIcon path {
+    stroke: black;
+  }
+
   &:hover .externalIcon path:first-of-type {
     stroke: black;
   }

@@ -24,7 +24,7 @@ export const TextArea = ({
   onBlur = () => undefined,
   onLightBackground = false,
   minRow = 2,
-  className = "",
+  className = '',
 }: IProps): JSX.Element => {
   const [hasVisited, setVisited] = useState(false);
   const inputStyle = classNames(style.textArea, className, {

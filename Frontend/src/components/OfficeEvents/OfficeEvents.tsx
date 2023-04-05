@@ -18,7 +18,6 @@ import {
   månedsNavn,
 } from 'src/types/date';
 import { Arrow } from 'src/components/Common/Arrow/Arrow';
-import { OfficeEvent } from 'src/types/event';
 import { Modal } from 'src/components/Common/Modal/Modal';
 import { dateToTime } from 'src/types/time';
 import { useHistory } from 'react-router';
@@ -26,6 +25,7 @@ import { officeEventRoute, officeEventsMonthKey } from 'src/routing';
 import { useParam } from 'src/utils/browser-state';
 import { useEffectOnce } from 'src/hooks/utils';
 import { Spinner } from 'src/components/Common/Spinner/spinner';
+import { OfficeEvent } from '../../types/OfficeEvent';
 
 export const OfficeEvents = () => {
   const urlDate = useParam(officeEventsMonthKey);
@@ -151,8 +151,7 @@ const WeekDayCards = ({
   return (
     <tr
       key={getWeek(daysAndEvents[0].day)}
-      data-label={getWeek(daysAndEvents[0].day)}
-    >
+      data-label={getWeek(daysAndEvents[0].day)}>
       {daysAndEvents.map((dayAndEvents) => {
         const { day, events } = dayAndEvents;
         const borderStyle = classnames({

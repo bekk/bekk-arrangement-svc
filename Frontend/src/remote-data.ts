@@ -3,7 +3,7 @@ import {
   useNotification,
   UserNotification,
 } from './components/NotificationHandler/NotificationHandler';
-import {isError} from "lodash";
+import { isError } from 'lodash';
 
 export type Ok<T> = {
   status: 'OK';
@@ -164,13 +164,21 @@ export const useUpdateRemoteData = <T, P>(
       });
       fetcher(param)
         .then((data) => setRemoteData({ status: 'OK', data }))
-        .catch(({userMessage, status} : {userMessage: string, status: number}) => {
-          return setRemoteData({
-            status: 'ERROR',
-            statusCode: status,
-            userMessage
-          });
-        });
+        .catch(
+          ({
+            userMessage,
+            status,
+          }: {
+            userMessage: string;
+            status: number;
+          }) => {
+            return setRemoteData({
+              status: 'ERROR',
+              statusCode: status,
+              userMessage,
+            });
+          }
+        );
     },
     [fetcher]
   );

@@ -17,8 +17,7 @@ export const TimezoneDropdown = ({ value, onChange }: IProps) => {
         value={value}
         onChange={(v) => {
           updateTimezone(Number(v.target.value));
-        }}
-      >
+        }}>
         {range(-12, 12).map((i) => {
           const displayValue = i > 0 ? `+${i}` : i;
           return (

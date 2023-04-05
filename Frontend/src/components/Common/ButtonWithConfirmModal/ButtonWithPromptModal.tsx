@@ -61,8 +61,7 @@ export function ButtonWithPromptModal({
                   <ul>
                     <li>Tekstfeltet må fylles ut</li>
                   </ul>
-                }
-              >
+                }>
                 {text}
               </Button>
             </div>

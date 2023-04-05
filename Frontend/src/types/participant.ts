@@ -142,7 +142,7 @@ export function initalParticipant(
   return {
     email: { email: email ?? '' },
     name: name ?? '',
-    department: department ?? "",
+    department: department ?? '',
     participantAnswers: Array(numberOfParticipantQuestions).fill(''),
   };
 }

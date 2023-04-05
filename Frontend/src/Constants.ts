@@ -1,1 +1,1 @@
-export const appTitle = "Skjer - Bekk";
+export const appTitle = 'Skjer - Bekk';
