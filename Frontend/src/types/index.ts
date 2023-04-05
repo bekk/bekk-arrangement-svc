@@ -52,8 +52,7 @@ export const parsePickedOffices = (
 ): PickedOffice | IError[] => {
   if (value.Oslo || value.Trondheim) return value;
 
-  const validator = validate<PickedOffice>({
-  });
+  const validator = validate<PickedOffice>({});
   return validator.resolve(value);
 };
 

@@ -11,7 +11,6 @@ export const Kittens = () => {
   return (
     <div
       ref={ref}
-      style={{ position: 'absolute', pointerEvents: 'none' }}
-    ></div>
+      style={{ position: 'absolute', pointerEvents: 'none' }}></div>
   );
 };

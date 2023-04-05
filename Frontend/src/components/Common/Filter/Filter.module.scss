@@ -30,7 +30,7 @@
   }
   & circle {
     fill: var(--natt);
-  };
+  }
   & circle:first-of-type {
     transform: translateX(7px);
   }
@@ -61,22 +61,22 @@
   margin-top: 50px;
 
   @media #{$desktop} {
-      flex-direction: row;
-      gap: 50px;
+    flex-direction: row;
+    gap: 50px;
   }
 }
 
 .filterOptionsOpen {
   max-height: 1000px;
   @media #{$desktop} {
-      max-height: 200px;
+    max-height: 200px;
   }
 }
 
 .container {
   display: flex;
   flex-direction: column;
-  width: 100%
+  width: 100%;
 }
 
 .column {

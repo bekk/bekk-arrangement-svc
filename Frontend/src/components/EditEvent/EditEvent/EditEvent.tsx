@@ -120,8 +120,8 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
               updateEvent({
                 ...event,
                 offices: {
-                    Oslo: !event.offices?.Oslo,
-                    Trondheim: event.offices?.Trondheim || false
+                  Oslo: !event.offices?.Oslo,
+                  Trondheim: event.offices?.Trondheim || false,
                 },
               })
             }
@@ -132,10 +132,10 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
             onChange={() =>
               updateEvent({
                 ...event,
-                  offices: {
-                      Oslo: event.offices?.Oslo || false,
-                      Trondheim: !event.offices?.Trondheim
-                  },
+                offices: {
+                  Oslo: event.offices?.Oslo || false,
+                  Trondheim: !event.offices?.Trondheim,
+                },
               })
             }
             isChecked={event.offices?.Trondheim || false}

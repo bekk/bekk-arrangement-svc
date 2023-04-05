@@ -10,9 +10,9 @@ import { SmileIcon } from 'src/components/Common/Icons/SmileIcon';
 import { FrownyFaceIcon } from 'src/components/Common/Icons/FrownyFaceIcon';
 import { useHistory } from 'react-router';
 import { Button } from 'src/components/Common/Button/Button';
-import {UnstyledSpinner} from "src/components/Common/Spinner/spinner";
+import { UnstyledSpinner } from 'src/components/Common/Spinner/spinner';
 
-export enum EventState  {
+export enum EventState {
   Rediger = 'Rediger',
   IkkeApnet = 'Ikke åpnet',
   PameldingHarStengt = 'Påmeldingen har stengt',
@@ -24,7 +24,7 @@ export enum EventState  {
   Fullt = 'Fullt',
   Laster = 'Laster',
   Avlyst = 'Avlyst',
-  IkkePameldt = "ikke-påmeldt"
+  IkkePameldt = 'ikke-påmeldt',
 }
 
 interface IProps {
@@ -54,8 +54,7 @@ export const ParticipationState = ({
         <Button
           onClick={(htmlEvent: any) =>
             route(editEventRoute(eventId), htmlEvent)
-          }
-        >
+          }>
           Rediger
         </Button>
       );
@@ -70,7 +69,6 @@ export const ParticipationState = ({
           Påmelding åpner <br /> {dateTimeText}
         </div>
       );
-
 
     case EventState.PameldingHarStengt:
       return <div className={style.stateText}>Påmelding er stengt</div>;
@@ -98,13 +96,12 @@ export const ParticipationState = ({
         return (
           <div className={style.stateContainer}>
             <div className={style.stateText}>
-              {plural(numberOfAvailableSpots, "plass", "plasser")} igjen!
+              {plural(numberOfAvailableSpots, 'plass', 'plasser')} igjen!
             </div>
             <Button
               onClick={(htmlEvent: any) =>
                 route(viewEventRoute(eventId), htmlEvent)
-              }
-            >
+              }>
               Meld deg på
             </Button>
           </div>
@@ -114,8 +111,7 @@ export const ParticipationState = ({
         <Button
           onClick={(htmlEvent: any) =>
             route(viewEventRoute(eventId), htmlEvent)
-          }
-        >
+          }>
           Meld deg på
         </Button>
       );
@@ -127,8 +123,7 @@ export const ParticipationState = ({
           <Button
             onClick={(htmlEvent: any) =>
               route(viewEventRoute(eventId), htmlEvent)
-            }
-          >
+            }>
             Sett på venteliste
           </Button>
         </div>

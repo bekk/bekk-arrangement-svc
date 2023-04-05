@@ -79,14 +79,14 @@ export const ViewEvent = ({
             <ClockIcon color="black" className={style.clockIcon} />
             <DateSection startDate={event.start} endDate={event.end} />
           </div>
-            {
-                event.offices &&
-                <div className={style.iconTextContainer}>
-            <OfficeIcon color="black" className={style.icon} />
-            <p>{(pickedOfficeToOfficeList(event.offices) || []).join(', ')}</p>
-          </div>
-
-            }
+          {event.offices && (
+            <div className={style.iconTextContainer}>
+              <OfficeIcon color="black" className={style.icon} />
+              <p>
+                {(pickedOfficeToOfficeList(event.offices) || []).join(', ')}
+              </p>
+            </div>
+          )}
           <div className={style.iconTextContainer}>
             <LocationIcon color="black" className={style.icon} />
             <p>{event.location}</p>

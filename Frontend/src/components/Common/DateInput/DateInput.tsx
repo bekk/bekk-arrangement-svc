@@ -100,8 +100,7 @@ export const DateInput = ({ value, onChange, label }: IProps): JSX.Element => {
                     decDisplayMonth();
                     setDate(d);
                     setIsOpen(false);
-                  }}
-                >
+                  }}>
                   <div>{d.day}</div>
                 </div>
               ))}
@@ -115,8 +114,7 @@ export const DateInput = ({ value, onChange, label }: IProps): JSX.Element => {
                   onClick={() => {
                     setDate(d);
                     setIsOpen(false);
-                  }}
-                >
+                  }}>
                   <div>{d.day}</div>
                 </div>
               ))}
@@ -126,15 +124,13 @@ export const DateInput = ({ value, onChange, label }: IProps): JSX.Element => {
                   className={classNames(style.date, style.activeDate, {
                     [style.today]: datesEqual(d, today),
                     [style.selectedActiveDate]: datesEqual(d, date),
-                  })}
-                >
+                  })}>
                   <div
                     onClick={() => {
                       incDisplayMonth();
                       setDate(d);
                       setIsOpen(false);
-                    }}
-                  >
+                    }}>
                     {d.day}
                   </div>
                 </div>

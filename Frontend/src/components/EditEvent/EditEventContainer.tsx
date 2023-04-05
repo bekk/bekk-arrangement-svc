@@ -1,16 +1,18 @@
-import {useLayoutEffect, useEffect } from 'react';
+import { useLayoutEffect, useEffect } from 'react';
 import React from 'react';
-import {IEditEvent, toEditEvent, parseEditEvent, initialEditEvent} from 'src/types/event';
+import {
+  IEditEvent,
+  toEditEvent,
+  parseEditEvent,
+  initialEditEvent,
+} from 'src/types/event';
 import { deleteEvent } from 'src/api/arrangementSvc';
 import { useHistory } from 'react-router';
 import { EditEvent } from './EditEvent/EditEvent';
 import style from './EditEventContainer.module.scss';
 import { eventsRoute, editTokenKey, previewEventRoute } from 'src/routing';
 import { hasLoaded } from 'src/remote-data';
-import {
-  useQuery,
-  useParam,
-} from 'src/utils/browser-state';
+import { useQuery, useParam } from 'src/utils/browser-state';
 import { useNotification } from 'src/components/NotificationHandler/NotificationHandler';
 import { Page } from 'src/components/Page/Page';
 import { Button } from 'src/components/Common/Button/Button';
@@ -22,15 +24,18 @@ import { useEvent } from 'src/hooks/cache';
 import { useGotoEventPreview } from 'src/hooks/history';
 import { useEditToken, useSavedEditableEvents } from 'src/hooks/saved-tokens';
 import classnames from 'classnames';
-import {useSetTitle} from "src/hooks/setTitle";
-import {Spinner} from "src/components/Common/Spinner/spinner";
-import {useSessionState} from "src/hooks/sessionState";
+import { useSetTitle } from 'src/hooks/setTitle';
+import { Spinner } from 'src/components/Common/Spinner/spinner';
+import { useSessionState } from 'src/hooks/sessionState';
 
 const useEditEvent = () => {
   const eventId = useParam(eventIdKey);
   const remoteEvent = useEvent(eventId);
 
-  const [editEvent, setEditEvent] = useSessionState<IEditEvent | undefined>(undefined, eventId);
+  const [editEvent, setEditEvent] = useSessionState<IEditEvent | undefined>(
+    undefined,
+    eventId
+  );
   useLayoutEffect(() => {
     if (hasLoaded(remoteEvent) && !editEvent) {
       setEditEvent(toEditEvent(remoteEvent.data));
@@ -56,7 +61,7 @@ const useSaveThisEditToken = ({ eventId }: { eventId: string }) => {
 export const EditEventContainer = () => {
   const { eventId, validEvent, editEvent, setEditEvent, errors } =
     useEditEvent();
-  useSetTitle(`Rediger ${editEvent?.title}`)
+  useSetTitle(`Rediger ${editEvent?.title}`);
 
   const { catchAndNotify } = useNotification();
   const history = useHistory();
@@ -67,7 +72,7 @@ export const EditEventContainer = () => {
   const editToken = useEditToken(eventId);
 
   if (!editEvent) {
-    return <Spinner />
+    return <Spinner />;
   }
 
   const onDeleteEvent = catchAndNotify(
@@ -89,8 +94,7 @@ export const EditEventContainer = () => {
             onConfirm={onDeleteEvent}
             placeholder="Arrangementet er avlyst pga. ..."
             textareaLabel="Send en forklarende tekst på e-post til alle påmeldte deltakere:"
-            className={classnames(style.button, style.redButton)}
-          >
+            className={classnames(style.button, style.redButton)}>
             <>
               <p>
                 Er du sikker på at du vil avlyse arrangementet? <br />
@@ -110,8 +114,7 @@ export const EditEventContainer = () => {
                 {Array.isArray(errors) &&
                   errors.map((x) => <li key={x.message}>{x.message}</li>)}
               </ul>
-            }
-          >
+            }>
             Forhåndsvis endringer
           </Button>
         </div>

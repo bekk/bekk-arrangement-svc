@@ -62,7 +62,7 @@ declare global {
   }
 }
 
-Map.prototype.map = function<K, V, E>(
+Map.prototype.map = function <K, V, E>(
   this: Map<K, V>,
   f: (x: V, i: K) => E
 ): Map<K, E> {
@@ -73,7 +73,7 @@ Map.prototype.map = function<K, V, E>(
   return new Map(tupledList);
 };
 
-Map.prototype.mapIf = function<K, V, E>(
+Map.prototype.mapIf = function <K, V, E>(
   this: Map<K, V>,
   f: (x: V, i: K) => Optional<E>
 ): Map<K, E> {
@@ -84,7 +84,7 @@ Map.prototype.mapIf = function<K, V, E>(
   return new Map(tupledList);
 };
 
-Array.prototype.mapIf = function<T, E>(
+Array.prototype.mapIf = function <T, E>(
   this: T[],
   f: (x: T) => Optional<E>
 ): E[] {
@@ -97,22 +97,28 @@ Array.prototype.mapIf = function<T, E>(
   }, []);
 };
 
-Array.prototype.sortBy = function<T>(this: T[], key: (x: T) => Orderable): T[] {
+Array.prototype.sortBy = function <T>(
+  this: T[],
+  key: (x: T) => Orderable
+): T[] {
   return _.sortBy(this, key);
 };
 
-Array.prototype.uniqBy = function<T>(this: T[], key: (x: T) => Equatable): T[] {
+Array.prototype.uniqBy = function <T>(
+  this: T[],
+  key: (x: T) => Equatable
+): T[] {
   return _.uniqBy(this, key);
 };
 
-Array.prototype.groupBy = function<S extends string, T>(
+Array.prototype.groupBy = function <S extends string, T>(
   this: any[],
   key: (x: T) => S
 ) {
   return _.groupBy(this, key) as Record<S, Optional<T[]>>;
 };
 
-Array.prototype.chunkBy = function<T, C extends Comparable, E>(
+Array.prototype.chunkBy = function <T, C extends Comparable, E>(
   this: T[],
   key: (x: T) => C,
   f?: (key: C, values: T[]) => E
@@ -125,7 +131,7 @@ Array.prototype.chunkBy = function<T, C extends Comparable, E>(
     : chunked.map(([_key, values]) => values);
 };
 
-Array.prototype.replaceBy = function<T>(
+Array.prototype.replaceBy = function <T>(
   this: T[],
   _newThings: T[],
   key: (x: T) => Equatable
@@ -133,10 +139,10 @@ Array.prototype.replaceBy = function<T>(
   const oldThings = this.uniqBy(key);
   const newThings = _newThings.uniqBy(key);
   const replacedThings = oldThings.map(
-    x => newThings.find(y => key(y) === key(x)) || x
+    (x) => newThings.find((y) => key(y) === key(x)) || x
   );
   return [
     ...replacedThings,
-    ...newThings.filter(x => !replacedThings.map(key).includes(key(x))),
+    ...newThings.filter((x) => !replacedThings.map(key).includes(key(x))),
   ];
 };

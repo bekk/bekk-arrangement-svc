@@ -236,8 +236,7 @@ export const ViewEventContainer = ({ eventId }: IProps) => {
               <Button
                 onClick={() =>
                   goToRemoveParticipantRoute(participationsForThisEvent[0])
-                }
-              >
+                }>
                 Meld meg av
               </Button>
             </div>
@@ -355,8 +354,7 @@ export function DownloadExportLink({ eventId }: IPropsDownloadExport) {
       role="button"
       ref={link}
       onClick={handleAction}
-      className={style.downloadIcon}
-    >
+      className={style.downloadIcon}>
       <DownloadIcon title="Last ned deltageroversikt" />
     </a>
   );

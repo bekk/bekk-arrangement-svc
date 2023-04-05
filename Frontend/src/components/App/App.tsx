@@ -1,4 +1,4 @@
-import {authenticateUser, isAuthenticated, useAuth0Redirect } from 'src/auth';
+import { authenticateUser, isAuthenticated, useAuth0Redirect } from 'src/auth';
 import { Router, Switch, Route, Redirect, RouteProps } from 'react-router';
 import React from 'react';
 import { Header } from 'src/components/Common/Header/Header';
@@ -16,7 +16,9 @@ import {
   rootRoute,
   previewNewEventRoute,
   viewEventShortnameRoute,
-  shortnameKey, officeEventsMonthKey, officeEventRoute,
+  shortnameKey,
+  officeEventsMonthKey,
+  officeEventRoute,
 } from 'src/routing';
 import { CreateEventContainer } from 'src/components/CreateEvent/CreateEventContainer';
 import { EditEventContainer } from 'src/components/EditEvent/EditEventContainer';
@@ -33,8 +35,8 @@ import {
   ViewEventContainerRegularRoute,
 } from 'src/components/ViewEvent/ViewEventRoutes';
 import classNames from 'classnames';
-import {OfficeEvents} from "src/components/OfficeEvents/OfficeEvents";
-import {usePopulateTokensInLocalStorage} from "src/hooks/saved-tokens";
+import { OfficeEvents } from 'src/components/OfficeEvents/OfficeEvents';
+import { usePopulateTokensInLocalStorage } from 'src/hooks/saved-tokens';
 
 const history = createBrowserHistory();
 
@@ -51,7 +53,7 @@ export const App = () => {
     <Router history={history}>
       <Header />
       <Switch>
-        <PrivateRoute exact path={"/office-events"}>
+        <PrivateRoute exact path={'/office-events'}>
           <div className={classNames(style.container, style.darkBackground)}>
             <OfficeEvents />
           </div>
@@ -100,8 +102,7 @@ export const App = () => {
           path={cancelParticipantRoute({
             eventId: ':' + eventIdKey,
             email: ':' + emailKey,
-          })}
-        >
+          })}>
           <div className={classNames(style.container, style.lightBackground)}>
             <CancelParticipant />
           </div>
@@ -111,8 +112,7 @@ export const App = () => {
           path={confirmParticipantRoute({
             eventId: ':' + eventIdKey,
             email: ':' + emailKey,
-          })}
-        >
+          })}>
           <div className={classNames(style.container, style.darkBackground)}>
             <ConfirmParticipant />
           </div>

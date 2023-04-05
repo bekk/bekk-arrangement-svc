@@ -33,7 +33,7 @@ const options = (method: string, token: string, body?: string) => ({
     Accept: 'application/json',
     Authorization: `Bearer ${token}`,
     'Content-Type': 'application/json',
-    "X-From": 'arrangement-app',
+    'X-From': 'arrangement-app',
   },
   credentials: 'omit' as 'omit',
   body,

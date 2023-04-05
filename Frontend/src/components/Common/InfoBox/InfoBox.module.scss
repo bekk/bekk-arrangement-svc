@@ -1,10 +1,10 @@
-@import "src/style/colors.scss";
+@import 'src/style/colors.scss';
 @import 'src/style/constants';
 
 .container {
   border-width: 2px;
   border-style: solid;
-  border-color: var(--skyfritt)
+  border-color: var(--skyfritt);
 }
 
 .titleContainer {
@@ -24,7 +24,7 @@
   }
 }
 
-.title{
+.title {
   display: flex;
   flex-direction: row;
   align-items: center;

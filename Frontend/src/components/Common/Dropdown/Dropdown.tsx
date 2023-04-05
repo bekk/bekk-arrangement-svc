@@ -52,8 +52,7 @@ export const Dropdown = <T extends number | string>({
     <div
       className={style.container}
       ref={closeWhenClickOutsideRef}
-      onClick={() => setDropdownOpen(!dropdownOpen)}
-    >
+      onClick={() => setDropdownOpen(!dropdownOpen)}>
       <div className={selectedElementStyle}>
         <p className={style.text}>{selectedItem?.name}</p>
         <Arrow className={arrowStyle} direction="down" color="white" noCircle />
@@ -64,8 +63,7 @@ export const Dropdown = <T extends number | string>({
             <div
               className={dropdownElementStyle(x)}
               key={x.id}
-              onClick={() => handleSelect(x.id)}
-            >
+              onClick={() => handleSelect(x.id)}>
               <p className={style.elementText}>{x.name}</p>
             </div>
           ))}

@@ -25,7 +25,7 @@ export const ValidatedTextArea = ({
   onLightBackground = false,
   minRow,
   isError,
-  className = ""
+  className = '',
 }: ValidTextAreaProps) => {
   const [showError, setShowError] = useState(isError);
   const validationResult = validation(value);

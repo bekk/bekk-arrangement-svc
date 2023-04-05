@@ -34,8 +34,7 @@ export const useEvent = (id: string) => {
   });
 };
 
-export const useEvents = (
-): Map<string, RemoteData<IEvent>> => {
+export const useEvents = (): Map<string, RemoteData<IEvent>> => {
   return eventCache.useAll(
     useCallback(async () => {
       const futureEvents = await getEvents();

@@ -34,13 +34,24 @@ interface Props {
   department?: string;
 }
 
-export const AddParticipant = ({ eventId, event, email, name, department }: Props) => {
+export const AddParticipant = ({
+  eventId,
+  event,
+  email,
+  name,
+  department,
+}: Props) => {
   const { catchAndNotify } = useNotification();
   const history = useHistory();
 
   const [participant, setParticipant] = useState<IEditParticipant>(
     toEditParticipant(
-      initalParticipant(event.participantQuestions.length, email, name, department)
+      initalParticipant(
+        event.participantQuestions.length,
+        email,
+        name,
+        department
+      )
     )
   );
 
@@ -168,8 +179,7 @@ export const AddParticipant = ({ eventId, event, email, name, department }: Prop
         className={classNames({
           [style.loadingSpinner]: waitingOnParticipation,
         })}
-        disabled={timeLeft.difference > 0 || waitingOnParticipation}
-      >
+        disabled={timeLeft.difference > 0 || waitingOnParticipation}>
         {!waitingOnParticipation ? 'Meld meg på' : 'Melder på...'}
       </Button>
     </div>

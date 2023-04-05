@@ -22,8 +22,9 @@ type NotifyUser = (n: UserNotification) => void;
 const NotificationContext = createContext<NotifyUser>(() => undefined);
 
 export const NotificationHandler = ({ children }: IProps) => {
-  const [notification, setNotification] =
-    useState<UserNotification | undefined>();
+  const [notification, setNotification] = useState<
+    UserNotification | undefined
+  >();
   const notifyUser = (n: UserNotification) => setNotification(n);
   return (
     <NotificationContext.Provider value={notifyUser}>

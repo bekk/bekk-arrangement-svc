@@ -119,17 +119,17 @@ export const EventCardElement = ({ eventId, event }: IProps) => {
     <Link className={cardStyle} to={viewRoute}>
       <div className={style.smallFont}>{dateTimeText}</div>
       <div className={titleStyle}>{event.title}</div>
-        { event.offices &&
-      <div className={style.location}>
-        <div className={style.officeIcon}>
-          <OfficeIcon color="white" />
-        </div>
+      {event.offices && (
+        <div className={style.location}>
+          <div className={style.officeIcon}>
+            <OfficeIcon color="white" />
+          </div>
 
-              <div className={style.iconText}>
-                  {(pickedOfficeToOfficeList(event.offices) || []).join(', ')}
-              </div>
-      </div>
-        }
+          <div className={style.iconText}>
+            {(pickedOfficeToOfficeList(event.offices) || []).join(', ')}
+          </div>
+        </div>
+      )}
       <div className={style.location}>
         <div className={style.locationIcon}>
           <LocationIcon color="white" />

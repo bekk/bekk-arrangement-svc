@@ -3,7 +3,7 @@ import style from './ViewParticipants.module.scss';
 import { useParticipants } from 'src/hooks/cache';
 import { hasLoaded, isBad } from 'src/remote-data';
 import { IParticipant } from 'src/types/participant';
-import {Spinner} from "src/components/Common/Spinner/spinner";
+import { Spinner } from 'src/components/Common/Spinner/spinner';
 
 interface IProps {
   eventId: string;

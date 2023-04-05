@@ -1,8 +1,8 @@
-import React, {ReactNode, useState} from "react";
-import style from "./InfoBox.module.scss";
-import {Lightbulb} from "src/components/Common/Lightbulb/Lightbulb";
-import {Chevron} from "src/components/Common/Chevron/Chevron";
-import classNames from "classnames";
+import React, { ReactNode, useState } from 'react';
+import style from './InfoBox.module.scss';
+import { Lightbulb } from 'src/components/Common/Lightbulb/Lightbulb';
+import { Chevron } from 'src/components/Common/Chevron/Chevron';
+import classNames from 'classnames';
 
 interface IProps {
   title: string;
@@ -11,15 +11,15 @@ interface IProps {
 
 export function InfoBox({ title, children }: IProps) {
   const [isBoxOpen, setIsBoxOpen] = useState(false);
-  const toggleBoxIsOpen = () => setIsBoxOpen(!isBoxOpen)
+  const toggleBoxIsOpen = () => setIsBoxOpen(!isBoxOpen);
 
-  const chevronStyle = classNames(style.chevron,
-    {
-      [style.chevronOpen]: isBoxOpen
-    });
+  const chevronStyle = classNames(style.chevron, {
+    [style.chevronOpen]: isBoxOpen,
+  });
 
-  const childrenStyle = classNames(style.children,
-    {[style.childrenOpen]: isBoxOpen})
+  const childrenStyle = classNames(style.children, {
+    [style.childrenOpen]: isBoxOpen,
+  });
 
   return (
     <div className={style.container} onClick={toggleBoxIsOpen}>
@@ -30,9 +30,7 @@ export function InfoBox({ title, children }: IProps) {
         </div>
         <Chevron className={chevronStyle} />
       </div>
-      <div className={childrenStyle}>
-        {children}
-      </div>
+      <div className={childrenStyle}>{children}</div>
     </div>
   );
 }

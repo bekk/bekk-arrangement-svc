@@ -17,7 +17,7 @@ export const Arrow = ({
   noCircle,
   className,
   color = 'black',
-  onClick
+  onClick,
 }: IProps) => {
   const arrowStyle = classNames(style.arrow, className, {
     [style.left]: direction === 'left',

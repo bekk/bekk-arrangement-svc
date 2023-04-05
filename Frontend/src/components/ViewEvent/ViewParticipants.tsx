@@ -6,7 +6,7 @@ import { hasLoaded, isBad } from 'src/remote-data';
 import { useMediaQuery } from 'react-responsive';
 import { IParticipant } from 'src/types/participant';
 import { Button } from 'src/components/Common/Button/Button';
-import {Spinner} from "src/components/Common/Spinner/spinner";
+import { Spinner } from 'src/components/Common/Spinner/spinner';
 
 interface IProps {
   eventId: string;
@@ -24,7 +24,7 @@ export const ViewParticipants = ({ eventId, editToken }: IProps) => {
   }
 
   if (!hasLoaded(remoteParticipants)) {
-    return  <Spinner />;
+    return <Spinner />;
   }
 
   const { attendees, waitingList } = remoteParticipants.data;
