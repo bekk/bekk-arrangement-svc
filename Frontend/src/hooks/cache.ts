@@ -1,5 +1,5 @@
 import { cachedRemoteData, RemoteData } from 'src/remote-data';
-import { IEvent, parseEventViewModel } from 'src/types/event';
+import {IEvent, IEventViewModel, parseEventViewModel} from 'src/types/event';
 import { useCallback, useMemo } from 'react';
 import {
   getEvent,
@@ -19,6 +19,8 @@ import { getEmailNameAndDepartment } from 'src/api/employeeSvc';
 import { getEmployeeId } from 'src/auth';
 import { EventState } from 'src/components/ViewEventsCards/ParticipationState';
 import { OfficeEvent } from '../types/OfficeEvent';
+import {isInOrder} from "../types/date-time";
+import { WithId } from 'src/types';
 
 //**  Event  **//
 
@@ -39,7 +41,7 @@ export const useEvents = (): Map<string, RemoteData<IEvent>> => {
     useCallback(async () => {
       const futureEvents = await getEvents();
       const pastEvents = await getPastEvents();
-      const allEvents = [...futureEvents, ...pastEvents];
+      const allEvents = [...sortEventsByStartDate(futureEvents), ...sortEventsByEndDate(pastEvents)];
       return allEvents.map(({ id, ...event }) => [
         id,
         parseEventViewModel(event),
@@ -146,4 +148,16 @@ export const useEmailNameAndDepartment = () => {
       return await getEmailNameAndDepartment(employeeId);
     }, [employeeId]),
   });
+};
+
+const sortEventsByStartDate = (events: WithId<IEventViewModel>[]) => {
+    return events.sort((a, b) =>
+        isInOrder({ first: a.startDate, last: b.startDate }) ? -1 : 1
+    );
+};
+
+const sortEventsByEndDate = (events: WithId<IEventViewModel>[]) => {
+    return events.sort((a, b) =>
+        isInOrder({ first: a.startDate, last: b.startDate }) ? 1 : -1
+    );
 };
