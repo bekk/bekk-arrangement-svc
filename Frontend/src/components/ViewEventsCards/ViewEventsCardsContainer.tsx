@@ -60,7 +60,7 @@ export const ViewEventsCardsContainer = () => {
 
   useEffect(
     () => {
-      setFilteredEvents(sortEvents(fetchedEvents));
+      setFilteredEvents(fetchedEvents);
     },
     // https://github.com/facebook/react/issues/14476 Dan Abramov says this is OK
     [JSON.stringify(fetchedEvents)]
@@ -103,8 +103,3 @@ const eventMapToList = (
     hasLoaded(event) ? [[id, event.data]] : []
   );
 
-const sortEvents = (events: [string, IEvent][]) => {
-  return events.sort(([idA, a], [idB, b]) =>
-    isInOrder({ first: a.start, last: b.start }) ? 1 : -1
-  );
-};
