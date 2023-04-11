@@ -1,6 +1,15 @@
 @import 'src/style/constants';
 @import 'src/style/fonts';
 
+.icon {
+    height: 32px;
+    width: 32px;
+    margin-right: 10px;
+    @media #{$desktop} {
+        margin-right: 3px;
+    }
+}
+
 .card {
   border: solid 1px white;
   padding: 15px;
@@ -26,7 +35,7 @@
   }
 
   &:hover .officeIcon path {
-    stroke: black;
+    stroke: white;
   }
 
   &:hover .externalIcon path:first-of-type {
