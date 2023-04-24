@@ -12,7 +12,7 @@ task_environment = {
   Auth0__Issuer_Domain               = "bekk-dev.eu.auth0.com"
   Auth0__PERMISSION_CLAIM_TYPE       = "https://api.bekk.no/claims/permission"
   Config__Employee_Svc_url           = "https://api.bekk.dev/employee-svc"
-  Sendgrid__Dev_White_List_Addresses = "bjorn.ivar.strom@bekk.no, hong.nhung.thi.vo@bekk.no, simen.endsjo@bekk.no, simendsjo@gmail.com, tora.gunstad@bekk.no, ingrid.larssen@bekk.no"
+  Sendgrid__Dev_White_List_Addresses = "bjorn.ivar.strom@bekk.no, hong.nhung.thi.vo@bekk.no, ingrid.larssen@bekk.no, mats.jonassen@bekk.no, trond.tenfjord@bekk.no, ole.magnus.lie@bekk.no"
 }
 task_secrets = [
   "ConnectionStrings__EventDb",
