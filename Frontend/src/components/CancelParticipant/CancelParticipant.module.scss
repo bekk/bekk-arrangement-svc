@@ -13,6 +13,11 @@
   color: black;
 }
 
+.errorText {
+  @extend .text;
+  margin-top: 130px;
+}
+
 .buttonContainer {
   margin-top: 50px;
   max-width: 500px;
