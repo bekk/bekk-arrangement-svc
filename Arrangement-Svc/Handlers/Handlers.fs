@@ -45,7 +45,7 @@ let private createEditUrl (redirectUrlTemplate: string) (event: Models.Event) =
 
 let private createCancelUrl (redirectUrlTemplate: string) (participant: Participant) =
     let decodedUrlTemplate = HttpUtility.UrlDecode redirectUrlTemplate
-    redirectUrlTemplate
+    decodedUrlTemplate
         .Replace("{eventId}", participant.EventId.ToString())
         .Replace("{email}", participant.Email |> Uri.EscapeDataString)
         .Replace("{cancellationToken}", participant.CancellationToken.ToString())
