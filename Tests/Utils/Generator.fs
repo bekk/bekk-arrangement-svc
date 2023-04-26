@@ -93,7 +93,7 @@ let generateEvent () : Models.EventWriteModel =
           else
               "{shortname}"
       EditUrlTemplate = "{eventId}{editToken}"
-      CancelParticipationUrlTemplate = Some "/events/{eventId}/cancel/{email}?cancellationToken={cancellationToken}"
+      CancelParticipationUrlTemplate = "/events/{eventId}/cancel/{email}?cancellationToken={cancellationToken}"
       HasWaitingList = faker.Hacker.Random.Bool()
       IsExternal = faker.Hacker.Random.Bool()
       IsHidden =
@@ -132,4 +132,5 @@ let generateParticipant (number_of_questions: int): Models.ParticipantWriteModel
       ParticipantAnswers =
           [0..number_of_questions]
           |> List.map (fun _ -> faker.Lorem.Sentence())
-      CancelUrlTemplate = "{eventId}{email}{cancellationToken}" }
+      CancelUrlTemplate = "{eventId}{email}{cancellationToken}"
+      ViewUrlTemplate = "{eventId}" }
