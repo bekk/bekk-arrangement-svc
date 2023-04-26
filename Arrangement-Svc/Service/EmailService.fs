@@ -87,13 +87,13 @@ let sendMail (email: Email) (context: HttpContext) =
         if sendgridEnabled && emailWhitelisted then actuallySendMail ()
         ()
 
-let private createdEventMessage (viewUrl: string option) createEditUrl (event: Models.Event) =
+let private createdEventMessage viewUrl editUrl (event: Models.Event) =
     [ $"Hei {event.OrganizerName}! 😄"
       $"Arrangementet ditt {event.Title} er nå opprettet."
-      match viewUrl with
-      | None -> ""
-      | Some url -> $"Se arrangmentet, få oversikt over påmeldte deltagere og gjør eventuelle endringer her: {url}."
-      $"Her er en unik lenke for å endre arrangementet: {createEditUrl event}."
+      ""
+      $"Se arrangementet, få oversikt over påmeldte deltagere og gjør eventuelle endringer her: {viewUrl}."
+      ""
+      $"Her er en unik lenke for å endre arrangementet: {editUrl}."
       "Del denne kun med personer som du ønsker skal ha redigeringstilgang.🕵️" ]
     |> String.concat "<br>"
 
@@ -108,8 +108,8 @@ let organizerAsParticipant (event: Models.Event): Participant =
       EmployeeId = Some event.OrganizerId
     }
 
-let private createEmail viewUrl createEditUrl noReplyMail (event: Models.Event) =
-    let message = createdEventMessage viewUrl createEditUrl event
+let private createEmail viewUrl editUrl noReplyMail (event: Models.Event) =
+    let message = createdEventMessage viewUrl editUrl event
     { Subject = $"Du opprettet {event.Title}"
       Message = message
       To = event.OrganizerEmail
@@ -118,22 +118,22 @@ let private createEmail viewUrl createEditUrl noReplyMail (event: Models.Event) 
               (event, organizerAsParticipant event, noReplyMail, message, Create) |> Some
     }
 
-let sendNewlyCreatedEventMail viewUrl createEditUrl (event: Models.Event) (ctx: HttpContext) =
+let sendNewlyCreatedEventMail viewUrl editUrl (event: Models.Event) (ctx: HttpContext) =
     let config = ctx.GetService<AppConfig>()
     let mail =
-        createEmail viewUrl createEditUrl config.noReplyEmail event
+        createEmail viewUrl editUrl config.noReplyEmail event
     sendMail mail ctx
 
-let private inviteMessage redirectUrl (event: Models.Event) =
+let private inviteMessage viewUrl cancelUrl (event: Models.Event) =
     [ "Hei! 😄"
       ""
-      $"Du er nå påmeldt {event.Title}."
+      $"Du er nå påmeldt <a href=\"{viewUrl}\">{event.Title}</a>."
       $"Vi gleder oss til å se deg på {event.Location} den {DateTimeCustom.toReadableString (DateTimeCustom.toCustomDateTime event.StartDate event.StartTime)} 🎉"
       ""
       if event.MaxParticipants.IsSome then
         "Siden det er begrenset med plasser, setter vi pris på om du melder deg av hvis du ikke lenger<br>kan delta. Da blir det plass til andre på ventelisten 😊"
       else "Gjerne meld deg av dersom du ikke lenger har mulighet til å delta."
-      $"Du kan melde deg av <a href=\"{redirectUrl}\">via denne lenken</a>."
+      $"Du kan melde deg av <a href=\"{cancelUrl}\">via denne lenken</a>."
       ""
       $"Bare send meg en mail på <a href=\"mailto:{event.OrganizerEmail}\">{event.OrganizerEmail}</a> om det er noe du lurer på."
       "Vi sees!"
@@ -141,15 +141,15 @@ let private inviteMessage redirectUrl (event: Models.Event) =
       $"Hilsen {event.OrganizerName} i Bekk" ]
     |> String.concat "<br>" // Sendgrid formats to HTML, \n does not work
 
-let private waitlistedMessage redirectUrl (event: Models.Event) =
+let private waitlistedMessage viewUrl cancelUrl (event: Models.Event) =
     [ "Hei! 😄"
       ""
-      $"Du er nå på venteliste for {event.Title} på {event.Location} den {DateTimeCustom.toReadableString (DateTimeCustom.toCustomDateTime event.StartDate event.StartTime)}."
+      $"Du er nå på venteliste for <a href=\"{viewUrl}\">{event.Title}</a> på {event.Location} den {DateTimeCustom.toReadableString (DateTimeCustom.toCustomDateTime event.StartDate event.StartTime)}."
       "Du vil få beskjed på e-post om du rykker opp fra ventelisten."
       ""
       "Siden det er begrenset med plasser, setter vi pris på om du melder deg av hvis du ikke lenger"
       "kan delta. Da blir det plass til andre på ventelisten 😊"
-      $"Du kan melde deg av <a href=\"{redirectUrl}\">via denne lenken</a>."
+      $"Du kan melde deg av <a href=\"{cancelUrl}\">via denne lenken</a>."
       "NB! Ta vare på lenken til senere - om du rykker opp fra ventelisten bruker du fortsatt denne til å melde deg av."
       ""
       $"Bare send meg en mail på <a href=\"mailto:{event.OrganizerEmail}\">{event.OrganizerEmail}</a> om det er noe du lurer på."
@@ -159,7 +159,8 @@ let private waitlistedMessage redirectUrl (event: Models.Event) =
     |> String.concat "<br>"
 
 let createNewParticipantMail
-    createCancelUrl
+    viewUrl
+    cancelUrl
     (event: Models.Event)
     isWaitlisted
     noReplyMail
@@ -167,8 +168,8 @@ let createNewParticipantMail
     =
     let message =
         if isWaitlisted
-        then waitlistedMessage (createCancelUrl participant) event
-        else inviteMessage (createCancelUrl participant) event
+        then waitlistedMessage viewUrl cancelUrl event
+        else inviteMessage viewUrl cancelUrl event
 
     { Subject = event.Title
       Message = message

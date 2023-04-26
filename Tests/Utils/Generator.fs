@@ -87,11 +87,11 @@ let generateEvent () : Models.EventWriteModel =
               None
           else
               Some(faker.Lorem.Paragraph()[0..99])
-      ViewUrl =
+      ViewUrlTemplate =
           if faker.Random.Number(0, 5) <> 0 then
-              None
+              "{eventId}"
           else
-              Some(faker.Lorem.Word())
+              "{shortname}"
       EditUrlTemplate = "{eventId}{editToken}"
       CancelParticipationUrlTemplate = Some "/events/{eventId}/cancel/{email}?cancellationToken={cancellationToken}"
       HasWaitingList = faker.Hacker.Random.Bool()

@@ -1,5 +1,6 @@
 import { useRouteMatch } from 'react-router';
 import { queryStringStringify } from 'src/utils/browser-state';
+import { IEvent } from "./types/event";
 
 export const eventIdKey = 'eventId';
 export const emailKey = 'email';
@@ -15,12 +16,23 @@ export const officeEventsMonthKey = 'date';
 
 export const viewEventShortnameRoute = (shortname: string) => `/${shortname}`;
 export const viewEventRoute = (eventId: string) => `/events/${eventId}`;
+
+export const createViewUrlTemplate = (event: IEvent) => {
+  const hostAndProtocol = document.location.origin;
+  return event.shortname
+    ? hostAndProtocol + viewEventShortnameRoute("{shortname}")
+    : hostAndProtocol + viewEventRoute("{eventId}");
+};
+
 export const officeEventRoute = (date: string) => `/office-events/${date}`;
 
 export const editEventRoute = (eventId: string, editToken?: string) =>
   `/events/${eventId}/edit${queryStringStringify({
     [editTokenKey]: editToken,
   })}`;
+
+export const editUrlTemplate =
+  document.location.origin + editEventRoute('{eventId}', '{editToken}');
 
 export const previewEventRoute = (eventId: string) =>
   `/events/${eventId}/preview`;
@@ -45,6 +57,14 @@ export const cancelParticipantRoute = ({
   `/events/${eventId}/cancel/${email}${queryStringStringify({
     [cancellationTokenKey]: cancellationToken,
   })}`;
+
+export const cancelParticipationUrlTemplate =
+  document.location.origin +
+  cancelParticipantRoute({
+    eventId: '{eventId}',
+    email: '{email}',
+    cancellationToken: '{cancellationToken}',
+  });
 
 export const useIsEditingRoute = () => {
   let routematch = useRouteMatch(editEventRoute(':' + eventIdKey));

@@ -43,7 +43,13 @@ import {
 } from 'src/types/date';
 import { parseName } from 'src/types/participant';
 
-import { viewEventShortnameRoute } from 'src/routing';
+import {
+  cancelParticipantRoute, cancelParticipationUrlTemplate, createViewUrlTemplate,
+  editEventRoute,
+  editUrlTemplate,
+  viewEventRoute,
+  viewEventShortnameRoute
+} from 'src/routing';
 import { toEditTime } from 'src/types/time';
 
 export interface INewEventViewModel {
@@ -92,7 +98,7 @@ export interface IEventWriteModel {
   organizerName: string;
   organizerEmail: string;
   maxParticipants?: number;
-  viewUrl?: string;
+  viewUrlTemplate: string;
   editUrlTemplate: string;
   cancelParticipationUrlTemplate: string;
   participantQuestions: string[];
@@ -220,9 +226,7 @@ export const parseEditEvent = ({
 };
 
 export const toEventWriteModel = (
-  event: IEvent,
-  editUrlTemplate: string = '',
-  cancelParticipationUrlTemplate: string = ''
+  event: IEvent
 ): IEventWriteModel => ({
   ...event,
   maxParticipants: isMaxParticipantsLimited(event.maxParticipants)
@@ -238,9 +242,9 @@ export const toEventWriteModel = (
   organizerEmail: toEmailWriteModel(event.organizerEmail),
   startDate: event.start,
   endDate: event.end,
-  viewUrl: event.shortname && urlFromShortname(event.shortname),
-  editUrlTemplate,
-  cancelParticipationUrlTemplate,
+  viewUrlTemplate: createViewUrlTemplate(event),
+  editUrlTemplate: editUrlTemplate,
+  cancelParticipationUrlTemplate: cancelParticipationUrlTemplate
 });
 
 export const parseEventViewModel = (eventView: IEventViewModel): IEvent => {

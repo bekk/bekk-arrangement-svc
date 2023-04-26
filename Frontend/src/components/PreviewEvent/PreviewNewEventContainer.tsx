@@ -43,12 +43,10 @@ export const PreviewNewEventContainer = () => {
   } plasser`;
 
   const postNewEvent = catchAndNotify(async () => {
-    const editUrlTemplate =
-      document.location.origin + editEventRoute('{eventId}', '{editToken}');
     const {
       event: { id, shortname },
       editToken,
-    } = await postEvent(event, editUrlTemplate);
+    } = await postEvent(event);
     saveEditableEvent({ eventId: id, editToken });
     clearSessionState('createEvent');
     history.push(

@@ -130,9 +130,9 @@ type EventWriteModel =
       CloseRegistrationTime: string option
       ParticipantQuestions: string list
       Program: string option
-      ViewUrl: string option
+      ViewUrlTemplate: string
       EditUrlTemplate: string
-      CancelParticipationUrlTemplate: string option
+      CancelParticipationUrlTemplate: string
       HasWaitingList: bool
       IsExternal: bool
       IsHidden: bool
@@ -163,9 +163,9 @@ module EventWriteModel =
               ParticipantQuestions = get.Required.Field "participantQuestions"
                                          (Decode.list Decode.string |> Decode.andThen Validate.participantQuestions)
               Program = get.Optional.Field "program" Decode.string
-              ViewUrl = get.Optional.Field "viewUrl" Decode.string
+              ViewUrlTemplate = get.Required.Field "viewUrlTemplate" Decode.string
               EditUrlTemplate = get.Required.Field "editUrlTemplate" Decode.string
-              CancelParticipationUrlTemplate = get.Optional.Field "cancelParticipationUrlTemplate" Decode.string
+              CancelParticipationUrlTemplate = get.Required.Field "cancelParticipationUrlTemplate" Decode.string
               HasWaitingList = get.Required.Field "hasWaitingList" Decode.bool
               IsExternal = get.Required.Field "isExternal" Decode.bool
               IsHidden = get.Required.Field "isHidden" Decode.bool
@@ -334,6 +334,7 @@ type ParticipantWriteModel =
     { Name: string
       Department: string
       ParticipantAnswers: string list
+      ViewUrlTemplate: string
       CancelUrlTemplate: string
     }
 
@@ -346,6 +347,7 @@ module ParticipantWriteModel =
         Department = get.Required.Field "department" Decode.string
         ParticipantAnswers = get.Required.Field "participantAnswers"
                                  (Decode.list Decode.string |> Decode.andThen Validate.participantAnswers)
+        ViewUrlTemplate = get.Required.Field "viewUrlTemplate" Decode.string
         CancelUrlTemplate = get.Required.Field "cancelUrlTemplate" Decode.string
       })
 

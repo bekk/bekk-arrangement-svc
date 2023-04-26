@@ -31,20 +31,24 @@ let private decode decoder (context: HttpContext) =
         return result
     }
 
+let private createViewUrl (viewUrlTemplate: string) (event: Models.Event) =
+    let decodedUrlTemplate = HttpUtility.UrlDecode viewUrlTemplate
+    decodedUrlTemplate
+        .Replace("{shortname}", event.Shortname |> Option.defaultValue "")
+        .Replace("{eventId}", event.Id.ToString())    
+
 let private createEditUrl (redirectUrlTemplate: string) (event: Models.Event) =
-    redirectUrlTemplate.Replace("{eventId}", event.Id.ToString())
-                       .Replace("{editToken}", event.EditToken.ToString())
+    let decodedUrlTemplate = HttpUtility.UrlDecode redirectUrlTemplate
+    decodedUrlTemplate
+        .Replace("{eventId}", event.Id.ToString())
+        .Replace("{editToken}", event.EditToken.ToString())
 
 let private createCancelUrl (redirectUrlTemplate: string) (participant: Participant) =
-    redirectUrlTemplate.Replace("{eventId}",
-                            participant.EventId.ToString
-                                ())
-                   .Replace("{email}",
-                            participant.Email
-                            |> Uri.EscapeDataString)
-                   .Replace("{cancellationToken}",
-                            participant.CancellationToken.ToString
-                                ())
+    let decodedUrlTemplate = HttpUtility.UrlDecode redirectUrlTemplate
+    redirectUrlTemplate
+        .Replace("{eventId}", participant.EventId.ToString())
+        .Replace("{email}", participant.Email |> Uri.EscapeDataString)
+        .Replace("{cancellationToken}", participant.CancellationToken.ToString())
 
 let private participationsToAttendeesAndWaitlist maxParticipants participations =
     match maxParticipants with
@@ -182,13 +186,17 @@ let registerParticipation (eventId: Guid, email): HttpHandler =
                 // Sende epost
                 let isWaitlisted = eventAndQuestions.Event.HasWaitingList && isParticipating = false
                 let email =
-                    let redirectUrlTemplate =
-                        HttpUtility.UrlDecode writeModel.CancelUrlTemplate
+                    let viewUrl = createViewUrl writeModel.ViewUrlTemplate eventAndQuestions.Event
+                    let cancelUrl = createCancelUrl writeModel.CancelUrlTemplate participant
 
                     createNewParticipantMail
-                        (createCancelUrl redirectUrlTemplate) eventAndQuestions.Event isWaitlisted
+                        viewUrl
+                        cancelUrl
+                        eventAndQuestions.Event
+                        isWaitlisted
                         config.noReplyEmail
                         participant
+                
                 sendMail email context
 
                 return Participant.encodeWithCancelInfo participant answers
@@ -373,9 +381,9 @@ let createEvent =
                 logger.log ("created_event_with_id", newEvent.Id)
                 let eventAndQuestions = { Event = newEvent; NumberOfParticipants = None; Questions = newQuestions }
                 // Send epost etter registrering
-                let redirectUrlTemplate = HttpUtility.UrlDecode writeModel.EditUrlTemplate
-                let viewUrl = writeModel.ViewUrl
-                sendNewlyCreatedEventMail viewUrl (createEditUrl redirectUrlTemplate) newEvent context
+                let viewUrl = createViewUrl writeModel.ViewUrlTemplate newEvent 
+                let editUrl = createEditUrl writeModel.EditUrlTemplate newEvent
+                sendNewlyCreatedEventMail viewUrl editUrl newEvent context
                 return Event.encoderWithEditInfo eventAndQuestions
             }
         jsonResult result next context
@@ -551,7 +559,7 @@ let diffEvent (oldEvent: Event) (newEvent : Event) =
                 newLocation = new'.location |}
     else None
 
-let sendUpdateEmailToOldParticipants (old' : Event) (new' : Event) (oldParticipants : Participant seq) (cancelTemplate: string option) (ctx : HttpContext) =
+let sendUpdateEmailToOldParticipants (old' : Event) (new' : Event) (oldParticipants : Participant seq) (cancelTemplate: string) (ctx : HttpContext) =
     diffEvent old' new'
     |> Option.iter (fun diff ->
         let cfg = ctx.GetService<AppConfig>()
@@ -582,7 +590,7 @@ let sendUpdateEmailToOldParticipants (old' : Event) (new' : Event) (oldParticipa
                     if new'.MaxParticipants.IsSome
                     then "Siden det er begrenset med plasser, setter vi pris på om du melder deg av hvis du ikke lenger<br>kan delta. Da blir det plass til andre på ventelisten 😊"
                     else "Gjerne meld deg av dersom du ikke lenger har mulighet til å delta."
-                    if cancelTemplate.IsSome then $"Du kan melde deg av <a href=\"{(createCancelUrl cancelTemplate.Value p)}\">via denne lenken</a>."
+                    $"Du kan melde deg av <a href=\"{(createCancelUrl cancelTemplate p)}\">via denne lenken</a>."
                     $""
                     $"Bare send meg en mail på {new'.OrganizerEmail} om det er noe du lurer på."
                     $"Vi sees!"
@@ -650,9 +658,21 @@ let updateEvent (eventId: Guid) =
                         Queries.updateEvent eventId writeModel db
                         |> TaskResult.mapError InternalError
                     db.Commit()
-                    sendEmailToNewParticipants oldEvent.Event.MaxParticipants writeModel.MaxParticipants oldEventParticipants updatedEvent context
-                    let cancelUrl = writeModel.CancelParticipationUrlTemplate |> Option.map HttpUtility.UrlDecode in
-                        sendUpdateEmailToOldParticipants oldEvent.Event updatedEvent oldEventParticipants cancelUrl context
+                    
+                    sendEmailToNewParticipants
+                        oldEvent.Event.MaxParticipants
+                        writeModel.MaxParticipants
+                        oldEventParticipants
+                        updatedEvent
+                        context
+                        
+                    sendUpdateEmailToOldParticipants
+                        oldEvent.Event
+                        updatedEvent
+                        oldEventParticipants
+                        writeModel.CancelParticipationUrlTemplate
+                        context
+                        
                     let eventAndQuestions = { Event = updatedEvent; NumberOfParticipants = None; Questions = eventQuestions }
                     return Event.encodeEventAndQuestions eventAndQuestions
             }
