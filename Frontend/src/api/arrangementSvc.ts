@@ -19,13 +19,12 @@ import { cancelParticipantRoute } from 'src/routing';
 import { OfficeEvent, OfficeEventDecoder } from '../types/OfficeEvent';
 
 export const postEvent = (
-  event: IEvent,
-  editUrlTemplate: string
+  event: IEvent
 ): Promise<INewEventViewModel> =>
   post({
     host: '',
     path: '/api/events',
-    body: toEventWriteModel(event, editUrlTemplate),
+    body: toEventWriteModel(event),
   });
 
 export const putEvent = (
@@ -33,17 +32,10 @@ export const putEvent = (
   event: IEvent,
   editToken?: string
 ): Promise<IEventViewModel> => {
-  const cancelParticipationUrlTemplate =
-    document.location.origin +
-    cancelParticipantRoute({
-      eventId: '{eventId}',
-      email: '{email}',
-      cancellationToken: '{cancellationToken}',
-    });
   return put({
     host: '',
     path: `/api/events/${eventId}${queryStringStringify({ editToken })}`,
-    body: toEventWriteModel(event, '', cancelParticipationUrlTemplate),
+    body: toEventWriteModel(event),
   });
 };
 
@@ -115,16 +107,16 @@ export const getWaitinglistSpot = (
   });
 
 export const postParticipant = (
+  event: IEvent,
   eventId: string,
   participant: IParticipant,
-  cancelUrlTemplate: string
 ): Promise<INewParticipantViewModel> =>
   post({
     host: '',
     path: `/api/events/${eventId}/participants/${encodeURIComponent(
       toEmailWriteModel(participant.email)
     )}`,
-    body: toParticipantWriteModel(participant, cancelUrlTemplate),
+    body: toParticipantWriteModel(participant, event),
   });
 
 export const deleteParticipant = ({

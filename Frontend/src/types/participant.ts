@@ -5,10 +5,13 @@ import {
   toEditEmail,
   parseEditEmail,
 } from './email';
+import { cancelParticipationUrlTemplate, createViewUrlTemplate } from "../routing";
+import { IEvent } from "./event";
 
 export interface IParticipantWriteModel {
   name: string;
   participantAnswers: string[];
+  viewUrlTemplate: string;
   cancelUrlTemplate: string;
 }
 
@@ -52,11 +55,12 @@ export interface IEditParticipant {
 
 export const toParticipantWriteModel = (
   participant: IParticipant,
-  cancelUrlTemplate: string = ''
+  event: IEvent,
 ): IParticipantWriteModel => {
   return {
     ...participant,
-    cancelUrlTemplate,
+    viewUrlTemplate: createViewUrlTemplate(event),
+    cancelUrlTemplate: cancelParticipationUrlTemplate,
   };
 };
 

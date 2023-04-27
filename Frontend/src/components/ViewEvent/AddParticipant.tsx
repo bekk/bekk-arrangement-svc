@@ -12,7 +12,7 @@ import { parseEditEmail } from 'src/types/email';
 import { Button } from 'src/components/Common/Button/Button';
 import { IEvent } from 'src/types/event';
 import { useNotification } from 'src/components/NotificationHandler/NotificationHandler';
-import { cancelParticipantRoute, confirmParticipantRoute } from 'src/routing';
+import { confirmParticipantRoute } from 'src/routing';
 import { postParticipant } from 'src/api/arrangementSvc';
 import { isValid } from 'src/types/validation';
 import { useHistory } from 'react-router';
@@ -64,23 +64,15 @@ export const AddParticipant = ({
   const { saveParticipation } = useSavedParticipations();
   const participate = catchAndNotify(async () => {
     if (validParticipant) {
-      const cancelUrlTemplate =
-        document.location.origin +
-        cancelParticipantRoute({
-          eventId: '{eventId}',
-          email: '{email}',
-          cancellationToken: '{cancellationToken}',
-        });
-
       setWaitingOnParticipation(true);
 
       const {
         participant: { email = '' },
         cancellationToken,
       } = await postParticipant(
+        event,
         eventId,
-        validParticipant,
-        cancelUrlTemplate
+        validParticipant
       ).catch((e) => {
         setWaitingOnParticipation(false);
         throw e;
