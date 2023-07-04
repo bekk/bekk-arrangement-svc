@@ -1,8 +1,13 @@
 @import 'src/style/colors';
+@import 'src/style/constants';
+
 .header {
   position: absolute;
   width: 100%;
   padding-top: 3em;
+  @media #{$mobile}, (max-width:$tabletMaxWidth) {
+    padding-top: 1em;
+  }
   z-index: 100;
 }
 
