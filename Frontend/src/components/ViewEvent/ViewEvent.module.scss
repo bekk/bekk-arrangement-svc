@@ -28,6 +28,7 @@
   hyphens: auto;
   @media #{$desktop} {
     margin-right: 40px;
+    line-height: 50px;
   }
   @media #{$mobile} {
     margin-top: 80px;
