@@ -1,5 +1,6 @@
 module Handlers
 
+open System.Text
 open Giraffe
 open System
 open System.Web
@@ -745,6 +746,12 @@ let createCsvString (event: Models.Event) (questions: ParticipantQuestion list) 
 
     builder.ToString()
 
+let addUtf8BomToCsv (csvString: string) =
+    Array.concat [
+        Encoding.UTF8.GetPreamble()
+        Encoding.UTF8.GetBytes(csvString)
+    ]
+
 let exportParticipationsForEvent (eventId: Guid) =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
@@ -767,7 +774,9 @@ let exportParticipationsForEvent (eventId: Guid) =
                     Queries.getParticipantsAndAnswersForEvent eventId db
                     |> TaskResult.mapError InternalError
                 let participants = participationsToAttendeesAndWaitlist eventAndQuestions.Event.MaxParticipants (participations |> Seq.toList)
-                return createCsvString eventAndQuestions.Event eventAndQuestions.Questions participants
+                let csvString = createCsvString eventAndQuestions.Event eventAndQuestions.Questions participants
+                let encodedCsvString = addUtf8BomToCsv csvString
+                return encodedCsvString
             }
         csvResult eventId result next context
 

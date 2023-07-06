@@ -48,7 +48,7 @@ let csvResult filename result (next: HttpFunc) (context: HttpContext) =
     task {
         context.SetHttpHeader (HeaderNames.ContentType, "text/csv")
         context.SetHttpHeader (HeaderNames.ContentDisposition, $"attachment; filename=\"{filename}.csv\"")
-        return! httpStatusResult result text next context
+        return! httpStatusResult result setBody next context
     }
 
 module ResponseMessages =
