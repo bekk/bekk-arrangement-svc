@@ -726,7 +726,7 @@ let createCsvString (event: Models.Event) (questions: ParticipantQuestion list) 
         let department =
             participant.Department
             |> Option.defaultValue ""
-        builder.Append($"{employeeId}, {participant.Name}, {participant.Email}, {department}, {answers}\n") |> ignore
+        builder.Append($"{employeeId},{participant.Name},{participant.Email},{department},\"{answers}\"\n") |> ignore
 
     let builder = System.Text.StringBuilder()
 
