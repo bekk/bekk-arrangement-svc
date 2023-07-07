@@ -717,7 +717,7 @@ let createCsvString (event: Models.Event) (questions: ParticipantQuestion list) 
         let answers = participantAndAnswers.Answers
         let answers =
             answers
-            |> List.map (fun a -> $"{a.Answer}")
+            |> List.map (fun a -> $"\"{a.Answer}\"")
             |> String.concat ","
         let employeeId =
             participant.EmployeeId
@@ -726,13 +726,13 @@ let createCsvString (event: Models.Event) (questions: ParticipantQuestion list) 
         let department =
             participant.Department
             |> Option.defaultValue ""
-        builder.Append($"{employeeId},{participant.Name},{participant.Email},{department},\"{answers}\"\n") |> ignore
+        builder.Append($"{employeeId},{participant.Name},{participant.Email},{department},{answers}\n") |> ignore
 
     let builder = System.Text.StringBuilder()
 
     let questions =
         questions
-        |> List.map (fun q -> q.Question)
+        |> List.map (fun q -> $"\"{q.Question}\"")
         |> String.concat ","
 
     builder.Append($"{event.Title}\n") |> ignore
