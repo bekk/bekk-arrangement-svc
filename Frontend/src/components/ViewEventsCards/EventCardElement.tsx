@@ -132,7 +132,7 @@ export const EventCardElement = ({ eventId, event }: IProps) => {
       )}
       <div className={style.location}>
         <div className={style.locationIcon}>
-          <LocationIcon color="white" />
+          <LocationIcon color="white" className={style.icon} />
         </div>
         <div className={style.iconText}>{event.location}</div>
       </div>
