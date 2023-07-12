@@ -202,36 +202,22 @@
   color: var(--havKontrast);
 }
 
-.location {
+.iconContainer {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
   text-align: center;
+  margin-bottom: 10px;
 }
 
 .iconText {
+  flex: 1;
   margin-right: 10px;
   font-size: 16px;
   margin-left: 5px;
   text-align: left;
-}
-
-.locationIcon {
-  min-width: 20px;
-  min-height: 20px;
-}
-
-.external {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  padding-top: 10px;
-  text-align: center;
-}
-
-.externalIcon {
-  width: 20px;
-  height: 20px;
+  line-height: 22px;
+  word-break: break-word;
 }
 
 .cardFooter {
