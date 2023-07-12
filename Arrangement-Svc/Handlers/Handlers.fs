@@ -713,13 +713,17 @@ let getParticipantsForEvent (eventId: Guid) =
         jsonResult result next context
 
 let createCsvString (event: Models.Event) (questions: ParticipantQuestion list) (participants: ParticipationsAndWaitlist) =
+    let formatString (input: string) =
+        input.Replace("\n", "")
+        |> sprintf "\"%s\""
+    
     let createParticipant (builder: System.Text.StringBuilder) (participantAndAnswers: ParticipantAndAnswers) =
         let participant = participantAndAnswers.Participant
         let answers = participantAndAnswers.Answers
         let answers =
             answers
-            |> List.map (fun a -> $"\"{a.Answer}\"")
-            |> String.concat ","
+            |> List.map (fun a -> formatString a.Answer)
+            |> String.concat ";"
         let employeeId =
             participant.EmployeeId
             |> Option.map string
@@ -727,18 +731,18 @@ let createCsvString (event: Models.Event) (questions: ParticipantQuestion list) 
         let department =
             participant.Department
             |> Option.defaultValue ""
-        builder.Append($"{employeeId},{participant.Name},{participant.Email},{department},{answers}\n") |> ignore
+        builder.Append($"{employeeId};{participant.Name};{participant.Email};{department};{answers}\n") |> ignore
 
     let builder = System.Text.StringBuilder()
 
     let questions =
         questions
-        |> List.map (fun q -> $"\"{q.Question}\"")
-        |> String.concat ","
+        |> List.map (fun q -> formatString q.Question)
+        |> String.concat ";"
 
     builder.Append($"{event.Title}\n") |> ignore
     builder.Append("Påmeldte\n") |> ignore
-    builder.Append($"AnsattId,Navn,Epost,Avdeling,{questions}\n") |> ignore
+    builder.Append($"AnsattId;Navn;Epost;Avdeling;{questions}\n") |> ignore
     Seq.iter (createParticipant builder) participants.Attendees
     if not <| Seq.isEmpty participants.WaitingList then
         builder.Append("Venteliste\n") |> ignore
