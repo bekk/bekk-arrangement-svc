@@ -119,23 +119,25 @@ export const EventCardElement = ({ eventId, event }: IProps) => {
     <Link className={cardStyle} to={viewRoute}>
       <div className={style.smallFont}>{dateTimeText}</div>
       <div className={titleStyle}>{event.title}</div>
+
       {event.offices && (
-        <div className={style.location}>
+        <div className={style.iconContainer}>
           <div className={style.officeIcon}>
             <OfficeIcon color="white" className={style.icon} />
           </div>
-
           <div className={style.iconText}>
             {(pickedOfficeToOfficeList(event.offices) || []).join(', ')}
           </div>
         </div>
       )}
-      <div className={style.location}>
+
+      <div className={style.iconContainer}>
         <div className={style.locationIcon}>
-          <LocationIcon color="white" />
+          <LocationIcon color="white" className={style.icon} />
         </div>
         <div className={style.iconText}>{event.location}</div>
       </div>
+
       {event.isHidden && (
         <p className={style.hidden}>
           Psst! Arrangementet er skjult for andre{' '}
@@ -144,14 +146,16 @@ export const EventCardElement = ({ eventId, event }: IProps) => {
           </span>
         </p>
       )}
+
       {event.isExternal && (
-        <div className={style.external}>
+        <div className={style.iconContainer}>
           <div className={style.externalIcon}>
-            <ExternalIcon color="white" />
+            <ExternalIcon color="white" className={style.icon} />
           </div>
-          <div className={style.iconText}> Eksternt arrangement </div>
+          <div className={style.iconText}>Eksternt arrangement</div>
         </div>
       )}
+
       <div className={style.cardFooter}>
         <ParticipationState
           eventId={eventId}
