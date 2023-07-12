@@ -122,7 +122,7 @@ const ParticipantTableDesktop = (props: {
   };
   const copyEmails = async () => {
     await navigator.clipboard.writeText(
-      props.participants.map((p) => stringifyEmail(p.email)).join(', ')
+      props.participants.map((p) => stringifyEmail(p.email)).join('; ')
     );
     setWasCopied(true);
     setTimeout(() => {
