@@ -18,6 +18,12 @@ type ParticipantAnswer = {
   Answer: string
 }
 
+type ParticipantQuestionAndAnswer = {
+    EventId: Guid
+    Question: ParticipantQuestion option
+    Answer: ParticipantAnswer
+}
+
 module Validate =
     let private containsChars (toTest: string) (chars: string) =
         Seq.exists (fun c -> Seq.contains c chars) toTest
