@@ -124,11 +124,11 @@ let sendNewlyCreatedEventMail viewUrl editUrl (event: Models.Event) (ctx: HttpCo
         createEmail viewUrl editUrl config.noReplyEmail event
     sendMail mail ctx
 
-let private getQuestionsAndAnswers (questionAndAnswer: ParticipantQuestionAndAnswer list) =
+let private getQuestionsAndAnswers title (questionAndAnswer: ParticipantQuestionAndAnswer list) =
     [
         if not (List.isEmpty questionAndAnswer) then
             ""
-            "Dine svar:"
+            $"{title}:"
             yield! List.map (fun qa -> $"""{if qa.Question.IsSome then qa.Question.Value.Question else ""}: {qa.Answer.Answer}""") questionAndAnswer
             ""
         else ""
@@ -140,7 +140,7 @@ let private inviteMessage viewUrl cancelUrl (event: Models.Event) (questionAndAn
       $"Du er nå påmeldt <a href=\"{viewUrl}\">{event.Title}</a>."
       $"Vi gleder oss til å se deg på {event.Location} den {DateTimeCustom.toReadableString (DateTimeCustom.toCustomDateTime event.StartDate event.StartTime)} 🎉"
       
-      yield! getQuestionsAndAnswers questionAndAnswer
+      yield! getQuestionsAndAnswers "Dine svar" questionAndAnswer
       
       if event.MaxParticipants.IsSome then
         "Siden det er begrenset med plasser, setter vi pris på om du melder deg av hvis du ikke lenger<br>kan delta. Da blir det plass til andre på ventelisten 😊"
@@ -159,7 +159,7 @@ let private waitlistedMessage viewUrl cancelUrl (event: Models.Event) (questionA
       $"Du er nå på venteliste for <a href=\"{viewUrl}\">{event.Title}</a> på {event.Location} den {DateTimeCustom.toReadableString (DateTimeCustom.toCustomDateTime event.StartDate event.StartTime)}."
       "Du vil få beskjed på e-post om du rykker opp fra ventelisten."
       
-      yield! getQuestionsAndAnswers questionAndAnswer
+      yield! getQuestionsAndAnswers "Dine svar" questionAndAnswer
       
       "Siden det er begrenset med plasser, setter vi pris på om du melder deg av hvis du ikke lenger"
       "kan delta. Da blir det plass til andre på ventelisten 😊"
@@ -205,12 +205,7 @@ let private createCancelledParticipationMailToOrganizer
         let message =
             [ $"{participant.Name} har meldt seg av {event.Title}"
               ""
-              "Deltaker har svart:"
-              ""
-              
-              yield! getQuestionsAndAnswers questionAndAnswer
-              
-              ""
+              yield! getQuestionsAndAnswers "Deltaker har svart" questionAndAnswer
             ]
             |> String.concat "<br>"
         
