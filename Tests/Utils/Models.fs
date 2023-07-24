@@ -15,7 +15,7 @@ type Event = {
     OrganizerName: string
     OrganizerEmail: string
     MaxParticipants: int option
-    ParticipantQuestions: string[]
+    ParticipantQuestions: ParticipantQuestionWriteModel[]
     Program: string option
     HasWaitingList: bool
     IsCancelled: bool
