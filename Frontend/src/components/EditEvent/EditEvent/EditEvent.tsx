@@ -502,8 +502,8 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
             <ValidatedTextArea
               label={labels.participantQuestion}
               placeholder={placeholders.participantQuestion}
-              value={q}
-              validation={(s) => parseQuestions([s])}
+              value={q.question}
+              validation={(s) => parseQuestions([{questionId: q.questionId, question: s}])}
               onLightBackground
               minRow={4}
               onChange={(participantQuestion) =>
@@ -512,7 +512,7 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
                   participantQuestions: event.participantQuestions.map(
                     (oldQ, oldI) => {
                       if (i === oldI) {
-                        return participantQuestion;
+                        return {questionId: oldQ.questionId, question: participantQuestion};
                       }
                       return oldQ;
                     }
@@ -547,7 +547,7 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
           onClick={() =>
             updateEvent({
               ...event,
-              participantQuestions: event.participantQuestions.concat(['']),
+              participantQuestions: event.participantQuestions.concat({questionId: event.participantQuestions.length, question:""}),
             })
           }>
           {buttonText.addParticipantQuestion}

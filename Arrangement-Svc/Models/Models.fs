@@ -63,10 +63,10 @@ module Validate =
         else
             Decode.fail "Maks antall påmeldte kan ikke være negativt"
 
-    let participantQuestions (questions: string list) =
-        let condition = List.forall (fun (question: string) -> question.Length < 200) questions
+    let participantQuestions (question: string) =
+        let condition = question.Length < 200
         if condition then
-            Decode.succeed questions
+            Decode.succeed question
         else
             Decode.fail "Spørsmål til deltaker kan ha maks 200 tegn"
 
@@ -117,6 +117,18 @@ module Office =
         )
     let encoder (office: Office) = Encode.string (office.ToString())
 
+type ParticipantQuestionWriteModel = {
+    QuestionId: int option
+    Question: string
+}
+module ParticipantQuestionWriteModel =
+    let decoder : Decoder<ParticipantQuestionWriteModel> =
+        Decode.object (fun get ->
+            { QuestionId = get.Optional.Field "questionId" Decode.int
+              Question = get.Required.Field "question"
+                           (Decode.string |> Decode.andThen Validate.participantQuestions)
+            })
+
 type EventWriteModel =
     { Title: string
       Description: string
@@ -128,7 +140,7 @@ type EventWriteModel =
       EndDate: DateTimeCustom.DateTimeCustom
       OpenForRegistrationTime: string
       CloseRegistrationTime: string option
-      ParticipantQuestions: string list
+      ParticipantQuestions: ParticipantQuestionWriteModel list
       Program: string option
       ViewUrlTemplate: string
       EditUrlTemplate: string
@@ -161,7 +173,7 @@ module EventWriteModel =
               OpenForRegistrationTime = get.Required.Field "openForRegistrationTime" Decode.string
               CloseRegistrationTime = get.Optional.Field "closeRegistrationTime" Decode.string
               ParticipantQuestions = get.Required.Field "participantQuestions"
-                                         (Decode.list Decode.string |> Decode.andThen Validate.participantQuestions)
+                                         (Decode.list ParticipantQuestionWriteModel.decoder)
               Program = get.Optional.Field "program" Decode.string
               ViewUrlTemplate = get.Required.Field "viewUrlTemplate" Decode.string
               EditUrlTemplate = get.Required.Field "editUrlTemplate" Decode.string
@@ -256,7 +268,10 @@ module Event =
                 "endDate", DateTimeCustom.DateTimeCustom.encoder (DateTimeCustom.toCustomDateTime event.EndDate event.EndTime)
                 "participantQuestions",
                     participantQuestions
-                    |> List.map (fun q -> Encode.string q.Question)
+                    |> List.map (fun q -> Encode.object [
+                        "questionId", Encode.int q.Id
+                        "question", Encode.string q.Question
+                    ])
                     |> Encode.list
                 if event.Program.IsSome then
                     "program", Encode.string event.Program.Value

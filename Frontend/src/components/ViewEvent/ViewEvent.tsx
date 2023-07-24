@@ -143,7 +143,7 @@ export const ViewEvent = ({
               <div>
                 <h3>Spørsmål til deltaker</h3>
                 {event.participantQuestions.map((q) => (
-                  <div key={q}>{q}</div>
+                  <div key={q.questionId}>{q.question}</div>
                 ))}
               </div>
             )}

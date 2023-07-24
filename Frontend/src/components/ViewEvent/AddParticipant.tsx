@@ -121,7 +121,7 @@ export const AddParticipant = ({
       </div>
       {event.participantQuestions.map((q, i) => {
         const { isMultipleChoiceQuestion, alternatives, actualQuestion } =
-          multipleChoiceAlternatives(q);
+          multipleChoiceAlternatives(q.question);
         return isMultipleChoiceQuestion ? (
           <MultipleChoiceQuestion
             question={actualQuestion}
@@ -142,9 +142,9 @@ export const AddParticipant = ({
             }
           />
         ) : (
-          <div key={q}>
+          <div key={q.questionId}>
             <ValidatedTextArea
-              label={q}
+              label={q.question}
               placeholder={''}
               value={participant.participantAnswers[i] ?? ''}
               validation={(answer) => parseAnswers([answer])}

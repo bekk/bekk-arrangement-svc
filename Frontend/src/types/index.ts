@@ -1,9 +1,9 @@
 import {
-  MaxParticipants,
-  isMaxParticipantsLimited,
-  maxParticipantsLimit,
-  Office,
-  PickedOffice,
+    MaxParticipants,
+    isMaxParticipantsLimited,
+    maxParticipantsLimit,
+    Office,
+    PickedOffice, ParticipantQuestion,
 } from 'src/types/event';
 import { validate, IError, ErrorType } from './validation';
 
@@ -100,14 +100,14 @@ export const toEditMaxAttendees = (
   return ['limited', maxParticipantsLimit(value).toString()];
 };
 
-export const parseQuestions = (value: string[]): string[] | IError[] => {
+export const parseQuestions = (value: ParticipantQuestion[]): ParticipantQuestion[] | IError[] => {
   if (value.length === 0) {
     return value;
   }
-  const validator = validate<string[]>({
-    'Spørsmål til deltaker må ha minst 5 tegn': value.some((s) => s.length < 5),
+  const validator = validate<ParticipantQuestion[]>({
+    'Spørsmål til deltaker må ha minst 5 tegn': value.some((s) => s.question?.length < 5),
     'Spørsmål til deltaker kan ha maks 500 tegn': value.some(
-      (s) => s.length > 500
+      (s) => s.question?.length > 500
     ),
   });
   return validator.resolve(value);

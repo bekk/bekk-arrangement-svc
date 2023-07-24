@@ -35,7 +35,7 @@ let private createViewUrl (viewUrlTemplate: string) (event: Models.Event) =
     let decodedUrlTemplate = HttpUtility.UrlDecode viewUrlTemplate
     decodedUrlTemplate
         .Replace("{shortname}", event.Shortname |> Option.defaultValue "")
-        .Replace("{eventId}", event.Id.ToString())    
+        .Replace("{eventId}", event.Id.ToString())
 
 let private createEditUrl (redirectUrlTemplate: string) (event: Models.Event) =
     let decodedUrlTemplate = HttpUtility.UrlDecode redirectUrlTemplate
@@ -196,7 +196,7 @@ let registerParticipation (eventId: Guid, email): HttpHandler =
                         isWaitlisted
                         config.noReplyEmail
                         participant
-                
+
                 sendMail email context
 
                 return Participant.encodeWithCancelInfo participant answers
@@ -233,7 +233,7 @@ let getFutureEvents (next: HttpFunc) (context: HttpContext) =
             return result
         }
     jsonResult result next context
-    
+
 let getEventsSummary =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
@@ -381,7 +381,7 @@ let createEvent =
                 logger.log ("created_event_with_id", newEvent.Id)
                 let eventAndQuestions = { Event = newEvent; NumberOfParticipants = None; Questions = newQuestions }
                 // Send epost etter registrering
-                let viewUrl = createViewUrl writeModel.ViewUrlTemplate newEvent 
+                let viewUrl = createViewUrl writeModel.ViewUrlTemplate newEvent
                 let editUrl = createEditUrl writeModel.EditUrlTemplate newEvent
                 sendNewlyCreatedEventMail viewUrl editUrl newEvent context
                 return Event.encoderWithEditInfo eventAndQuestions
@@ -510,9 +510,10 @@ let private canUpdateNumberOfParticipants (oldEvent: Models.Event) (newEvent: Mo
             else
                 Error invalidMaxParticipantValue
 
-let private canUpdateQuestions newEventQuestions (oldEventQuestions: ParticipantQuestion list) oldEventParticipants =
+let private canUpdateQuestions (newEventQuestions: ParticipantQuestionWriteModel list) (oldEventQuestions: ParticipantQuestion list) oldEventParticipants =
     let newEventQuestions =
         newEventQuestions
+        |> List.map (fun x -> x.Question)
         |> List.sort
 
     let oldEventQuestions =
@@ -658,21 +659,21 @@ let updateEvent (eventId: Guid) =
                         Queries.updateEvent eventId writeModel db
                         |> TaskResult.mapError InternalError
                     db.Commit()
-                    
+
                     sendEmailToNewParticipants
                         oldEvent.Event.MaxParticipants
                         writeModel.MaxParticipants
                         oldEventParticipants
                         updatedEvent
                         context
-                        
+
                     sendUpdateEmailToOldParticipants
                         oldEvent.Event
                         updatedEvent
                         oldEventParticipants
                         writeModel.CancelParticipationUrlTemplate
                         context
-                        
+
                     let eventAndQuestions = { Event = updatedEvent; NumberOfParticipants = None; Questions = eventQuestions }
                     return Event.encodeEventAndQuestions eventAndQuestions
             }

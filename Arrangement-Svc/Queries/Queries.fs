@@ -795,7 +795,7 @@ let doesShortnameExist (shortname: string option) (db: DatabaseContext) =
             | ex -> return Error ex
     }
 
-let createParticipantQuestions (eventId: Guid) (participantQuestions: string list) (db: DatabaseContext) =
+let createParticipantQuestions (eventId: Guid) (participantQuestions: Models.ParticipantQuestionWriteModel list) (db: DatabaseContext) =
     task {
         let question = List.tryHead participantQuestions
 
@@ -810,7 +810,7 @@ let createParticipantQuestions (eventId: Guid) (participantQuestions: string lis
 
             let insertParameters =
                 participantQuestions
-                |> Seq.map (fun question -> {| EventId = eventId; Question = question |})
+                |> Seq.map (fun question -> {| EventId = eventId; Question = question.Question |})
 
             let selectQuery =
                 "
