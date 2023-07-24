@@ -124,24 +124,23 @@ let sendNewlyCreatedEventMail viewUrl editUrl (event: Models.Event) (ctx: HttpCo
         createEmail viewUrl editUrl config.noReplyEmail event
     sendMail mail ctx
 
-   
-let private inviteMessage viewUrl cancelUrl (event: Models.Event) (questionAndAnswer: ParticipantQuestionAndAnswer list) =
-    let formatQuestionAndAnswer (questionAndAnswer: ParticipantQuestionAndAnswer list) =
-        [
+let private getQuestionsAndAnswers (questionAndAnswer: ParticipantQuestionAndAnswer list) =
+    [
+        if not (List.isEmpty questionAndAnswer) then
             ""
-            "Ditt svar på spørsmål(ene):"
+            "Dine svar:"
             yield! List.map (fun qa -> $"""{if qa.Question.IsSome then qa.Question.Value.Question else ""}: {qa.Answer.Answer}""") questionAndAnswer
             ""
-        ]
-    
+        else ""
+    ]
+   
+let private inviteMessage viewUrl cancelUrl (event: Models.Event) (questionAndAnswer: ParticipantQuestionAndAnswer list) =
     [ "Hei! 😄"
       ""
       $"Du er nå påmeldt <a href=\"{viewUrl}\">{event.Title}</a>."
       $"Vi gleder oss til å se deg på {event.Location} den {DateTimeCustom.toReadableString (DateTimeCustom.toCustomDateTime event.StartDate event.StartTime)} 🎉"
       
-      if not (List.isEmpty questionAndAnswer) then
-        yield! formatQuestionAndAnswer questionAndAnswer
-      else ""
+      yield! getQuestionsAndAnswers questionAndAnswer
       
       if event.MaxParticipants.IsSome then
         "Siden det er begrenset med plasser, setter vi pris på om du melder deg av hvis du ikke lenger<br>kan delta. Da blir det plass til andre på ventelisten 😊"
@@ -154,12 +153,14 @@ let private inviteMessage viewUrl cancelUrl (event: Models.Event) (questionAndAn
       $"Hilsen {event.OrganizerName} i Bekk" ]
     |> String.concat "<br>" // Sendgrid formats to HTML, \n does not work
 
-let private waitlistedMessage viewUrl cancelUrl (event: Models.Event) =
+let private waitlistedMessage viewUrl cancelUrl (event: Models.Event) (questionAndAnswer: ParticipantQuestionAndAnswer list) =
     [ "Hei! 😄"
       ""
       $"Du er nå på venteliste for <a href=\"{viewUrl}\">{event.Title}</a> på {event.Location} den {DateTimeCustom.toReadableString (DateTimeCustom.toCustomDateTime event.StartDate event.StartTime)}."
       "Du vil få beskjed på e-post om du rykker opp fra ventelisten."
-      ""
+      
+      yield! getQuestionsAndAnswers questionAndAnswer
+      
       "Siden det er begrenset med plasser, setter vi pris på om du melder deg av hvis du ikke lenger"
       "kan delta. Da blir det plass til andre på ventelisten 😊"
       $"Du kan melde deg av <a href=\"{cancelUrl}\">via denne lenken</a>."
@@ -182,7 +183,7 @@ let createNewParticipantMail
     =
     let message =
         if isWaitlisted
-        then waitlistedMessage viewUrl cancelUrl event
+        then waitlistedMessage viewUrl cancelUrl event questionAndAnswer
         else inviteMessage viewUrl cancelUrl event questionAndAnswer
 
     { Subject = event.Title
