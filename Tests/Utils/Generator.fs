@@ -53,7 +53,7 @@ let private generateDateTimeCustomSoon () : DateTimeCustom.DateTimeCustom =
 
 let generateQuestions numberOfQuestions =
   [ 0 .. numberOfQuestions ]
-  |> List.map (fun _ -> faker.Lorem.Sentence())
+  |> List.map (fun id -> { QuestionId = Some id; Question = faker.Lorem.Sentence()})
 
 let generateEvent () : Models.EventWriteModel =
     let start = DateTime.Now.AddDays(-1)
@@ -69,19 +69,19 @@ let generateEvent () : Models.EventWriteModel =
               Some <| faker.Random.Number(1, 100)
       StartDate = DateTimeCustom.toCustomDateTime start.Date start.TimeOfDay
       EndDate = generateDateTimeCustomFuture ()
-      OpenForRegistrationTime = (DateTimeOffset(start).AddDays(-1).ToUnixTimeMilliseconds().ToString())
+      OpenForRegistrationTime = DateTimeOffset(start).AddDays(-1).ToUnixTimeMilliseconds().ToString()
       CloseRegistrationTime =
           if faker.Hacker.Random.Bool() then
               None
           else
               Some(
-                  (DateTimeOffset(faker.Date.Future(10, refDate = start).Date)
-                      .ToUnixTimeMilliseconds())
+                  DateTimeOffset(faker.Date.Future(10, refDate = start).Date)
+                      .ToUnixTimeMilliseconds()
                       .ToString()
               )
       ParticipantQuestions =
           [ 0 .. faker.Random.Number(0, 5) ]
-          |> List.map (fun _ -> faker.Lorem.Sentence())
+          |> List.map (fun id -> { QuestionId = Some id; Question = faker.Lorem.Sentence()})
       Program =
           if faker.Random.Number(0, 5) <> 0 then
               None

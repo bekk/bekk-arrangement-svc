@@ -106,7 +106,7 @@ type UpdateEvent(fixture: DatabaseFixture) =
                 Helpers.updateEvent
                     authenticatedClient
                     createdEvent.Event.Id
-                    ({ generatedEvent with MaxParticipants = None })
+                    { generatedEvent with MaxParticipants = None }
 
             response.EnsureSuccessStatusCode() |> ignore
         }
