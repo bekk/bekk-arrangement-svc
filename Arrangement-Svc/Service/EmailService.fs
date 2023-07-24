@@ -200,23 +200,20 @@ let private createCancelledParticipationMailToOrganizer
     participant
     participantAnswers
     =
+        let questionAndAnswer = createQuestionAndAnswer eventQuestions participantAnswers
+        
         let message =
-            let participantInfo =
-                let questionAnswerString =
-                    List.map (fun (question: ParticipantQuestion) ->
-                       let answer = List.find (fun (a: ParticipantAnswer) -> a.QuestionId = question.Id) participantAnswers
-                       $"- {question.Question}<br>{answer.Answer}<br><br>"
-                    ) eventQuestions
-                [
-                    ""
-                    "Deltaker har svart:"
-                    ""
-                    yield! questionAnswerString
-                ]
             [ $"{participant.Name} har meldt seg av {event.Title}"
-              if List.isEmpty eventQuestions = false then
-                  yield! participantInfo
-            ] |> String.concat "<br>"
+              ""
+              "Deltaker har svart:"
+              ""
+              
+              yield! getQuestionsAndAnswers questionAndAnswer
+              
+              ""
+            ]
+            |> String.concat "<br>"
+        
         { Subject = "Avmelding"
           Message = message
           To = event.OrganizerEmail

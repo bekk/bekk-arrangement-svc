@@ -189,13 +189,7 @@ let registerParticipation (eventId: Guid, email): HttpHandler =
                 let email =
                     let viewUrl = createViewUrl writeModel.ViewUrlTemplate eventAndQuestions.Event
                     let cancelUrl = createCancelUrl writeModel.CancelUrlTemplate participant
-
-                    let questionAndAnswer: ParticipantQuestionAndAnswer list =
-                        List.map (fun (answer: ParticipantAnswer) ->
-                            { EventId = answer.EventId
-                              Question = List.tryFind (fun question -> question.Id = answer.QuestionId) eventQuestions
-                              Answer = answer
-                            }) answers
+                    let questionAndAnswer = createQuestionAndAnswer eventQuestions answers
                         
                     createNewParticipantMail
                         viewUrl

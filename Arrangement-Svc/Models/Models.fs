@@ -24,6 +24,13 @@ type ParticipantQuestionAndAnswer = {
     Answer: ParticipantAnswer
 }
 
+let createQuestionAndAnswer (questions: ParticipantQuestion list) (answers: ParticipantAnswer list) =
+    List.map (fun (answer: ParticipantAnswer) ->
+        { EventId = answer.EventId
+          Question = List.tryFind (fun question -> question.Id = answer.QuestionId) questions
+          Answer = answer
+        }) answers
+
 module Validate =
     let private containsChars (toTest: string) (chars: string) =
         Seq.exists (fun c -> Seq.contains c chars) toTest
