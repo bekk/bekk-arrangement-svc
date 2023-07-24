@@ -128,19 +128,21 @@ let sendNewlyCreatedEventMail viewUrl editUrl (event: Models.Event) (ctx: HttpCo
 let private inviteMessage viewUrl cancelUrl (event: Models.Event) (questionAndAnswer: ParticipantQuestionAndAnswer list) =
     let formatQuestionAndAnswer (questionAndAnswer: ParticipantQuestionAndAnswer list) =
         [
+            ""
             "Ditt svar på spørsmål(ene):"
             yield! List.map (fun qa -> $"""{if qa.Question.IsSome then qa.Question.Value.Question else ""}: {qa.Answer.Answer}""") questionAndAnswer
+            ""
         ]
     
     [ "Hei! 😄"
       ""
       $"Du er nå påmeldt <a href=\"{viewUrl}\">{event.Title}</a>."
       $"Vi gleder oss til å se deg på {event.Location} den {DateTimeCustom.toReadableString (DateTimeCustom.toCustomDateTime event.StartDate event.StartTime)} 🎉"
-      ""
+      
       if not (List.isEmpty questionAndAnswer) then
         yield! formatQuestionAndAnswer questionAndAnswer
       else ""
-      ""
+      
       if event.MaxParticipants.IsSome then
         "Siden det er begrenset med plasser, setter vi pris på om du melder deg av hvis du ikke lenger<br>kan delta. Da blir det plass til andre på ventelisten 😊"
       else "Gjerne meld deg av dersom du ikke lenger har mulighet til å delta."
