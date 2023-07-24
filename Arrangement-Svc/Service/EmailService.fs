@@ -204,7 +204,7 @@ let private createCancelledParticipationMailToOrganizer
         
         let message =
             [ $"{participant.Name} har meldt seg av {event.Title}"
-              ""
+              
               yield! getQuestionsAndAnswers "Deltaker har svart" questionAndAnswer
             ]
             |> String.concat "<br>"
