@@ -154,6 +154,7 @@ let registerParticipation (eventId: Guid, email): HttpHandler =
                         | IsWaitListed | CanParticipate -> Ok ()
                     |> Result.mapError (fun e -> BadRequest e)
 
+                let eventQuestions = Queries.getEventQuestions eventId db
                 let! participant, answers =
                     let result =
                         let participant = Queries.addParticipantToEvent eventId email userId writeModel.Name writeModel.Department db
@@ -162,7 +163,6 @@ let registerParticipation (eventId: Guid, email): HttpHandler =
                                 Ok []
                             else
                                 // FIXME: Here we need to fetch all the questions from the database. This is because we have no question ID related to the answers. This does not feel right and should be fixed. Does require a frontend fix as well
-                                let eventQuestions = Queries.getEventQuestions eventId db
                                 let participantAnswerDbModels: ParticipantAnswer list =
                                     writeModel.ParticipantAnswers
                                     |> Seq.zip eventQuestions
@@ -179,16 +179,18 @@ let registerParticipation (eventId: Guid, email): HttpHandler =
                 let! participant = participant |> Result.mapError InternalError
                 let! answers = answers |> Result.mapError InternalError
                 db.Commit()
-                use db = openConnection context
+                
                 let! isParticipating =
                     Queries.isParticipating eventId email db
                     |> TaskResult.mapError InternalError
+                
                 // Sende epost
                 let isWaitlisted = eventAndQuestions.Event.HasWaitingList && isParticipating = false
                 let email =
                     let viewUrl = createViewUrl writeModel.ViewUrlTemplate eventAndQuestions.Event
                     let cancelUrl = createCancelUrl writeModel.CancelUrlTemplate participant
-
+                    let questionAndAnswer = createQuestionAndAnswer eventQuestions answers
+                        
                     createNewParticipantMail
                         viewUrl
                         cancelUrl
@@ -196,6 +198,7 @@ let registerParticipation (eventId: Guid, email): HttpHandler =
                         isWaitlisted
                         config.noReplyEmail
                         participant
+                        questionAndAnswer
                 
                 sendMail email context
 

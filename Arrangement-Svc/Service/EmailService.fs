@@ -124,12 +124,24 @@ let sendNewlyCreatedEventMail viewUrl editUrl (event: Models.Event) (ctx: HttpCo
         createEmail viewUrl editUrl config.noReplyEmail event
     sendMail mail ctx
 
-let private inviteMessage viewUrl cancelUrl (event: Models.Event) =
+let private getQuestionsAndAnswers title (questionAndAnswer: ParticipantQuestionAndAnswer list) =
+    [
+        if not (List.isEmpty questionAndAnswer) then
+            ""
+            $"{title}:"
+            yield! List.map (fun qa -> $"""{if qa.Question.IsSome then qa.Question.Value.Question else ""}: {qa.Answer.Answer}""") questionAndAnswer
+            ""
+        else ""
+    ]
+   
+let private inviteMessage viewUrl cancelUrl (event: Models.Event) (questionAndAnswer: ParticipantQuestionAndAnswer list) =
     [ "Hei! 😄"
       ""
       $"Du er nå påmeldt <a href=\"{viewUrl}\">{event.Title}</a>."
       $"Vi gleder oss til å se deg på {event.Location} den {DateTimeCustom.toReadableString (DateTimeCustom.toCustomDateTime event.StartDate event.StartTime)} 🎉"
-      ""
+      
+      yield! getQuestionsAndAnswers "Dine svar" questionAndAnswer
+      
       if event.MaxParticipants.IsSome then
         "Siden det er begrenset med plasser, setter vi pris på om du melder deg av hvis du ikke lenger<br>kan delta. Da blir det plass til andre på ventelisten 😊"
       else "Gjerne meld deg av dersom du ikke lenger har mulighet til å delta."
@@ -141,12 +153,14 @@ let private inviteMessage viewUrl cancelUrl (event: Models.Event) =
       $"Hilsen {event.OrganizerName} i Bekk" ]
     |> String.concat "<br>" // Sendgrid formats to HTML, \n does not work
 
-let private waitlistedMessage viewUrl cancelUrl (event: Models.Event) =
+let private waitlistedMessage viewUrl cancelUrl (event: Models.Event) (questionAndAnswer: ParticipantQuestionAndAnswer list) =
     [ "Hei! 😄"
       ""
       $"Du er nå på venteliste for <a href=\"{viewUrl}\">{event.Title}</a> på {event.Location} den {DateTimeCustom.toReadableString (DateTimeCustom.toCustomDateTime event.StartDate event.StartTime)}."
       "Du vil få beskjed på e-post om du rykker opp fra ventelisten."
-      ""
+      
+      yield! getQuestionsAndAnswers "Dine svar" questionAndAnswer
+      
       "Siden det er begrenset med plasser, setter vi pris på om du melder deg av hvis du ikke lenger"
       "kan delta. Da blir det plass til andre på ventelisten 😊"
       $"Du kan melde deg av <a href=\"{cancelUrl}\">via denne lenken</a>."
@@ -165,11 +179,12 @@ let createNewParticipantMail
     isWaitlisted
     noReplyMail
     (participant: Participant)
+    (questionAndAnswer: ParticipantQuestionAndAnswer list)
     =
     let message =
         if isWaitlisted
-        then waitlistedMessage viewUrl cancelUrl event
-        else inviteMessage viewUrl cancelUrl event
+        then waitlistedMessage viewUrl cancelUrl event questionAndAnswer
+        else inviteMessage viewUrl cancelUrl event questionAndAnswer
 
     { Subject = event.Title
       Message = message
@@ -185,23 +200,15 @@ let private createCancelledParticipationMailToOrganizer
     participant
     participantAnswers
     =
+        let questionAndAnswer = createQuestionAndAnswer eventQuestions participantAnswers
+        
         let message =
-            let participantInfo =
-                let questionAnswerString =
-                    List.map (fun (question: ParticipantQuestion) ->
-                       let answer = List.find (fun (a: ParticipantAnswer) -> a.QuestionId = question.Id) participantAnswers
-                       $"- {question.Question}<br>{answer.Answer}<br><br>"
-                    ) eventQuestions
-                [
-                    ""
-                    "Deltaker har svart:"
-                    ""
-                    yield! questionAnswerString
-                ]
             [ $"{participant.Name} har meldt seg av {event.Title}"
-              if List.isEmpty eventQuestions = false then
-                  yield! participantInfo
-            ] |> String.concat "<br>"
+              
+              yield! getQuestionsAndAnswers "Deltaker har svart" questionAndAnswer
+            ]
+            |> String.concat "<br>"
+        
         { Subject = "Avmelding"
           Message = message
           To = event.OrganizerEmail

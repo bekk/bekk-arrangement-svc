@@ -633,11 +633,10 @@ let createParticipantAnswers (participantAnswers: Models.ParticipantAnswer list)
         "
     let selectQuery =
         "
-        SELECT * FROM ParticipantAnswers WHERE
-        QuestionId = @questionId AND EventId = @eventId AND Email = @email;
+        SELECT * FROM ParticipantAnswers
+        WHERE EventId = @eventId AND Email = @email;
         "
     let selectParameters = {|
-        QuestionId = answer.QuestionId
         EventId = answer.EventId
         Email = answer.Email
     |}
