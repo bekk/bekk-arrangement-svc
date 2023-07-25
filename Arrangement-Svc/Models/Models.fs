@@ -396,14 +396,18 @@ module Participant =
             "cancellationToken", Encode.guid participantAndAnswers.Participant.CancellationToken
         ]
 
-    let encodeToLocalStorage (participant: Participant) =
+    let encodeToLocalStorage (participant: ParticipantAndAnswers) =
         Encode.object [
-            "eventId", Encode.guid participant.EventId
-            "email", Encode.string participant.Email
-            "cancellationToken", Encode.guid participant.CancellationToken
+            "eventId", Encode.guid participant.Participant.EventId
+            "email", Encode.string participant.Participant.Email
+            "cancellationToken", Encode.guid participant.Participant.CancellationToken
+            "answers", participant.Answers
+                       |> List.map (fun answer -> answer.Answer)
+                       |> List.map Encode.string
+                       |> Encode.list
         ]
 
-    let encodeWithLocalStorage (eventAndQuestions: EventAndQuestions list) (participations: Participant list) =
+    let encodeWithLocalStorage (eventAndQuestions: EventAndQuestions list) (participations: ParticipantAndAnswers list) =
         Encode.object [
            "editableEvents", eventAndQuestions |> List.map Event.encoderWithEditInfo |> Encode.list
            "participations", participations |> List.map encodeToLocalStorage |> Encode.list

@@ -418,18 +418,41 @@ let getParticipationsById (id: int) (db: DatabaseContext) =
                    P.RegistrationTime,
                    P.CancellationToken,
                    P.Name,
-                   P.EmployeeId
+                   P.EmployeeId,
+                   PA.QuestionId,
+                   PA.EventId,
+                   PA.Email,
+                   PA.Answer
             FROM Participants P
-                     LEFT JOIN Events E ON E.Id = P.EventId AND E.OrganizerEmail = P.Email
-            WHERE P.EmployeeId = @id
-            ORDER BY StartDate DESC;
+                     LEFT JOIN ParticipantAnswers PA ON PA.EventId = P.EventId AND PA.Email = P.Email
+            WHERE P.EmployeeId = @id;
             "
         let parameters = {|
             Id = id
         |}
 
+        let participants = Dictionary<Models.Participant, Models.ParticipantAnswer list>()
         try
-            let! result = db.Connection.QueryAsync<Models.Participant>(query, parameters, db.Transaction)
+            let! _ =
+                db.Connection.QueryAsync(
+                    query,
+                    (fun (participant: Models.Participant) (answer: Models.ParticipantAnswer) ->
+                            if participants.ContainsKey(participant) && not (answer :> obj = null) then
+                                participants[participant] <- participants[participant] @ [answer]
+                            else if not (participants.ContainsKey(participant)) && not (answer :> obj = null) then
+                                participants.Add(participant, [answer])
+                            else
+                                participants.Add(participant, [])
+                        ),
+                    parameters,
+                    db.Transaction,
+                    splitOn = "QuestionId")
+
+            let result: Models.ParticipantAndAnswers seq =
+                participants
+                |> Seq.fromDict
+                |> Seq.map (fun (x, y) -> { Participant = x; Answers = y })
+
             return Ok result
         with
             | ex -> return Error ex
