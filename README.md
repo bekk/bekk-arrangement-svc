@@ -153,6 +153,16 @@ It's possible to disable podman integration to avoid requiring sudo password and
 $ NO_CONTAINER_MANAGEMENT=1 NO_MIGRATION=1 dotnet # .. rest as before
 ```
 
+### If you have problems getting to run the tests locally
+I recommend the following steps:
+1: Turn off any podman or docker containers running on port 1433.
+2: Run `$ podman-compose up`
+3: In a different terminal window start the backend with `$ dotnet run` to force a DB migration.
+4: Close the server
+5: Run tests with the following command: `$ NO_CONTAINER_MANAGEMENT=1 NO_MIGRATION=1 dotnet test`
+
+You can keep running the tests with `$ NO_CONTAINER_MANAGEMENT=1 NO_MIGRATION=1 dotnet test` or directly in your IDE.
+
 ## Migrating the database
 
 - Create a new .sql file with a number prefix (increment the highest existing prefix) with your new migration
