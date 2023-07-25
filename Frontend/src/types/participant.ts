@@ -21,7 +21,12 @@ export interface IParticipantViewModel {
   department: string;
   eventId: string;
   registrationTime: number;
-  participantAnswers: string[];
+  questionAndAnswers: IQuestionAndAnswer[];
+}
+
+export interface IQuestionAndAnswer {
+  question: string;
+  answer: string;
 }
 
 export interface IParticipantsWithWaitingList {
@@ -71,13 +76,13 @@ export const parseParticipantViewModel = (
     ? parseEmailViewModel(participantView.email)
     : { email: '' };
   const name = parseName(participantView.name);
-  const answers = parseAnswers(participantView.participantAnswers);
+  const answers = parseAnswers(participantView.questionAndAnswers.map(qa => qa.answer));
 
   const participant = {
     ...participantView,
     email,
     name,
-    answers,
+    participantAnswers: answers,
   };
 
   assertIsValid(participant);

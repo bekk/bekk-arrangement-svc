@@ -18,19 +18,6 @@ type ParticipantAnswer = {
   Answer: string
 }
 
-type ParticipantQuestionAndAnswer = {
-    EventId: Guid
-    Question: ParticipantQuestion option
-    Answer: ParticipantAnswer
-}
-
-let createQuestionAndAnswer (questions: ParticipantQuestion list) (answers: ParticipantAnswer list) =
-    List.map (fun (answer: ParticipantAnswer) ->
-        { EventId = answer.EventId
-          Question = List.tryFind (fun question -> question.Id = answer.QuestionId) questions
-          Answer = answer
-        }) answers
-
 module Validate =
     let private containsChars (toTest: string) (chars: string) =
         Seq.exists (fun c -> Seq.contains c chars) toTest
@@ -374,37 +361,43 @@ type Participant =
     CancellationToken: Guid
     EmployeeId: int option
   }
-
-type ParticipantAndAnswers = {
-    Participant: Participant
-    Answers: ParticipantAnswer list
-}
-
+  
+[<CLIMutable>]
 type QuestionAndAnswer = {
-    QuestionId: int
     Question: string
     Answer: string
 }
-type ParticipantAndQuestionAndAnswers = {
+type ParticipantAndAnswers = {
     Participant: Participant
     QuestionAndAnswer: QuestionAndAnswer list
 }
-
 type ParticipationsAndWaitlist =
     { Attendees: ParticipantAndAnswers list
       WaitingList: ParticipantAndAnswers list
     }
 
+let createQuestionAndAnswer (questions: ParticipantQuestion list) (answers: ParticipantAnswer list) =
+    List.map (fun (answer: ParticipantAnswer) ->
+        let question: ParticipantQuestion = List.find (fun q -> q.Id = answer.QuestionId) questions
+        { Question = question.Question
+          Answer = answer.Answer
+        }) answers
+    
 module Participant =
+    let encodeQuestionAndAnswer (questionAndAnswer: QuestionAndAnswer) =
+        Encode.object [
+            "question", Encode.string questionAndAnswer.Question
+            "answer", Encode.string questionAndAnswer.Answer
+    ]
     let encodeParticipantAndAnswers (participantAndAnswers: ParticipantAndAnswers) =
         let participant = participantAndAnswers.Participant
-        let answers = participantAndAnswers.Answers
+        let questionAndAnswers = participantAndAnswers.QuestionAndAnswer
         Encode.object [
             "name", Encode.string participant.Name
             "email", Encode.string participant.Email
-            "participantAnswers",
-                answers
-                |> List.map (fun a -> Encode.string a.Answer)
+            "questionAndAnswers",
+                questionAndAnswers
+                |> List.map encodeQuestionAndAnswer
                 |> Encode.list
             "registrationTime", Encode.int64 participant.RegistrationTime
             "eventId", Encode.guid participant.EventId
@@ -412,25 +405,24 @@ module Participant =
             "employeeId", Encode.option Encode.int participant.EmployeeId
         ]
 
-    let encodeWithCancelInfo (participant: Participant) (answers: ParticipantAnswer list) =
-        let participantAndAnswers = {Participant = participant; Answers = answers }
+    let encodeWithCancelInfo (participant: Participant) (questionAndAnswers: QuestionAndAnswer list) =
+        let participantAndAnswers = {Participant = participant; QuestionAndAnswer = questionAndAnswers }
         Encode.object [
             "participant", encodeParticipantAndAnswers participantAndAnswers
             "cancellationToken", Encode.guid participantAndAnswers.Participant.CancellationToken
         ]
 
-    let encodeToLocalStorage (participant: ParticipantAndQuestionAndAnswers) =
+    let encodeToLocalStorage (participant: ParticipantAndAnswers) =
         Encode.object [
             "eventId", Encode.guid participant.Participant.EventId
             "email", Encode.string participant.Participant.Email
             "cancellationToken", Encode.guid participant.Participant.CancellationToken
             "questionAndAnswers", participant.QuestionAndAnswer
-                       |> List.map (fun qa -> $"{qa.Question}: {qa.Answer}")
-                       |> List.map Encode.string
+                       |> List.map encodeQuestionAndAnswer
                        |> Encode.list
         ]
 
-    let encodeWithLocalStorage (eventAndQuestions: EventAndQuestions list) (participations: ParticipantAndQuestionAndAnswers list) =
+    let encodeWithLocalStorage (eventAndQuestions: EventAndQuestions list) (participations: ParticipantAndAnswers list) =
         Encode.object [
            "editableEvents", eventAndQuestions |> List.map Event.encoderWithEditInfo |> Encode.list
            "participations", participations |> List.map encodeToLocalStorage |> Encode.list
