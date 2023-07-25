@@ -65,42 +65,7 @@
 .solnedgangKontrast {
   background-color: var(--solnedgangKontrast);
 }
-.christmas {
-  background-color: #d6001c;
 
-  & h1,
-  p,
-  button {
-    color: white;
-  }
-  & path {
-    fill: white;
-  }
-  & circle {
-    stroke: white;
-  }
-  & button {
-    border-color: white;
-  }
-  & button:hover {
-    background-color: darkgreen;
-    border-color: darkgreen;
-  }
-}
-.halloween {
-  background-color: #ff7518;
-  & button:hover {
-    background-color: red;
-    border-color: red;
-  }
-}
-.kittens {
-  background-color: #f59fce;
-  & button:hover {
-    background-color: #b63afc;
-    border-color: #b63afc;
-  }
-}
 .soloppgang {
   background-color: var(--soloppgang);
 }
