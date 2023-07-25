@@ -15,4 +15,5 @@ out/
 ./paket/paket.exe
 ./paket/paket
 Frontend/node_modules
+Frontend/dist
 Tests
