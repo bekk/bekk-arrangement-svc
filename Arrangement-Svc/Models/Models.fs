@@ -367,6 +367,16 @@ type ParticipantAndAnswers = {
     Answers: ParticipantAnswer list
 }
 
+type QuestionAndAnswer = {
+    QuestionId: int
+    Question: string
+    Answer: string
+}
+type ParticipantAndQuestionAndAnswers = {
+    Participant: Participant
+    QuestionAndAnswer: QuestionAndAnswer list
+}
+
 type ParticipationsAndWaitlist =
     { Attendees: ParticipantAndAnswers list
       WaitingList: ParticipantAndAnswers list
@@ -396,18 +406,18 @@ module Participant =
             "cancellationToken", Encode.guid participantAndAnswers.Participant.CancellationToken
         ]
 
-    let encodeToLocalStorage (participant: ParticipantAndAnswers) =
+    let encodeToLocalStorage (participant: ParticipantAndQuestionAndAnswers) =
         Encode.object [
             "eventId", Encode.guid participant.Participant.EventId
             "email", Encode.string participant.Participant.Email
             "cancellationToken", Encode.guid participant.Participant.CancellationToken
-            "answers", participant.Answers
-                       |> List.map (fun answer -> answer.Answer)
+            "questionAndAnswers", participant.QuestionAndAnswer
+                       |> List.map (fun qa -> $"{qa.Question}: {qa.Answer}")
                        |> List.map Encode.string
                        |> Encode.list
         ]
 
-    let encodeWithLocalStorage (eventAndQuestions: EventAndQuestions list) (participations: ParticipantAndAnswers list) =
+    let encodeWithLocalStorage (eventAndQuestions: EventAndQuestions list) (participations: ParticipantAndQuestionAndAnswers list) =
         Encode.object [
            "editableEvents", eventAndQuestions |> List.map Event.encoderWithEditInfo |> Encode.list
            "participations", participations |> List.map encodeToLocalStorage |> Encode.list

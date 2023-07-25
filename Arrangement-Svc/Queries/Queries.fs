@@ -419,39 +419,41 @@ let getParticipationsById (id: int) (db: DatabaseContext) =
                    P.CancellationToken,
                    P.Name,
                    P.EmployeeId,
-                   PA.QuestionId,
-                   PA.EventId,
-                   PA.Email,
-                   PA.Answer
+                   Q.Question,
+                   A.QuestionId,
+                   A.EventId,
+                   A.Email,
+                   A.Answer
             FROM Participants P
-                     LEFT JOIN ParticipantAnswers PA ON PA.EventId = P.EventId AND PA.Email = P.Email
+                     LEFT JOIN ParticipantAnswers A ON A.EventId = P.EventId AND A.Email = P.Email
+                     LEFT JOIN ParticipantQuestions Q ON Q.EventId = P.EventId AND Q.Id = A.QuestionId
             WHERE P.EmployeeId = @id;
             "
         let parameters = {|
             Id = id
         |}
 
-        let participants = Dictionary<Models.Participant, Models.ParticipantAnswer list>()
+        let participants = Dictionary<Models.Participant, Models.QuestionAndAnswer list>()
         try
             let! _ =
                 db.Connection.QueryAsync(
                     query,
-                    (fun (participant: Models.Participant) (answer: Models.ParticipantAnswer) ->
+                    (fun (participant: Models.Participant) (question: string) (answer: Models.ParticipantAnswer) ->
                             if participants.ContainsKey(participant) && not (answer :> obj = null) then
-                                participants[participant] <- participants[participant] @ [answer]
+                                participants[participant] <- participants[participant] @ [{QuestionId = answer.QuestionId; Question = question; Answer = answer.Answer}]
                             else if not (participants.ContainsKey(participant)) && not (answer :> obj = null) then
-                                participants.Add(participant, [answer])
+                                participants.Add(participant, [{QuestionId = answer.QuestionId; Question = question; Answer = answer.Answer}])
                             else
                                 participants.Add(participant, [])
                         ),
                     parameters,
                     db.Transaction,
-                    splitOn = "QuestionId")
+                    splitOn = "Question,QuestionId")
 
-            let result: Models.ParticipantAndAnswers seq =
+            let result: Models.ParticipantAndQuestionAndAnswers seq =
                 participants
                 |> Seq.fromDict
-                |> Seq.map (fun (x, y) -> { Participant = x; Answers = y })
+                |> Seq.map (fun (x, y) -> { Participant = x; QuestionAndAnswer = y })
 
             return Ok result
         with
