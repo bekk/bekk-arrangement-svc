@@ -15,9 +15,13 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "downlevelIteration": true,
-    "baseUrl": "./",
     "noFallthroughCasesInSwitch": true,
-    "plugins": [{ "name": "typescript-plugin-css-modules" }]
+    "baseUrl": ".",
+    "paths": {
+        "src/*": ["src/*"]
+    }
+//    "plugins": [{ "name": "typescript-plugin-css-modules" }],
   },
-  "include": ["src"]
+  "include": ["src",
+      "Globals.d.ts", "**/*.ts", "**/*.tsx", "**/*.module.scss" ]
 }
