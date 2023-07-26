@@ -20,7 +20,6 @@
     "paths": {
         "src/*": ["src/*"]
     }
-//    "plugins": [{ "name": "typescript-plugin-css-modules" }],
   },
   "include": ["src",
       "Globals.d.ts", "**/*.ts", "**/*.tsx", "**/*.module.scss" ]
