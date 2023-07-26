@@ -5,7 +5,6 @@ import 'src/extension-methods/array';
 import 'src/index.css';
 import { NotificationHandler } from './components/NotificationHandler/NotificationHandler';
 import { getConfig, setConfig } from 'src/config';
-import {Notification, NotificationTypes} from "./components/Common/Notification/Notification";
 
 const init = async () => {
   const config = await getConfig();
@@ -16,16 +15,7 @@ const init = async () => {
   root.render(
     <React.StrictMode>
       <NotificationHandler>
-          {/*<>*/}
-          {/*<Notification notification={{*/}
-          {/*    type: "INFO",*/}
-          {/*    title: "HEI",*/}
-          {/*    message: "DEG"*/}
-          {/*}}*/}
-          {/*              onClose={() => {}}*/}
-          {/*visible/>*/}
         <App />
-          {/*</>*/}
       </NotificationHandler>
     </React.StrictMode>
   );

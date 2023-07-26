@@ -1,5 +1,5 @@
 import React, { useState, createContext, useContext, useCallback } from 'react';
-import {Notification} from "../Common/Notification/Notification";
+import { Notification } from '../Common/Notification/Notification';
 
 export class UserNotification extends Error {
   public title: string;
