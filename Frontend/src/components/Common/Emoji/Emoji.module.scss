@@ -1,0 +1,9 @@
+    .container {
+        width: 100px;
+        & svg {
+            display: inline-block;
+            vertical-align: bottom;
+            height: 100px;
+            width: 100px;
+        }
+    }

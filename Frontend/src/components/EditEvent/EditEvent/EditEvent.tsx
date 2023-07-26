@@ -25,7 +25,6 @@ import {
 } from 'src/types/date-time';
 import { isValid } from 'src/types/validation';
 import { ValidatedTextArea } from 'src/components/Common/ValidatedTextArea/ValidatedTextArea';
-import { Checkbox } from '@bekk/storybook';
 import { Button } from 'src/components/Common/Button/Button';
 import style from './EditEvent.module.scss';
 import { TimeInput } from 'src/components/Common/TimeInput/TimeInput';
@@ -382,7 +381,7 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
         </div>
 
         <div className={style.unlimitedSpots}>
-          <Checkbox
+          <CheckBox
             label={labels.unlimitedSpots}
             isChecked={hasUnlimitedSpots}
             onChange={(limited) => {
@@ -423,7 +422,7 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
                   />
                 </div>
                 <div className={style.waitListCheckBox}>
-                  <Checkbox
+                  <CheckBox
                     label={labels.waitingList}
                     onChange={(hasWaitingList) =>
                       updateEvent({ ...event, hasWaitingList })
@@ -435,7 +434,7 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
             )}
         </div>
         <div>
-          <Checkbox
+          <CheckBox
             label={labels.externalEvent}
             onChange={(isExternal) => updateEvent({ ...event, isExternal })}
             isChecked={event.isExternal}
@@ -446,7 +445,7 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
           </p>
         </div>
         <div>
-          <Checkbox
+          <CheckBox
             label={labels.hiddenEvent}
             onChange={(isHidden) => updateEvent({ ...event, isHidden })}
             isChecked={event.isHidden}
@@ -455,7 +454,7 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
         </div>
 
         <div className={style.shortName}>
-          <Checkbox
+          <CheckBox
             label={'Tilpass URL'}
             isChecked={hasShortname}
             onChange={setHasShortname}
@@ -477,7 +476,7 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
         </div>
 
         <div className={style.customColor}>
-          <Checkbox
+          <CheckBox
             label={'Tilpass farge'}
             isChecked={hasCustomColor}
             onChange={setHasCustomColor}
