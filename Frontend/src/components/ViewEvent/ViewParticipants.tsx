@@ -7,6 +7,12 @@ import { useMediaQuery } from 'react-responsive';
 import { IParticipant } from 'src/types/participant';
 import { Button } from 'src/components/Common/Button/Button';
 import { Spinner } from 'src/components/Common/Spinner/spinner';
+import { Modal } from '../Common/Modal/Modal';
+import { useEditToken, useSavedParticipations } from '../../hooks/saved-tokens';
+import { useParam } from '../../utils/browser-state';
+import { eventIdKey } from '../../routing';
+import { deleteParticipant } from '../../api/arrangementSvc';
+import { useNotification } from '../NotificationHandler/NotificationHandler';
 
 interface IProps {
   eventId: string;
@@ -27,35 +33,40 @@ export const ViewParticipants = ({ eventId, editToken }: IProps) => {
     return <Spinner />;
   }
 
-  const { attendees, waitingList } = remoteParticipants.data;
-
   return (
     <div>
       {remoteParticipants.data.attendees.length > 0 ? (
         screenIsMobileSize ? (
-          <ParticipantTableMobile eventId={eventId} participants={attendees} />
+          <ParticipantTableMobile
+            eventId={eventId}
+            participants={remoteParticipants.data.attendees}
+          />
         ) : (
-          <ParticipantTableDesktop eventId={eventId} participants={attendees} />
+          <ParticipantTableDesktop
+            eventId={eventId}
+            participants={remoteParticipants.data.attendees}
+          />
         )
       ) : (
         <div>Ingen påmeldte</div>
       )}
-      {waitingList && waitingList.length > 0 && (
-        <>
-          <h3 className={style.subSubHeader}>På venteliste</h3>
-          {screenIsMobileSize ? (
-            <ParticipantTableMobile
-              eventId={eventId}
-              participants={waitingList}
-            />
-          ) : (
-            <ParticipantTableDesktop
-              eventId={eventId}
-              participants={waitingList}
-            />
-          )}
-        </>
-      )}
+      {remoteParticipants.data.waitingList &&
+        remoteParticipants.data.waitingList.length > 0 && (
+          <>
+            <h3 className={style.subSubHeader}>På venteliste</h3>
+            {screenIsMobileSize ? (
+              <ParticipantTableMobile
+                eventId={eventId}
+                participants={remoteParticipants.data.waitingList}
+              />
+            ) : (
+              <ParticipantTableDesktop
+                eventId={eventId}
+                participants={remoteParticipants.data.waitingList}
+              />
+            )}
+          </>
+        )}
     </div>
   );
 };
@@ -106,11 +117,13 @@ const ParticipantTableDesktop = (props: {
   participants: IParticipant[];
 }) => {
   const event = useEvent(props.eventId);
+
   const hasComments = hasLoaded(event)
     ? event.data.participantQuestions.length > 0
     : true;
   const questions = (hasLoaded(event) && event.data.participantQuestions) || [];
   const [wasCopied, setWasCopied] = useState(false);
+  const [showModal, setShowModal] = useState<IParticipant | null>(null);
   const copyAttendees = async () => {
     await navigator.clipboard.writeText(
       props.participants.map((p) => p.name).join(', ')
@@ -129,12 +142,13 @@ const ParticipantTableDesktop = (props: {
       setWasCopied(false);
     }, 3000);
   };
+
   return (
     <>
       <Button onClick={copyAttendees}>
         Kopier deltakernavn til utklippstavle
-      </Button>{' '}
-      <Button onClick={copyEmails}>Kopier eposter til utklippstavle</Button>{' '}
+      </Button>
+      <Button onClick={copyEmails}>Kopier eposter til utklippstavle</Button>
       {wasCopied && 'Kopiert!'}
       <table className={style.table}>
         <thead>
@@ -144,6 +158,7 @@ const ParticipantTableDesktop = (props: {
             {hasComments && (
               <th className={style.desktopHeaderCell}>Kommentar</th>
             )}
+            <th className={style.desktopHeaderCell}></th>
           </tr>
         </thead>
         <tbody>
@@ -168,10 +183,68 @@ const ParticipantTableDesktop = (props: {
                   )}
                 </td>
               )}
+              <td className={style.desktopCell}>
+                <Button onClick={() => setShowModal(attendee)}>Meld av</Button>
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
+      {showModal !== null && (
+        <AvmeldModal
+          eventName={hasLoaded(event) ? event.data.title : 'Arrangement'}
+          participant={showModal}
+          closeModal={() => setShowModal(null)}
+        />
+      )}
     </>
+  );
+};
+
+const AvmeldModal = ({
+  eventName,
+  participant,
+  closeModal,
+}: {
+  eventName: string;
+  participant: IParticipant;
+  closeModal: () => void;
+}) => {
+  const eventId = useParam(eventIdKey);
+  const editToken = useEditToken(eventId);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const { catchAndNotify } = useNotification();
+  const { removeSavedParticipant } = useSavedParticipations();
+
+  const cancelParticipant = catchAndNotify(async (participantEmail: string) => {
+    await deleteParticipant({
+      eventId,
+      participantEmail,
+      editToken,
+    });
+    removeSavedParticipant({ eventId, email: participantEmail });
+  });
+
+  return (
+    <Modal header="Avmelding" closeModal={closeModal}>
+      <p>
+        Er du sikker på at du vil melde av {participant.name} fra {eventName}?
+      </p>
+      <p>Dersom vedkommende angrer seg må vedkommende melde seg på igjen.</p>
+      <div style={{ marginTop: 50, display: 'flex', justifyContent: 'center' }}>
+        <Button
+          disabled={isDeleting}
+          onClick={async () => {
+            setIsDeleting(true);
+            await cancelParticipant(participant.email.email);
+            closeModal();
+          }}>
+          Meld av
+        </Button>
+        <Button disabled={isDeleting} onClick={closeModal}>
+          Avbryt
+        </Button>
+      </div>
+    </Modal>
   );
 };

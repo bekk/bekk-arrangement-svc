@@ -222,7 +222,7 @@ export const ViewEventContainer = ({ eventId }: IProps) => {
           {participationsForThisEvent.length >= 1 ? (
             <div>
               <h2 className={style.subHeader}>
-                Du er påmeldt{' '}
+                Du er påmeldt
                 <span role="img" aria-label="konfetti">
                   🎉
                 </span>
