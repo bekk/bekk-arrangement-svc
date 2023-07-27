@@ -79,38 +79,52 @@ const ParticipantTableMobile = (props: {
 }) => {
   const event = useEvent(props.eventId);
   const questions = (hasLoaded(event) && event.data.participantQuestions) || [];
+  const [showModal, setShowModal] = useState<IParticipant | null>(null);
+  if (!hasLoaded(event)) return <></>;
   return (
-    <table className={style.table}>
-      <tbody>
-        {props.participants.map((attendee) => (
-          <React.Fragment key={attendee.name + attendee.email.email}>
-            <tr>
-              <td className={style.mobileNameCell}>
-                {attendee.name}{' '}
-                <span className={style.mobileEmailCell}>
-                  ({stringifyEmail(attendee.email)})
-                </span>
-              </td>
-            </tr>
-            <tr>
-              <td colSpan={2} className={style.mobileCommentCell}>
-                {questions.map(
-                  (q, i) =>
-                    attendee.participantAnswers[i] && (
-                      <div>
-                        <div className={style.question}>{q}</div>
-                        <div className={style.answer}>
-                          {attendee.participantAnswers[i]}
+    <>
+      <table className={style.table}>
+        <tbody>
+          {props.participants.map((attendee) => (
+            <React.Fragment key={attendee.name + attendee.email.email}>
+              <tr>
+                <td className={style.mobileNameCell}>
+                  {attendee.name}
+                  <span className={style.mobileEmailCell}>
+                    ({stringifyEmail(attendee.email)})
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td colSpan={2} className={style.mobileCommentCell}>
+                  {questions.map(
+                    (q, i) =>
+                      attendee.participantAnswers[i] && (
+                        <div>
+                          <div className={style.question}>{q}</div>
+                          <div className={style.answer}>
+                            {attendee.participantAnswers[i]}
+                          </div>
                         </div>
-                      </div>
-                    )
-                )}
-              </td>
-            </tr>
-          </React.Fragment>
-        ))}
-      </tbody>
-    </table>
+                      )
+                  )}
+                  <Button onClick={() => setShowModal(attendee)}>
+                    Meld av
+                  </Button>
+                </td>
+              </tr>
+            </React.Fragment>
+          ))}
+        </tbody>
+      </table>
+      {showModal !== null && (
+        <DeleteParticipantModal
+          event={event.data}
+          participant={showModal}
+          closeModal={() => setShowModal(null)}
+        />
+      )}
+    </>
   );
 };
 
