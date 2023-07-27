@@ -185,11 +185,11 @@ let registerParticipation (eventId: Guid, email): HttpHandler =
                     |> TaskResult.mapError InternalError
                 
                 // Sende epost
+                let questionAndAnswers = createQuestionAndAnswer eventQuestions answers
                 let isWaitlisted = eventAndQuestions.Event.HasWaitingList && isParticipating = false
                 let email =
                     let viewUrl = createViewUrl writeModel.ViewUrlTemplate eventAndQuestions.Event
                     let cancelUrl = createCancelUrl writeModel.CancelUrlTemplate participant
-                    let questionAndAnswer = createQuestionAndAnswer eventQuestions answers
                         
                     createNewParticipantMail
                         viewUrl
@@ -198,11 +198,11 @@ let registerParticipation (eventId: Guid, email): HttpHandler =
                         isWaitlisted
                         config.noReplyEmail
                         participant
-                        questionAndAnswer
+                        questionAndAnswers
                 
                 sendMail email context
 
-                return Participant.encodeWithCancelInfo participant answers
+                return Participant.encodeWithCancelInfo participant questionAndAnswers
             }
         jsonResult result next context
 
@@ -717,9 +717,9 @@ let getParticipantsForEvent (eventId: Guid) =
 let createCsvString (event: Models.Event) (questions: ParticipantQuestion list) (participants: ParticipationsAndWaitlist) =
     let createParticipant (builder: System.Text.StringBuilder) (participantAndAnswers: ParticipantAndAnswers) =
         let participant = participantAndAnswers.Participant
-        let answers = participantAndAnswers.Answers
+        let questionAndAnswers = participantAndAnswers.QuestionAndAnswers
         let answers =
-            answers
+            questionAndAnswers
             |> List.map (fun a -> $"\"{a.Answer}\"")
             |> String.concat ","
         let employeeId =
@@ -862,8 +862,8 @@ let deleteParticipantFromEvent (eventId: Guid) (email: string) =
                 let deletedParticipantAnswers =
                     participants
                     |> Seq.find (fun pa -> pa.Participant.Email = email)
-                    |> fun p -> p.Answers
-                sendParticipantCancelMails eventAndQuestions.Event eventAndQuestions.Questions deletedParticipant deletedParticipantAnswers personWhoGotIt context
+                    |> fun p -> p.QuestionAndAnswers
+                sendParticipantCancelMails eventAndQuestions.Event deletedParticipant deletedParticipantAnswers personWhoGotIt context
                 return ()
             }
         jsonResult result next context
