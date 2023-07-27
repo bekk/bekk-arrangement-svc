@@ -717,7 +717,7 @@ let getParticipantsForEvent (eventId: Guid) =
 let createCsvString (event: Models.Event) (questions: ParticipantQuestion list) (participants: ParticipationsAndWaitlist) =
     let createParticipant (builder: System.Text.StringBuilder) (participantAndAnswers: ParticipantAndAnswers) =
         let participant = participantAndAnswers.Participant
-        let questionAndAnswers = participantAndAnswers.QuestionAndAnswer
+        let questionAndAnswers = participantAndAnswers.QuestionAndAnswers
         let answers =
             questionAndAnswers
             |> List.map (fun a -> $"\"{a.Answer}\"")
@@ -862,7 +862,7 @@ let deleteParticipantFromEvent (eventId: Guid) (email: string) =
                 let deletedParticipantAnswers =
                     participants
                     |> Seq.find (fun pa -> pa.Participant.Email = email)
-                    |> fun p -> p.QuestionAndAnswer
+                    |> fun p -> p.QuestionAndAnswers
                 sendParticipantCancelMails eventAndQuestions.Event deletedParticipant deletedParticipantAnswers personWhoGotIt context
                 return ()
             }

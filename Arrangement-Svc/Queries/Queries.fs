@@ -453,7 +453,7 @@ let getParticipationsById (id: int) (db: DatabaseContext) =
             let result: Models.ParticipantAndAnswers seq =
                 participants
                 |> Seq.fromDict
-                |> Seq.map (fun (x, y) -> { Participant = x; QuestionAndAnswer = y })
+                |> Seq.map (fun (x, y) -> { Participant = x; QuestionAndAnswers = y })
 
             return Ok result
         with
@@ -1053,7 +1053,7 @@ let getParticipantsAndAnswersForEvent (eventId: Guid) (db: DatabaseContext) =
             let result: Models.ParticipantAndAnswers seq =
                 participants
                 |> Seq.fromDict
-                |> Seq.map (fun (x, y) -> { Participant = x; QuestionAndAnswer = y })
+                |> Seq.map (fun (x, y) -> { Participant = x; QuestionAndAnswers = y })
 
             return Ok result
         with
@@ -1105,7 +1105,7 @@ let getParticipationsForParticipant email (db: DatabaseContext) =
             let result: Models.ParticipantAndAnswers seq =
                 participants
                 |> Seq.fromDict
-                |> Seq.map (fun (x, y) -> { Participant = x; QuestionAndAnswer = y })
+                |> Seq.map (fun (x, y) -> { Participant = x; QuestionAndAnswers = y })
 
             return Ok result
         with

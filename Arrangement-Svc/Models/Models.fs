@@ -369,7 +369,7 @@ type QuestionAndAnswer = {
 }
 type ParticipantAndAnswers = {
     Participant: Participant
-    QuestionAndAnswer: QuestionAndAnswer list
+    QuestionAndAnswers: QuestionAndAnswer list
 }
 type ParticipationsAndWaitlist =
     { Attendees: ParticipantAndAnswers list
@@ -391,7 +391,7 @@ module Participant =
     ]
     let encodeParticipantAndAnswers (participantAndAnswers: ParticipantAndAnswers) =
         let participant = participantAndAnswers.Participant
-        let questionAndAnswers = participantAndAnswers.QuestionAndAnswer
+        let questionAndAnswers = participantAndAnswers.QuestionAndAnswers
         Encode.object [
             "name", Encode.string participant.Name
             "email", Encode.string participant.Email
@@ -406,7 +406,7 @@ module Participant =
         ]
 
     let encodeWithCancelInfo (participant: Participant) (questionAndAnswers: QuestionAndAnswer list) =
-        let participantAndAnswers = {Participant = participant; QuestionAndAnswer = questionAndAnswers }
+        let participantAndAnswers = {Participant = participant; QuestionAndAnswers = questionAndAnswers }
         Encode.object [
             "participant", encodeParticipantAndAnswers participantAndAnswers
             "cancellationToken", Encode.guid participantAndAnswers.Participant.CancellationToken
@@ -417,7 +417,7 @@ module Participant =
             "eventId", Encode.guid participant.Participant.EventId
             "email", Encode.string participant.Participant.Email
             "cancellationToken", Encode.guid participant.Participant.CancellationToken
-            "questionAndAnswers", participant.QuestionAndAnswer
+            "questionAndAnswers", participant.QuestionAndAnswers
                        |> List.map encodeQuestionAndAnswer
                        |> Encode.list
         ]
