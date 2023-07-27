@@ -412,12 +412,12 @@ module Participant =
             "cancellationToken", Encode.guid participantAndAnswers.Participant.CancellationToken
         ]
 
-    let encodeToLocalStorage (participant: ParticipantAndAnswers) =
+    let encodeToLocalStorage (participantAndAnswers: ParticipantAndAnswers) =
         Encode.object [
-            "eventId", Encode.guid participant.Participant.EventId
-            "email", Encode.string participant.Participant.Email
-            "cancellationToken", Encode.guid participant.Participant.CancellationToken
-            "questionAndAnswers", participant.QuestionAndAnswers
+            "eventId", Encode.guid participantAndAnswers.Participant.EventId
+            "email", Encode.string participantAndAnswers.Participant.Email
+            "cancellationToken", Encode.guid participantAndAnswers.Participant.CancellationToken
+            "questionAndAnswers", participantAndAnswers.QuestionAndAnswers
                        |> List.map encodeQuestionAndAnswer
                        |> Encode.list
         ]

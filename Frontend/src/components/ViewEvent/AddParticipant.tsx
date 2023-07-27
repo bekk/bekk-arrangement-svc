@@ -75,13 +75,11 @@ export const AddParticipant = ({
         throw e;
       });
 
-
-
       saveParticipation({
           eventId,
           email: response.participant.email || '',
           cancellationToken: response.cancellationToken,
-          questionAndAnswers: response.participant.questionAndAnswers }); //TODO HN
+          questionAndAnswers: response.participant.questionAndAnswers });
 
       history.push(
         confirmParticipantRoute({
