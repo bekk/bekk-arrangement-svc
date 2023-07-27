@@ -155,13 +155,16 @@ $ NO_CONTAINER_MANAGEMENT=1 NO_MIGRATION=1 dotnet # .. rest as before
 
 ### If you have problems getting to run the tests locally
 I recommend the following steps:
-1: Turn off any podman or docker containers running on port 1433.
-2: Run `$ podman-compose up`
-3: In a different terminal window start the backend with `$ dotnet run` to force a DB migration.
-4: Close the server
-5: Run tests with the following command: `$ NO_CONTAINER_MANAGEMENT=1 NO_MIGRATION=1 dotnet test`
+
+1. Turn off any podman or docker containers running on port 1433 (`$ podman stop <containerId>`). This is usually the local database.
+2. Run `$ podman-compose up`. Check `docker-compose.yml` to see which containers are started for this.
+3. In a different terminal window, navigate to `/Arrangement-Svc` and start the backend with `$ dotnet run` to force a DB migration.
+4. Close/stop the server.
+5. Navigate back to root, and run tests with the following command: `$ NO_CONTAINER_MANAGEMENT=1 NO_MIGRATION=1 dotnet test`
 
 You can keep running the tests with `$ NO_CONTAINER_MANAGEMENT=1 NO_MIGRATION=1 dotnet test` or directly in your IDE.
+
+When finished testing you can remove the containers for testing by using `$ podman kill <containerId>` and `$ podman rm <containerId>`.
 
 ## Migrating the database
 
