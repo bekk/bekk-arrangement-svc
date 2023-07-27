@@ -13,6 +13,8 @@ import { useParam } from '../../utils/browser-state';
 import { eventIdKey } from '../../routing';
 import { deleteParticipant } from '../../api/arrangementSvc';
 import { useNotification } from '../NotificationHandler/NotificationHandler';
+import { useHistory } from 'react-router';
+import { IEvent } from '../../types/event';
 
 interface IProps {
   eventId: string;
@@ -143,6 +145,8 @@ const ParticipantTableDesktop = (props: {
     }, 3000);
   };
 
+  if (!hasLoaded(event)) return <></>;
+
   return (
     <>
       <Button onClick={copyAttendees}>
@@ -191,8 +195,8 @@ const ParticipantTableDesktop = (props: {
         </tbody>
       </table>
       {showModal !== null && (
-        <AvmeldModal
-          eventName={hasLoaded(event) ? event.data.title : 'Arrangement'}
+        <DeleteParticipantModal
+          event={event.data}
           participant={showModal}
           closeModal={() => setShowModal(null)}
         />
@@ -201,15 +205,16 @@ const ParticipantTableDesktop = (props: {
   );
 };
 
-const AvmeldModal = ({
-  eventName,
+const DeleteParticipantModal = ({
+  event,
   participant,
   closeModal,
 }: {
-  eventName: string;
+  event: IEvent;
   participant: IParticipant;
   closeModal: () => void;
 }) => {
+  const history = useHistory();
   const eventId = useParam(eventIdKey);
   const editToken = useEditToken(eventId);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -228,7 +233,7 @@ const AvmeldModal = ({
   return (
     <Modal header="Avmelding" closeModal={closeModal}>
       <p>
-        Er du sikker på at du vil melde av {participant.name} fra {eventName}?
+        Er du sikker på at du vil melde av {participant.name} fra {event.title}?
       </p>
       <p>Dersom vedkommende angrer seg må vedkommende melde seg på igjen.</p>
       <div style={{ marginTop: 50, display: 'flex', justifyContent: 'center' }}>
@@ -237,6 +242,7 @@ const AvmeldModal = ({
           onClick={async () => {
             setIsDeleting(true);
             await cancelParticipant(participant.email.email);
+            history.go(0);
             closeModal();
           }}>
           Meld av
