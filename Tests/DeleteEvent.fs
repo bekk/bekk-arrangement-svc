@@ -14,7 +14,7 @@ type DeleteEvent(fixture: DatabaseFixture) =
 
     let unauthenticatedClient =
         fixture.getUnauthenticatedClient
-        
+
     let isAvmeldtEmail (email: DevEmail) = email.Email.Message.Contains "Vi bekrefter at du nå er avmeldt"
     let participantIsAvmeldt (email: DevEmail) = email.Email.Message.Contains "har meldt seg av"
 
@@ -157,6 +157,25 @@ type DeleteEvent(fixture: DatabaseFixture) =
         }
 
     [<Fact>]
+    member _.``Delete participant using edit token``() =
+        let generatedEvent =
+            TestData.createEvent (fun e -> { e with ParticipantQuestions = [] })
+
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
+            let! participant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event.Id
+
+            let! response, _ =
+                Http.deleteParticipantFromEventWithEditToken
+                    authenticatedClient
+                    createdEvent.Event.Id
+                    participant.Email
+                    createdEvent.EditToken
+
+            response.EnsureSuccessStatusCode() |> ignore
+        }
+
+    [<Fact>]
     member _.``Deleting participant should delete participant``() =
         let generatedEvent =
             TestData.createEvent (fun e ->
@@ -230,7 +249,7 @@ type DeleteEvent(fixture: DatabaseFixture) =
 
             Assert.Equal(participantCount, "1")
         }
-    
+
     [<Fact>]
     member _.``Deleting a participant should generate 2 emails``() =
         let generatedEvent =

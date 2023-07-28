@@ -66,10 +66,7 @@ export const AddParticipant = ({
     if (validParticipant) {
       setWaitingOnParticipation(true);
 
-      const {
-        participant: { email = '' },
-        cancellationToken,
-      } = await postParticipant(
+      const response = await postParticipant(
         event,
         eventId,
         validParticipant
@@ -78,12 +75,16 @@ export const AddParticipant = ({
         throw e;
       });
 
-      saveParticipation({ eventId, email, cancellationToken });
+      saveParticipation({
+          eventId,
+          email: response.participant.email || '',
+          cancellationToken: response.cancellationToken,
+          questionAndAnswers: response.participant.questionAndAnswers });
 
       history.push(
         confirmParticipantRoute({
           eventId,
-          email: encodeURIComponent(email),
+          email: encodeURIComponent(response.participant.email || ''),
         })
       );
     }

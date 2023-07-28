@@ -7,6 +7,15 @@ import { useMediaQuery } from 'react-responsive';
 import { IParticipant } from 'src/types/participant';
 import { Button } from 'src/components/Common/Button/Button';
 import { Spinner } from 'src/components/Common/Spinner/spinner';
+import { Modal } from '../Common/Modal/Modal';
+import { useEditToken, useSavedParticipations } from '../../hooks/saved-tokens';
+import { useParam } from '../../utils/browser-state';
+import { eventIdKey } from '../../routing';
+import { deleteParticipant } from '../../api/arrangementSvc';
+import { useNotification } from '../NotificationHandler/NotificationHandler';
+import { useHistory } from 'react-router';
+import { IEvent } from '../../types/event';
+import { Plus } from '../Common/Icons/Plus';
 
 interface IProps {
   eventId: string;
@@ -31,7 +40,7 @@ export const ViewParticipants = ({ eventId, editToken }: IProps) => {
 
   return (
     <div>
-      {remoteParticipants.data.attendees.length > 0 ? (
+      {attendees.length > 0 ? (
         screenIsMobileSize ? (
           <ParticipantTableMobile eventId={eventId} participants={attendees} />
         ) : (
@@ -66,38 +75,54 @@ const ParticipantTableMobile = (props: {
 }) => {
   const event = useEvent(props.eventId);
   const questions = (hasLoaded(event) && event.data.participantQuestions) || [];
+  const [showModal, setShowModal] = useState<IParticipant | null>(null);
+  if (!hasLoaded(event)) return <></>;
   return (
-    <table className={style.table}>
-      <tbody>
-        {props.participants.map((attendee) => (
-          <React.Fragment key={attendee.name + attendee.email.email}>
-            <tr>
-              <td className={style.mobileNameCell}>
-                {attendee.name}{' '}
-                <span className={style.mobileEmailCell}>
-                  ({stringifyEmail(attendee.email)})
-                </span>
-              </td>
-            </tr>
-            <tr>
-              <td colSpan={2} className={style.mobileCommentCell}>
-                {questions.map(
-                  (q, i) =>
-                    attendee.participantAnswers[i] && (
-                      <div>
-                        <div className={style.question}>{q}</div>
-                        <div className={style.answer}>
-                          {attendee.participantAnswers[i]}
+    <>
+      <table className={style.table}>
+        <tbody>
+          {props.participants.map((attendee) => (
+            <React.Fragment key={attendee.name + attendee.email.email}>
+              <tr>
+                <td className={style.mobileNameCell}>
+                  {attendee.name}
+                  <span className={style.mobileEmailCell}>
+                    ({stringifyEmail(attendee.email)})
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td colSpan={2} className={style.mobileCommentCell}>
+                  {questions.map(
+                    (q, i) =>
+                      attendee.participantAnswers[i] && (
+                        <div>
+                          <div className={style.question}>{q}</div>
+                          <div className={style.answer}>
+                            {attendee.participantAnswers[i]}
+                          </div>
                         </div>
-                      </div>
-                    )
-                )}
-              </td>
-            </tr>
-          </React.Fragment>
-        ))}
-      </tbody>
-    </table>
+                      )
+                  )}
+                  <Button
+                    className={style.deleteParticipantButtonMobile}
+                    onClick={() => setShowModal(attendee)}>
+                    Meld av
+                  </Button>
+                </td>
+              </tr>
+            </React.Fragment>
+          ))}
+        </tbody>
+      </table>
+      {showModal !== null && (
+        <DeleteParticipantModal
+          event={event.data}
+          participant={showModal}
+          closeModal={() => setShowModal(null)}
+        />
+      )}
+    </>
   );
 };
 
@@ -106,11 +131,13 @@ const ParticipantTableDesktop = (props: {
   participants: IParticipant[];
 }) => {
   const event = useEvent(props.eventId);
+
   const hasComments = hasLoaded(event)
     ? event.data.participantQuestions.length > 0
     : true;
   const questions = (hasLoaded(event) && event.data.participantQuestions) || [];
   const [wasCopied, setWasCopied] = useState(false);
+  const [showModal, setShowModal] = useState<IParticipant | null>(null);
   const copyAttendees = async () => {
     await navigator.clipboard.writeText(
       props.participants.map((p) => p.name).join(', ')
@@ -129,12 +156,15 @@ const ParticipantTableDesktop = (props: {
       setWasCopied(false);
     }, 3000);
   };
+
+  if (!hasLoaded(event)) return <></>;
+
   return (
     <>
       <Button onClick={copyAttendees}>
         Kopier deltakernavn til utklippstavle
-      </Button>{' '}
-      <Button onClick={copyEmails}>Kopier eposter til utklippstavle</Button>{' '}
+      </Button>
+      <Button onClick={copyEmails}>Kopier eposter til utklippstavle</Button>
       {wasCopied && 'Kopiert!'}
       <table className={style.table}>
         <thead>
@@ -144,6 +174,7 @@ const ParticipantTableDesktop = (props: {
             {hasComments && (
               <th className={style.desktopHeaderCell}>Kommentar</th>
             )}
+            <th className={style.desktopHeaderCell}></th>
           </tr>
         </thead>
         <tbody>
@@ -168,10 +199,79 @@ const ParticipantTableDesktop = (props: {
                   )}
                 </td>
               )}
+              <td className={style.desktopCell}>
+                <button
+                  className={style.deleteParticipantButton}
+                  onClick={() => setShowModal(attendee)}>
+                  <Plus title="Meld av" />
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
+      {showModal !== null && (
+        <DeleteParticipantModal
+          event={event.data}
+          participant={showModal}
+          closeModal={() => setShowModal(null)}
+        />
+      )}
     </>
+  );
+};
+
+const DeleteParticipantModal = ({
+  event,
+  participant,
+  closeModal,
+}: {
+  event: IEvent;
+  participant: IParticipant;
+  closeModal: () => void;
+}) => {
+  const history = useHistory();
+  const eventId = useParam(eventIdKey);
+  const editToken = useEditToken(eventId);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const { catchAndNotify } = useNotification();
+  const { removeSavedParticipant } = useSavedParticipations();
+
+  const cancelParticipant = catchAndNotify(async (participantEmail: string) => {
+    await deleteParticipant({
+      eventId,
+      participantEmail,
+      editToken,
+    });
+    removeSavedParticipant({ eventId, email: participantEmail });
+  });
+
+  return (
+    <Modal header={participant.name} closeModal={closeModal}>
+      <div className={style.modalContent}>
+        <p>Er du sikker på at du vil avmelde deltakeren fra {event.title}?</p>
+        <p>Ved å avmelde deltakeren vil hen ikke lengre være påmeldt.</p>
+      </div>
+      <div className={style.deleteParticipantModalContainer}>
+        <Button
+          color={'Secondary'}
+          className={style.modalButton}
+          disabled={isDeleting}
+          onClick={closeModal}>
+          Avbryt
+        </Button>
+        <Button
+          className={style.modalButton}
+          disabled={isDeleting}
+          onClick={async () => {
+            setIsDeleting(true);
+            await cancelParticipant(participant.email.email);
+            history.go(0);
+            closeModal();
+          }}>
+          Meld av
+        </Button>
+      </div>
+    </Modal>
   );
 };

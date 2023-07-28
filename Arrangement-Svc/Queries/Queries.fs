@@ -418,18 +418,43 @@ let getParticipationsById (id: int) (db: DatabaseContext) =
                    P.RegistrationTime,
                    P.CancellationToken,
                    P.Name,
-                   P.EmployeeId
+                   P.EmployeeId,
+                   Q.Question,
+                   A.QuestionId,
+                   A.EventId,
+                   A.Email,
+                   A.Answer
             FROM Participants P
-                     LEFT JOIN Events E ON E.Id = P.EventId AND E.OrganizerEmail = P.Email
-            WHERE P.EmployeeId = @id
-            ORDER BY StartDate DESC;
+                     LEFT JOIN ParticipantAnswers A ON A.EventId = P.EventId AND A.Email = P.Email
+                     LEFT JOIN ParticipantQuestions Q ON Q.EventId = P.EventId AND Q.Id = A.QuestionId
+            WHERE P.EmployeeId = @id;
             "
         let parameters = {|
             Id = id
         |}
 
+        let participants = Dictionary<Models.Participant, Models.QuestionAndAnswer list>()
         try
-            let! result = db.Connection.QueryAsync<Models.Participant>(query, parameters, db.Transaction)
+            let! _ =
+                db.Connection.QueryAsync(
+                    query,
+                    (fun (participant: Models.Participant) (question: string) (answer: Models.ParticipantAnswer) ->
+                            if participants.ContainsKey(participant) && not (answer :> obj = null) then
+                                participants[participant] <- participants[participant] @ [{Question = question; Answer = answer.Answer}]
+                            else if not (participants.ContainsKey(participant)) && not (answer :> obj = null) then
+                                participants.Add(participant, [{Question = question; Answer = answer.Answer}])
+                            else
+                                participants.Add(participant, [])
+                        ),
+                    parameters,
+                    db.Transaction,
+                    splitOn = "Question,QuestionId")
+
+            let result: Models.ParticipantAndAnswers seq =
+                participants
+                |> Seq.fromDict
+                |> Seq.map (fun (x, y) -> { Participant = x; QuestionAndAnswers = y })
+
             return Ok result
         with
             | ex -> return Error ex
@@ -991,12 +1016,14 @@ let getParticipantsAndAnswersForEvent (eventId: Guid) (db: DatabaseContext) =
                    P.Department,
                    P.EventId,
                    P.RegistrationTime,
-                   PA.QuestionId,
-                   PA.EventId,
-                   PA.Email,
-                   PA.Answer
+                   Q.Question,
+                   A.QuestionId,
+                   A.EventId,
+                   A.Email,
+                   A.Answer
             FROM Participants P
-            LEFT JOIN ParticipantAnswers PA ON PA.EventId = P.EventId AND PA.Email = P.Email
+                LEFT JOIN ParticipantAnswers A ON A.EventId = P.EventId AND A.Email = P.Email
+                LEFT JOIN ParticipantQuestions Q ON Q.EventId = P.EventId AND Q.Id = A.QuestionId
             WHERE P.EventId = @eventId
             ORDER BY RegistrationTime;
             "
@@ -1005,28 +1032,28 @@ let getParticipantsAndAnswersForEvent (eventId: Guid) (db: DatabaseContext) =
             EventId = eventId
         |}
 
-        let participants = Dictionary<Models.Participant, Models.ParticipantAnswer list>()
+        let participants = Dictionary<Models.Participant, Models.QuestionAndAnswer list>()
 
         try
             let! _ =
                 db.Connection.QueryAsync(
                     query,
-                    (fun (participant: Models.Participant) (answer: Models.ParticipantAnswer) ->
+                    (fun (participant: Models.Participant) (question: string) (answer: Models.ParticipantAnswer) ->
                             if participants.ContainsKey(participant) && not (answer :> obj = null) then
-                                participants[participant] <- participants[participant] @ [answer]
+                                participants[participant] <- participants[participant] @ [{Question = question; Answer = answer.Answer}]
                             else if not (participants.ContainsKey(participant)) && not (answer :> obj = null) then
-                                participants.Add(participant, [answer])
+                                participants.Add(participant, [{Question = question; Answer = answer.Answer}])
                             else
                                 participants.Add(participant, [])
                         ),
                     parameters,
                     db.Transaction,
-                    splitOn = "QuestionId")
+                    splitOn = "Question,QuestionId")
 
             let result: Models.ParticipantAndAnswers seq =
                 participants
                 |> Seq.fromDict
-                |> Seq.map (fun (x, y) -> { Participant = x; Answers = y })
+                |> Seq.map (fun (x, y) -> { Participant = x; QuestionAndAnswers = y })
 
             return Ok result
         with
@@ -1043,13 +1070,14 @@ let getParticipationsForParticipant email (db: DatabaseContext) =
                    P.EmployeeId,
                    P.Name,
                    P.EmployeeId,
+                   Q.Question,
                    A.QuestionId,
                    A.EventId,
                    A.Email,
                    A.Answer
-            FROM Participants P LEFT JOIN ParticipantAnswers A on
-                P.Email = A.Email AND
-                P.EventId = A.EventId
+            FROM Participants P
+                LEFT JOIN ParticipantAnswers A on P.Email = A.Email AND P.EventId = A.EventId
+                LEFT JOIN ParticipantQuestions Q ON Q.EventId = P.EventId AND Q.Id = A.QuestionId
             WHERE P.Email = @email
             "
 
@@ -1057,27 +1085,27 @@ let getParticipationsForParticipant email (db: DatabaseContext) =
             Email = email
         |}
 
-        let participants = Dictionary<Models.Participant, Models.ParticipantAnswer list>()
+        let participants = Dictionary<Models.Participant, Models.QuestionAndAnswer list>()
 
         try
             let! _ =
                 db.Connection.QueryAsync(
                     query,
-                    (fun (participant: Models.Participant) (answer: Models.ParticipantAnswer) ->
+                    (fun (participant: Models.Participant) (question: string) (answer: Models.QuestionAndAnswer) ->
                             if participants.ContainsKey(participant) && not (answer :> obj = null) then
-                                participants[participant] <- participants[participant] @ [answer]
+                                participants[participant] <- participants[participant] @ [{Question = question; Answer = answer.Answer}]
                             else if not (participants.ContainsKey(participant)) && not (answer :> obj = null) then
-                                participants.Add(participant, [answer])
+                                participants.Add(participant, [{Question = question; Answer = answer.Answer}])
                             else
                                 participants.Add(participant, [])
                         ),
                     parameters,
-                    splitOn = "QuestionId")
+                    splitOn = "Question,QuestionId")
 
             let result: Models.ParticipantAndAnswers seq =
                 participants
                 |> Seq.fromDict
-                |> Seq.map (fun (x, y) -> { Participant = x; Answers = y })
+                |> Seq.map (fun (x, y) -> { Participant = x; QuestionAndAnswers = y })
 
             return Ok result
         with

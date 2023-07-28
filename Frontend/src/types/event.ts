@@ -44,11 +44,10 @@ import {
 import { parseName } from 'src/types/participant';
 
 import {
-  cancelParticipantRoute, cancelParticipationUrlTemplate, createViewUrlTemplate,
-  editEventRoute,
+  cancelParticipationUrlTemplate,
+  createViewUrlTemplate,
   editUrlTemplate,
-  viewEventRoute,
-  viewEventShortnameRoute
+  viewEventShortnameRoute,
 } from 'src/routing';
 import { toEditTime } from 'src/types/time';
 
@@ -225,9 +224,7 @@ export const parseEditEvent = ({
   return event;
 };
 
-export const toEventWriteModel = (
-  event: IEvent
-): IEventWriteModel => ({
+export const toEventWriteModel = (event: IEvent): IEventWriteModel => ({
   ...event,
   maxParticipants: isMaxParticipantsLimited(event.maxParticipants)
     ? maxParticipantsLimit(event.maxParticipants)
@@ -244,7 +241,7 @@ export const toEventWriteModel = (
   endDate: event.end,
   viewUrlTemplate: createViewUrlTemplate(event),
   editUrlTemplate: editUrlTemplate,
-  cancelParticipationUrlTemplate: cancelParticipationUrlTemplate
+  cancelParticipationUrlTemplate: cancelParticipationUrlTemplate,
 });
 
 export const parseEventViewModel = (eventView: IEventViewModel): IEvent => {
