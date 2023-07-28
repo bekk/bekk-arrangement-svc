@@ -251,8 +251,10 @@ const DeleteParticipantModal = ({
 
   return (
     <Modal header={participant.name} closeModal={closeModal}>
-      <p>Er du sikker på at du vil avmelde deltakeren fra {event.title}?</p>
-      <p>Ved å avmelde deltakeren vil hen ikke lengre være påmeldt.</p>
+      <div className={style.modalContent}>
+        <p>Er du sikker på at du vil avmelde deltakeren fra {event.title}?</p>
+        <p>Ved å avmelde deltakeren vil hen ikke lengre være påmeldt.</p>
+      </div>
       <div className={style.deleteParticipantModalContainer}>
         <Button
           color={'Secondary'}
