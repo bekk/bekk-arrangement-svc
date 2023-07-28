@@ -141,3 +141,11 @@ let deleteParticipantFromEventWithCancellationToken (client: HttpClient) eventId
         builder.ToString()
 
     request client url None HttpMethod.Delete
+
+let deleteParticipantFromEventWithEditToken (client: HttpClient) eventId email editToken =
+    let url =
+        let builder = uriBuilder $"events/{eventId}/participants/{email}"
+        builder.Query <- $"editToken={editToken}"
+        builder.ToString()
+
+    request client url None HttpMethod.Delete

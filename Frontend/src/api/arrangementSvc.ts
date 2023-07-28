@@ -15,12 +15,9 @@ import {
 import { queryStringStringify } from 'src/utils/browser-state';
 import { toEmailWriteModel } from 'src/types/email';
 import { EditEventToken, Participation } from 'src/hooks/saved-tokens';
-import { cancelParticipantRoute } from 'src/routing';
 import { OfficeEvent, OfficeEventDecoder } from '../types/OfficeEvent';
 
-export const postEvent = (
-  event: IEvent
-): Promise<INewEventViewModel> =>
+export const postEvent = (event: IEvent): Promise<INewEventViewModel> =>
   post({
     host: '',
     path: '/api/events',
@@ -109,7 +106,7 @@ export const getWaitinglistSpot = (
 export const postParticipant = (
   event: IEvent,
   eventId: string,
-  participant: IParticipant,
+  participant: IParticipant
 ): Promise<INewParticipantViewModel> =>
   post({
     host: '',
@@ -123,16 +120,18 @@ export const deleteParticipant = ({
   eventId,
   participantEmail,
   cancellationToken,
+  editToken,
 }: {
   eventId: string;
   participantEmail: string;
   cancellationToken?: string;
+  editToken?: string;
 }) =>
   del({
     host: '',
     path: `/api/events/${eventId}/participants/${encodeURIComponent(
       participantEmail
-    )}${queryStringStringify({ cancellationToken })}`,
+    )}${queryStringStringify({ cancellationToken, editToken })}`,
   });
 
 export const getEventsAndParticipationsForEmployee = (

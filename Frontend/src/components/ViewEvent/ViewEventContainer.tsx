@@ -222,7 +222,7 @@ export const ViewEventContainer = ({ eventId }: IProps) => {
           {participationsForThisEvent.length >= 1 ? (
             <div>
               <h2 className={style.subHeader}>
-                Du er påmeldt{' '}
+                Du er påmeldt
                 <span role="img" aria-label="konfetti">
                   🎉
                 </span>
@@ -232,13 +232,15 @@ export const ViewEventContainer = ({ eventId }: IProps) => {
                 En bekreftelse er sendt på e-post til{' '}
                 {participationsForThisEvent[0].email}
               </p>
-              {participationsForThisEvent[0].questionAndAnswers.map(
-                  (qa, i) =>
-                      <div key={`${qa}:${i}`}>
-                        <div className={style.question}>{qa.question}</div>
-                        <div className={style.answer}>{qa.answer}</div>
-                      </div>
-              )}
+              {participationsForThisEvent[0].questionAndAnswers &&
+                participationsForThisEvent[0].questionAndAnswers.map(
+                  (qa, i) => (
+                    <div key={`${qa}:${i}`}>
+                      <div className={style.question}>{qa.question}</div>
+                      <div className={style.answer}>{qa.answer}</div>
+                    </div>
+                  )
+                )}
               <h2 className={style.subHeader}>Kan du ikke likevel?</h2>
               <Button
                 onClick={() =>

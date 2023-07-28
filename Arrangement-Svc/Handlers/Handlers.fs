@@ -35,7 +35,7 @@ let private createViewUrl (viewUrlTemplate: string) (event: Models.Event) =
     let decodedUrlTemplate = HttpUtility.UrlDecode viewUrlTemplate
     decodedUrlTemplate
         .Replace("{shortname}", event.Shortname |> Option.defaultValue "")
-        .Replace("{eventId}", event.Id.ToString())    
+        .Replace("{eventId}", event.Id.ToString())
 
 let private createEditUrl (redirectUrlTemplate: string) (event: Models.Event) =
     let decodedUrlTemplate = HttpUtility.UrlDecode redirectUrlTemplate
@@ -179,18 +179,18 @@ let registerParticipation (eventId: Guid, email): HttpHandler =
                 let! participant = participant |> Result.mapError InternalError
                 let! answers = answers |> Result.mapError InternalError
                 db.Commit()
-                
+
                 let! isParticipating =
                     Queries.isParticipating eventId email db
                     |> TaskResult.mapError InternalError
-                
+
                 // Sende epost
                 let questionAndAnswers = createQuestionAndAnswer eventQuestions answers
                 let isWaitlisted = eventAndQuestions.Event.HasWaitingList && isParticipating = false
                 let email =
                     let viewUrl = createViewUrl writeModel.ViewUrlTemplate eventAndQuestions.Event
                     let cancelUrl = createCancelUrl writeModel.CancelUrlTemplate participant
-                        
+
                     createNewParticipantMail
                         viewUrl
                         cancelUrl
@@ -199,7 +199,7 @@ let registerParticipation (eventId: Guid, email): HttpHandler =
                         config.noReplyEmail
                         participant
                         questionAndAnswers
-                
+
                 sendMail email context
 
                 return Participant.encodeWithCancelInfo participant questionAndAnswers
@@ -236,7 +236,7 @@ let getFutureEvents (next: HttpFunc) (context: HttpContext) =
             return result
         }
     jsonResult result next context
-    
+
 let getEventsSummary =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
@@ -384,7 +384,7 @@ let createEvent =
                 logger.log ("created_event_with_id", newEvent.Id)
                 let eventAndQuestions = { Event = newEvent; NumberOfParticipants = None; Questions = newQuestions }
                 // Send epost etter registrering
-                let viewUrl = createViewUrl writeModel.ViewUrlTemplate newEvent 
+                let viewUrl = createViewUrl writeModel.ViewUrlTemplate newEvent
                 let editUrl = createEditUrl writeModel.EditUrlTemplate newEvent
                 sendNewlyCreatedEventMail viewUrl editUrl newEvent context
                 return Event.encoderWithEditInfo eventAndQuestions
@@ -661,21 +661,21 @@ let updateEvent (eventId: Guid) =
                         Queries.updateEvent eventId writeModel db
                         |> TaskResult.mapError InternalError
                     db.Commit()
-                    
+
                     sendEmailToNewParticipants
                         oldEvent.Event.MaxParticipants
                         writeModel.MaxParticipants
                         oldEventParticipants
                         updatedEvent
                         context
-                        
+
                     sendUpdateEmailToOldParticipants
                         oldEvent.Event
                         updatedEvent
                         oldEventParticipants
                         writeModel.CancelParticipationUrlTemplate
                         context
-                        
+
                     let eventAndQuestions = { Event = updatedEvent; NumberOfParticipants = None; Questions = eventQuestions }
                     return Event.encodeEventAndQuestions eventAndQuestions
             }
@@ -825,6 +825,7 @@ let deleteParticipantFromEvent (eventId: Guid) (email: string) =
             taskResult {
                 let isAdmin = isAdmin context
                 let cancellationToken = getCancellationTokenFromQuery context
+                let editToken = getEditTokenFromQuery context
                 use db = openTransaction context
                 let! participant =
                     Queries.getParticipantForEvent eventId email db
@@ -832,14 +833,16 @@ let deleteParticipantFromEvent (eventId: Guid) (email: string) =
                 let! participant =
                     participant
                     |> Result.requireSome (participantNotFound email eventId)
-                do! (isAdmin || (cancellationToken.IsSome && cancellationToken.Value = participant.CancellationToken))
-                    |> Result.requireTrue cannotDeleteParticipation
                 let! eventAndQuestions =
                     Queries.getEvent eventId db
                     |> TaskResult.mapError InternalError
                 let! eventAndQuestions =
                     eventAndQuestions
                     |> Result.requireSome (eventNotFound eventId)
+                do! (isAdmin ||
+                     (editToken <> Guid.Empty && editToken = eventAndQuestions.Event.EditToken) ||
+                     (cancellationToken.IsSome && cancellationToken.Value = participant.CancellationToken))
+                    |> Result.requireTrue cannotDeleteParticipation
                 let! participants =
                     Queries.getParticipantsAndAnswersForEvent eventId db
                     |> TaskResult.mapError InternalError
