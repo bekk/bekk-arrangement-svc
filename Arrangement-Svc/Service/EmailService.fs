@@ -130,7 +130,7 @@ let private getQuestionsAndAnswers title (questionAndAnswer: QuestionAndAnswer l
             ""
             $"{title}:"
             ""
-            yield! List.map (fun qa -> $"""{qa.Question}:<br>{qa.Answer}<br>""") questionAndAnswer
+            yield! List.map (fun qa -> $"""{qa.Question} <br>- {qa.Answer}<br>""") questionAndAnswer
             ""
         else ""
     ]
