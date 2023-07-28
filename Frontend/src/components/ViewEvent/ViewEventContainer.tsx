@@ -10,7 +10,6 @@ import {
 } from 'src/auth';
 import { Button } from 'src/components/Common/Button/Button';
 import { DownloadIcon } from 'src/components/Common/Icons/DownloadIcon/DownloadIcon';
-import { Christmas } from 'src/components/Common/FunEffects/Christmas/Christmas';
 import { Page } from 'src/components/Page/Page';
 import { AddParticipant } from 'src/components/ViewEvent/AddParticipant';
 import { ViewEvent } from 'src/components/ViewEvent/ViewEvent';
@@ -40,13 +39,6 @@ import { dateToITime, stringifyTime } from 'src/types/time';
 import { plural } from 'src/utils';
 import { asString, ITimeLeft } from 'src/utils/timeleft';
 import style from './ViewEventContainer.module.scss';
-import {
-  hasChristmasSpirit,
-  hasHalloweenSpirit,
-  hasKittens,
-} from 'src/components/Common/FunEffects/effectUtils';
-import { Halloween } from 'src/components/Common/FunEffects/Halloween/Halloween';
-import { Kittens } from 'src/components/Common/FunEffects/Kittens/Kittens';
 import { Spinner } from 'src/components/Common/Spinner/spinner';
 
 interface IProps {
@@ -205,11 +197,6 @@ export const ViewEventContainer = ({ eventId }: IProps) => {
 
   return (
     <>
-      {hasChristmasSpirit(event.title) && (
-        <Christmas noSpawnClick={noSpawnClick} />
-      )}
-      {hasHalloweenSpirit(event.title) && <Halloween />}
-      {hasKittens(event.title) && <Kittens />}
       <ViewEvent
         eventId={eventId}
         isPossibleToRegister={isPossibleToRegister()}

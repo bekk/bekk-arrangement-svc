@@ -2,11 +2,6 @@ import classNames from 'classnames';
 import { isNumber } from 'lodash';
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  hasChristmasSpirit,
-  hasHalloweenSpirit,
-  hasKittens,
-} from 'src/components/Common/FunEffects/effectUtils';
 import { ExternalIcon } from 'src/components/Common/Icons/ExternalIcon';
 import { LocationIcon } from 'src/components/Common/Icons/LocationIcon';
 import {
@@ -210,15 +205,6 @@ export const useEventColor = (
   }
   if (eventId === 'all-events') {
     return { style: style.soloppgang, colorCode: soloppgang };
-  }
-  if (hasChristmasSpirit(eventTitle)) {
-    return { style: style.christmas, colorCode: '#D6001C' };
-  }
-  if (hasHalloweenSpirit(eventTitle)) {
-    return { style: style.halloween, colorCode: '#FF7518' };
-  }
-  if (hasKittens(eventTitle)) {
-    return { style: style.kittens, colorCode: '#f59fce' };
   }
   return (
     colors(style).get(

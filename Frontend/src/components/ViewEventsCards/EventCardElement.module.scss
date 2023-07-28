@@ -96,56 +96,6 @@
     border-color: var(--solnedgangKontrast);
   }
 }
-.christmas {
-  &:hover {
-    background-color: #d6001c;
-    border-color: #d6001c;
-  }
-  &:hover {
-    color: white;
-  }
-  &:hover .locationIcon path {
-    fill: white;
-  }
-
-  &:hover .stateIcon path {
-    fill: white;
-  }
-
-  &:hover .externalIcon path:first-of-type {
-    stroke: white;
-  }
-  &:hover .externalIcon path:not(:first-of-type) {
-    fill: white;
-  }
-  &:hover .externalIcon circle {
-    stroke: white;
-  }
-  & button:hover {
-    background-color: darkgreen;
-    border-color: darkgreen;
-  }
-}
-.halloween {
-  &:hover {
-    background-color: #ff7518;
-    border-color: #ff7518;
-  }
-  & button:hover {
-    background-color: red;
-    border-color: red;
-  }
-}
-.kittens {
-  &:hover {
-    background-color: #f59fce;
-    border-color: #f59fce;
-  }
-  & button:hover {
-    background-color: #b63afc;
-    border-color: #b63afc;
-  }
-}
 .soloppgang {
   &:hover {
     background-color: var(--soloppgang);
