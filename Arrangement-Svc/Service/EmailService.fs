@@ -124,23 +124,23 @@ let sendNewlyCreatedEventMail viewUrl editUrl (event: Models.Event) (ctx: HttpCo
         createEmail viewUrl editUrl config.noReplyEmail event
     sendMail mail ctx
 
-let private getQuestionsAndAnswers title (questionAndAnswer: ParticipantQuestionAndAnswer list) =
+let private getQuestionsAndAnswers title (questionAndAnswer: QuestionAndAnswer list) =
     [
         if not (List.isEmpty questionAndAnswer) then
             ""
             $"{title}:"
-            yield! List.map (fun qa -> $"""{if qa.Question.IsSome then qa.Question.Value.Question else ""}: {qa.Answer.Answer}""") questionAndAnswer
+            yield! List.map (fun qa -> $"""{qa.Question}: {qa.Answer}""") questionAndAnswer
             ""
         else ""
     ]
    
-let private inviteMessage viewUrl cancelUrl (event: Models.Event) (questionAndAnswer: ParticipantQuestionAndAnswer list) =
+let private inviteMessage viewUrl cancelUrl (event: Models.Event) (questionAndAnswers: QuestionAndAnswer list) =
     [ "Hei! 😄"
       ""
       $"Du er nå påmeldt <a href=\"{viewUrl}\">{event.Title}</a>."
       $"Vi gleder oss til å se deg på {event.Location} den {DateTimeCustom.toReadableString (DateTimeCustom.toCustomDateTime event.StartDate event.StartTime)} 🎉"
       
-      yield! getQuestionsAndAnswers "Dine svar" questionAndAnswer
+      yield! getQuestionsAndAnswers "Dine svar" questionAndAnswers
       
       if event.MaxParticipants.IsSome then
         "Siden det er begrenset med plasser, setter vi pris på om du melder deg av hvis du ikke lenger<br>kan delta. Da blir det plass til andre på ventelisten 😊"
@@ -153,13 +153,13 @@ let private inviteMessage viewUrl cancelUrl (event: Models.Event) (questionAndAn
       $"Hilsen {event.OrganizerName} i Bekk" ]
     |> String.concat "<br>" // Sendgrid formats to HTML, \n does not work
 
-let private waitlistedMessage viewUrl cancelUrl (event: Models.Event) (questionAndAnswer: ParticipantQuestionAndAnswer list) =
+let private waitlistedMessage viewUrl cancelUrl (event: Models.Event) (questionAndAnswers: QuestionAndAnswer list) =
     [ "Hei! 😄"
       ""
       $"Du er nå på venteliste for <a href=\"{viewUrl}\">{event.Title}</a> på {event.Location} den {DateTimeCustom.toReadableString (DateTimeCustom.toCustomDateTime event.StartDate event.StartTime)}."
       "Du vil få beskjed på e-post om du rykker opp fra ventelisten."
       
-      yield! getQuestionsAndAnswers "Dine svar" questionAndAnswer
+      yield! getQuestionsAndAnswers "Dine svar" questionAndAnswers
       
       "Siden det er begrenset med plasser, setter vi pris på om du melder deg av hvis du ikke lenger"
       "kan delta. Da blir det plass til andre på ventelisten 😊"
@@ -179,12 +179,12 @@ let createNewParticipantMail
     isWaitlisted
     noReplyMail
     (participant: Participant)
-    (questionAndAnswer: ParticipantQuestionAndAnswer list)
+    (questionAndAnswers: QuestionAndAnswer list)
     =
     let message =
         if isWaitlisted
-        then waitlistedMessage viewUrl cancelUrl event questionAndAnswer
-        else inviteMessage viewUrl cancelUrl event questionAndAnswer
+        then waitlistedMessage viewUrl cancelUrl event questionAndAnswers
+        else inviteMessage viewUrl cancelUrl event questionAndAnswers
 
     { Subject = event.Title
       Message = message
@@ -196,16 +196,13 @@ let createNewParticipantMail
 
 let private createCancelledParticipationMailToOrganizer
     (event: Models.Event)
-    eventQuestions
     participant
-    participantAnswers
+    (participantAnswers: QuestionAndAnswer list)
     =
-        let questionAndAnswer = createQuestionAndAnswer eventQuestions participantAnswers
-        
         let message =
             [ $"{participant.Name} har meldt seg av {event.Title}"
               
-              yield! getQuestionsAndAnswers "Deltaker har svart" questionAndAnswer
+              yield! getQuestionsAndAnswers "Deltaker har svart" participantAnswers
             ]
             |> String.concat "<br>"
         
@@ -261,16 +258,16 @@ let private sendMailToFirstPersonOnWaitingList
     =
     sendMail (createFreeSpotAvailableMail event personWhoGotIt) context
 
-let private sendMailToOrganizerAboutCancellation event eventQuestions participant participantAnswers context =
-    let mail = createCancelledParticipationMailToOrganizer event eventQuestions participant participantAnswers
+let private sendMailToOrganizerAboutCancellation event participant participantAnswers context =
+    let mail = createCancelledParticipationMailToOrganizer event participant participantAnswers
     sendMail mail context
 
 let private sendMailWithCancellationConfirmation event participant context =
     let mail = createCancelledParticipationMailToAttendee event participant
     sendMail mail context
 
-let sendParticipantCancelMails (event: Models.Event) (eventQuestions: ParticipantQuestion list) (participant: Models.Participant) (participantAnswers: ParticipantAnswer list) (personWhoGotIt: ParticipantAndAnswers option) context =
-    sendMailToOrganizerAboutCancellation event eventQuestions participant participantAnswers context
+let sendParticipantCancelMails (event: Models.Event) (participant: Models.Participant) (participantAnswers: QuestionAndAnswer list) (personWhoGotIt: ParticipantAndAnswers option) context =
+    sendMailToOrganizerAboutCancellation event participant participantAnswers context
     sendMailWithCancellationConfirmation event participant context
     match personWhoGotIt with
     | Some person -> sendMailToFirstPersonOnWaitingList event person.Participant context

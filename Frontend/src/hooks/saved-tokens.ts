@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { getEventsAndParticipationsForEmployee } from 'src/api/arrangementSvc';
 import { getEmployeeId, isAuthenticated } from 'src/auth';
 import { useLocalStorage } from 'src/hooks/localStorage';
+import {IQuestionAndAnswer} from "../types/participant";
 
 export type EditEventToken = {
   eventId: string;
@@ -58,6 +59,7 @@ export type Participation = {
   eventId: string;
   email: string;
   cancellationToken: string;
+  questionAndAnswers: IQuestionAndAnswer[];
 };
 const isParticipationAndHasCancellationToken = (x: any): x is Participation =>
   'eventId' in x &&
@@ -100,6 +102,7 @@ export const useSavedParticipations = () => {
   return {
     savedParticipations: readValidatedStorage(),
     saveParticipation: (participant: Participation) => {
+      console.log('saveParticipation', participant);
       setStorage(updateStorage(participant));
     },
     removeSavedParticipant: (participant: { eventId: string; email: string }) =>
