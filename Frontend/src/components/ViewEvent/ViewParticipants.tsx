@@ -15,6 +15,7 @@ import { deleteParticipant } from '../../api/arrangementSvc';
 import { useNotification } from '../NotificationHandler/NotificationHandler';
 import { useHistory } from 'react-router';
 import { IEvent } from '../../types/event';
+import { Plus } from '../Common/Icons/Plus';
 
 interface IProps {
   eventId: string;
@@ -202,7 +203,11 @@ const ParticipantTableDesktop = (props: {
                 </td>
               )}
               <td className={style.desktopCell}>
-                <Button onClick={() => setShowModal(attendee)}>Meld av</Button>
+                <button
+                  className={style.deleteParticipantButton}
+                  onClick={() => setShowModal(attendee)}>
+                  <Plus />
+                </button>
               </td>
             </tr>
           ))}
@@ -245,13 +250,19 @@ const DeleteParticipantModal = ({
   });
 
   return (
-    <Modal header="Avmelding" closeModal={closeModal}>
-      <p>
-        Er du sikker på at du vil melde av {participant.name} fra {event.title}?
-      </p>
-      <p>Dersom vedkommende angrer seg må vedkommende melde seg på igjen.</p>
-      <div style={{ marginTop: 50, display: 'flex', justifyContent: 'center' }}>
+    <Modal header={participant.name} closeModal={closeModal}>
+      <p>Er du sikker på at du vil avmelde deltakeren fra {event.title}?</p>
+      <p>Ved å avmelde deltakeren vil hen ikke lengre være påmeldt.</p>
+      <div className={style.deleteParticipantModalContainer}>
         <Button
+          color={'Secondary'}
+          className={style.modalButton}
+          disabled={isDeleting}
+          onClick={closeModal}>
+          Avbryt
+        </Button>
+        <Button
+          className={style.modalButton}
           disabled={isDeleting}
           onClick={async () => {
             setIsDeleting(true);
@@ -259,10 +270,7 @@ const DeleteParticipantModal = ({
             history.go(0);
             closeModal();
           }}>
-          Meld av
-        </Button>
-        <Button disabled={isDeleting} onClick={closeModal}>
-          Avbryt
+          Avmeld
         </Button>
       </div>
     </Modal>
