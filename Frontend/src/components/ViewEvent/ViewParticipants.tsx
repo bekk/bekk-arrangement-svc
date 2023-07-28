@@ -203,7 +203,7 @@ const ParticipantTableDesktop = (props: {
                 <button
                   className={style.deleteParticipantButton}
                   onClick={() => setShowModal(attendee)}>
-                  <Plus />
+                  <Plus title="Meld av" />
                 </button>
               </td>
             </tr>
