@@ -109,7 +109,9 @@ const ParticipantTableMobile = (props: {
                         </div>
                       )
                   )}
-                  <Button onClick={() => setShowModal(attendee)}>
+                  <Button
+                    className={style.deleteParticipantButtonMobile}
+                    onClick={() => setShowModal(attendee)}>
                     Meld av
                   </Button>
                 </td>
@@ -272,7 +274,7 @@ const DeleteParticipantModal = ({
             history.go(0);
             closeModal();
           }}>
-          Avmeld
+          Meld av
         </Button>
       </div>
     </Modal>
