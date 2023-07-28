@@ -8,13 +8,10 @@ import { IParticipant } from 'src/types/participant';
 import { Button } from 'src/components/Common/Button/Button';
 import { Spinner } from 'src/components/Common/Spinner/spinner';
 import { Modal } from '../Common/Modal/Modal';
-import { useEditToken, useSavedParticipations } from '../../hooks/saved-tokens';
-import { useParam } from '../../utils/browser-state';
-import { eventIdKey } from '../../routing';
-import { deleteParticipant } from '../../api/arrangementSvc';
+import { useEditToken, useSavedParticipations } from 'src/hooks/saved-tokens';
+import { deleteParticipant } from 'src/api/arrangementSvc';
 import { useNotification } from '../NotificationHandler/NotificationHandler';
 import { useHistory } from 'react-router';
-import { IEvent } from '../../types/event';
 import { Plus } from '../Common/Icons/Plus';
 
 interface IProps {
@@ -117,7 +114,8 @@ const ParticipantTableMobile = (props: {
       </table>
       {showModal !== null && (
         <DeleteParticipantModal
-          event={event.data}
+          eventId={props.eventId}
+          eventName={event.data.title}
           participant={showModal}
           closeModal={() => setShowModal(null)}
         />
@@ -212,7 +210,8 @@ const ParticipantTableDesktop = (props: {
       </table>
       {showModal !== null && (
         <DeleteParticipantModal
-          event={event.data}
+          eventId={props.eventId}
+          eventName={event.data.title}
           participant={showModal}
           closeModal={() => setShowModal(null)}
         />
@@ -222,34 +221,37 @@ const ParticipantTableDesktop = (props: {
 };
 
 const DeleteParticipantModal = ({
-  event,
+  eventId,
+  eventName,
   participant,
   closeModal,
 }: {
-  event: IEvent;
+  eventId: string;
+  eventName: string;
   participant: IParticipant;
   closeModal: () => void;
 }) => {
   const history = useHistory();
-  const eventId = useParam(eventIdKey);
   const editToken = useEditToken(eventId);
   const [isDeleting, setIsDeleting] = useState(false);
   const { catchAndNotify } = useNotification();
   const { removeSavedParticipant } = useSavedParticipations();
 
   const cancelParticipant = catchAndNotify(async (participantEmail: string) => {
-    await deleteParticipant({
-      eventId,
-      participantEmail,
-      editToken,
-    });
-    removeSavedParticipant({ eventId, email: participantEmail });
+    if (eventId && participantEmail) {
+      await deleteParticipant({
+        eventId,
+        participantEmail,
+        editToken,
+      });
+      removeSavedParticipant({ eventId, email: participantEmail });
+    }
   });
 
   return (
     <Modal header={participant.name} closeModal={closeModal}>
       <div className={style.modalContent}>
-        <p>Er du sikker på at du vil avmelde deltakeren fra {event.title}?</p>
+        <p>Er du sikker på at du vil avmelde deltakeren fra {eventName}?</p>
         <p>Ved å avmelde deltakeren vil hen ikke lengre være påmeldt.</p>
       </div>
       <div className={style.deleteParticipantModalContainer}>
