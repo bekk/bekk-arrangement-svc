@@ -15,8 +15,12 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "downlevelIteration": true,
-    "baseUrl": "./",
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".",
+    "paths": {
+        "src/*": ["src/*"]
+    }
   },
-  "include": ["src"]
+  "include": ["src",
+      "Globals.d.ts", "**/*.ts", "**/*.tsx", "**/*.module.scss" ]
 }
