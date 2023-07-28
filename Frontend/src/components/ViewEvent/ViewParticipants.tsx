@@ -36,40 +36,35 @@ export const ViewParticipants = ({ eventId, editToken }: IProps) => {
     return <Spinner />;
   }
 
+  const { attendees, waitingList } = remoteParticipants.data;
+
   return (
     <div>
-      {remoteParticipants.data.attendees.length > 0 ? (
+      {attendees.length > 0 ? (
         screenIsMobileSize ? (
-          <ParticipantTableMobile
-            eventId={eventId}
-            participants={remoteParticipants.data.attendees}
-          />
+          <ParticipantTableMobile eventId={eventId} participants={attendees} />
         ) : (
-          <ParticipantTableDesktop
-            eventId={eventId}
-            participants={remoteParticipants.data.attendees}
-          />
+          <ParticipantTableDesktop eventId={eventId} participants={attendees} />
         )
       ) : (
         <div>Ingen påmeldte</div>
       )}
-      {remoteParticipants.data.waitingList &&
-        remoteParticipants.data.waitingList.length > 0 && (
-          <>
-            <h3 className={style.subSubHeader}>På venteliste</h3>
-            {screenIsMobileSize ? (
-              <ParticipantTableMobile
-                eventId={eventId}
-                participants={remoteParticipants.data.waitingList}
-              />
-            ) : (
-              <ParticipantTableDesktop
-                eventId={eventId}
-                participants={remoteParticipants.data.waitingList}
-              />
-            )}
-          </>
-        )}
+      {waitingList && waitingList.length > 0 && (
+        <>
+          <h3 className={style.subSubHeader}>På venteliste</h3>
+          {screenIsMobileSize ? (
+            <ParticipantTableMobile
+              eventId={eventId}
+              participants={waitingList}
+            />
+          ) : (
+            <ParticipantTableDesktop
+              eventId={eventId}
+              participants={waitingList}
+            />
+          )}
+        </>
+      )}
     </div>
   );
 };
