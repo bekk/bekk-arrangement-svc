@@ -129,7 +129,7 @@ let private getQuestionsAndAnswers title (questionAndAnswer: QuestionAndAnswer l
         if not (List.isEmpty questionAndAnswer) then
             ""
             $"{title}:"
-            yield! List.map (fun qa -> $"""{qa.Question}: {qa.Answer}""") questionAndAnswer
+            yield! List.map (fun qa -> $"""{qa.Question}:<br>{qa.Answer}""") questionAndAnswer
             ""
         else ""
     ]
