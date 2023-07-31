@@ -1,62 +1,36 @@
-import * as React from 'react';
+import React from 'react';
 import style from './CheckBox.module.scss';
-import classnames from 'classnames';
+import classNames from 'classnames';
 
-const KEY_CODE_ENTER = 13;
-
-interface ILabelProps {
+interface IProps {
+  onChange: (isChecked: boolean) => void;
+  onDarkBackground?: boolean;
+  isChecked: boolean;
   label: string;
-  isChecked: boolean;
-  onChange: (value: boolean) => void;
-  onDarkBackground?: boolean;
-  inline?: boolean;
-  title?: string;
+  className?: string;
 }
 
-interface IWrapperProps {
-  children: JSX.Element;
-  isChecked: boolean;
-  onChange: (value: boolean) => void;
-  onDarkBackground?: boolean;
-  inline?: boolean;
-  title?: string;
-}
-
-export function CheckBox({
-  isChecked,
+export const CheckBox = ({
   onChange,
   onDarkBackground,
-  inline,
-  title,
-  ...labelOrChildren
-}: ILabelProps | IWrapperProps) {
-  const label =
-    'label' in labelOrChildren
-      ? labelOrChildren.label
-      : labelOrChildren.children;
-  const onCheckboxChange = () => onChange(!isChecked);
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.keyCode === KEY_CODE_ENTER) {
-      onCheckboxChange();
-    }
-  };
-  const classes = classnames(style.checkbox, {
-    [style.checkboxDarkBg]: onDarkBackground || false,
-    [style.checkboxInline]: inline || false,
-    [style.checkbox_checked]: isChecked,
-    unChecked: !isChecked,
+  isChecked,
+  label,
+}: IProps) => {
+  const labelStyle = classNames(style.checkboxLabel, {
+    [style.checkboxLabelOnDarkBG]: onDarkBackground,
+  });
+  const checkboxStyle = classNames(style.checkbox, {
+    [style.checkBoxOnDarkBG]: onDarkBackground,
   });
   return (
-    <div className={classes} title={title}>
-      <label>
-        <input
-          type="checkbox"
-          checked={isChecked}
-          onChange={onCheckboxChange}
-          onKeyDown={handleKeyDown}
-        />
-        {label}
-      </label>
-    </div>
+    <label className={labelStyle}>
+      <input
+        className={checkboxStyle}
+        type="checkbox"
+        onChange={(e: any) => onChange(e.target.checked)}
+        checked={isChecked}
+      />
+      {label}
+    </label>
   );
-}
+};
