@@ -101,4 +101,3 @@ const eventMapToList = (
   [...events].flatMap(([id, event]) =>
     hasLoaded(event) ? [[id, event.data]] : []
   );
-

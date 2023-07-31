@@ -79,7 +79,9 @@ export const parseParticipantViewModel = (
     ? parseEmailViewModel(participantView.email)
     : { email: '' };
   const name = parseName(participantView.name);
-  const answers = parseAnswers(participantView.questionAndAnswers.map(qa => qa.answer));
+  const answers = parseAnswers(
+    participantView.questionAndAnswers.map((qa) => qa.answer)
+  );
 
   const participant = {
     ...participantView,

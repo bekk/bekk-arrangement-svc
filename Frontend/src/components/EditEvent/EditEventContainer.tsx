@@ -104,7 +104,8 @@ export const EditEventContainer = () => {
                 </span>
               </p>
               <p className={style.italic}>
-                OBS: Når et arrangement blir avlyst vises det på forsiden i et døgn, <br />
+                OBS: Når et arrangement blir avlyst vises det på forsiden i et
+                døgn, <br />
                 markert som avlyst.
               </p>
             </>
