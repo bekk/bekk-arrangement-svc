@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ChangeEvent } from 'react';
 import style from './CheckBox.module.scss';
 import classNames from 'classnames';
 
@@ -7,7 +7,6 @@ interface IProps {
   onDarkBackground?: boolean;
   isChecked: boolean;
   label: string;
-  className?: string;
 }
 
 export const CheckBox = ({
@@ -27,7 +26,9 @@ export const CheckBox = ({
       <input
         className={checkboxStyle}
         type="checkbox"
-        onChange={(e: any) => onChange(e.target.checked)}
+        onChange={(e: ChangeEvent<HTMLInputElement>) =>
+          onChange(e.target.checked)
+        }
         checked={isChecked}
       />
       {label}
