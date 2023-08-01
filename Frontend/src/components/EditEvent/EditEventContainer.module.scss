@@ -8,13 +8,13 @@
 }
 
 .buttonContainer {
-    margin-top: 20px;
-    display: flex;
-    justify-content: space-between;
-    flex-direction: column;
-    @media #{$desktop} {
-        flex-direction: row;
-    }
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  @media #{$desktop} {
+    flex-direction: row;
+  }
 }
 
 .text {
@@ -23,14 +23,14 @@
 }
 
 .groupedButtons {
-    display: flex;
-    justify-content: center;
-    margin-top: 10px;
-    width: 100%;
-    @media #{$desktop} {
-        justify-content: space-between;
-        width: auto ;
-    }
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+  width: 100%;
+  @media #{$desktop} {
+    justify-content: space-between;
+    width: auto;
+  }
 }
 
 .groupedButtons > button {

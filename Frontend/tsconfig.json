@@ -18,9 +18,8 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-        "src/*": ["src/*"]
+      "src/*": ["src/*"]
     }
   },
-  "include": ["src",
-      "Globals.d.ts", "**/*.ts", "**/*.tsx", "**/*.module.scss" ]
+  "include": ["src", "Globals.d.ts", "**/*.ts", "**/*.tsx", "**/*.module.scss"]
 }

@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => {
   // For dev environment we do it here.
   // For prod environment we do it in vite-env.d.ts
   if (mode === 'development') {
-      config = {...config, define: { global: "window"} }
+    config = { ...config, define: { global: 'window' } };
   }
 
   return config;

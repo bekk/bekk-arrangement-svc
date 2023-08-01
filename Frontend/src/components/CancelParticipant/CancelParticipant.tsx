@@ -20,7 +20,11 @@ import { useSavedParticipations } from 'src/hooks/saved-tokens';
 import { useSetTitle } from 'src/hooks/setTitle';
 import { appTitle } from 'src/Constants';
 import { Spinner } from 'src/components/Common/Spinner/spinner';
-import { authenticateUser, isAuthenticated, needsToAuthenticate } from 'src/auth';
+import {
+  authenticateUser,
+  isAuthenticated,
+  needsToAuthenticate,
+} from 'src/auth';
 
 export const CancelParticipant = () => {
   const eventId = useParam(eventIdKey);

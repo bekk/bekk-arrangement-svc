@@ -1,16 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import style from './Filter.module.scss';
 import { FilterIcon } from '../Icons/FilterIcon';
 import classNames from 'classnames';
 import { CheckBox } from '../Checkbox/CheckBox';
-import { IEvent } from '../../../types/event';
-import { isInTheFuture, isInThePast } from '../../../types/date-time';
-import {
-  EditEventToken,
-  Participation,
-  useSavedParticipations,
-} from '../../../hooks/saved-tokens';
-import { useUrlState } from '../../../hooks/useUrlState';
+import { IEvent } from 'src/types/event';
+import { isInTheFuture, isInThePast } from 'src/types/date-time';
+import { EditEventToken, Participation } from 'src/hooks/saved-tokens';
+import { useUrlState } from 'src/hooks/useUrlState';
 
 export type FilterOptions = {
   oslo: boolean;
