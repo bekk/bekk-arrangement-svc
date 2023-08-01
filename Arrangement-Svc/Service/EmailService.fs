@@ -298,7 +298,7 @@ let sendCancellationMailToParticipants
     ctx
     =
     let messageToParticipants =
-        messageToParticipants.Replace("\n", "<br>")[1..(messageToParticipants.Length-2)]
+        messageToParticipants.Replace("\\n", "<br>")[1..(messageToParticipants.Length-2)]
 
     let sendMailToParticipant participant =
         sendMail
