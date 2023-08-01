@@ -245,7 +245,7 @@ let private createCancelledEventMail
     (participant: Participant)
     =
     { Subject = $"Avlyst: {event.Title}"
-      Message = message.Replace("\\n", "<br>").Replace("\"", "")
+      Message = message.Replace("\\n", "<br>")[1..(message.Length-2)]
       To = participant.Email
       CalendarInvite =
           createCalendarAttachment
