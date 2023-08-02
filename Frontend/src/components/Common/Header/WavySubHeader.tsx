@@ -14,7 +14,6 @@ interface IProps {
 export const WavySubHeader = ({
   children,
   eventId,
-  eventTitle = '',
   customHexColor,
 }: IProps) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -22,7 +21,6 @@ export const WavySubHeader = ({
   const { style: colorStyle, colorCode } = useEventColor(
     eventId,
     style,
-    eventTitle,
     customHexColor
   );
 
