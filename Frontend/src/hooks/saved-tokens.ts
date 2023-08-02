@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { getEventsAndParticipationsForEmployee } from 'src/api/arrangementSvc';
 import { getEmployeeId, isAuthenticated } from 'src/auth';
 import { useLocalStorage } from 'src/hooks/localStorage';
-import {IQuestionAndAnswer} from "../types/participant";
+import { IQuestionAndAnswer } from '../types/participant';
 
 export type EditEventToken = {
   eventId: string;

@@ -1,6 +1,6 @@
 import { useRouteMatch } from 'react-router';
 import { queryStringStringify } from 'src/utils/browser-state';
-import { IEvent } from "./types/event";
+import { IEvent } from './types/event';
 
 export const eventIdKey = 'eventId';
 export const emailKey = 'email';
@@ -20,8 +20,8 @@ export const viewEventRoute = (eventId: string) => `/events/${eventId}`;
 export const createViewUrlTemplate = (event: IEvent) => {
   const hostAndProtocol = document.location.origin;
   return event.shortname
-    ? hostAndProtocol + viewEventShortnameRoute("{shortname}")
-    : hostAndProtocol + viewEventRoute("{eventId}");
+    ? hostAndProtocol + viewEventShortnameRoute('{shortname}')
+    : hostAndProtocol + viewEventRoute('{eventId}');
 };
 
 export const officeEventRoute = (date: string) => `/office-events/${date}`;

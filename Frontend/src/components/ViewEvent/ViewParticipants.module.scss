@@ -80,37 +80,37 @@
 }
 
 .deleteParticipantButton {
-    background-color: transparent;
-    border-width: 0;
-    font-family: inherit;
-    font-size: inherit;
-    font-style: inherit;
-    font-weight: inherit;
-    line-height: inherit;
-    padding: 0;
-    width: 25px;
-    transform: rotateZ(45deg);
-    float: right;
+  background-color: transparent;
+  border-width: 0;
+  font-family: inherit;
+  font-size: inherit;
+  font-style: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  padding: 0;
+  width: 25px;
+  transform: rotateZ(45deg);
+  float: right;
 
-    &:hover {
-        cursor: pointer;
-    }
+  &:hover {
+    cursor: pointer;
+  }
 }
 
 .deleteParticipantButtonMobile {
-    margin-bottom: 10px;
+  margin-bottom: 10px;
 }
 
 .deleteParticipantModalContainer {
-    margin-top: 50px;
-    display: flex;
-    justify-content: space-between;
+  margin-top: 50px;
+  display: flex;
+  justify-content: space-between;
 }
 
 .modalContent {
-    margin-top: 80px;
+  margin-top: 80px;
 }
 
 .modalButton {
-    width: 30%;
+  width: 30%;
 }

@@ -76,10 +76,11 @@ export const AddParticipant = ({
       });
 
       saveParticipation({
-          eventId,
-          email: response.participant.email || '',
-          cancellationToken: response.cancellationToken,
-          questionAndAnswers: response.participant.questionAndAnswers });
+        eventId,
+        email: response.participant.email || '',
+        cancellationToken: response.cancellationToken,
+        questionAndAnswers: response.participant.questionAndAnswers,
+      });
 
       history.push(
         confirmParticipantRoute({
