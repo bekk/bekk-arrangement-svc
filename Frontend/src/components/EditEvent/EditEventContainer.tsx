@@ -1,11 +1,6 @@
 import { useLayoutEffect, useEffect } from 'react';
 import React from 'react';
-import {
-  IEditEvent,
-  toEditEvent,
-  parseEditEvent,
-  initialEditEvent,
-} from 'src/types/event';
+import { IEditEvent, toEditEvent, parseEditEvent } from 'src/types/event';
 import { deleteEvent } from 'src/api/arrangementSvc';
 import { useHistory } from 'react-router';
 import { EditEvent } from './EditEvent/EditEvent';

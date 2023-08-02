@@ -67,15 +67,15 @@ export const cancelParticipationUrlTemplate =
   });
 
 export const useIsEditingRoute = () => {
-  let routematch = useRouteMatch(editEventRoute(':' + eventIdKey));
-  return routematch !== null;
+  const routeMatch = useRouteMatch(editEventRoute(':' + eventIdKey));
+  return routeMatch !== null;
 };
 export const useIsPreviewRoute = () => {
-  let routematch = useRouteMatch(previewEventRoute(':' + eventIdKey));
-  return routematch !== null;
+  const routeMatch = useRouteMatch(previewEventRoute(':' + eventIdKey));
+  return routeMatch !== null;
 };
 
 export const useIsCreateRoute = () => {
-  let routematch = useRouteMatch(createRoute);
-  return routematch !== null;
+  const routeMatch = useRouteMatch(createRoute);
+  return routeMatch !== null;
 };

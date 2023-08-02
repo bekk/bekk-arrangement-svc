@@ -20,6 +20,7 @@ export const MultipleChoiceQuestion = ({
       <div>{question}</div>
       {alternatives.map((alternative) => (
         <CheckBox
+          key={alternative}
           onDarkBackground
           label={alternative}
           onChange={(selected) => {

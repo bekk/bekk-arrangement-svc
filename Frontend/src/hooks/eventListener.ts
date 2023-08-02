@@ -2,7 +2,9 @@ import { useCallback, useEffect, useRef } from 'react';
 
 export function useEventListener(
   eventType: string,
+  // eslint-disable-next-line
   onEventTrigger: React.EventHandler<any>,
+  // eslint-disable-next-line
   dependents: any[]
 ) {
   useEffect(() => {
@@ -45,6 +47,7 @@ export function useOnClickOutside<T extends Element>(
 ) {
   const ref = useRef<T>(null);
   const handleClick = useCallback(
+    // eslint-disable-next-line
     (event: any) => {
       if (ref && ref.current && ref.current.contains(event.target)) {
         return;

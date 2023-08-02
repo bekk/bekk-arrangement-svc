@@ -1,10 +1,11 @@
-import { useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 
 export function useOnClickOutside(
   onClickOutside: () => void
 ): React.RefObject<HTMLDivElement> {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
+    // eslint-disable-next-line
     const handleClickOutside = (event: any) => {
       if (ref && ref.current && ref.current.contains(event.target)) {
         return;

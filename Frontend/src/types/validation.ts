@@ -8,6 +8,7 @@ export interface IError {
   message: string;
   type: ErrorType;
 }
+// eslint-disable-next-line
 const isIError = (error: any): error is IError =>
   typeof error === 'object' &&
   error !== null &&
@@ -16,6 +17,7 @@ const isIError = (error: any): error is IError =>
   'type' in error &&
   isErrorType(error.type);
 
+// eslint-disable-next-line
 export const isIErrorList = (errors: any): errors is IError[] =>
   Array.isArray(errors) && errors.every(isIError) && errors.length > 0;
 
@@ -52,7 +54,7 @@ export const warning = (message: string): IError => ({
 
 export const validate = <To>(validations: Record<string, boolean> = {}) => {
   const errorMessages = Object.entries(validations)
-    .filter(([errorMessage, isError]) => isError)
+    .filter(([, isError]) => isError)
     .map(([errorMessage]) => errorMessage);
   return {
     resolve: (validatedValue: To) => {

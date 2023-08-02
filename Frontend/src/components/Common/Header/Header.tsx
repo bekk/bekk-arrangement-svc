@@ -26,8 +26,8 @@ export const Header = () => {
 };
 
 export const useShouldHaveBlackHeaderBackground = () => {
-  let isEditingRoute = useIsEditingRoute();
-  let isPreviewRoute = useIsPreviewRoute();
-  let isCreateRoute = useIsCreateRoute();
+  const isEditingRoute = useIsEditingRoute();
+  const isPreviewRoute = useIsPreviewRoute();
+  const isCreateRoute = useIsCreateRoute();
   return isEditingRoute || isPreviewRoute || isCreateRoute;
 };

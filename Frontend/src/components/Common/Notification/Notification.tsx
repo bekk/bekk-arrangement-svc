@@ -15,7 +15,7 @@ export interface Props {
   visible?: boolean;
   onClose?: () => void;
 }
-
+// eslint-disable-next-line
 function getIcon(type: NotificationTypes): any {
   switch (type) {
     case 'INFO':

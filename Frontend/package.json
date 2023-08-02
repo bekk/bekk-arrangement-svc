@@ -14,7 +14,11 @@
   },
   "scripts": {
     "start": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "format": "npx prettier --write .",
+    "format-check": "npx prettier --check .",
+    "lint": "npx eslint --fix .",
+    "lint-check": "npx eslint ."
   },
   "eslintConfig": {
     "extends": "react-app",
@@ -47,6 +51,10 @@
     "@types/node-sass": "^4.11.3",
     "typescript": "~5.1.6",
     "vite": "^4.4.8",
-    "vite-tsconfig-paths": "^4.2.0"
+    "vite-tsconfig-paths": "^4.2.0",
+    "eslint-config-prettier": "^8.9.0",
+    "eslint-plugin-react": "^7.33.1 ",
+    "@typescript-eslint/eslint-plugin": "^6.2.1",
+    "@typescript-eslint/parser": "^6.2.1"
   }
 }

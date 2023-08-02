@@ -1,11 +1,11 @@
-import React, { ReactChild, useState } from 'react';
+import React, { ReactNode, useState } from 'react';
 import style from './Header.module.scss';
 import { SineCurve } from 'src/components/Common/SineCurve/SineCurve';
 import classNames from 'classnames';
 import { useEventColor } from 'src/components/ViewEventsCards/EventCardElement';
 
 interface IProps {
-  children?: ReactChild[] | ReactChild;
+  children?: ReactNode[] | ReactNode;
   eventId?: string | 'all-events';
   eventTitle?: string;
   customHexColor?: string;

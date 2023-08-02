@@ -10,6 +10,7 @@ export type EditEventToken = {
   eventId: string;
   editToken: string;
 };
+// eslint-disable-next-line
 const isEditEventTokenType = (x: any): x is EditEventToken =>
   'eventId' in x &&
   typeof x.eventId === 'string' &&
@@ -61,6 +62,7 @@ export type Participation = {
   cancellationToken: string;
   questionAndAnswers: IQuestionAndAnswer[];
 };
+// eslint-disable-next-line
 const isParticipationAndHasCancellationToken = (x: any): x is Participation =>
   'eventId' in x &&
   typeof x.eventId === 'string' &&

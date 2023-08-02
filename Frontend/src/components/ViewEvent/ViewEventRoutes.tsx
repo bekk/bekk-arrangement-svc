@@ -24,7 +24,8 @@ export const ViewEventShortnameRoute = () => {
     return (
       <div className={style.fourOhFour}>
         <div>
-          <span>404</span> Det finnes ingen arrangement med navn "{shortname}"
+          <span>404</span> Det finnes ingen arrangement med navn &quot;
+          {shortname}&quot;
         </div>
       </div>
     );

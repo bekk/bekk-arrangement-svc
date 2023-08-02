@@ -280,7 +280,7 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
               className={style.textAreaContainer}
               label={labels.program}
               placeholder={placeholders.program}
-              value={event.program!!}
+              value={event.program!}
               validation={parseProgram}
               onLightBackground
               minRow={8}
@@ -499,6 +499,7 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
         <div>
           {event.participantQuestions.map((q, i) => (
             <ValidatedTextArea
+              key={q}
               label={labels.participantQuestion}
               placeholder={placeholders.participantQuestion}
               value={q}
@@ -554,6 +555,7 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
         {event.participantQuestions.length > 0 && (
           <InfoBox title="Formateringshjelp">
             <p>Spørsmål:</p>
+            {/* eslint-disable-next-line react/jsx-no-comment-textnodes */}
             <p>// Alternativer: alternativ 1; alternativ 2; alternativ 3</p>
           </InfoBox>
         )}
