@@ -4,6 +4,9 @@ import { Modal } from 'src/components/Common/Modal/Modal';
 import { ReactChild } from 'src/types';
 import style from './ButtonWith.module.scss';
 import { TextArea } from 'src/components/Common/TextArea/TextArea';
+import { useSessionState } from 'src/hooks/sessionState';
+import { useParam } from 'src/utils/browser-state';
+import { eventIdKey } from 'src/routing';
 
 interface IProps {
   text: string;
@@ -22,8 +25,12 @@ export function ButtonWithPromptModal({
   textareaLabel,
   className,
 }: IProps) {
+  const eventId = useParam(eventIdKey);
   const [showModal, setShowModal] = useState(false);
-  const [promptAnswer, setPromptAnswer] = useState('');
+  const [promptAnswer, setPromptAnswer] = useSessionState(
+    '',
+    `cancel-${eventId}`
+  );
 
   const confirmAndClose = () => {
     onConfirm(promptAnswer);
