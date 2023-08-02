@@ -1,13 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import style from './PreviewEventContainer.module.scss';
 import { Page } from 'src/components/Page/Page';
 import { useNotification } from 'src/components/NotificationHandler/NotificationHandler';
 import { useHistory } from 'react-router';
-import {
-  viewEventRoute,
-  editEventRoute,
-  viewEventShortnameRoute,
-} from 'src/routing';
+import { viewEventRoute, viewEventShortnameRoute } from 'src/routing';
 import { postEvent } from 'src/api/arrangementSvc';
 import { ViewEvent } from 'src/components/ViewEvent/ViewEvent';
 import { Button } from 'src/components/Common/Button/Button';
@@ -18,7 +14,7 @@ import {
   maxParticipantsLimit,
 } from 'src/types/event';
 import { useSetTitle } from 'src/hooks/setTitle';
-import { clearSessionState } from '../../hooks/sessionState';
+import { clearSessionState } from 'src/hooks/sessionState';
 
 export const PreviewNewEventContainer = () => {
   const { catchAndNotify } = useNotification();
@@ -54,6 +50,8 @@ export const PreviewNewEventContainer = () => {
     );
   });
 
+  const [isCreating, setIsCreating] = useState(false);
+
   return (
     <Page>
       <h1 className={style.header}>Forhåndsvisning</h1>
@@ -70,7 +68,14 @@ export const PreviewNewEventContainer = () => {
         <Button color={'Secondary'} onClick={returnToCreate}>
           Tilbake
         </Button>
-        <Button onClick={postNewEvent}>Opprett</Button>
+        <Button
+          disabled={isCreating}
+          onClick={async () => {
+            setIsCreating(true);
+            await postNewEvent();
+          }}>
+          Opprett
+        </Button>
       </div>
     </Page>
   );
