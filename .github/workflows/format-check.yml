@@ -16,8 +16,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-        with: 
+        with:
           ref: ${{ github.head_ref }}
-     
+
       - name: Check formatting in /frontend
-        run: cd frontend && npm install && npx prettier --check
+        run: cd frontend && npm install && npx prettier --check . && npx eslint .
