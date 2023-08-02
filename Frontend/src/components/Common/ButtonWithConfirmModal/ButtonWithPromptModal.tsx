@@ -46,14 +46,14 @@ export function ButtonWithPromptModal({
         <Modal header={text} closeModal={() => setShowModal(false)}>
           <>
             {children}
-            <div className={style.textArea}>
+            <div className={style.textAreaContainer}>
               <p>{textareaLabel}</p>
               <TextArea
                 placeholder={placeholder}
                 value={promptAnswer}
                 onChange={setPromptAnswer}
                 onLightBackground
-                minRow={5}
+                className={style.textArea}
               />
             </div>
             <div className={style.groupedButtons}>

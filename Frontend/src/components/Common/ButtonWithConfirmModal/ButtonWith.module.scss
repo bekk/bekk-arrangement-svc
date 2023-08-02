@@ -1,6 +1,6 @@
 @import 'src/style/constants';
 
-.textArea {
+.textAreaContainer {
   margin-bottom: 15px;
   @include regularText;
   color: black;
@@ -9,9 +9,25 @@
   width: 100%;
 }
 
+.textArea {
+    height: 350px;
+    max-height: 350px;
+}
+
 .groupedButtons {
   display: flex;
   justify-content: space-between;
   align-content: center;
   margin-top: 10px;
+
+  @media #{$mobile} {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 20px;
+
+    & button {
+      width: 80%;
+    }
+  }
 }
