@@ -555,8 +555,9 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
         {event.participantQuestions.length > 0 && (
           <InfoBox title="Formateringshjelp">
             <p>Spørsmål:</p>
-            {/* eslint-disable-next-line react/jsx-no-comment-textnodes */}
-            <p>// Alternativer: alternativ 1; alternativ 2; alternativ 3</p>
+            <p>
+              &#47;&#47; Alternativer: alternativ 1; alternativ 2; alternativ 3
+            </p>
           </InfoBox>
         )}
       </div>

@@ -3,8 +3,7 @@ import { UserNotification } from 'src/components/NotificationHandler/Notificatio
 import { getScopes, getIssuerDomain, getAudience } from 'src/config';
 const EmployeeIdClaimType = 'https://api.bekk.no/claims/employeeId';
 
-// eslint-disable-next-line
-function parseHash(hash: string): any {
+function parseHash(hash: string): { [key: string]: string } {
   // eslint-disable-next-line
   const params: any = {};
   const hashes = hash.replace('#', '').split('&');
@@ -126,8 +125,7 @@ export function isAuthenticated(): boolean {
 
 export const needsToAuthenticate = (status: number) => status === 403;
 
-// eslint-disable-next-line
-export function getEmployeeId(): any {
+export function getEmployeeId(): number {
   if (!isAuthenticated()) {
     throw new UserNotification('User is not authenticated!');
   }

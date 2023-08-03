@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import classNames from 'classnames';
 import { Emoji } from '../Emoji/Emoji';
 import style from './Notification.module.scss';
@@ -15,8 +15,7 @@ export interface Props {
   visible?: boolean;
   onClose?: () => void;
 }
-// eslint-disable-next-line
-function getIcon(type: NotificationTypes): any {
+function getIcon(type: NotificationTypes): ReactNode {
   switch (type) {
     case 'INFO':
       return <Emoji color="green" mood={'happy'} />;
