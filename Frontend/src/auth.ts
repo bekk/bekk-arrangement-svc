@@ -4,8 +4,7 @@ import { getScopes, getIssuerDomain, getAudience } from 'src/config';
 const EmployeeIdClaimType = 'https://api.bekk.no/claims/employeeId';
 
 function parseHash(hash: string): { [key: string]: string } {
-  // eslint-disable-next-line
-  const params: any = {};
+  const params: { [key: string]: string } = {};
   const hashes = hash.replace('#', '').split('&');
   for (const h of hashes) {
     const param = h.split('=');
