@@ -4,6 +4,7 @@ import { UserNotification } from 'src/components/NotificationHandler/Notificatio
 interface IRequest {
   host: string;
   path: string;
+  // eslint-disable-next-line
   body?: any;
 }
 
@@ -35,7 +36,7 @@ const options = (method: string, token: string, body?: string) => ({
     'Content-Type': 'application/json',
     'X-From': 'arrangement-app',
   },
-  credentials: 'omit' as 'omit',
+  credentials: 'omit' as const,
   body,
 });
 
@@ -43,6 +44,7 @@ async function fetchAndValidate(
   method: string,
   host: string,
   path: string,
+  // eslint-disable-next-line
   body?: any
 ) {
   const token = getIdToken();
@@ -68,7 +70,7 @@ async function fetchAndValidate(
       response.status,
       response.status < 500
         ? `${response.status} Et nettverkskall har feilet`
-        : `${response.status} Det er noe galt med backenden`
+        : `${response.status} Det er noe galt med backenden`
     )
   );
 }

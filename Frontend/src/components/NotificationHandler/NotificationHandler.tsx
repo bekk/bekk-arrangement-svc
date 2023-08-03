@@ -51,11 +51,11 @@ export const NotificationHandler = ({ children }: IProps) => {
  * notify kan kalles manuelt av klientkode med UserNotification
  *
  * catchAndNotify brukes ved å wrappe ein async funksjon som
- * kan feile. Dvs. `async () => ...` blir `catchAndNotify(() => ...)`
+ * kan feile. Dvs. `async ()=> ...` blir `catchAndNotify(()=> ...)`
  */
 export const useNotification = () => {
   const notify: NotifyUser = useCallback(useContext(NotificationContext), []);
-  function _catchAndNotify<T>(f: () => Promise<void>): () => Promise<void>;
+  function _catchAndNotify(f: () => Promise<void>): () => Promise<void>;
   function _catchAndNotify<T>(
     f: (x: T) => Promise<void>
   ): (x: T) => Promise<void>;

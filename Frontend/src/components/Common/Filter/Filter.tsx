@@ -240,8 +240,8 @@ const filterMine = (
   savedEvents: EditEventToken[],
   savedParticipations: Participation[]
 ) =>
-  savedEvents.map((x: any) => x.eventId).includes(id) ||
-  savedParticipations.map((x: any) => x.eventId).includes(id);
+  savedEvents.map((x: EditEventToken) => x.eventId).includes(id) ||
+  savedParticipations.map((x: Participation) => x.eventId).includes(id);
 
 const filterEksternt = (event: IEvent) => event.isExternal;
 const filterInternt = (event: IEvent) => !event.isExternal;

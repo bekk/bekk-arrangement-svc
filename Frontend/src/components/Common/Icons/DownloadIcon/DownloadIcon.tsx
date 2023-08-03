@@ -7,7 +7,7 @@ interface IconProps {
   className?: string;
 }
 export const DownloadIcon = ({ title, className }: IconProps) => {
-  let styles = classnames(style.downloadIcon, className);
+  const styles = classnames(style.downloadIcon, className);
   return (
     <svg
       width="39"

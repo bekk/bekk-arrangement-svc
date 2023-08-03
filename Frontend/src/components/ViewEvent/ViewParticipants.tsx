@@ -3,7 +3,6 @@ import style from './ViewParticipants.module.scss';
 import { stringifyEmail } from 'src/types/email';
 import { useEvent, useParticipants } from 'src/hooks/cache';
 import { hasLoaded, isBad } from 'src/remote-data';
-import { useMediaQuery } from 'react-responsive';
 import { IParticipant } from 'src/types/participant';
 import { Button } from 'src/components/Common/Button/Button';
 import { Spinner } from 'src/components/Common/Spinner/spinner';
@@ -21,9 +20,6 @@ interface IProps {
 
 export const ViewParticipants = ({ eventId, editToken }: IProps) => {
   const remoteParticipants = useParticipants(eventId, editToken);
-  const screenIsMobileSize = useMediaQuery({
-    query: `(max-width: ${540}px)`,
-  });
 
   if (isBad(remoteParticipants)) {
     return <div>Det er noe galt med dataen</div>;
@@ -38,28 +34,24 @@ export const ViewParticipants = ({ eventId, editToken }: IProps) => {
   return (
     <div>
       {attendees.length > 0 ? (
-        screenIsMobileSize ? (
+        <>
           <ParticipantTableMobile eventId={eventId} participants={attendees} />
-        ) : (
           <ParticipantTableDesktop eventId={eventId} participants={attendees} />
-        )
+        </>
       ) : (
         <div>Ingen påmeldte</div>
       )}
       {waitingList && waitingList.length > 0 && (
         <>
           <h3 className={style.subSubHeader}>På venteliste</h3>
-          {screenIsMobileSize ? (
-            <ParticipantTableMobile
-              eventId={eventId}
-              participants={waitingList}
-            />
-          ) : (
-            <ParticipantTableDesktop
-              eventId={eventId}
-              participants={waitingList}
-            />
-          )}
+          <ParticipantTableMobile
+            eventId={eventId}
+            participants={waitingList}
+          />
+          <ParticipantTableDesktop
+            eventId={eventId}
+            participants={waitingList}
+          />
         </>
       )}
     </div>
@@ -75,7 +67,7 @@ const ParticipantTableMobile = (props: {
   const [showModal, setShowModal] = useState<IParticipant | null>(null);
   if (!hasLoaded(event)) return <></>;
   return (
-    <>
+    <div className={style.hideOnDesktop}>
       <table className={style.table}>
         <tbody>
           {props.participants.map((attendee) => (
@@ -93,7 +85,7 @@ const ParticipantTableMobile = (props: {
                   {questions.map(
                     (q, i) =>
                       attendee.participantAnswers[i] && (
-                        <div>
+                        <div key={q}>
                           <div className={style.question}>{q}</div>
                           <div className={style.answer}>
                             {attendee.participantAnswers[i]}
@@ -120,7 +112,7 @@ const ParticipantTableMobile = (props: {
           closeModal={() => setShowModal(null)}
         />
       )}
-    </>
+    </div>
   );
 };
 

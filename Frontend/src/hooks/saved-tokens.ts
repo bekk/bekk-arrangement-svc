@@ -10,11 +10,9 @@ export type EditEventToken = {
   eventId: string;
   editToken: string;
 };
-const isEditEventTokenType = (x: any): x is EditEventToken =>
-  'eventId' in x &&
-  typeof x.eventId === 'string' &&
-  'editToken' in x &&
-  typeof x.editToken === 'string';
+const isEditEventTokenType = (x: unknown): x is EditEventToken =>
+  (x as EditEventToken).eventId !== undefined &&
+  (x as EditEventToken).editToken !== undefined;
 
 export const useSavedEditableEvents = (): {
   savedEvents: EditEventToken[];
@@ -61,13 +59,13 @@ export type Participation = {
   cancellationToken: string;
   questionAndAnswers: IQuestionAndAnswer[];
 };
-const isParticipationAndHasCancellationToken = (x: any): x is Participation =>
-  'eventId' in x &&
-  typeof x.eventId === 'string' &&
-  'email' in x &&
-  typeof x.email === 'string' &&
-  'cancellationToken' in x &&
-  typeof x.cancellationToken === 'string';
+
+const isParticipationAndHasCancellationToken = (
+  x: unknown
+): x is Participation =>
+  (x as Participation).eventId !== undefined &&
+  (x as Participation).email !== undefined &&
+  (x as Participation).cancellationToken !== undefined;
 
 export const useSavedParticipations = () => {
   const [readStorage, setStorage] = useLocalStorage({
@@ -102,7 +100,6 @@ export const useSavedParticipations = () => {
   return {
     savedParticipations: readValidatedStorage(),
     saveParticipation: (participant: Participation) => {
-      console.log('saveParticipation', participant);
       setStorage(updateStorage(participant));
     },
     removeSavedParticipant: (participant: { eventId: string; email: string }) =>

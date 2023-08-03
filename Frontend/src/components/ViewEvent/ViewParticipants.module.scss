@@ -5,6 +5,12 @@
   @include regularText;
 }
 
+.hideOnDesktop {
+  @media #{$desktop} {
+    display: none !important;
+  }
+}
+
 .table {
   @include regularText;
   font-size: 16px;

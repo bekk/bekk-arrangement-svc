@@ -43,7 +43,10 @@ export const ParticipationState = ({
   waitingListSpot,
 }: IProps) => {
   const history = useHistory();
-  const route = (path: string, htmlEvent: any) => {
+  const route = (
+    path: string,
+    htmlEvent: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
     htmlEvent.stopPropagation();
     htmlEvent.preventDefault();
     history.push(path);
@@ -52,21 +55,18 @@ export const ParticipationState = ({
     case EventState.Rediger:
       return (
         <Button
-          onClick={(htmlEvent: any) =>
-            route(editEventRoute(eventId), htmlEvent)
-          }>
+          onClick={(htmlEvent) => route(editEventRoute(eventId), htmlEvent)}>
           Rediger
         </Button>
       );
 
     case EventState.IkkeApnet:
-      const openForRegistrationTime = event.openForRegistrationTime;
-      const dateTimeText = `${capitalize(
-        stringifyTimeInstanceWithDayName(openForRegistrationTime)
-      )}, ${stringifyTime(dateToITime(openForRegistrationTime))}`;
       return (
         <div className={style.stateText}>
-          Påmelding åpner <br /> {dateTimeText}
+          Påmelding åpner <br />
+          {`${capitalize(
+            stringifyTimeInstanceWithDayName(event.openForRegistrationTime)
+          )}, ${stringifyTime(dateToITime(event.openForRegistrationTime))}`}
         </div>
       );
 
@@ -99,7 +99,7 @@ export const ParticipationState = ({
               {plural(numberOfAvailableSpots, 'plass', 'plasser')} igjen!
             </div>
             <Button
-              onClick={(htmlEvent: any) =>
+              onClick={(htmlEvent) =>
                 route(viewEventRoute(eventId), htmlEvent)
               }>
               Meld deg på
@@ -109,9 +109,7 @@ export const ParticipationState = ({
       }
       return (
         <Button
-          onClick={(htmlEvent: any) =>
-            route(viewEventRoute(eventId), htmlEvent)
-          }>
+          onClick={(htmlEvent) => route(viewEventRoute(eventId), htmlEvent)}>
           Meld deg på
         </Button>
       );
@@ -121,9 +119,7 @@ export const ParticipationState = ({
         <div className={style.stateContainer}>
           <div className={style.stateText}>Arrangementet er fullt.</div>
           <Button
-            onClick={(htmlEvent: any) =>
-              route(viewEventRoute(eventId), htmlEvent)
-            }>
+            onClick={(htmlEvent) => route(viewEventRoute(eventId), htmlEvent)}>
             Sett på venteliste
           </Button>
         </div>

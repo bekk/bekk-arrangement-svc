@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import TextareaAutosize from 'react-textarea-autosize';
 import style from './TextArea.module.scss';
 import classNames from 'classnames';
 
@@ -23,7 +22,6 @@ export const TextArea = ({
   isError = false,
   onBlur = () => undefined,
   onLightBackground = false,
-  minRow = 2,
   className = '',
 }: IProps): JSX.Element => {
   const [hasVisited, setVisited] = useState(false);
@@ -49,9 +47,8 @@ export const TextArea = ({
           {label}
         </label>
       )}
-      <TextareaAutosize
+      <textarea
         className={inputStyle}
-        minRows={minRow}
         id={label}
         placeholder={placeholder}
         value={value}
