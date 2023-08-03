@@ -189,8 +189,7 @@ export const useEventColor = (
     const style = document.createElement('style');
     style.type = 'text/css';
     style.innerHTML = `.${className}:hover { background-color: #${customHexColor}; }`;
-    // eslint-disable-next-line
-    const head = (document.getElementsByTagName('head') as any)[0];
+    const head = document.getElementsByTagName('head')[0];
     if (head) head.appendChild(style);
   }, [className, customHexColor]);
   if (customHexColor) {

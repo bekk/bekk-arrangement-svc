@@ -61,15 +61,12 @@ export const ParticipationState = ({
       );
 
     case EventState.IkkeApnet:
-      // eslint-disable-next-line
-      const openForRegistrationTime = event.openForRegistrationTime;
-      // eslint-disable-next-line
-      const dateTimeText = `${capitalize(
-        stringifyTimeInstanceWithDayName(openForRegistrationTime)
-      )}, ${stringifyTime(dateToITime(openForRegistrationTime))}`;
       return (
         <div className={style.stateText}>
-          Påmelding åpner <br /> {dateTimeText}
+          Påmelding åpner <br />
+          {`${capitalize(
+            stringifyTimeInstanceWithDayName(event.openForRegistrationTime)
+          )}, ${stringifyTime(dateToITime(event.openForRegistrationTime))}`}
         </div>
       );
 

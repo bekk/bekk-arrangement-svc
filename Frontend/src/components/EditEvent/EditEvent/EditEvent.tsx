@@ -280,7 +280,7 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
               className={style.textAreaContainer}
               label={labels.program}
               placeholder={placeholders.program}
-              value={event.program!}
+              value={event.program ?? ''}
               validation={parseProgram}
               onLightBackground
               minRow={8}
