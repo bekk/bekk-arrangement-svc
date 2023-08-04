@@ -25,7 +25,7 @@ import { officeEventRoute, officeEventsMonthKey } from 'src/routing';
 import { useParam } from 'src/utils/browser-state';
 import { useEffectOnce } from 'src/hooks/utils';
 import { Spinner } from 'src/components/Common/Spinner/spinner';
-import { OfficeEvent } from '../../types/OfficeEvent';
+import { OfficeEvent } from 'src/types/OfficeEvent';
 
 export const OfficeEvents = () => {
   const urlDate = useParam(officeEventsMonthKey);
@@ -157,7 +157,7 @@ const WeekDayCards = ({
         const borderStyle = classnames({
           [style.notCurrentMonthDay]: isPreviousDay(day),
         });
-        const dateStyle = classnames({
+        const dateStyle = classnames(style.tableContent, {
           [style.notCurrentMonthDate]: isPreviousDay(day),
           [style.currentDate]: isToday(day) || isNextMonth(day),
         });
@@ -170,6 +170,9 @@ const WeekDayCards = ({
               <div className={dateHighlighter}>{day.getDate()}</div>
               {events.map((event) => (
                 <Event
+                  isPreviousDayOrNextMonth={
+                    isPreviousDay(day) || isNextMonth(day)
+                  }
                   key={`${event.title}:${event.contactPerson}`}
                   event={event}
                   setSelectedEvent={setSelectedEvent}
@@ -184,13 +187,17 @@ const WeekDayCards = ({
 };
 
 const Event = ({
+  isPreviousDayOrNextMonth,
   event,
   setSelectedEvent,
 }: {
+  isPreviousDayOrNextMonth: boolean;
   event: OfficeEvent;
   setSelectedEvent: (x: OfficeEvent) => void;
 }) => {
+  // Tanken bak at disse alltid er false er å på sikt kunne differensiere mellom forskjellige typer events og fargelegge dem forskjellig.
   const eventStyle = classnames(style.event, {
+    [style.eventOverskyetKontrast]: isPreviousDayOrNextMonth,
     [style.eventSolkontrast]: false,
     [style.eventHavkontrast]: false,
     [style.eventKveldkontrast]: false,

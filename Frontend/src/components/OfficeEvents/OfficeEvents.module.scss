@@ -23,7 +23,7 @@
   border-collapse: collapse;
   margin: 0;
   padding: 0;
-  width: 80%;
+  width: 90%;
   table-layout: fixed;
 }
 
@@ -59,8 +59,8 @@
 }
 .table td {
   padding: 0.625em;
-  width: 200px;
-  height: 200px;
+  width: 33.33%;
+  max-width: 50%;
   border: 1px solid var(--svart50);
   vertical-align: top;
   text-align: left;
@@ -68,6 +68,10 @@
   font-weight: 400;
   font-size: 18px;
   line-height: 23px;
+}
+
+.tableContent  {
+  aspect-ratio: 1 / 1;
 }
 
 @media screen and (max-width: 600px) {
@@ -140,6 +144,15 @@
   font-weight: 400;
   font-size: 14px;
   line-height: 18px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  &:hover {
+    font-weight: 800;
+    &::before {
+      width: 4px;
+    }
+  }
   &::before {
     display: inline-block;
     content: '';
@@ -148,6 +161,12 @@
     margin-right: 0.5em;
     background-color: white;
     vertical-align: bottom;
+  }
+}
+
+.eventOverskyetKontrast {
+  &::before {
+    background-color: var(--overskyetKontrast);
   }
 }
 
