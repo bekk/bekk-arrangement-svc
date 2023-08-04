@@ -50,6 +50,14 @@
   padding: 0.35em;
 }
 
+.table tr td:first-child::before {
+  color: var(--svart70);
+  font-size: 12px;
+  left: 3%;
+  position: absolute;
+  content: attr(data-label);
+}
+
 .table th {
   padding: 0.625em;
   font-family: $serifFontRegular;

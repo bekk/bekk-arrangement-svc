@@ -148,10 +148,9 @@ const WeekDayCards = ({
   const isToday = (day: Date) =>
     day.toDateString() === currentDate.toDateString();
   const isNextMonth = (day: Date) => day.getMonth() > currentDate.getMonth();
+  const weekNr = getWeek(daysAndEvents[0].day);
   return (
-    <tr
-      key={getWeek(daysAndEvents[0].day)}
-      data-label={getWeek(daysAndEvents[0].day)}>
+    <tr key={weekNr} data-label={weekNr}>
       {daysAndEvents.map((dayAndEvents) => {
         const { day, events } = dayAndEvents;
         const borderStyle = classnames({
@@ -165,7 +164,7 @@ const WeekDayCards = ({
           [style.todayHighlighter]: isToday(day),
         });
         return (
-          <td className={borderStyle} key={day.getDate()}>
+          <td data-label={weekNr} className={borderStyle} key={day.getDate()}>
             <div className={dateStyle}>
               <div className={dateHighlighter}>{day.getDate()}</div>
               {events.map((event) => (
