@@ -25,6 +25,9 @@
   padding: 0;
   width: 80%;
   table-layout: fixed;
+  @media #{$bigDesktop} {
+      width: 50%;
+  }
 }
 
 .table caption {
@@ -50,6 +53,19 @@
   padding: 0.35em;
 }
 
+.table tr td:first-child::before {
+  @media screen and (min-width: 600px) {
+    color: var(--svart70);
+    font-size: 12px;
+    left: 8%;
+    position: absolute;
+    content: attr(data-label);
+  }
+    @media #{$bigDesktop} {
+        left: 24%;
+    }
+}
+
 .table th {
   padding: 0.625em;
   font-family: $serifFontRegular;
@@ -59,8 +75,8 @@
 }
 .table td {
   padding: 0.625em;
-  width: 200px;
-  height: 200px;
+  width: 33.33%;
+  max-width: 50%;
   border: 1px solid var(--svart50);
   vertical-align: top;
   text-align: left;
@@ -68,6 +84,10 @@
   font-weight: 400;
   font-size: 18px;
   line-height: 23px;
+}
+
+.tableContent  {
+  aspect-ratio: 1 / 1;
 }
 
 @media screen and (max-width: 600px) {
@@ -89,6 +109,8 @@
   .table tr {
     display: block;
     margin-bottom: 0.625em;
+    margin-left: 26px;
+    width: 680px;
   }
 
   .table td {
@@ -96,10 +118,15 @@
     font-size: 0.8em;
     text-align: right;
     width: 100%;
+    height: 100px;
   }
 
   .table tr::before {
     content: attr(data-label);
+  }
+
+  .tableContent  {
+    aspect-ratio: unset;
   }
 }
 
@@ -140,6 +167,15 @@
   font-weight: 400;
   font-size: 14px;
   line-height: 18px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  &:hover {
+    font-weight: 800;
+    &::before {
+      width: 4px;
+    }
+  }
   &::before {
     display: inline-block;
     content: '';
@@ -148,6 +184,12 @@
     margin-right: 0.5em;
     background-color: white;
     vertical-align: bottom;
+  }
+}
+
+.eventOverskyetKontrast {
+  &::before {
+    background-color: var(--overskyetKontrast);
   }
 }
 
