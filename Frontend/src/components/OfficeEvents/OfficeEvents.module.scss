@@ -25,6 +25,9 @@
   padding: 0;
   width: 80%;
   table-layout: fixed;
+  @media #{$bigDesktop} {
+      width: 50%;
+  }
 }
 
 .table caption {
@@ -58,6 +61,9 @@
     position: absolute;
     content: attr(data-label);
   }
+    @media #{$bigDesktop} {
+        left: 24%;
+    }
 }
 
 .table th {
