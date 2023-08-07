@@ -166,12 +166,7 @@
 }
 
 .listStyle {
-  & > li {
-    color: var(--svart);
-    font-family: $fontRegular;
-    font-weight: 400;
-    font-size: 14px;
-  }
+  padding-left: 20px;
 }
 
 .office {
