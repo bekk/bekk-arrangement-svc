@@ -23,7 +23,7 @@
   border-collapse: collapse;
   margin: 0;
   padding: 0;
-  width: 90%;
+  width: 80%;
   table-layout: fixed;
 }
 
@@ -54,7 +54,7 @@
   @media screen and (min-width: 600px) {
     color: var(--svart70);
     font-size: 12px;
-    left: 3%;
+    left: 8%;
     position: absolute;
     content: attr(data-label);
   }
