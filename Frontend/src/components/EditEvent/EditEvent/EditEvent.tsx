@@ -554,13 +554,10 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
         </Button>
         {event.participantQuestions.length > 0 && (
           <InfoBox title="Formateringshjelp">
-            <div className={style.informationContent}>
-              <p>Spørsmål:</p>
-              <p>
-                &#47;&#47; Alternativer: alternativ 1; alternativ 2; alternativ
-                3
-              </p>
-            </div>
+            <p>Spørsmål:</p>
+            <p>
+              &#47;&#47; Alternativer: alternativ 1; alternativ 2; alternativ 3
+            </p>
           </InfoBox>
         )}
       </div>
