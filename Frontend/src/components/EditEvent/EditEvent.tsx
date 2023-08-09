@@ -18,9 +18,9 @@ import classnames from 'classnames';
 import { useSetTitle } from 'src/hooks/setTitle';
 import { Spinner } from 'src/components/Common/Spinner/spinner';
 import { useSessionState } from 'src/hooks/sessionState';
-import { Link } from 'react-router-dom';
 import { EventForm } from '../EventForm/EventForm';
 import { PreviewEventButton } from '../EventForm/PreviewEventButton';
+import { BackLink } from '../EventForm/BackLink';
 
 const useEditEvent = () => {
   const eventId = useParam(eventIdKey);
@@ -72,9 +72,9 @@ export const EditEvent = () => {
 
   return (
     <Page>
-      <p className={style.linkContainer}>
-        ← <Link to={viewEventRoute(eventId)}>Tilbake til arrangementet</Link>
-      </p>
+      <BackLink to={viewEventRoute(eventId)}>
+        Tilbake til arrangementet
+      </BackLink>
       <h1 className={style.header}>Rediger arrangement</h1>
       <EventForm eventResult={editEvent} updateEvent={setEditEvent} />
       <div className={style.buttonContainer}>

@@ -12,8 +12,8 @@ import { hasLoaded } from 'src/remote-data';
 import { useSetTitle } from 'src/hooks/setTitle';
 import { appTitle } from 'src/Constants';
 import { useSessionState } from 'src/hooks/sessionState';
-import { Link } from 'react-router-dom';
 import { PreviewEventButton } from '../EventForm/PreviewEventButton';
+import { BackLink } from '../EventForm/BackLink';
 
 export const CreateEvent = () => {
   useAuthentication();
@@ -31,9 +31,7 @@ export const CreateEvent = () => {
 
   return (
     <Page>
-      <p className={style.linkContainer}>
-        ← <Link to={eventsRoute}>Tilbake til oversikten</Link>
-      </p>
+      <BackLink to={eventsRoute}>Tilbake til oversikten</BackLink>
       <h1 className={style.header}>Opprett arrangement</h1>
       <EventForm eventResult={event} updateEvent={setEvent} />
       <div className={style.buttonContainer}>
