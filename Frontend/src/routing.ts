@@ -68,14 +68,10 @@ export const cancelParticipationUrlTemplate =
 
 export const useIsEditingRoute = () => {
   const routeMatch = useRouteMatch(editEventRoute(':' + eventIdKey));
-  return routeMatch !== null;
-};
-export const useIsPreviewRoute = () => {
-  const routeMatch = useRouteMatch(previewEventRoute(':' + eventIdKey));
-  return routeMatch !== null;
+  return routeMatch?.isExact;
 };
 
 export const useIsCreateRoute = () => {
   const routeMatch = useRouteMatch(createRoute);
-  return routeMatch !== null;
+  return routeMatch?.isExact;
 };

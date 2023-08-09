@@ -1,0 +1,14 @@
+@import 'src/style/constants';
+
+.link {
+  @include regularText;
+  color: var(--svart);
+  position: absolute;
+  left: 5vw;
+  top: 2.5em;
+  text-decoration: none;
+}
+
+.text {
+  text-decoration: underline;
+}
