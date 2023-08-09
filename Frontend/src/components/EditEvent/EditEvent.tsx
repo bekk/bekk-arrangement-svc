@@ -1,21 +1,18 @@
 import { useLayoutEffect, useEffect } from 'react';
 import React from 'react';
-import { IEditEvent, toEditEvent, parseEditEvent } from 'src/types/event';
+import { IEditEvent, toEditEvent } from 'src/types/event';
 import { deleteEvent } from 'src/api/arrangementSvc';
 import { useHistory } from 'react-router';
 import style from './EditEvent.module.scss';
-import { eventsRoute, editTokenKey, previewEventRoute, viewEventRoute } from 'src/routing';
+import { eventsRoute, editTokenKey, viewEventRoute } from 'src/routing';
 import { hasLoaded } from 'src/remote-data';
 import { useQuery, useParam } from 'src/utils/browser-state';
 import { useNotification } from 'src/components/NotificationHandler/NotificationHandler';
 import { Page } from 'src/components/Page/Page';
-import { Button } from 'src/components/Common/Button/Button';
 import { BlockLink } from 'src/components/Common/BlockLink/BlockLink';
-import { isValid } from 'src/types/validation';
 import { eventIdKey } from 'src/routing';
 import { ButtonWithPromptModal } from 'src/components/Common/ButtonWithConfirmModal/ButtonWithPromptModal';
 import { useEvent } from 'src/hooks/cache';
-import { useGotoEventPreview } from 'src/hooks/history';
 import { useEditToken, useSavedEditableEvents } from 'src/hooks/saved-tokens';
 import classnames from 'classnames';
 import { useSetTitle } from 'src/hooks/setTitle';
@@ -23,6 +20,7 @@ import { Spinner } from 'src/components/Common/Spinner/spinner';
 import { useSessionState } from 'src/hooks/sessionState';
 import { Link } from 'react-router-dom';
 import { EventForm } from '../EventForm/EventForm';
+import { PreviewEventButton } from '../EventForm/PreviewEventButton';
 
 const useEditEvent = () => {
   const eventId = useParam(eventIdKey);
@@ -38,10 +36,7 @@ const useEditEvent = () => {
     }
   }, [remoteEvent, editEvent, setEditEvent]);
 
-  const validEvent = validateEvent(editEvent);
-  const errors = editEvent ? parseEditEvent(editEvent) : [];
-
-  return { eventId, validEvent, editEvent, setEditEvent, errors };
+  return { eventId, editEvent, setEditEvent };
 };
 
 const useSaveThisEditToken = ({ eventId }: { eventId: string }) => {
@@ -55,14 +50,11 @@ const useSaveThisEditToken = ({ eventId }: { eventId: string }) => {
 };
 
 export const EditEvent = () => {
-  const { eventId, validEvent, editEvent, setEditEvent, errors } =
-    useEditEvent();
+  const { eventId, editEvent, setEditEvent } = useEditEvent();
   useSetTitle(`Rediger ${editEvent?.title}`);
 
   const { catchAndNotify } = useNotification();
   const history = useHistory();
-
-  const gotoPreview = useGotoEventPreview(previewEventRoute(eventId));
 
   useSaveThisEditToken({ eventId });
   const editToken = useEditToken(eventId);
@@ -94,44 +86,24 @@ export const EditEvent = () => {
             placeholder="Arrangementet er avlyst pga. ..."
             textareaLabel="Send en forklarende tekst på e-post til alle påmeldte deltakere:"
             className={classnames(style.button, style.redButton)}>
-            <>
-              <p>
-                Er du sikker på at du vil avlyse arrangementet? <br />
-                Alle deltakerene vil få beskjed. Dette kan ikke reverseres{' '}
-                <span role="img" aria-label="grimacing-face">
-                  😬
-                </span>
-              </p>
-              <p className={style.italic}>
-                OBS: Når et arrangement blir avlyst vises det på forsiden i et
-                døgn, <br />
-                markert som avlyst.
-              </p>
-            </>
+            <p>
+              Er du sikker på at du vil avlyse arrangementet? <br />
+              Alle deltakerene vil få beskjed. Dette kan ikke reverseres{' '}
+              <span role="img" aria-label="grimacing-face">
+                😬
+              </span>
+            </p>
+            <p className={style.italic}>
+              OBS: Når et arrangement blir avlyst vises det på forsiden i et
+              døgn, <br />
+              markert som avlyst.
+            </p>
           </ButtonWithPromptModal>
-          <Button
-            onClick={() => validEvent && gotoPreview(validEvent)}
-            className={style.button}
-            disabled={!validEvent}
-            disabledReason={
-              <ul>
-                {Array.isArray(errors) &&
-                  errors.map((x) => <li key={x.message}>{x.message}</li>)}
-              </ul>
-            }>
+          <PreviewEventButton event={editEvent}>
             Forhåndsvis endringer
-          </Button>
+          </PreviewEventButton>
         </div>
       </div>
     </Page>
   );
-};
-
-const validateEvent = (event?: IEditEvent) => {
-  if (event) {
-    const validEvent = parseEditEvent(event);
-    if (isValid(validEvent)) {
-      return validEvent;
-    }
-  }
 };

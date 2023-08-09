@@ -1,20 +1,19 @@
 import React from 'react';
-import { IEditEvent, initialEditEvent, parseEditEvent } from 'src/types/event';
-import { eventsRoute, previewNewEventRoute } from 'src/routing';
+import { IEditEvent, initialEditEvent } from 'src/types/event';
+import { eventsRoute } from 'src/routing';
 import { useAuthentication } from 'src/auth';
 import { Page } from 'src/components/Page/Page';
-import { Button } from 'src/components/Common/Button/Button';
 import { EventForm } from '../EventForm/EventForm';
 import { BlockLink } from 'src/components/Common/BlockLink/BlockLink';
 import style from './CreateEvent.module.scss';
-import { isValid } from 'src/types/validation';
-import { useDuplicateEvent, useGotoEventPreview } from 'src/hooks/history';
+import { useDuplicateEvent } from 'src/hooks/history';
 import { useEmailNameAndDepartment } from 'src/hooks/cache';
 import { hasLoaded } from 'src/remote-data';
 import { useSetTitle } from 'src/hooks/setTitle';
 import { appTitle } from 'src/Constants';
 import { useSessionState } from 'src/hooks/sessionState';
 import { Link } from 'react-router-dom';
+import { PreviewEventButton } from '../EventForm/PreviewEventButton';
 
 export const CreateEvent = () => {
   useAuthentication();
@@ -29,16 +28,6 @@ export const CreateEvent = () => {
     duplicateEvent ?? initialEditEvent(email, name),
     'createEvent'
   );
-  const validEvent = validateEvent(event);
-  const errors = parseEditEvent(event);
-
-  const gotoPreview = useGotoEventPreview(previewNewEventRoute);
-
-  const redirectToPreview =
-    validEvent &&
-    (() => {
-      gotoPreview(validEvent);
-    });
 
   return (
     <Page>
@@ -48,30 +37,11 @@ export const CreateEvent = () => {
       <h1 className={style.header}>Opprett arrangement</h1>
       <EventForm eventResult={event} updateEvent={setEvent} />
       <div className={style.buttonContainer}>
-        <Button
-          onClick={redirectToPreview || (() => {})}
-          disabled={!redirectToPreview}
-          disabledReason={
-            <ul>
-              {Array.isArray(errors) &&
-                errors.map((x) => <li key={x.message}>{x.message}</li>)}
-            </ul>
-          }>
-          Forhåndsvisning
-        </Button>
+        <PreviewEventButton event={event}>Forhåndsvisning</PreviewEventButton>
         <BlockLink to={eventsRoute} onLightBackground>
           Avbryt
         </BlockLink>
       </div>
     </Page>
   );
-};
-
-const validateEvent = (event?: IEditEvent) => {
-  if (event) {
-    const validEvent = parseEditEvent(event);
-    if (isValid(validEvent)) {
-      return validEvent;
-    }
-  }
 };
