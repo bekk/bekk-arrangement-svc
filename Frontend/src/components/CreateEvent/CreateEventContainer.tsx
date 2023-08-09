@@ -14,6 +14,7 @@ import { hasLoaded } from 'src/remote-data';
 import { useSetTitle } from 'src/hooks/setTitle';
 import { appTitle } from 'src/Constants';
 import { useSessionState } from 'src/hooks/sessionState';
+import { Link } from 'react-router-dom';
 
 export const CreateEventContainer = () => {
   useAuthentication();
@@ -41,6 +42,9 @@ export const CreateEventContainer = () => {
 
   return (
     <Page>
+      <p className={style.linkContainer}>
+        ← <Link to={eventsRoute}>Tilbake til oversikten</Link>
+      </p>
       <h1 className={style.header}>Opprett arrangement</h1>
       <EditEvent eventResult={event} updateEvent={setEvent} />
       <div className={style.buttonContainer}>

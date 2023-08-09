@@ -5,7 +5,7 @@ import { deleteEvent } from 'src/api/arrangementSvc';
 import { useHistory } from 'react-router';
 import { EditEvent } from './EditEvent/EditEvent';
 import style from './EditEventContainer.module.scss';
-import { eventsRoute, editTokenKey, previewEventRoute } from 'src/routing';
+import { eventsRoute, editTokenKey, previewEventRoute, viewEventRoute } from 'src/routing';
 import { hasLoaded } from 'src/remote-data';
 import { useQuery, useParam } from 'src/utils/browser-state';
 import { useNotification } from 'src/components/NotificationHandler/NotificationHandler';
@@ -22,6 +22,7 @@ import classnames from 'classnames';
 import { useSetTitle } from 'src/hooks/setTitle';
 import { Spinner } from 'src/components/Common/Spinner/spinner';
 import { useSessionState } from 'src/hooks/sessionState';
+import { Link } from 'react-router-dom';
 
 const useEditEvent = () => {
   const eventId = useParam(eventIdKey);
@@ -79,6 +80,9 @@ export const EditEventContainer = () => {
 
   return (
     <Page>
+      <p className={style.linkContainer}>
+        ← <Link to={viewEventRoute(eventId)}>Tilbake til arrangementet</Link>
+      </p>
       <h1 className={style.header}>Rediger arrangement</h1>
       <EditEvent eventResult={editEvent} updateEvent={setEditEvent} />
       <div className={style.buttonContainer}>

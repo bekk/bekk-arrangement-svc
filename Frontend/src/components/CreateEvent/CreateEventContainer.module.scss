@@ -13,3 +13,11 @@
   flex-direction: row-reverse;
   align-items: baseline;
 }
+
+.linkContainer {
+  @include regularText;
+  color: var(--svart);
+  position: absolute;
+  left: 5vw;
+  top: 1.5em;
+}

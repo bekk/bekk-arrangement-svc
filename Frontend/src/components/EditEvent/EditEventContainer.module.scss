@@ -17,9 +17,12 @@
   }
 }
 
-.text {
+.linkContainer {
   @include regularText;
-  margin-top: 20px;
+  color: var(--svart);
+  position: absolute;
+  left: 5vw;
+  top: 1.5em;
 }
 
 .groupedButtons {
