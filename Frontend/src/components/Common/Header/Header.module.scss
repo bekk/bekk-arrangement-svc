@@ -5,15 +5,11 @@
   position: absolute;
   width: 100%;
   padding-top: 3em;
+  max-width: max-content;
   @media #{$mobile}, (max-width:$tabletMaxWidth) {
     padding-top: 1em;
   }
   z-index: 100;
-}
-
-.coloredHeader {
-  margin-bottom: -100px;
-  max-width: max-content;
 }
 
 .logo {
