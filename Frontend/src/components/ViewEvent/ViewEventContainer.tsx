@@ -237,7 +237,7 @@ export const ViewEventContainer = ({ eventId }: IProps) => {
                 ) : (
                   <p>
                     Hurra, du er påmeldt {event.title}! Vi gleder oss til å se
-                    deg. En bekreftelse er sendt på e-post til
+                    deg. En bekreftelse er sendt på e-post til{' '}
                     {participationsForThisEvent[0].email}
                   </p>
                 )}
