@@ -3,8 +3,7 @@ import React from 'react';
 import { IEditEvent, toEditEvent, parseEditEvent } from 'src/types/event';
 import { deleteEvent } from 'src/api/arrangementSvc';
 import { useHistory } from 'react-router';
-import { EditEvent } from './EditEvent/EditEvent';
-import style from './EditEventContainer.module.scss';
+import style from './EditEvent.module.scss';
 import { eventsRoute, editTokenKey, previewEventRoute, viewEventRoute } from 'src/routing';
 import { hasLoaded } from 'src/remote-data';
 import { useQuery, useParam } from 'src/utils/browser-state';
@@ -23,6 +22,7 @@ import { useSetTitle } from 'src/hooks/setTitle';
 import { Spinner } from 'src/components/Common/Spinner/spinner';
 import { useSessionState } from 'src/hooks/sessionState';
 import { Link } from 'react-router-dom';
+import { EventForm } from '../EventForm/EventForm';
 
 const useEditEvent = () => {
   const eventId = useParam(eventIdKey);
@@ -54,7 +54,7 @@ const useSaveThisEditToken = ({ eventId }: { eventId: string }) => {
   }, [eventId, editToken, saveEditableEvent]);
 };
 
-export const EditEventContainer = () => {
+export const EditEvent = () => {
   const { eventId, validEvent, editEvent, setEditEvent, errors } =
     useEditEvent();
   useSetTitle(`Rediger ${editEvent?.title}`);
@@ -84,7 +84,7 @@ export const EditEventContainer = () => {
         ← <Link to={viewEventRoute(eventId)}>Tilbake til arrangementet</Link>
       </p>
       <h1 className={style.header}>Rediger arrangement</h1>
-      <EditEvent eventResult={editEvent} updateEvent={setEditEvent} />
+      <EventForm eventResult={editEvent} updateEvent={setEditEvent} />
       <div className={style.buttonContainer}>
         <BlockLink to={eventsRoute}>Avbryt</BlockLink>
         <div className={style.groupedButtons}>
@@ -113,7 +113,7 @@ export const EditEventContainer = () => {
             onClick={() => validEvent && gotoPreview(validEvent)}
             className={style.button}
             disabled={!validEvent}
-            disabledResaon={
+            disabledReason={
               <ul>
                 {Array.isArray(errors) &&
                   errors.map((x) => <li key={x.message}>{x.message}</li>)}

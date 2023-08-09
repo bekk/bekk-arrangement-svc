@@ -64,7 +64,7 @@ export function ButtonWithPromptModal({
                 color={'Primary'}
                 onClick={confirmAndClose}
                 disabled={promptAnswer.length < 3}
-                disabledResaon={
+                disabledReason={
                   <ul>
                     <li>Tekstfeltet må fylles ut</li>
                   </ul>

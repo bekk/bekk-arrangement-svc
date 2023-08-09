@@ -4,9 +4,9 @@ import { eventsRoute, previewNewEventRoute } from 'src/routing';
 import { useAuthentication } from 'src/auth';
 import { Page } from 'src/components/Page/Page';
 import { Button } from 'src/components/Common/Button/Button';
-import { EditEvent } from 'src/components/EditEvent/EditEvent/EditEvent';
+import { EventForm } from '../EventForm/EventForm';
 import { BlockLink } from 'src/components/Common/BlockLink/BlockLink';
-import style from './CreateEventContainer.module.scss';
+import style from './CreateEvent.module.scss';
 import { isValid } from 'src/types/validation';
 import { useDuplicateEvent, useGotoEventPreview } from 'src/hooks/history';
 import { useEmailNameAndDepartment } from 'src/hooks/cache';
@@ -16,7 +16,7 @@ import { appTitle } from 'src/Constants';
 import { useSessionState } from 'src/hooks/sessionState';
 import { Link } from 'react-router-dom';
 
-export const CreateEventContainer = () => {
+export const CreateEvent = () => {
   useAuthentication();
   useSetTitle(appTitle);
 
@@ -46,12 +46,12 @@ export const CreateEventContainer = () => {
         ← <Link to={eventsRoute}>Tilbake til oversikten</Link>
       </p>
       <h1 className={style.header}>Opprett arrangement</h1>
-      <EditEvent eventResult={event} updateEvent={setEvent} />
+      <EventForm eventResult={event} updateEvent={setEvent} />
       <div className={style.buttonContainer}>
         <Button
           onClick={redirectToPreview || (() => {})}
           disabled={!redirectToPreview}
-          disabledResaon={
+          disabledReason={
             <ul>
               {Array.isArray(errors) &&
                 errors.map((x) => <li key={x.message}>{x.message}</li>)}

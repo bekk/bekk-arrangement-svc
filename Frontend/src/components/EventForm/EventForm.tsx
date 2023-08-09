@@ -26,7 +26,7 @@ import {
 import { isValid } from 'src/types/validation';
 import { ValidatedTextArea } from 'src/components/Common/ValidatedTextArea/ValidatedTextArea';
 import { Button } from 'src/components/Common/Button/Button';
-import style from './EditEvent.module.scss';
+import style from './EventForm.module.scss';
 import { TimeInput } from 'src/components/Common/TimeInput/TimeInput';
 import { DateInput } from 'src/components/Common/DateInput/DateInput';
 import { ValidationResult } from 'src/components/Common/ValidationResult/ValidationResult';
@@ -40,7 +40,7 @@ interface IProps {
   updateEvent: (event: IEditEvent) => void;
 }
 
-export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
+export const EventForm = ({ eventResult: event, updateEvent }: IProps) => {
   const [isMultiDayEvent, setMultiDay] = useState(
     event.start.date !== event.end.date
   );
