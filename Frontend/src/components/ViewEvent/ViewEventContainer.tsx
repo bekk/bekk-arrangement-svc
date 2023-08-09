@@ -19,6 +19,7 @@ import {
   useEmailNameAndDepartment,
   useEvent,
   useNumberOfParticipants,
+  useWaitinglistSpot,
 } from 'src/hooks/cache';
 import {
   Participation,
@@ -61,6 +62,10 @@ export const ViewEventContainer = ({ eventId }: IProps) => {
   const participationsForThisEvent = participationsInLocalStorage.filter(
     (p) => p.eventId === eventId
   );
+  const remoteWaitinglistSpot = useWaitinglistSpot(
+    eventId,
+    participationsForThisEvent[0]?.email
+  );
 
   const timeLeft = useTimeLeft(
     hasLoaded(remoteEvent) && remoteEvent.data.openForRegistrationTime
@@ -91,12 +96,20 @@ export const ViewEventContainer = ({ eventId }: IProps) => {
     return <div>{remoteEvent.userMessage}</div>;
   }
 
-  if (!hasLoaded(remoteEvent) || !hasLoaded(emailAndName)) {
+  if (
+    !hasLoaded(remoteEvent) ||
+    !hasLoaded(emailAndName) ||
+    !hasLoaded(remoteWaitinglistSpot)
+  ) {
     return <Spinner />;
   }
 
   const event = remoteEvent.data;
   const { email, name, department } = emailAndName.data ?? {};
+
+  const isWaitlisted =
+    remoteWaitinglistSpot.data !== 'ikke-påmeldt' &&
+    remoteWaitinglistSpot.data >= 1;
 
   const eventIsFull =
     isMaxParticipantsLimited(event.maxParticipants) &&
@@ -209,15 +222,25 @@ export const ViewEventContainer = ({ eventId }: IProps) => {
           {participationsForThisEvent.length >= 1 ? (
             <div>
               <h2 className={style.subHeader}>
-                Du er påmeldt
+                Du er {isWaitlisted ? 'på venteliste' : 'påmeldt'}
                 <span role="img" aria-label="konfetti">
                   🎉
                 </span>
               </h2>
               <p className={style.content}>
-                Hurra, du er påmeldt {event.title}! Vi gleder oss til å se deg.
-                En bekreftelse er sendt på e-post til{' '}
-                {participationsForThisEvent[0].email}
+                {isWaitlisted ? (
+                  <p>
+                    Du er nå på venteliste for {event.title}. Vi sender deg
+                    beskjed til {participationsForThisEvent[0].email} hvis du
+                    får en plass!
+                  </p>
+                ) : (
+                  <p>
+                    Hurra, du er påmeldt {event.title}! Vi gleder oss til å se
+                    deg. En bekreftelse er sendt på e-post til
+                    {participationsForThisEvent[0].email}
+                  </p>
+                )}
               </p>
               {participationsForThisEvent[0].questionAndAnswers &&
                 participationsForThisEvent[0].questionAndAnswers.map(
