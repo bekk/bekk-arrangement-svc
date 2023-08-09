@@ -6,11 +6,12 @@ import { useGotoEventPreview } from 'src/hooks/history';
 import { previewNewEventRoute } from 'src/routing';
 
 interface IProps {
-  children: string;
   event: IEditEvent;
+  children: string;
+  className?: string;
 }
 
-export const PreviewEventButton = ({ event, children }: IProps) => {
+export const PreviewEventButton = ({ event, children, ...props }: IProps) => {
   const parsedEvent = parseEditEvent(event);
   const eventIsValid = isValid(parsedEvent);
   const gotoPreview = useGotoEventPreview(previewNewEventRoute);
@@ -31,7 +32,8 @@ export const PreviewEventButton = ({ event, children }: IProps) => {
     <Button
       onClick={redirectToPreview}
       disabled={!eventIsValid}
-      disabledReason={errors}>
+      disabledReason={errors}
+      {...props}>
       {children}
     </Button>
   );

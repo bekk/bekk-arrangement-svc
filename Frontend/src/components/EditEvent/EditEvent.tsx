@@ -78,7 +78,9 @@ export const EditEvent = () => {
       <h1 className={style.header}>Rediger arrangement</h1>
       <EventForm eventResult={editEvent} updateEvent={setEditEvent} />
       <div className={style.buttonContainer}>
-        <BlockLink to={eventsRoute}>Avbryt</BlockLink>
+        <BlockLink to={eventsRoute} onLightBackground>
+          Avbryt
+        </BlockLink>
         <div className={style.groupedButtons}>
           <ButtonWithPromptModal
             text={'Avlys arrangement'}
@@ -99,7 +101,7 @@ export const EditEvent = () => {
               markert som avlyst.
             </p>
           </ButtonWithPromptModal>
-          <PreviewEventButton event={editEvent}>
+          <PreviewEventButton event={editEvent} className={style.button}>
             Forhåndsvis endringer
           </PreviewEventButton>
         </div>
