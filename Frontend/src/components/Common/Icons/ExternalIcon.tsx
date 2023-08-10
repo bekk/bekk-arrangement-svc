@@ -1,27 +1,24 @@
 import React from 'react';
 interface IconProps {
-  color: 'white' | 'black';
   className?: string;
 }
-export const ExternalIcon = ({ color, className }: IconProps) => {
+export const ExternalIcon = ({ className }: IconProps) => {
   return (
-    <>
-      <svg
-        width="15"
-        height="18"
-        viewBox="0 0 15 18"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className={className}>
-        <title>Stilisert mann med pil mot høyre</title>
-        <path d="M14 18V11H1V18" stroke={color} strokeWidth="0.7" />
-        <path
-          d="M12.5 14.5L10.25 15.799L10.25 13.201L12.5 14.5Z"
-          fill={color}
-        />
-        <circle cx="7.5" cy="4.5" r="4.15" stroke={color} strokeWidth="0.7" />
-        <path d="M2.5 14.2H10.5V14.7H2.5V14.2Z" fill={color} />
-      </svg>
-    </>
+    <svg
+      className={className}
+      width="22"
+      height="22"
+      viewBox="0 0 22 22"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M1 1L11.1641 4V18.7778M1 1V18.7778L11.1641 21V18.7778M1 1H16.7895V6M11.1641 18.7778H16.7895V14.8889"
+        stroke="currentColor"
+      />
+      <path
+        d="M13.6309 10.5001H20.9993M20.9993 10.5001L18.1653 8.00012M20.9993 10.5001L18.1653 13.0001"
+        stroke="currentColor"
+      />
+    </svg>
   );
 };

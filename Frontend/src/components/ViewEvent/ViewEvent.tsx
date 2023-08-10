@@ -75,21 +75,21 @@ export const ViewEvent = ({
           <DateSection startDate={event.start} endDate={event.end} />
         </div>
         <div className={style.generalInfoContainer}>
+          <div className={style.iconTextContainer}>
+            <LocationIcon className={style.locationIcon} />
+            <p>{event.location}</p>
+          </div>
           {event.offices && (
             <div className={style.iconTextContainer}>
-              <OfficeIcon color="black" className={style.icon} />
+              <OfficeIcon className={style.officeIcon} />
               <p>
                 {(pickedOfficeToOfficeList(event.offices) || []).join(', ')}
               </p>
             </div>
           )}
-          <div className={style.iconTextContainer}>
-            <LocationIcon color="black" className={style.icon} />
-            <p>{event.location}</p>
-          </div>
           {userIsLoggedIn() && (
             <div className={style.iconTextContainer}>
-              <ParticipantIcon className={style.icon} />
+              <ParticipantIcon className={style.participantIcon} />
               {hasOpenedForRegistration ? (
                 <p>{participantsText}</p>
               ) : (
@@ -104,7 +104,7 @@ export const ViewEvent = ({
           )}
           {event.isExternal && userIsLoggedIn() && (
             <div className={style.iconTextContainer}>
-              <ExternalIcon color="black" className={style.externalIcon} />
+              <ExternalIcon className={style.externalIcon} />
               <p>Eksternt arrangement</p>
             </div>
           )}

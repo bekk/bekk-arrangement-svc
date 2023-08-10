@@ -1,22 +1,21 @@
 import React from 'react';
 
 interface IconProps {
-  color: 'white' | 'black';
   className?: string;
 }
 
-export const LocationIcon = ({ color, className }: IconProps) => {
+export const LocationIcon = ({ className }: IconProps) => {
   return (
     <svg
-      width="18"
-      height="26"
-      viewBox="0 0 18 26"
+      className={className}
+      width="15"
+      height="20"
+      viewBox="0 0 15 20"
       fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}>
+      xmlns="http://www.w3.org/2000/svg">
       <path
-        d="M8.99755 1C4.58072 1 1 4.57368 1 8.9758C1 13.7653 8.99755 25 8.99755 25C8.99755 25 17 13.6439 17 8.9758C17 4.57368 13.4193 1 8.99755 1ZM8.99755 11.0628C7.34552 11.0628 6.00444 9.72128 6.00444 8.07476C6.00444 6.42823 7.34552 5.08673 8.99755 5.08673C10.6545 5.08673 11.9956 6.42823 11.9956 8.07476C11.9956 9.72128 10.6545 11.0628 8.99755 11.0628Z"
-        stroke={color}
+        d="M7.67149 0.769043C4.27393 0.769043 1.51953 3.51802 1.51953 6.90427C1.51953 10.5885 7.67149 19.2306 7.67149 19.2306C7.67149 19.2306 13.8272 10.4951 13.8272 6.90427C13.8272 3.51802 11.0728 0.769043 7.67149 0.769043ZM7.67149 8.50965C6.4007 8.50965 5.3691 7.47772 5.3691 6.21116C5.3691 4.9446 6.4007 3.91268 7.67149 3.91268C8.94605 3.91268 9.97766 4.9446 9.97766 6.21116C9.97766 7.47772 8.94605 8.50965 7.67149 8.50965Z"
+        stroke="currentColor"
         strokeMiterlimit="10"
         strokeLinecap="round"
         strokeLinejoin="round"

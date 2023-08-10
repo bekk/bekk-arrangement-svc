@@ -77,30 +77,31 @@
 }
 
 .icon {
-  height: 32px;
-  width: 32px;
-  margin-right: 10px;
-  @media #{$desktop} {
-    margin-right: 3px;
-  }
+    margin-right: 10px;
 }
 
-.clockIcon {
-  margin-right: 10px;
-  min-height: 32px;
-  min-width: 32px;
-  @media #{$desktop} {
-    margin-right: 8px;
-  }
+.participantIcon {
+    @extend .icon;
+    height: 22px;
+    width: 22px;
+}
+
+.locationIcon {
+    @extend .icon;
+    height: 24px;
+    width: 24px;
+}
+
+.officeIcon {
+    @extend .icon;
+    height: 28px;
+    width: 28px;
 }
 
 .externalIcon {
-  margin-right: 15px;
-  min-height: 28px;
-  min-width: 28px;
-  @media #{$desktop} {
-    margin-right: 8px;
-  }
+    @extend .icon;
+    height: 24px;
+    width: 24px;
 }
 
 .contentContainer {
@@ -194,7 +195,7 @@
 
 .preview {
   h3 {
-    margin-bottom: 0px;
+    margin-bottom: 0;
     font-size: 16px;
     font-family: $serifFontRegular;
   }

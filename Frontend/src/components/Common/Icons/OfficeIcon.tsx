@@ -1,40 +1,53 @@
 import React from 'react';
 
 interface IconProps {
-  color: 'white' | 'black';
   className?: string;
 }
 
-export const OfficeIcon = ({ color, className }: IconProps) => {
+export const OfficeIcon = ({ className }: IconProps) => {
   return (
     <svg
-      width="18"
-      height="24"
-      viewBox="0 0 18 24"
+      className={className}
+      width="17"
+      height="22"
+      viewBox="0 0 17 22"
       fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}>
-      <path d="M14 1H1V20H14V1Z" stroke={color} strokeWidth="0.5" />
-      <path d="M12 4H9V7H12V4Z" fill="white" stroke={color} strokeWidth="0.5" />
-      <path d="M6 4H3V7H6V4Z" fill="white" stroke={color} strokeWidth="0.5" />
-      <path d="M6 9H3V12H6V9Z" fill="white" stroke={color} strokeWidth="0.5" />
+      xmlns="http://www.w3.org/2000/svg">
+      <path d="M12.5828 20H1V1H14V13.5" stroke="currentColor" />
       <path
-        d="M12 9H9V12H12V9Z"
-        fill="white"
-        stroke={color}
+        d="M11.5 4H9V6.5H11.5V4Z"
+        fill="currentColor"
+        stroke="currentColor"
         strokeWidth="0.5"
       />
-      <path d="M9 14H6V20H9V14Z" stroke={color} strokeWidth="0.5" />
       <path
-        d="M13.9991 14C12.3428 14 11 15.3401 11 16.9909C11 18.787 13.9991 23 13.9991 23C13.9991 23 17 18.7415 17 16.9909C17 15.3401 15.6572 14 13.9991 14ZM13.9991 17.7735C13.3796 17.7735 12.8767 17.2705 12.8767 16.653C12.8767 16.0356 13.3796 15.5325 13.9991 15.5325C14.6204 15.5325 15.1233 16.0356 15.1233 16.653C15.1233 17.2705 14.6204 17.7735 13.9991 17.7735Z"
-        fill="#0E0E0E"
-        stroke={color}
+        d="M6 4H3.5V6.5H6V4Z"
+        fill="currentColor"
+        stroke="currentColor"
+        strokeWidth="0.5"
+      />
+      <path
+        d="M6 9H3.5V11.5H6V9Z"
+        fill="currentColor"
+        stroke="currentColor"
+        strokeWidth="0.5"
+      />
+      <path
+        d="M11.5 9H9V11.5H11.5V9Z"
+        fill="currentColor"
+        stroke="currentColor"
+        strokeWidth="0.5"
+      />
+      <path d="M9 14H6V20H9V14Z" stroke="currentColor" strokeWidth="0.5" />
+      <path
+        d="M13.6659 13.5C12.1936 13.5 11 14.6912 11 16.1586C11 17.7551 13.6659 21.5 13.6659 21.5C13.6659 21.5 16.3333 17.7146 16.3333 16.1586C16.3333 14.6912 15.1398 13.5 13.6659 13.5ZM13.6659 16.8543C13.1152 16.8543 12.6681 16.4071 12.6681 15.8583C12.6681 15.3094 13.1152 14.8622 13.6659 14.8622C14.2182 14.8622 14.6652 15.3094 14.6652 15.8583C14.6652 16.4071 14.2182 16.8543 13.6659 16.8543Z"
+        stroke="currentColor"
         strokeWidth="0.5"
         strokeMiterlimit="10"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <circle cx="14" cy="16.6499" r="1" fill="white" />
+      <circle cx="13.5" cy="16" r="1" fill="currentColor" />
     </svg>
   );
 };
