@@ -3,8 +3,8 @@ import { useHistory } from 'react-router';
 import { userIsLoggedIn } from 'src/auth';
 import { Button } from 'src/components/Common/Button/Button';
 import { WavySubHeader } from 'src/components/Common/Header/WavySubHeader';
-import { ExternalIcon } from 'src/components/Common/Icons/ExternalIcon';
-import { LocationIcon } from 'src/components/Common/Icons/LocationIcon';
+import { ExternalIconBig } from 'src/components/Common/Icons/ExternalIconBig';
+import { LocationIconBig } from 'src/components/Common/Icons/LocationIconBig';
 import { useGotoCreateDuplicate } from 'src/hooks/history';
 import { createRoute, editEventRoute } from 'src/routing';
 import { idateAsText, dateToIDate, isSameDate } from 'src/types/date';
@@ -22,7 +22,7 @@ import {
 import { dateToITime, stringifyTime } from 'src/types/time';
 import style from './ViewEvent.module.scss';
 import { useSetTitle } from 'src/hooks/setTitle';
-import { OfficeIcon } from '../Common/Icons/OfficeIcon';
+import { OfficeIconBig } from '../Common/Icons/OfficeIconBig';
 import { ParticipantIcon } from 'src/components/Common/Icons/ParticipantIcon';
 
 interface IProps {
@@ -76,12 +76,12 @@ export const ViewEvent = ({
         </div>
         <div className={style.generalInfoContainer}>
           <div className={style.iconTextContainer}>
-            <LocationIcon className={style.locationIcon} />
+            <LocationIconBig className={style.locationIcon} />
             <p>{event.location}</p>
           </div>
           {event.offices && (
             <div className={style.iconTextContainer}>
-              <OfficeIcon className={style.officeIcon} />
+              <OfficeIconBig className={style.officeIcon} />
               <p>
                 {(pickedOfficeToOfficeList(event.offices) || []).join(', ')}
               </p>
@@ -104,7 +104,7 @@ export const ViewEvent = ({
           )}
           {event.isExternal && userIsLoggedIn() && (
             <div className={style.iconTextContainer}>
-              <ExternalIcon className={style.externalIcon} />
+              <ExternalIconBig className={style.externalIcon} />
               <p>Eksternt arrangement</p>
             </div>
           )}

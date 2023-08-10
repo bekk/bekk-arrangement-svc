@@ -2,7 +2,7 @@ import React from 'react';
 interface IconProps {
   className?: string;
 }
-export const ExternalIcon = ({ className }: IconProps) => {
+export const ExternalIconBig = ({ className }: IconProps) => {
   return (
     <svg
       className={className}

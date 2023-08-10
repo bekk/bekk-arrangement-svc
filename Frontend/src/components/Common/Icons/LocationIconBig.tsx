@@ -4,7 +4,7 @@ interface IconProps {
   className?: string;
 }
 
-export const LocationIcon = ({ className }: IconProps) => {
+export const LocationIconBig = ({ className }: IconProps) => {
   return (
     <svg
       className={className}

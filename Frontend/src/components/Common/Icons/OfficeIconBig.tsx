@@ -4,7 +4,7 @@ interface IconProps {
   className?: string;
 }
 
-export const OfficeIcon = ({ className }: IconProps) => {
+export const OfficeIconBig = ({ className }: IconProps) => {
   return (
     <svg
       className={className}
