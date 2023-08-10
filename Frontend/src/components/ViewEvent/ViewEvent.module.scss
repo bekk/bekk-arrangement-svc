@@ -13,12 +13,17 @@
   flex-direction: column;
   width: $pageMobileWidth;
   @media #{$desktop} {
-    flex-direction: row;
-    align-items: center;
     width: $pageDesktopWidth;
     max-width: 2000px;
   }
   gap: 10px;
+}
+
+.date {
+    color: var(--svart);
+    margin-top: 0;
+    text-transform: capitalize;
+    font-size: 16px;
 }
 
 .header {
@@ -26,6 +31,7 @@
   color: black;
   word-wrap: break-word;
   hyphens: auto;
+  margin-bottom: 0;
   @media #{$desktop} {
     margin-right: 40px;
     line-height: 50px;

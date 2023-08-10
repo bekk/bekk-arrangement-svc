@@ -3,9 +3,7 @@ import { useHistory } from 'react-router';
 import { userIsLoggedIn } from 'src/auth';
 import { Button } from 'src/components/Common/Button/Button';
 import { WavySubHeader } from 'src/components/Common/Header/WavySubHeader';
-import { ClockIcon } from 'src/components/Common/Icons/ClockIcon';
 import { ExternalIcon } from 'src/components/Common/Icons/ExternalIcon';
-import { GentlemanIcon } from 'src/components/Common/Icons/GentlemanIcon';
 import { LocationIcon } from 'src/components/Common/Icons/LocationIcon';
 import { useGotoCreateDuplicate } from 'src/hooks/history';
 import { createRoute, editEventRoute } from 'src/routing';
@@ -25,6 +23,7 @@ import { dateToITime, stringifyTime } from 'src/types/time';
 import style from './ViewEvent.module.scss';
 import { useSetTitle } from 'src/hooks/setTitle';
 import { OfficeIcon } from '../Common/Icons/OfficeIcon';
+import { ParticipantIcon } from 'src/components/Common/Icons/ParticipantIcon';
 
 interface IProps {
   eventId?: string;
@@ -73,12 +72,9 @@ export const ViewEvent = ({
         customHexColor={event.customHexColor}>
         <div className={style.headerContainer}>
           <h1 className={style.header}>{event.title}</h1>
+          <DateSection startDate={event.start} endDate={event.end} />
         </div>
         <div className={style.generalInfoContainer}>
-          <div className={style.iconTextContainer}>
-            <ClockIcon color="black" className={style.clockIcon} />
-            <DateSection startDate={event.start} endDate={event.end} />
-          </div>
           {event.offices && (
             <div className={style.iconTextContainer}>
               <OfficeIcon color="black" className={style.icon} />
@@ -93,7 +89,7 @@ export const ViewEvent = ({
           </div>
           {userIsLoggedIn() && (
             <div className={style.iconTextContainer}>
-              <GentlemanIcon color="black" className={style.icon} />
+              <ParticipantIcon className={style.icon} />
               {hasOpenedForRegistration ? (
                 <p>{participantsText}</p>
               ) : (
@@ -168,14 +164,14 @@ interface IDateProps {
 const DateSection = ({ startDate, endDate }: IDateProps) => {
   if (isSameDate(startDate.date, endDate.date)) {
     return (
-      <p className={style.text}>
+      <p className={style.date}>
         {idateAsText(startDate.date)}, {stringifyTime(startDate.time)} -{' '}
         {stringifyTime(endDate.time)}
       </p>
     );
   }
   return (
-    <p className={style.text}>
+    <p className={style.date}>
       {idateAsText(startDate.date)}, {stringifyTime(startDate.time)} -{' '}
       {idateAsText(endDate.date)}, {stringifyTime(endDate.time)}
     </p>
