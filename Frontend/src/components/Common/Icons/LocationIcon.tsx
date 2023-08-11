@@ -31,9 +31,6 @@ export const LocationIcon = ({ className }: IconProps) => {
           strokeLinejoin="round"
         />
       </g>
-      <defs>
-        <rect width="11.75" height="18" fill="white" />
-      </defs>
     </svg>
   );
 };

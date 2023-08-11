@@ -55,7 +55,7 @@ export const OfficeIcon = ({ className }: IconProps) => {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <circle cx="11.5" cy="13.35" r="0.75" fill="white" />
+      <circle cx="11.5" cy="13.35" r="0.75" fill="currentColor" />
     </svg>
   );
 };
