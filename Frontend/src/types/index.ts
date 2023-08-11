@@ -5,7 +5,7 @@ import {
   Office,
   PickedOffice,
 } from 'src/types/event';
-import { validate, IError, ErrorType } from './validation';
+import { validate, IError } from './validation';
 
 export type Optional<T> = T | undefined;
 export type WithId<T> = T & { id: string };

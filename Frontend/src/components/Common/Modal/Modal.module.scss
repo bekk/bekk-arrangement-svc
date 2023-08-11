@@ -12,9 +12,7 @@
   max-height: 100vh;
   min-height: 100vh;
   z-index: 3;
-  @media #{$desktop} {
-    background: rgba(0, 0, 0, 0.5);
-  }
+  background: rgba(0, 0, 0, 0.5);
 }
 
 .modal {
@@ -44,7 +42,6 @@
   color: var(--backgroundColor);
   height: $modalPadding;
   line-height: 50px;
-  padding-left: $modalPadding;
   margin-bottom: 20px;
   max-width: 600px;
 }

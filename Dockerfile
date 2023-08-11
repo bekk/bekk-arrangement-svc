@@ -23,6 +23,6 @@ FROM bekkforvaltning/aspnet-datadog-instrumented:6.0
 WORKDIR /app/
 COPY --from=dotnet_build /app/Arrangement-Svc/out .
 COPY --from=dotnet_build /app/Arrangement-Svc/wwwroot wwwroot/.
-COPY --from=node_build /app/Frontend/build/. wwwroot/.
+COPY --from=node_build /app/Frontend/dist/. wwwroot/.
 
 CMD dotnet Arrangement-Svc.dll

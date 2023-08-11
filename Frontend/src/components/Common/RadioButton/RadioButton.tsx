@@ -13,7 +13,7 @@ export const RadioButton = ({ onChange, checked, label }: IProps) => {
       <input
         className={style.radioButton}
         type="radio"
-        onChange={(e: any) => onChange(e.target.checked)}
+        onChange={(e) => onChange(e.target.checked)}
         checked={checked}
       />
       {label}

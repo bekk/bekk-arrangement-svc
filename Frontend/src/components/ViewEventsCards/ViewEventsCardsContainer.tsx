@@ -9,7 +9,6 @@ import { Button } from 'src/components/Common/Button/Button';
 import { useHistory } from 'react-router';
 import { WavySubHeader } from 'src/components/Common/Header/WavySubHeader';
 import { IEvent } from 'src/types/event';
-import { isInOrder } from 'src/types/date-time';
 
 import { useSetTitle } from 'src/hooks/setTitle';
 import { appTitle } from 'src/Constants';
@@ -102,4 +101,3 @@ const eventMapToList = (
   [...events].flatMap(([id, event]) =>
     hasLoaded(event) ? [[id, event.data]] : []
   );
-

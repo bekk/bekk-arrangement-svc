@@ -4,16 +4,15 @@ import { useEffect, useState } from 'react';
 import { getEventsAndParticipationsForEmployee } from 'src/api/arrangementSvc';
 import { getEmployeeId, isAuthenticated } from 'src/auth';
 import { useLocalStorage } from 'src/hooks/localStorage';
+import { IQuestionAndAnswer } from '../types/participant';
 
 export type EditEventToken = {
   eventId: string;
   editToken: string;
 };
-const isEditEventTokenType = (x: any): x is EditEventToken =>
-  'eventId' in x &&
-  typeof x.eventId === 'string' &&
-  'editToken' in x &&
-  typeof x.editToken === 'string';
+const isEditEventTokenType = (x: unknown): x is EditEventToken =>
+  (x as EditEventToken).eventId !== undefined &&
+  (x as EditEventToken).editToken !== undefined;
 
 export const useSavedEditableEvents = (): {
   savedEvents: EditEventToken[];
@@ -58,14 +57,15 @@ export type Participation = {
   eventId: string;
   email: string;
   cancellationToken: string;
+  questionAndAnswers: IQuestionAndAnswer[];
 };
-const isParticipationAndHasCancellationToken = (x: any): x is Participation =>
-  'eventId' in x &&
-  typeof x.eventId === 'string' &&
-  'email' in x &&
-  typeof x.email === 'string' &&
-  'cancellationToken' in x &&
-  typeof x.cancellationToken === 'string';
+
+const isParticipationAndHasCancellationToken = (
+  x: unknown
+): x is Participation =>
+  (x as Participation).eventId !== undefined &&
+  (x as Participation).email !== undefined &&
+  (x as Participation).cancellationToken !== undefined;
 
 export const useSavedParticipations = () => {
   const [readStorage, setStorage] = useLocalStorage({

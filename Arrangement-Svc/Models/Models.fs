@@ -361,27 +361,43 @@ type Participant =
     CancellationToken: Guid
     EmployeeId: int option
   }
-
+  
+[<CLIMutable>]
+type QuestionAndAnswer = {
+    Question: string
+    Answer: string
+}
 type ParticipantAndAnswers = {
     Participant: Participant
-    Answers: ParticipantAnswer list
+    QuestionAndAnswers: QuestionAndAnswer list
 }
-
 type ParticipationsAndWaitlist =
     { Attendees: ParticipantAndAnswers list
       WaitingList: ParticipantAndAnswers list
     }
 
+let createQuestionAndAnswer (questions: ParticipantQuestion list) (answers: ParticipantAnswer list) =
+    List.map (fun (answer: ParticipantAnswer) ->
+        let question: ParticipantQuestion = List.find (fun q -> q.Id = answer.QuestionId) questions
+        { Question = question.Question
+          Answer = answer.Answer
+        }) answers
+    
 module Participant =
+    let encodeQuestionAndAnswer (questionAndAnswer: QuestionAndAnswer) =
+        Encode.object [
+            "question", Encode.string questionAndAnswer.Question
+            "answer", Encode.string questionAndAnswer.Answer
+    ]
     let encodeParticipantAndAnswers (participantAndAnswers: ParticipantAndAnswers) =
         let participant = participantAndAnswers.Participant
-        let answers = participantAndAnswers.Answers
+        let questionAndAnswers = participantAndAnswers.QuestionAndAnswers
         Encode.object [
             "name", Encode.string participant.Name
             "email", Encode.string participant.Email
-            "participantAnswers",
-                answers
-                |> List.map (fun a -> Encode.string a.Answer)
+            "questionAndAnswers",
+                questionAndAnswers
+                |> List.map encodeQuestionAndAnswer
                 |> Encode.list
             "registrationTime", Encode.int64 participant.RegistrationTime
             "eventId", Encode.guid participant.EventId
@@ -389,21 +405,24 @@ module Participant =
             "employeeId", Encode.option Encode.int participant.EmployeeId
         ]
 
-    let encodeWithCancelInfo (participant: Participant) (answers: ParticipantAnswer list) =
-        let participantAndAnswers = {Participant = participant; Answers = answers }
+    let encodeWithCancelInfo (participant: Participant) (questionAndAnswers: QuestionAndAnswer list) =
+        let participantAndAnswers = {Participant = participant; QuestionAndAnswers = questionAndAnswers }
         Encode.object [
             "participant", encodeParticipantAndAnswers participantAndAnswers
             "cancellationToken", Encode.guid participantAndAnswers.Participant.CancellationToken
         ]
 
-    let encodeToLocalStorage (participant: Participant) =
+    let encodeToLocalStorage (participantAndAnswers: ParticipantAndAnswers) =
         Encode.object [
-            "eventId", Encode.guid participant.EventId
-            "email", Encode.string participant.Email
-            "cancellationToken", Encode.guid participant.CancellationToken
+            "eventId", Encode.guid participantAndAnswers.Participant.EventId
+            "email", Encode.string participantAndAnswers.Participant.Email
+            "cancellationToken", Encode.guid participantAndAnswers.Participant.CancellationToken
+            "questionAndAnswers", participantAndAnswers.QuestionAndAnswers
+                       |> List.map encodeQuestionAndAnswer
+                       |> Encode.list
         ]
 
-    let encodeWithLocalStorage (eventAndQuestions: EventAndQuestions list) (participations: Participant list) =
+    let encodeWithLocalStorage (eventAndQuestions: EventAndQuestions list) (participations: ParticipantAndAnswers list) =
         Encode.object [
            "editableEvents", eventAndQuestions |> List.map Event.encoderWithEditInfo |> Encode.list
            "participations", participations |> List.map encodeToLocalStorage |> Encode.list

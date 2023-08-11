@@ -1,6 +1,7 @@
 export const identityFunction = <T>(x: T) => x;
 
 export const concatLists = <T>(...list: (T[] | unknown)[]): T[] =>
+  // eslint-disable-next-line
   list.flatMap(materialize as any);
 
 const materialize = <T>(list: T[] | undefined): T[] => {

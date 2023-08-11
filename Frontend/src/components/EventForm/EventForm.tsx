@@ -25,9 +25,8 @@ import {
 } from 'src/types/date-time';
 import { isValid } from 'src/types/validation';
 import { ValidatedTextArea } from 'src/components/Common/ValidatedTextArea/ValidatedTextArea';
-import { Checkbox } from '@bekk/storybook';
 import { Button } from 'src/components/Common/Button/Button';
-import style from './EditEvent.module.scss';
+import style from './EventForm.module.scss';
 import { TimeInput } from 'src/components/Common/TimeInput/TimeInput';
 import { DateInput } from 'src/components/Common/DateInput/DateInput';
 import { ValidationResult } from 'src/components/Common/ValidationResult/ValidationResult';
@@ -41,7 +40,7 @@ interface IProps {
   updateEvent: (event: IEditEvent) => void;
 }
 
-export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
+export const EventForm = ({ eventResult: event, updateEvent }: IProps) => {
   const [isMultiDayEvent, setMultiDay] = useState(
     event.start.date !== event.end.date
   );
@@ -281,7 +280,7 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
               className={style.textAreaContainer}
               label={labels.program}
               placeholder={placeholders.program}
-              value={event.program!!}
+              value={event.program ?? ''}
               validation={parseProgram}
               onLightBackground
               minRow={8}
@@ -382,7 +381,7 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
         </div>
 
         <div className={style.unlimitedSpots}>
-          <Checkbox
+          <CheckBox
             label={labels.unlimitedSpots}
             isChecked={hasUnlimitedSpots}
             onChange={(limited) => {
@@ -423,7 +422,7 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
                   />
                 </div>
                 <div className={style.waitListCheckBox}>
-                  <Checkbox
+                  <CheckBox
                     label={labels.waitingList}
                     onChange={(hasWaitingList) =>
                       updateEvent({ ...event, hasWaitingList })
@@ -435,7 +434,7 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
             )}
         </div>
         <div>
-          <Checkbox
+          <CheckBox
             label={labels.externalEvent}
             onChange={(isExternal) => updateEvent({ ...event, isExternal })}
             isChecked={event.isExternal}
@@ -446,7 +445,7 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
           </p>
         </div>
         <div>
-          <Checkbox
+          <CheckBox
             label={labels.hiddenEvent}
             onChange={(isHidden) => updateEvent({ ...event, isHidden })}
             isChecked={event.isHidden}
@@ -455,7 +454,7 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
         </div>
 
         <div className={style.shortName}>
-          <Checkbox
+          <CheckBox
             label={'Tilpass URL'}
             isChecked={hasShortname}
             onChange={setHasShortname}
@@ -477,7 +476,7 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
         </div>
 
         <div className={style.customColor}>
-          <Checkbox
+          <CheckBox
             label={'Tilpass farge'}
             isChecked={hasCustomColor}
             onChange={setHasCustomColor}
@@ -500,6 +499,7 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
         <div>
           {event.participantQuestions.map((q, i) => (
             <ValidatedTextArea
+              key={q}
               label={labels.participantQuestion}
               placeholder={placeholders.participantQuestion}
               value={q}
@@ -555,7 +555,9 @@ export const EditEvent = ({ eventResult: event, updateEvent }: IProps) => {
         {event.participantQuestions.length > 0 && (
           <InfoBox title="Formateringshjelp">
             <p>Spørsmål:</p>
-            <p>// Alternativer: alternativ 1; alternativ 2; alternativ 3</p>
+            <p>
+              &#47;&#47; Alternativer: alternativ 1; alternativ 2; alternativ 3
+            </p>
           </InfoBox>
         )}
       </div>

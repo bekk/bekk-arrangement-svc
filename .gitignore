@@ -6,6 +6,7 @@
 ### General ###
 **/.vscode
 **/.ionide
+dist/
 
 ### fsharp ###
 lib/debug

@@ -3,7 +3,7 @@
 .container {
   display: flex;
   flex-direction: column;
-  width: stretch;
+  width: 100%;
   background-color: var(--svart);
 }
 
@@ -226,7 +226,7 @@
   width: 100%;
   padding-left: 85px;
   padding-right: 85px;
-  padding-top: 100px;
+  padding-top: 125px;
   left: 0;
 
   button {

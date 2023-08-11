@@ -1,0 +1,53 @@
+@import 'src/style/constants';
+@import 'src/style/colors';
+
+.header {
+  @include headerText;
+  color: black;
+  margin-top: 130px;
+}
+
+.buttonContainer {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  @media #{$desktop} {
+    flex-direction: row;
+  }
+}
+
+.linkContainer {
+  @include regularText;
+  color: var(--svart);
+  position: absolute;
+  left: 5vw;
+  top: 1.5em;
+}
+
+.groupedButtons {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+  width: 100%;
+  @media #{$desktop} {
+    justify-content: space-between;
+    width: auto;
+  }
+}
+
+.groupedButtons > button {
+  margin-left: 25px;
+}
+
+.redButton {
+  background-color: var(--solnedgangKontrast);
+}
+
+.button {
+  font-size: 14px;
+}
+
+.italic {
+  font-family: $fontItalic;
+}

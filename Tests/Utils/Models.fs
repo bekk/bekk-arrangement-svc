@@ -37,21 +37,30 @@ type InnerEvent = { Id: string
 type CreatedEvent =
     { EditToken: string
       Event: InnerEvent }
-
+    
 type InnerParticipant =
     { Name: string
       Email: string
       EmployeeId: int option
-      ParticipantAnswers: string list }
-
+      QuestionAndAnswers: QuestionAndAnswer list }
+    
 type CreatedParticipant =
     { Participant: InnerParticipant
       CancellationToken: string }
 
-type ParticipantAndAnswers = { Name: string }
+type ParticipantAndAnswers =
+    { Name: string
+      QuestionAndAnswers: QuestionAndAnswer list }
 
+let questionAndAnswerDecoder: Decoder<QuestionAndAnswer> =
+    Decode.object (fun get ->
+        { Question = get.Required.Field "question" Decode.string
+          Answer = get.Required.Field "answer" Decode.string })
+    
 let participantAndAnswerDecoder: Decoder<ParticipantAndAnswers> =
-    Decode.object (fun get -> { Name = get.Required.Field "name" Decode.string })
+    Decode.object (fun get ->
+        { Name = get.Required.Field "name" Decode.string
+          QuestionAndAnswers = get.Required.Field "questionAndAnswers" (Decode.list questionAndAnswerDecoder) })
 
 type ParticipationsAndWaitlist =
     { Attendees: ParticipantAndAnswers list
@@ -82,7 +91,7 @@ let innerParticipantDecoder: Decoder<InnerParticipant> =
         { Name = get.Required.Field "name" Decode.string
           Email = get.Required.Field "email" Decode.string
           EmployeeId = get.Optional.Field "employeeId" Decode.int
-          ParticipantAnswers = get.Required.Field "participantAnswers" (Decode.list Decode.string) })
+          QuestionAndAnswers = get.Required.Field "questionAndAnswers" (Decode.list questionAndAnswerDecoder) })
 
 let createdParticipantDecoder: Decoder<CreatedParticipant> =
     Decode.object (fun get ->

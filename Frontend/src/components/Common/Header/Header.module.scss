@@ -5,15 +5,11 @@
   position: absolute;
   width: 100%;
   padding-top: 3em;
+  max-width: max-content;
   @media #{$mobile}, (max-width:$tabletMaxWidth) {
     padding-top: 1em;
   }
   z-index: 100;
-}
-
-.coloredHeader {
-  margin-bottom: -100px;
-  max-width: max-content;
 }
 
 .logo {
@@ -26,7 +22,7 @@
 }
 
 .contentContainer {
-  padding-top: 120px;
+  padding-top: 170px;
   padding-bottom: 40px;
 }
 
@@ -65,42 +61,7 @@
 .solnedgangKontrast {
   background-color: var(--solnedgangKontrast);
 }
-.christmas {
-  background-color: #d6001c;
 
-  & h1,
-  p,
-  button {
-    color: white;
-  }
-  & path {
-    fill: white;
-  }
-  & circle {
-    stroke: white;
-  }
-  & button {
-    border-color: white;
-  }
-  & button:hover {
-    background-color: darkgreen;
-    border-color: darkgreen;
-  }
-}
-.halloween {
-  background-color: #ff7518;
-  & button:hover {
-    background-color: red;
-    border-color: red;
-  }
-}
-.kittens {
-  background-color: #f59fce;
-  & button:hover {
-    background-color: #b63afc;
-    border-color: #b63afc;
-  }
-}
 .soloppgang {
   background-color: var(--soloppgang);
 }

@@ -2,11 +2,6 @@ import classNames from 'classnames';
 import { isNumber } from 'lodash';
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  hasChristmasSpirit,
-  hasHalloweenSpirit,
-  hasKittens,
-} from 'src/components/Common/FunEffects/effectUtils';
 import { ExternalIcon } from 'src/components/Common/Icons/ExternalIcon';
 import { LocationIcon } from 'src/components/Common/Icons/LocationIcon';
 import {
@@ -14,7 +9,7 @@ import {
   EventState,
 } from 'src/components/ViewEventsCards/ParticipationState';
 import { useWaitinglistSpot } from 'src/hooks/cache';
-import { useEditToken, useSavedParticipations } from 'src/hooks/saved-tokens';
+import { useSavedParticipations } from 'src/hooks/saved-tokens';
 import { hasLoaded } from 'src/remote-data';
 import { viewEventRoute, viewEventShortnameRoute } from 'src/routing';
 import {
@@ -45,8 +40,6 @@ interface IProps {
 }
 
 export const EventCardElement = ({ eventId, event }: IProps) => {
-  const editToken = useEditToken(eventId);
-
   const { savedParticipations: participationsInLocalStorage } =
     useSavedParticipations();
   const participationsForThisEvent = participationsInLocalStorage.filter(
@@ -99,12 +92,11 @@ export const EventCardElement = ({ eventId, event }: IProps) => {
       ? waitingListSpot.data
       : EventState.Laster,
     registrationState,
-    editToken,
   });
 
   const cardStyle = classNames(
     style.card,
-    useEventColor(eventId, style, event.title, event.customHexColor).style,
+    useEventColor(eventId, style, event.customHexColor).style,
     {
       [style.cardActive]:
         eventState !== EventState.Avsluttet && eventState !== EventState.Avlyst,
@@ -173,7 +165,7 @@ export const EventCardElement = ({ eventId, event }: IProps) => {
   );
 };
 
-const colors = (style: any) =>
+const colors = (style: { [className: string]: string }) =>
   new Map([
     ['Hav', { style: style.hav, colorCode: hav }],
     ['Kveld', { style: style.kveld, colorCode: kveld }],
@@ -189,8 +181,7 @@ const getEventHash = (eventId: string): number =>
 
 export const useEventColor = (
   eventId: string | undefined,
-  style: any,
-  eventTitle: string,
+  style: { [className: string]: string },
   customHexColor?: string
 ): { style: string; colorCode: string } => {
   const className = `event-${eventId}-hover-color`;
@@ -198,7 +189,7 @@ export const useEventColor = (
     const style = document.createElement('style');
     style.type = 'text/css';
     style.innerHTML = `.${className}:hover { background-color: #${customHexColor}; }`;
-    const head = (document.getElementsByTagName('head') as any)[0];
+    const head = document.getElementsByTagName('head')[0];
     if (head) head.appendChild(style);
   }, [className, customHexColor]);
   if (customHexColor) {
@@ -210,15 +201,6 @@ export const useEventColor = (
   }
   if (eventId === 'all-events') {
     return { style: style.soloppgang, colorCode: soloppgang };
-  }
-  if (hasChristmasSpirit(eventTitle)) {
-    return { style: style.christmas, colorCode: '#D6001C' };
-  }
-  if (hasHalloweenSpirit(eventTitle)) {
-    return { style: style.halloween, colorCode: '#FF7518' };
-  }
-  if (hasKittens(eventTitle)) {
-    return { style: style.kittens, colorCode: '#f59fce' };
   }
   return (
     colors(style).get(
@@ -240,13 +222,10 @@ interface EventStateProps {
 
 const getEventState = ({
   event,
-  editToken,
   waitingListSpot,
   registrationState,
 }: EventStateProps): EventState => {
   if (event.isCancelled) return EventState.Avlyst;
-
-  // if (editToken) return 'Rediger';
 
   if (isInThePast(event.end)) return EventState.Avsluttet;
 

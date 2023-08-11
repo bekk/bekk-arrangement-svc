@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { deleteParticipant } from 'src/api/arrangementSvc';
 import { Page } from '../Page/Page';
 import { Button } from '../Common/Button/Button';
@@ -20,7 +20,11 @@ import { useSavedParticipations } from 'src/hooks/saved-tokens';
 import { useSetTitle } from 'src/hooks/setTitle';
 import { appTitle } from 'src/Constants';
 import { Spinner } from 'src/components/Common/Spinner/spinner';
-import { authenticateUser, isAuthenticated, needsToAuthenticate } from 'src/auth';
+import {
+  authenticateUser,
+  isAuthenticated,
+  needsToAuthenticate,
+} from 'src/auth';
 
 export const CancelParticipant = () => {
   const eventId = useParam(eventIdKey);
@@ -39,23 +43,6 @@ export const CancelParticipant = () => {
     ? remoteWaitinglistSpot.data !== 'ikke-påmeldt' &&
       remoteWaitinglistSpot.data >= 1
     : undefined;
-
-  const { saveParticipation } = useSavedParticipations();
-  useEffect(() => {
-    if (cancellationToken && !wasDeleted) {
-      saveParticipation({
-        eventId,
-        email: participantEmail,
-        cancellationToken,
-      });
-    }
-  }, [
-    eventId,
-    participantEmail,
-    cancellationToken,
-    saveParticipation,
-    wasDeleted,
-  ]);
 
   const cancelParticipant = catchAndNotify(async () => {
     if (eventId && participantEmail) {

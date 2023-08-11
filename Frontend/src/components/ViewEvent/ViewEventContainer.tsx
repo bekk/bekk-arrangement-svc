@@ -10,7 +10,6 @@ import {
 } from 'src/auth';
 import { Button } from 'src/components/Common/Button/Button';
 import { DownloadIcon } from 'src/components/Common/Icons/DownloadIcon/DownloadIcon';
-import { Christmas } from 'src/components/Common/FunEffects/Christmas/Christmas';
 import { Page } from 'src/components/Page/Page';
 import { AddParticipant } from 'src/components/ViewEvent/AddParticipant';
 import { ViewEvent } from 'src/components/ViewEvent/ViewEvent';
@@ -20,6 +19,7 @@ import {
   useEmailNameAndDepartment,
   useEvent,
   useNumberOfParticipants,
+  useWaitinglistSpot,
 } from 'src/hooks/cache';
 import {
   Participation,
@@ -40,13 +40,6 @@ import { dateToITime, stringifyTime } from 'src/types/time';
 import { plural } from 'src/utils';
 import { asString, ITimeLeft } from 'src/utils/timeleft';
 import style from './ViewEventContainer.module.scss';
-import {
-  hasChristmasSpirit,
-  hasHalloweenSpirit,
-  hasKittens,
-} from 'src/components/Common/FunEffects/effectUtils';
-import { Halloween } from 'src/components/Common/FunEffects/Halloween/Halloween';
-import { Kittens } from 'src/components/Common/FunEffects/Kittens/Kittens';
 import { Spinner } from 'src/components/Common/Spinner/spinner';
 
 interface IProps {
@@ -68,6 +61,10 @@ export const ViewEventContainer = ({ eventId }: IProps) => {
     useSavedParticipations();
   const participationsForThisEvent = participationsInLocalStorage.filter(
     (p) => p.eventId === eventId
+  );
+  const remoteWaitinglistSpot = useWaitinglistSpot(
+    eventId,
+    participationsForThisEvent[0]?.email
   );
 
   const timeLeft = useTimeLeft(
@@ -99,12 +96,20 @@ export const ViewEventContainer = ({ eventId }: IProps) => {
     return <div>{remoteEvent.userMessage}</div>;
   }
 
-  if (!hasLoaded(remoteEvent) || !hasLoaded(emailAndName)) {
+  if (
+    !hasLoaded(remoteEvent) ||
+    !hasLoaded(emailAndName) ||
+    !hasLoaded(remoteWaitinglistSpot)
+  ) {
     return <Spinner />;
   }
 
   const event = remoteEvent.data;
   const { email, name, department } = emailAndName.data ?? {};
+
+  const isWaitlisted =
+    remoteWaitinglistSpot.data !== 'ikke-påmeldt' &&
+    remoteWaitinglistSpot.data >= 1;
 
   const eventIsFull =
     isMaxParticipantsLimited(event.maxParticipants) &&
@@ -205,11 +210,6 @@ export const ViewEventContainer = ({ eventId }: IProps) => {
 
   return (
     <>
-      {hasChristmasSpirit(event.title) && (
-        <Christmas noSpawnClick={noSpawnClick} />
-      )}
-      {hasHalloweenSpirit(event.title) && <Halloween />}
-      {hasKittens(event.title) && <Kittens />}
       <ViewEvent
         eventId={eventId}
         isPossibleToRegister={isPossibleToRegister()}
@@ -222,16 +222,35 @@ export const ViewEventContainer = ({ eventId }: IProps) => {
           {participationsForThisEvent.length >= 1 ? (
             <div>
               <h2 className={style.subHeader}>
-                Du er påmeldt{' '}
+                Du er {isWaitlisted ? 'på venteliste' : 'påmeldt'}
                 <span role="img" aria-label="konfetti">
                   🎉
                 </span>
               </h2>
               <p className={style.content}>
-                Hurra, du er påmeldt {event.title}! Vi gleder oss til å se deg.
-                En bekreftelse er sendt på e-post til{' '}
-                {participationsForThisEvent[0].email}
+                {isWaitlisted ? (
+                  <p>
+                    Du er nå på venteliste for {event.title}. Vi sender deg
+                    beskjed til {participationsForThisEvent[0].email} hvis du
+                    får en plass!
+                  </p>
+                ) : (
+                  <p>
+                    Hurra, du er påmeldt {event.title}! Vi gleder oss til å se
+                    deg. En bekreftelse er sendt på e-post til{' '}
+                    {participationsForThisEvent[0].email}
+                  </p>
+                )}
               </p>
+              {participationsForThisEvent[0].questionAndAnswers &&
+                participationsForThisEvent[0].questionAndAnswers.map(
+                  (qa, i) => (
+                    <div key={`${qa}:${i}`}>
+                      <div className={style.question}>{qa.question}</div>
+                      <div className={style.answer}>{qa.answer}</div>
+                    </div>
+                  )
+                )}
               <h2 className={style.subHeader}>Kan du ikke likevel?</h2>
               <Button
                 onClick={() =>

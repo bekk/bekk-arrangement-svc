@@ -1,5 +1,5 @@
-import { Checkbox } from '@bekk/storybook';
 import React from 'react';
+import { CheckBox } from '../Common/Checkbox/CheckBox';
 
 interface Props {
   question: string;
@@ -19,7 +19,8 @@ export const MultipleChoiceQuestion = ({
     <div key={question}>
       <div>{question}</div>
       {alternatives.map((alternative) => (
-        <Checkbox
+        <CheckBox
+          key={alternative}
           onDarkBackground
           label={alternative}
           onChange={(selected) => {

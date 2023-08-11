@@ -1,112 +1,49 @@
-:root {
-  --checkbox-box-size: 1em;
-  --checkbox-label-spacing: 10px;
-  --checkbox-vertical-margin: 20px;
-  --checkbox-pagePadding: 30px;
-  --checkbox-transitionLength: 0.2s;
-  --bekk-bezier-curve: cubic-bezier(0.77, 0.3, 0.39, 0.9);
-}
+@import '../../../style/colors';
+@import '../../../style/fonts';
 
 .checkbox {
-  font-family: FFDINWebProLight;
-  position: relative;
-  padding-left: calc(
-    var(--checkbox-box-size) + var(--checkbox-label-spacing) + 1px
-  );
-  line-height: calc(var(--checkbox-box-size) * 1.25);
-}
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  background-clip: content-box;
+  width: fit-content;
+  cursor: pointer;
+  height: 18px;
+  width: 18px;
+  background-color: transparent;
+  padding: 4px;
+  margin-right: 10px;
+  box-shadow: 0 0 0 1px var(--svart);
 
-.checkbox input[type='checkbox'] {
-  opacity: 0;
-  margin: 0;
-  left: 0;
-}
-
-/* Checkbox fill, unchecked state */
-.checkbox::before {
-  content: '';
-  pointer-events: none;
-  display: inline-block;
-  left: 0;
-  background: var(--natt);
-  transform: scale(0);
-  transition: transform 0.1s;
-  z-index: 1;
-}
-
-.checkbox_checked::before {
-  transform: scale(0.6);
-}
-
-.checkbox label {
-  position: relative;
-  color: black;
-  user-select: none;
-}
-
-.checkboxDarkBg label {
-  color: var(--overskyet-kontrast);
-}
-
-.checkbox.checkboxDarkBg label::before {
-  border: 1px solid;
-  background-color: black;
-  z-index: 0;
-}
-
-.checkbox input[type='checkbox'],
-.checkbox label::before,
-.checkbox::before {
-  position: absolute;
-  height: var(--checkbox-box-size);
-  width: var(--checkbox-box-size);
-  box-sizing: border-box;
-}
-
-.checkbox label::before {
-  content: '';
-  display: inline-block;
-  position: absolute;
-  border: 1px solid;
-  left: calc(-1px - var(--checkbox-label-spacing) - var(--checkbox-box-size));
-  z-index: 2;
-}
-
-.checkboxInline {
-  display: inline;
-  margin-right: 25px;
-}
-
-.checkboxInline::before {
-  margin-top: 4px;
-}
-
-.checkboxInline label::before {
-  margin-top: 4px;
-}
-
-@keyframes fadeIn {
-  0% {
-    opacity: 0;
+  &:checked {
+    background-color: var(--natt);
   }
-
-  100% {
-    opacity: 1;
+  &:focus {
+    box-shadow: 0 0 0 1px var(--svart), 0 0 0 4px var(--natt);
   }
 }
 
-@keyframes fadeOut {
-  0% {
-    opacity: 1;
-    display: flex;
-  }
+.checkBoxOnDarkBG {
+  box-shadow: 0 0 0 1px var(--hvit);
 
-  99% {
-    display: flex;
+  &:checked {
+    background-color: var(--natt);
   }
+  &:focus {
+    box-shadow: 0 0 0 1px var(--hvit), 0 0 0 4px var(--natt);
+  }
+}
 
-  100% {
-    display: none;
-    opacity: 0;
-  }
+.checkboxLabel {
+  font-family: $fontRegular;
+  font-size: 16px;
+  color: var(--svart);
+
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.checkboxLabelOnDarkBG {
+  color: var(--hvit);
 }

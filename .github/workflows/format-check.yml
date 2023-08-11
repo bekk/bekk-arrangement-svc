@@ -1,0 +1,23 @@
+name: Formatting check
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - closed
+      - edited
+    branches:
+      - main
+
+jobs:
+  format-check:
+    name: Formatting check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Check formatting in /Frontend
+        run: cd Frontend && npm install && npx prettier --check . && npx eslint .

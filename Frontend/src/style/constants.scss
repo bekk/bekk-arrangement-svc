@@ -6,6 +6,7 @@ $smallMobileWidth: 375px;
 $tabletMinWidth: 768px;
 $tabletMaxWidth: 1024px;
 $desktopMinWidth: 1025px;
+$bigDesktopMinWidth: 2600px;
 $monitorMinWidth: 1600px;
 
 $titleMobile: 48px;
@@ -27,6 +28,7 @@ $pageDesktopWidth: 70%;
 
 $monitor: 'only screen and (min-width: #{$monitorMinWidth})';
 $desktop: 'only screen and (min-width: #{$desktopMinWidth})';
+$bigDesktop: 'only screen and (min-width: #{$bigDesktopMinWidth})';
 $mobile: 'screen and (max-width: #{$mobileMaxWidth})';
 $tablet: 'only screen and (min-width: #{$tabletMinWidth})';
 

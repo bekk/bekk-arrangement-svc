@@ -20,8 +20,8 @@ import {
   officeEventsMonthKey,
   officeEventRoute,
 } from 'src/routing';
-import { CreateEventContainer } from 'src/components/CreateEvent/CreateEventContainer';
-import { EditEventContainer } from 'src/components/EditEvent/EditEventContainer';
+import { CreateEvent } from 'src/components/CreateEvent/CreateEvent';
+import { EditEvent } from 'src/components/EditEvent/EditEvent';
 import { CancelParticipant } from 'src/components/CancelParticipant/CancelParticipant';
 import { createBrowserHistory } from 'history';
 import style from './App.module.scss';
@@ -65,7 +65,7 @@ export const App = () => {
         </PrivateRoute>
         <PrivateRoute exact path={createRoute}>
           <div className={classNames(style.container, style.lightBackground)}>
-            <CreateEventContainer />
+            <CreateEvent />
           </div>
         </PrivateRoute>
         <PrivateRoute exact path={'/styling'}>
@@ -85,7 +85,7 @@ export const App = () => {
         </PrivateRoute>
         <PrivateRoute path={editEventRoute(':' + eventIdKey)}>
           <div className={classNames(style.container, style.lightBackground)}>
-            <EditEventContainer />
+            <EditEvent />
           </div>
         </PrivateRoute>
         <PrivateRoute exact path={previewNewEventRoute}>
