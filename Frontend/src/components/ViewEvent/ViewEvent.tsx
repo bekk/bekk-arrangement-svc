@@ -3,10 +3,8 @@ import { useHistory } from 'react-router';
 import { userIsLoggedIn } from 'src/auth';
 import { Button } from 'src/components/Common/Button/Button';
 import { WavySubHeader } from 'src/components/Common/Header/WavySubHeader';
-import { ClockIcon } from 'src/components/Common/Icons/ClockIcon';
-import { ExternalIcon } from 'src/components/Common/Icons/ExternalIcon';
-import { GentlemanIcon } from 'src/components/Common/Icons/GentlemanIcon';
-import { LocationIcon } from 'src/components/Common/Icons/LocationIcon';
+import { ExternalIconBig } from 'src/components/Common/Icons/ExternalIconBig';
+import { LocationIconBig } from 'src/components/Common/Icons/LocationIconBig';
 import { useGotoCreateDuplicate } from 'src/hooks/history';
 import { createRoute, editEventRoute } from 'src/routing';
 import { idateAsText, dateToIDate, isSameDate } from 'src/types/date';
@@ -24,7 +22,8 @@ import {
 import { dateToITime, stringifyTime } from 'src/types/time';
 import style from './ViewEvent.module.scss';
 import { useSetTitle } from 'src/hooks/setTitle';
-import { OfficeIcon } from '../Common/Icons/OfficeIcon';
+import { OfficeIconBig } from '../Common/Icons/OfficeIconBig';
+import { ParticipantIcon } from 'src/components/Common/Icons/ParticipantIcon';
 
 interface IProps {
   eventId?: string;
@@ -73,27 +72,24 @@ export const ViewEvent = ({
         customHexColor={event.customHexColor}>
         <div className={style.headerContainer}>
           <h1 className={style.header}>{event.title}</h1>
+          <DateSection startDate={event.start} endDate={event.end} />
         </div>
         <div className={style.generalInfoContainer}>
           <div className={style.iconTextContainer}>
-            <ClockIcon color="black" className={style.clockIcon} />
-            <DateSection startDate={event.start} endDate={event.end} />
+            <LocationIconBig className={style.locationIcon} />
+            <p>{event.location}</p>
           </div>
           {event.offices && (
             <div className={style.iconTextContainer}>
-              <OfficeIcon color="black" className={style.icon} />
+              <OfficeIconBig className={style.officeIcon} />
               <p>
                 {(pickedOfficeToOfficeList(event.offices) || []).join(', ')}
               </p>
             </div>
           )}
-          <div className={style.iconTextContainer}>
-            <LocationIcon color="black" className={style.icon} />
-            <p>{event.location}</p>
-          </div>
           {userIsLoggedIn() && (
             <div className={style.iconTextContainer}>
-              <GentlemanIcon color="black" className={style.icon} />
+              <ParticipantIcon className={style.participantIcon} />
               {hasOpenedForRegistration ? (
                 <p>{participantsText}</p>
               ) : (
@@ -108,7 +104,7 @@ export const ViewEvent = ({
           )}
           {event.isExternal && userIsLoggedIn() && (
             <div className={style.iconTextContainer}>
-              <ExternalIcon color="black" className={style.externalIcon} />
+              <ExternalIconBig className={style.externalIcon} />
               <p>Eksternt arrangement</p>
             </div>
           )}
@@ -168,14 +164,14 @@ interface IDateProps {
 const DateSection = ({ startDate, endDate }: IDateProps) => {
   if (isSameDate(startDate.date, endDate.date)) {
     return (
-      <p className={style.text}>
+      <p className={style.date}>
         {idateAsText(startDate.date)}, {stringifyTime(startDate.time)} -{' '}
         {stringifyTime(endDate.time)}
       </p>
     );
   }
   return (
-    <p className={style.text}>
+    <p className={style.date}>
       {idateAsText(startDate.date)}, {stringifyTime(startDate.time)} -{' '}
       {idateAsText(endDate.date)}, {stringifyTime(endDate.time)}
     </p>

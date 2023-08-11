@@ -1,26 +1,36 @@
 import React from 'react';
 
 interface IconProps {
-  color: 'white' | 'black';
   className?: string;
 }
 
-export const LocationIcon = ({ color, className }: IconProps) => {
+export const LocationIcon = ({ className }: IconProps) => {
   return (
     <svg
-      width="18"
-      height="26"
-      viewBox="0 0 18 26"
+      className={className}
+      width="12"
+      height="18"
+      viewBox="0 0 12 18"
       fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}>
-      <path
-        d="M8.99755 1C4.58072 1 1 4.57368 1 8.9758C1 13.7653 8.99755 25 8.99755 25C8.99755 25 17 13.6439 17 8.9758C17 4.57368 13.4193 1 8.99755 1ZM8.99755 11.0628C7.34552 11.0628 6.00444 9.72128 6.00444 8.07476C6.00444 6.42823 7.34552 5.08673 8.99755 5.08673C10.6545 5.08673 11.9956 6.42823 11.9956 8.07476C11.9956 9.72128 10.6545 11.0628 8.99755 11.0628Z"
-        stroke={color}
-        strokeMiterlimit="10"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      xmlns="http://www.w3.org/2000/svg">
+      <g>
+        <path
+          d="M11.3008 6.79031C11.3008 10.3704 5.79845 17.3 5.79845 17.3C5.79845 17.3 0.300781 10.3704 0.300781 6.79031C0.300781 3.20469 2.76332 0.299988 5.79845 0.299988C8.83824 0.299988 11.3008 3.20469 11.3008 6.79031Z"
+          stroke="currentColor"
+          strokeWidth="0.5"
+          strokeMiterlimit="10"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M7.80961 6.10589C7.80961 7.26751 6.86713 8.21 5.70372 8.21C4.54209 8.21 3.59961 7.26751 3.59961 6.10589C3.59961 4.94248 4.54209 4 5.70372 4C6.86713 4 7.80961 4.94248 7.80961 6.10589Z"
+          stroke="currentColor"
+          strokeWidth="0.5"
+          strokeMiterlimit="10"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </g>
     </svg>
   );
 };

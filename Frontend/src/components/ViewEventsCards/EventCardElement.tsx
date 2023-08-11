@@ -2,8 +2,6 @@ import classNames from 'classnames';
 import { isNumber } from 'lodash';
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ExternalIcon } from 'src/components/Common/Icons/ExternalIcon';
-import { LocationIcon } from 'src/components/Common/Icons/LocationIcon';
 import {
   ParticipationState,
   EventState,
@@ -32,8 +30,10 @@ import {
 } from 'src/types/event';
 import { stringifyTime } from 'src/types/time';
 import style from './EventCardElement.module.scss';
-import { OfficeIcon } from '../Common/Icons/OfficeIcon';
+import { LocationIcon } from 'src/components/Common/Icons/LocationIcon';
 
+import { OfficeIcon } from '../Common/Icons/OfficeIcon';
+import { ExternalIcon } from '../Common/Icons/ExternalIcon';
 interface IProps {
   eventId: string;
   event: IEvent;
@@ -115,7 +115,7 @@ export const EventCardElement = ({ eventId, event }: IProps) => {
       {event.offices && (
         <div className={style.iconContainer}>
           <div className={style.officeIcon}>
-            <OfficeIcon color="white" className={style.icon} />
+            <OfficeIcon className={style.icon} />
           </div>
           <div className={style.iconText}>
             {(pickedOfficeToOfficeList(event.offices) || []).join(', ')}
@@ -125,7 +125,7 @@ export const EventCardElement = ({ eventId, event }: IProps) => {
 
       <div className={style.iconContainer}>
         <div className={style.locationIcon}>
-          <LocationIcon color="white" className={style.icon} />
+          <LocationIcon className={style.icon} />
         </div>
         <div className={style.iconText}>{event.location}</div>
       </div>
@@ -142,7 +142,7 @@ export const EventCardElement = ({ eventId, event }: IProps) => {
       {event.isExternal && (
         <div className={style.iconContainer}>
           <div className={style.externalIcon}>
-            <ExternalIcon color="white" className={style.icon} />
+            <ExternalIcon className={style.icon} />
           </div>
           <div className={style.iconText}>Eksternt arrangement</div>
         </div>
