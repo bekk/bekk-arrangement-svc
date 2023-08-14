@@ -3,18 +3,23 @@ import { Button } from '../Common/Button/Button';
 import { IEditEvent, parseEditEvent } from 'src/types/event';
 import { isValid } from 'src/types/validation';
 import { useGotoEventPreview } from 'src/hooks/history';
-import { previewNewEventRoute } from 'src/routing';
 
 interface IProps {
   event: IEditEvent;
+  path: string;
   children: string;
   className?: string;
 }
 
-export const PreviewEventButton = ({ event, children, ...props }: IProps) => {
+export const PreviewEventButton = ({
+  event,
+  path,
+  children,
+  ...props
+}: IProps) => {
   const parsedEvent = parseEditEvent(event);
   const eventIsValid = isValid(parsedEvent);
-  const gotoPreview = useGotoEventPreview(previewNewEventRoute);
+  const gotoPreview = useGotoEventPreview(path);
 
   const redirectToPreview = () => {
     if (eventIsValid) gotoPreview(parsedEvent);

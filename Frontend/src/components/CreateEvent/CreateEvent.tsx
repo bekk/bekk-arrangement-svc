@@ -1,6 +1,6 @@
 import React from 'react';
 import { IEditEvent, initialEditEvent } from 'src/types/event';
-import { eventsRoute } from 'src/routing';
+import { eventsRoute, previewNewEventRoute } from 'src/routing';
 import { useAuthentication } from 'src/auth';
 import { Page } from 'src/components/Page/Page';
 import { EventForm } from '../EventForm/EventForm';
@@ -35,7 +35,9 @@ export const CreateEvent = () => {
       <h1 className={style.header}>Opprett arrangement</h1>
       <EventForm eventResult={event} updateEvent={setEvent} />
       <div className={style.buttonContainer}>
-        <PreviewEventButton event={event}>Forhåndsvisning</PreviewEventButton>
+        <PreviewEventButton event={event} path={previewNewEventRoute}>
+          Forhåndsvisning
+        </PreviewEventButton>
         <BlockLink to={eventsRoute} onLightBackground>
           Avbryt
         </BlockLink>
