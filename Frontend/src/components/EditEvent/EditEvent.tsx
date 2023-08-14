@@ -4,7 +4,12 @@ import { IEditEvent, toEditEvent } from 'src/types/event';
 import { deleteEvent } from 'src/api/arrangementSvc';
 import { useHistory } from 'react-router';
 import style from './EditEvent.module.scss';
-import { eventsRoute, editTokenKey, viewEventRoute } from 'src/routing';
+import {
+  eventsRoute,
+  editTokenKey,
+  viewEventRoute,
+  previewEventRoute,
+} from 'src/routing';
 import { hasLoaded } from 'src/remote-data';
 import { useQuery, useParam } from 'src/utils/browser-state';
 import { useNotification } from 'src/components/NotificationHandler/NotificationHandler';
@@ -101,7 +106,10 @@ export const EditEvent = () => {
               markert som avlyst.
             </p>
           </ButtonWithPromptModal>
-          <PreviewEventButton event={editEvent} className={style.button}>
+          <PreviewEventButton
+            event={editEvent}
+            path={previewEventRoute(eventId)}
+            className={style.button}>
             Forhåndsvis endringer
           </PreviewEventButton>
         </div>
