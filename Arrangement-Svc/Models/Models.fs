@@ -121,8 +121,10 @@ type EventWriteModel =
     { Title: string
       Description: string
       Location: string
+      City: string option
       OrganizerName: string
       OrganizerEmail: string
+      TargetAudience: string option
       MaxParticipants: int option
       StartDate: DateTimeCustom.DateTimeCustom
       EndDate: DateTimeCustom.DateTimeCustom
@@ -151,10 +153,12 @@ module EventWriteModel =
                            (Decode.string |> Decode.andThen Validate.description)
               Location = get.Required.Field "location"
                           (Decode.string |> Decode.andThen Validate.location)
+              City = get.Optional.Field "city" Decode.string
               OrganizerName = get.Required.Field "organizerName"
                           (Decode.string |> Decode.andThen Validate.organizerName)
               OrganizerEmail = get.Required.Field "organizerEmail"
                           (Decode.string |> Decode.andThen Validate.organizerEmail)
+              TargetAudience = get.Optional.Field "targetAudience" Decode.string
               MaxParticipants = get.Optional.Field "maxParticipants"
                                     (Decode.int |> Decode.andThen Validate.maxParticipants)
               StartDate = get.Required.Field "startDate" DateTimeCustom.DateTimeCustom.decoder
@@ -183,8 +187,10 @@ type Event =
       Title: string
       Description: string
       Location: string
+      City: string option
       OrganizerName: string
       OrganizerEmail: string
+      TargetAudience: string option
       MaxParticipants: int option
       StartDate: DateTime
       EndDate: DateTime
@@ -239,6 +245,8 @@ type EventSummary = {
     Title: string
     StartDate: DateTime
     IsExternal: bool
+    City: string option
+    TargetAudience: string option
 }
 
 module Event =
@@ -251,8 +259,12 @@ module Event =
                 "title", Encode.string event.Title
                 "description", Encode.string event.Description
                 "location", Encode.string event.Location
+                if event.City.IsSome then 
+                    "city", Encode.string event.City.Value
                 "organizerName", Encode.string event.OrganizerName
                 "organizerEmail", Encode.string event.OrganizerEmail
+                if event.TargetAudience.IsSome then
+                    "targetAudience", Encode.string event.TargetAudience.Value
                 if event.MaxParticipants.IsSome then
                     "maxParticipants", Encode.int event.MaxParticipants.Value
                 "startDate", DateTimeCustom.DateTimeCustom.encoder (DateTimeCustom.toCustomDateTime event.StartDate event.StartTime)
@@ -292,6 +304,10 @@ module Event =
                 "title", Encode.string event.Title
                 "startDate", Encode.datetime event.StartDate
                 "isExternal", Encode.bool event.IsExternal
+                if event.City.IsSome then
+                    "city", Encode.string event.City.Value
+                if event.TargetAudience.IsSome then
+                    "targetAudience", Encode.string event.TargetAudience.Value
             ]
         encoding
 

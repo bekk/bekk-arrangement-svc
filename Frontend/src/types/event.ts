@@ -84,6 +84,8 @@ export interface IEventViewModel {
   numberOfParticipants: number;
   shortname?: string;
   customHexColor?: string;
+  city?: string;
+  targetAudience?: string;
 }
 
 export interface IEventWriteModel {
@@ -108,6 +110,8 @@ export interface IEventWriteModel {
   isHidden: boolean;
   shortname?: string;
   customHexColor?: string;
+  city?: string;
+  targetAudience?: string;
 }
 
 type UnlimitedParticipants = ['unlimited'];
@@ -145,6 +149,8 @@ export interface IEvent {
   numberOfParticipants: number;
   shortname?: string;
   customHexColor?: string;
+  city?: string;
+  targetAudience?: string;
 }
 
 export interface IEditEvent {
@@ -169,6 +175,8 @@ export interface IEditEvent {
   numberOfParticipants: number;
   shortname?: string;
   customHexColor?: string;
+  city?: string;
+  targetAudience?: string;
 }
 
 export const parseEditEvent = ({
@@ -193,6 +201,8 @@ export const parseEditEvent = ({
   numberOfParticipants,
   shortname,
   customHexColor,
+  city,
+  targetAudience,
 }: IEditEvent): IEvent | IError[] => {
   const event = {
     title: parseTitle(title),
@@ -218,6 +228,8 @@ export const parseEditEvent = ({
     numberOfParticipants,
     shortname: parseShortname(shortname),
     customHexColor,
+    city,
+    targetAudience,
   };
 
   try {
@@ -286,6 +298,8 @@ export const parseEventViewModel = (eventView: IEventViewModel): IEvent => {
   const numberOfParticipants = eventView.numberOfParticipants;
   const shortname = parseShortname(eventView.shortname);
   const customHexColor = eventView.customHexColor;
+  const city = eventView.city;
+  const targetAudience = eventView.targetAudience;
 
   const event = {
     title,
@@ -309,6 +323,8 @@ export const parseEventViewModel = (eventView: IEventViewModel): IEvent => {
     numberOfParticipants,
     shortname,
     customHexColor,
+    city,
+    targetAudience,
   };
 
   assertIsValid(event);
@@ -338,6 +354,8 @@ export const toEditEvent = ({
   numberOfParticipants,
   shortname,
   customHexColor,
+  city,
+  targetAudience,
 }: IEvent): IEditEvent => ({
   title,
   description,
@@ -362,6 +380,8 @@ export const toEditEvent = ({
   numberOfParticipants,
   shortname,
   customHexColor,
+  city,
+  targetAudience,
 });
 
 export const initialEditEvent = (email?: string, name?: string): IEditEvent => {
@@ -393,6 +413,8 @@ export const initialEditEvent = (email?: string, name?: string): IEditEvent => {
     isHidden: false,
     isPubliclyAvailable: false,
     numberOfParticipants: 0,
+    city: undefined,
+    targetAudience: undefined,
   };
 };
 

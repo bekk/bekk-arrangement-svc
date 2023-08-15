@@ -130,6 +130,31 @@ let getEventsSummary (db: DatabaseContext) =
             return Error ex
     }
 
+let getPublicEvents (db: DatabaseContext) =
+    task {
+        let query =
+            "
+            SELECT E.Id,
+                   E.Title,
+                   E.StartDate,
+                   E.IsExternal,
+                   E.City,
+                   E.TargetAudience
+            FROM Events E
+            WHERE IsCancelled = 0
+                AND IsHidden = 0
+                AND IsPubliclyAvailable = 1
+                OR IsExternal = 1
+            "
+
+        try
+            let! result = db.Connection.QueryAsync<Models.EventSummary>(query, db.Transaction)
+            return Ok result
+        with
+        | ex ->
+            return Error ex
+    }
+
 let private getEventAndParticipantQuestions query numParticipantsQuery (parameters: obj) (db: DatabaseContext) =
     task {
         try
@@ -190,12 +215,14 @@ let getFutureEvents (employeeId: int) (db: DatabaseContext) =
                    E.Title,
                    E.Description,
                    E.Location,
+                   E.City,
                    E.OrganizerName,
                    E.OrganizerEmail,
                    E.StartDate,
                    E.StartTime,
                    E.EndDate,
                    E.EndTime,
+                   E.TargetAudience,
                    E.MaxParticipants,
                    E.OrganizerEmail,
                    E.OpenForRegistrationTime,
@@ -258,12 +285,14 @@ let getPastEvents (employeeId: int) (db: DatabaseContext) =
                    E.Title,
                    E.Description,
                    E.Location,
+                   E.City,
                    E.OrganizerName,
                    E.OrganizerEmail,
                    E.StartDate,
                    E.StartTime,
                    E.EndDate,
                    E.EndTime,
+                   E.TargetAudience,
                    E.MaxParticipants,
                    E.OrganizerEmail,
                    E.OpenForRegistrationTime,
@@ -315,12 +344,14 @@ let getEventsOrganizedByEmail (email: string) (db : DatabaseContext) =
                    E.Title,
                    E.Description,
                    E.Location,
+                   E.City,
                    E.OrganizerName,
                    E.OrganizerEmail,
                    E.StartDate,
                    E.StartTime,
                    E.EndDate,
                    E.EndTime,
+                   E.TargetAudience,
                    E.MaxParticipants,
                    E.OrganizerEmail,
                    E.OpenForRegistrationTime,
@@ -368,12 +399,14 @@ let getEventsOrganizedById (id: int) (db: DatabaseContext) =
                    E.Title,
                    E.Description,
                    E.Location,
+                   E.City,
                    E.OrganizerName,
                    E.OrganizerEmail,
                    E.StartDate,
                    E.StartTime,
                    E.EndDate,
                    E.EndTime,
+                   E.TargetAudience,
                    E.MaxParticipants,
                    E.OrganizerEmail,
                    E.OpenForRegistrationTime,
@@ -495,12 +528,14 @@ let getEvent (eventId: Guid) (db: DatabaseContext) =
                    E.Title,
                    E.Description,
                    E.Location,
+                   E.City,
                    E.OrganizerName,
                    E.OrganizerEmail,
                    E.StartDate,
                    E.StartTime,
                    E.EndDate,
                    E.EndTime,
+                   E.TargetAudience,
                    E.MaxParticipants,
                    E.OrganizerEmail,
                    E.OpenForRegistrationTime,
@@ -713,11 +748,13 @@ let updateEvent eventId (model: Models.EventWriteModel) (db: DatabaseContext) =
             SET Title = @title,
                 Description = @description,
                 Location = @location,
+                City = @city,
                 OrganizerEmail = @organizerEmail,
                 StartDate = @startDate,
                 StartTime = @startTime,
                 EndDate = @endDate,
                 EndTime = @endTime,
+                TargetAudience = @targetAudience,
                 MaxParticipants = @maxParticipants,
                 OrganizerName = @organizerName,
                 OpenForRegistrationTime = @openForRegistrationTime,
@@ -741,11 +778,13 @@ let updateEvent eventId (model: Models.EventWriteModel) (db: DatabaseContext) =
             Title = model.Title
             Description = model.Description
             Location = model.Location
+            City = model.City
             OrganizerEmail = model.OrganizerEmail
             StartDate = DateTimeCustom.customToDateTime model.StartDate.Date
             StartTime = DateTimeCustom.customToTimeSpan model.StartDate.Time
             EndDate = DateTimeCustom.customToDateTime model.EndDate.Date
             EndTime = DateTimeCustom.customToTimeSpan model.EndDate.Time
+            TargetAudience = model.TargetAudience
             MaxParticipants = model.MaxParticipants
             OrganizerName = model.OrganizerName
             OpenForRegistrationTime = model.OpenForRegistrationTime
@@ -892,11 +931,13 @@ let createEvent (writeModel: Models.EventWriteModel) employeeId (db: DatabaseCon
                     Title,
                     Description,
                     Location,
+                    City,
                     OrganizerEmail,
                     StartDate,
                     StartTime,
                     EndDate,
                     EndTime,
+                    TargetAudience,
                     MaxParticipants,
                     OrganizerName,
                     OpenForRegistrationTime,
@@ -917,11 +958,13 @@ let createEvent (writeModel: Models.EventWriteModel) employeeId (db: DatabaseCon
                     @title,
                     @description,
                     @location,
+                    @city,
                     @organizerEmail,
                     @startDate,
                     @startTime,
                     @endDate,
                     @endTime,
+                    @targetAudience,
                     @maxParticipants,
                     @organizerName,
                     @openForRegistrationTime,
@@ -946,11 +989,13 @@ let createEvent (writeModel: Models.EventWriteModel) employeeId (db: DatabaseCon
             Title = writeModel.Title
             Description = writeModel.Description
             Location = writeModel.Location
+            City = writeModel.City
             OrganizerEmail = writeModel.OrganizerEmail
             StartDate = DateTimeCustom.customToDateTime writeModel.StartDate.Date
             StartTime = DateTimeCustom.customToTimeSpan writeModel.StartDate.Time
             EndDate = DateTimeCustom.customToDateTime writeModel.EndDate.Date
             EndTime = DateTimeCustom.customToTimeSpan writeModel.EndDate.Time
+            TargetAudience = writeModel.TargetAudience
             MaxParticipants = writeModel.MaxParticipants
             OrganizerName = writeModel.OrganizerName
             OpenForRegistrationTime = writeModel.OpenForRegistrationTime
