@@ -399,4 +399,39 @@ type GetEvent(fixture: DatabaseFixture) =
 
             response.EnsureSuccessStatusCode() |> ignore
         }
+    
+     [<Fact>]
+     member _.``Unauthenticated users can get publicly available event info``() =
+        task {
+            let! response, _ = Http.get unauthenticatedClient $"/events/public"
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode)
+        }
+
+    [<Fact>]
+     member _.``Public events only return external or publicly available events``() =
+        task {
+            fixture.removeAllEvents()
+            
+            for _ in 0..4 do
+                let event =
+                    TestData.createEvent (fun e ->
+                        { e with
+                            IsExternal = false
+                            IsPubliclyAvailable = false })
+
+                let! _, _ = Helpers.createEvent authenticatedClient event
+                ()
+            
+            let externalEvent = TestData.createEvent (fun e -> { e with IsExternal = true})
+            let! _, _ = Helpers.createEvent authenticatedClient externalEvent
+
+            let publiclyAvailableEvent = TestData.createEvent (fun e -> { e with IsPubliclyAvailable = true})
+            let! _, _ = Helpers.createEvent authenticatedClient publiclyAvailableEvent
+            
+            let! _, body = Helpers.getPublicEvents unauthenticatedClient
+
+            Assert.Equal(List.length body, 2)
+            Assert.Equal((List.filter (fun (event: EventSummary) -> event.IsExternal = true) body).Length, 1)
+            Assert.Equal((List.filter (fun (event: EventSummary) -> event.IsExternal = false) body).Length, 1)
+        }
         

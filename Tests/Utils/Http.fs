@@ -52,6 +52,15 @@ let requestDecode<'a, 'b> client (decoder: Decoder<'a>) url (body: 'b option) me
         return response, decode
     }
 
+let requestDecodeList<'a, 'b> client (decoder: Decoder<'a>) url (body: 'b option) method =
+    task {
+        let! response, content = request client url body method
+        let decode =
+            Decode.fromString (Decode.list decoder) content
+            |> Result.mapError(fun _ -> decodeUserMessage content)
+        return response, decode
+    }
+
 let get (client: HttpClient) (url: string) = request client url None HttpMethod.Get
 
 let getEvent (client: HttpClient) (eventId: string) =
@@ -119,6 +128,7 @@ let getEventIdByShortname (client: HttpClient) (shortname: string) =
         builder.ToString()
 
     request client url None HttpMethod.Get
+    
 
 let getParticipationsForEvent (client: HttpClient) email =
     requestDecode
@@ -130,6 +140,9 @@ let getParticipationsForEvent (client: HttpClient) email =
 
 let getParticipationsAndWaitlist (client: HttpClient) eventId =
     requestDecode client participationsAndWaitingListDecoder $"/events/{eventId}/participants" None HttpMethod.Get
+
+let getPublicEvents (client: HttpClient) =
+    requestDecodeList client publicEventDecoder $"/events/public" None HttpMethod.Get
 
 let deleteParticipantFromEvent (client: HttpClient) eventId email =
     request client $"/events/{eventId}/participants/{email}" None HttpMethod.Delete

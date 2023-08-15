@@ -81,6 +81,16 @@ let innerEventDecoder: Decoder<InnerEvent> =
           OrganizerId = get.Required.Field "organizerId" Decode.int
           })
 
+let publicEventDecoder: Decoder<EventSummary> =
+    Decode.object (fun get ->
+        { Id = get.Required.Field "id" Decode.guid
+          Title = get.Required.Field "title" Decode.string
+          City = get.Optional.Field "city" Decode.string
+          TargetAudience = get.Optional.Field "targetAudience" Decode.string
+          StartDate = get.Required.Field "startDate" Decode.datetime
+          IsExternal = get.Required.Field "isExternal" Decode.bool
+          })
+
 let createdEventDecoder: Decoder<CreatedEvent> =
     Decode.object (fun get ->
         { EditToken = get.Required.Field "editToken" Decode.string
