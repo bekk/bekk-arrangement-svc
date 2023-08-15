@@ -136,6 +136,7 @@ type EventWriteModel =
       HasWaitingList: bool
       IsExternal: bool
       IsHidden: bool
+      IsPubliclyAvailable: bool
       Shortname: string option
       CustomHexColor: string option
       Offices: Option<Office list>
@@ -169,6 +170,7 @@ module EventWriteModel =
               HasWaitingList = get.Required.Field "hasWaitingList" Decode.bool
               IsExternal = get.Required.Field "isExternal" Decode.bool
               IsHidden = get.Required.Field "isHidden" Decode.bool
+              IsPubliclyAvailable = get.Required.Field "isPubliclyAvailable" Decode.bool
               CustomHexColor = get.Optional.Field "customHexColor"
                           (Decode.string |> Decode.andThen Validate.customHexColor)
               Shortname =  get.Optional.Field "shortname"
@@ -195,6 +197,7 @@ type Event =
       IsCancelled: bool
       IsExternal: bool
       IsHidden: bool
+      IsPubliclyAvailable: bool
       EditToken: Guid
       OrganizerId: int
       CustomHexColor: string option
@@ -267,6 +270,7 @@ module Event =
                 "isCancelled", Encode.bool event.IsCancelled
                 "isExternal", Encode.bool event.IsExternal
                 "isHidden", Encode.bool event.IsHidden
+                "isPubliclyAvailable", Encode.bool event.IsPubliclyAvailable
                 "organizerId", Encode.int event.OrganizerId
                 if event.Shortname.IsSome then
                     "shortname", Encode.string event.Shortname.Value

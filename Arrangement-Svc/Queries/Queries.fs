@@ -171,7 +171,7 @@ let private getEventAndParticipantQuestions query numParticipantsQuery (paramete
             return Error ex
     }
 
-// Denne querien returnerer alle events som ikke er ferdig enda
+// Denne querien returnerer alle events som ikke er gjennomført enda
 // Gjemte arrangementer vises kun dersom man arrangerer de eller deltar på de
 let getFutureEvents (employeeId: int) (db: DatabaseContext) =
     task {
@@ -205,6 +205,7 @@ let getFutureEvents (employeeId: int) (db: DatabaseContext) =
                    E.IsExternal,
                    E.OrganizerId,
                    E.IsHidden,
+                   E.IsPubliclyAvailable,
                    E.CloseRegistrationTime,
                    E.CustomHexColor,
                    E.Shortname,
@@ -272,6 +273,7 @@ let getPastEvents (employeeId: int) (db: DatabaseContext) =
                    E.IsExternal,
                    E.OrganizerId,
                    E.IsHidden,
+                   E.IsPubliclyAvailable,
                    E.CloseRegistrationTime,
                    E.CustomHexColor,
                    E.Shortname,
@@ -328,6 +330,7 @@ let getEventsOrganizedByEmail (email: string) (db : DatabaseContext) =
                    E.IsExternal,
                    E.OrganizerId,
                    E.IsHidden,
+                   E.IsPubliclyAvailable,
                    E.CloseRegistrationTime,
                    E.CustomHexColor,
                    E.Shortname,
@@ -380,6 +383,7 @@ let getEventsOrganizedById (id: int) (db: DatabaseContext) =
                    E.IsExternal,
                    E.OrganizerId,
                    E.IsHidden,
+                   E.IsPubliclyAvailable,
                    E.CloseRegistrationTime,
                    E.CustomHexColor,
                    E.Shortname,
@@ -506,6 +510,7 @@ let getEvent (eventId: Guid) (db: DatabaseContext) =
                    E.IsExternal,
                    E.OrganizerId,
                    E.IsHidden,
+                   E.IsPubliclyAvailable,
                    E.CloseRegistrationTime,
                    E.CustomHexColor,
                    E.Shortname,
@@ -720,6 +725,7 @@ let updateEvent eventId (model: Models.EventWriteModel) (db: DatabaseContext) =
                 IsCancelled = @isCancelled,
                 IsExternal = @isExternal,
                 IsHidden = @isHidden,
+                IsPubliclyAvailable = @isPubliclyAvailable,
                 CloseRegistrationTime = @closeRegistrationTime,
                 CustomHexColor = @customHexColor,
                 Shortname = @shortname,
@@ -747,6 +753,7 @@ let updateEvent eventId (model: Models.EventWriteModel) (db: DatabaseContext) =
             IsCancelled = false
             IsExternal = model.IsExternal
             IsHidden = model.IsHidden
+            IsPubliclyAvailable = model.IsPubliclyAvailable
             CloseRegistrationTime = model.CloseRegistrationTime
             CustomHexColor = model.CustomHexColor
             Shortname = model.Shortname
@@ -899,6 +906,7 @@ let createEvent (writeModel: Models.EventWriteModel) employeeId (db: DatabaseCon
                     IsExternal,
                     OrganizerId,
                     IsHidden,
+                    IsPubliclyAvailable,
                     CloseRegistrationTime,
                     CustomHexColor,
                     Shortname,
@@ -923,6 +931,7 @@ let createEvent (writeModel: Models.EventWriteModel) employeeId (db: DatabaseCon
                     @isExternal,
                     @organizerId,
                     @isHidden,
+                    @isPubliclyAvailable,
                     @closeRegistrationTime,
                     @customHexColor,
                     @shortname,
@@ -951,6 +960,7 @@ let createEvent (writeModel: Models.EventWriteModel) employeeId (db: DatabaseCon
             IsExternal = writeModel.IsExternal
             OrganizerId = employeeId
             IsHidden = writeModel.IsHidden
+            IsPubliclyAvailable = writeModel.IsPubliclyAvailable
             CloseRegistrationTime = writeModel.CloseRegistrationTime
             CustomHexColor = writeModel.CustomHexColor
             Shortname = writeModel.Shortname

@@ -6,7 +6,9 @@
   height: 39px;
   min-width: 150px;
   padding: 0 25px;
-  transition: background-color $transitionLength, color $transitionLength,
+  transition:
+    background-color $transitionLength,
+    color $transitionLength,
     border $transitionLength;
   @media #{$desktop} {
     min-width: 200px;

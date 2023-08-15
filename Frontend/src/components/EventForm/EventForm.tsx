@@ -452,6 +452,16 @@ export const EventForm = ({ eventResult: event, updateEvent }: IProps) => {
           />
           <p className={style.helpTextCheckBox}>{helpText.hiddenEvent}</p>
         </div>
+        <div>
+          <CheckBox
+            label={labels.publiclyAvailable}
+            onChange={(isPubliclyAvailable) =>
+              updateEvent({ ...event, isPubliclyAvailable })
+            }
+            isChecked={event.isPubliclyAvailable}
+          />
+          <p className={style.helpTextCheckBox}>{helpText.publiclyAvailable}</p>
+        </div>
 
         <div className={style.shortName}>
           <CheckBox
@@ -710,6 +720,7 @@ const labels = {
   waitingList: 'Venteliste',
   externalEvent: 'Eksternt arrangement',
   hiddenEvent: 'Skjul arrangementet fra oversikten',
+  publiclyAvailable: 'Vis arrangementet for offentligheten (feks bekk.no)',
   participantQuestion: 'Spørsmål til deltakerne*',
   shortname: 'Lag en penere URL for arrangementet',
   program: 'Program',
@@ -735,6 +746,7 @@ const helpText = {
     'Eksterne kan ikke se de påmeldtes e-postadresser eller navn.',
   hiddenEvent:
     'Arrangementet vil ikke dukke opp i oversikten over arrangementer eller på forsiden.',
+  publiclyAvailable: 'Vil vises uansett hvis arrangementet er eksternt.',
 };
 
 const buttonText = {

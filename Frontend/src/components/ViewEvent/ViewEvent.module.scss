@@ -20,10 +20,10 @@
 }
 
 .date {
-    color: var(--svart);
-    margin-top: 0;
-    text-transform: capitalize;
-    font-size: 16px;
+  color: var(--svart);
+  margin-top: 0;
+  text-transform: capitalize;
+  font-size: 16px;
 }
 
 .header {
@@ -77,31 +77,31 @@
 }
 
 .icon {
-    margin-right: 10px;
+  margin-right: 10px;
 }
 
 .participantIcon {
-    @extend .icon;
-    height: 22px;
-    width: 22px;
+  @extend .icon;
+  height: 22px;
+  width: 22px;
 }
 
 .locationIcon {
-    @extend .icon;
-    height: 24px;
-    width: 24px;
+  @extend .icon;
+  height: 24px;
+  width: 24px;
 }
 
 .officeIcon {
-    @extend .icon;
-    height: 28px;
-    width: 28px;
+  @extend .icon;
+  height: 28px;
+  width: 28px;
 }
 
 .externalIcon {
-    @extend .icon;
-    height: 24px;
-    width: 24px;
+  @extend .icon;
+  height: 24px;
+  width: 24px;
 }
 
 .contentContainer {
