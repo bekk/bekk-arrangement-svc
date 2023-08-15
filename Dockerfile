@@ -7,7 +7,7 @@ WORKDIR /app/Frontend
 RUN npm ci
 RUN npm run build
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS dotnet_build
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS dotnet_build
 
 WORKDIR /app
 COPY . .

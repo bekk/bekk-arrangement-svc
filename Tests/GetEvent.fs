@@ -422,10 +422,16 @@ type GetEvent(fixture: DatabaseFixture) =
                 let! _, _ = Helpers.createEvent authenticatedClient event
                 ()
             
-            let externalEvent = TestData.createEvent (fun e -> { e with IsExternal = true})
+            let externalEvent = TestData.createEvent (fun e -> 
+                { e with 
+                    IsExternal = true 
+                    IsPubliclyAvailable = false})
             let! _, _ = Helpers.createEvent authenticatedClient externalEvent
 
-            let publiclyAvailableEvent = TestData.createEvent (fun e -> { e with IsPubliclyAvailable = true})
+            let publiclyAvailableEvent = TestData.createEvent (fun e -> 
+                { e with 
+                    IsExternal = false 
+                    IsPubliclyAvailable = true})
             let! _, _ = Helpers.createEvent authenticatedClient publiclyAvailableEvent
             
             let! _, body = Helpers.getPublicEvents unauthenticatedClient
