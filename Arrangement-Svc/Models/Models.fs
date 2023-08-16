@@ -92,11 +92,25 @@ module Validate =
         | x when not <| Seq.forall Uri.IsHexDigit x -> Decode.fail "Ugyldig tegn, hex-koden må bestå av tegn mellom a..f og 0..9"
         | x -> Decode.succeed x
 
+    let city (city: string) = 
+        if String.length city > 200 then
+            Decode.fail "By kan ha maks 200 tegn"
+        else 
+            Decode.succeed city
+
+    let targetAudience (targetAudience: string) = 
+        if String.length targetAudience > 200 then
+            Decode.fail "Deltakergruppe kan ha maks 200 tegn"
+        else 
+            Decode.succeed targetAudience
+
     let organizerEmail (email: string) =
         if email.Contains '@' then
             Decode.succeed email
         else
             Decode.fail "E-post må inneholde alfakrøll (@)"
+    
+
 
 [<AutoOpen>]
 module Office =
@@ -121,8 +135,10 @@ type EventWriteModel =
     { Title: string
       Description: string
       Location: string
+      City: string option
       OrganizerName: string
       OrganizerEmail: string
+      TargetAudience: string option
       MaxParticipants: int option
       StartDate: DateTimeCustom.DateTimeCustom
       EndDate: DateTimeCustom.DateTimeCustom
@@ -136,6 +152,7 @@ type EventWriteModel =
       HasWaitingList: bool
       IsExternal: bool
       IsHidden: bool
+      IsPubliclyAvailable: bool
       Shortname: string option
       CustomHexColor: string option
       Offices: Option<Office list>
@@ -150,10 +167,14 @@ module EventWriteModel =
                            (Decode.string |> Decode.andThen Validate.description)
               Location = get.Required.Field "location"
                           (Decode.string |> Decode.andThen Validate.location)
+              City = get.Optional.Field "city" 
+                          (Decode.string |> Decode.andThen Validate.city)
               OrganizerName = get.Required.Field "organizerName"
                           (Decode.string |> Decode.andThen Validate.organizerName)
               OrganizerEmail = get.Required.Field "organizerEmail"
                           (Decode.string |> Decode.andThen Validate.organizerEmail)
+              TargetAudience = get.Optional.Field "targetAudience" 
+                          (Decode.string |> Decode.andThen Validate.targetAudience)
               MaxParticipants = get.Optional.Field "maxParticipants"
                                     (Decode.int |> Decode.andThen Validate.maxParticipants)
               StartDate = get.Required.Field "startDate" DateTimeCustom.DateTimeCustom.decoder
@@ -169,6 +190,7 @@ module EventWriteModel =
               HasWaitingList = get.Required.Field "hasWaitingList" Decode.bool
               IsExternal = get.Required.Field "isExternal" Decode.bool
               IsHidden = get.Required.Field "isHidden" Decode.bool
+              IsPubliclyAvailable = get.Required.Field "isPubliclyAvailable" Decode.bool
               CustomHexColor = get.Optional.Field "customHexColor"
                           (Decode.string |> Decode.andThen Validate.customHexColor)
               Shortname =  get.Optional.Field "shortname"
@@ -181,8 +203,10 @@ type Event =
       Title: string
       Description: string
       Location: string
+      City: string option
       OrganizerName: string
       OrganizerEmail: string
+      TargetAudience: string option
       MaxParticipants: int option
       StartDate: DateTime
       EndDate: DateTime
@@ -195,6 +219,7 @@ type Event =
       IsCancelled: bool
       IsExternal: bool
       IsHidden: bool
+      IsPubliclyAvailable: bool
       EditToken: Guid
       OrganizerId: int
       CustomHexColor: string option
@@ -236,6 +261,9 @@ type EventSummary = {
     Title: string
     StartDate: DateTime
     IsExternal: bool
+    IsPubliclyAvailable: bool
+    City: string option
+    TargetAudience: string option
 }
 
 module Event =
@@ -248,8 +276,12 @@ module Event =
                 "title", Encode.string event.Title
                 "description", Encode.string event.Description
                 "location", Encode.string event.Location
+                if event.City.IsSome then 
+                    "city", Encode.string event.City.Value
                 "organizerName", Encode.string event.OrganizerName
                 "organizerEmail", Encode.string event.OrganizerEmail
+                if event.TargetAudience.IsSome then
+                    "targetAudience", Encode.string event.TargetAudience.Value
                 if event.MaxParticipants.IsSome then
                     "maxParticipants", Encode.int event.MaxParticipants.Value
                 "startDate", DateTimeCustom.DateTimeCustom.encoder (DateTimeCustom.toCustomDateTime event.StartDate event.StartTime)
@@ -267,6 +299,7 @@ module Event =
                 "isCancelled", Encode.bool event.IsCancelled
                 "isExternal", Encode.bool event.IsExternal
                 "isHidden", Encode.bool event.IsHidden
+                "isPubliclyAvailable", Encode.bool event.IsPubliclyAvailable
                 "organizerId", Encode.int event.OrganizerId
                 if event.Shortname.IsSome then
                     "shortname", Encode.string event.Shortname.Value
@@ -288,6 +321,11 @@ module Event =
                 "title", Encode.string event.Title
                 "startDate", Encode.datetime event.StartDate
                 "isExternal", Encode.bool event.IsExternal
+                "isPubliclyAvailable", Encode.bool event.IsPubliclyAvailable
+                if event.City.IsSome then
+                    "city", Encode.string event.City.Value
+                if event.TargetAudience.IsSome then
+                    "targetAudience", Encode.string event.TargetAudience.Value
             ]
         encoding
 

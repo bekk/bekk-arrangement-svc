@@ -110,3 +110,12 @@ module Helpers =
             | Error e -> return failwith $"Error decoding participations and answers: {e}"
             | Ok result -> return response, result
         }
+
+    let getPublicEvents client =
+        task {
+            let! response, content = Http.getPublicEvents client
+
+            match content with
+            | Error e -> return failwith $"Error decoding public events: {e}"
+            | Ok result -> return response, result
+        }

@@ -61,6 +61,7 @@ type DatabaseFixture() =
         let databaseConnection = new SqlConnection(connectionString)
         new DatabaseContext(databaseConnection, null)
 
+
 [<CollectionDefinition("Database collection")>]
 type DatabaseCollection() =
     interface ICollectionFixture<DatabaseFixture>

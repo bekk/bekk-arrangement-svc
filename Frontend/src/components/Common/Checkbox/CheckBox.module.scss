@@ -19,7 +19,9 @@
     background-color: var(--natt);
   }
   &:focus {
-    box-shadow: 0 0 0 1px var(--svart), 0 0 0 4px var(--natt);
+    box-shadow:
+      0 0 0 1px var(--svart),
+      0 0 0 4px var(--natt);
   }
 }
 
@@ -30,7 +32,9 @@
     background-color: var(--natt);
   }
   &:focus {
-    box-shadow: 0 0 0 1px var(--hvit), 0 0 0 4px var(--natt);
+    box-shadow:
+      0 0 0 1px var(--hvit),
+      0 0 0 4px var(--natt);
   }
 }
 

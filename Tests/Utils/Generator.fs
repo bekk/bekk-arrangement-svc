@@ -60,8 +60,18 @@ let generateEvent () : Models.EventWriteModel =
     { Title = faker.Company.CompanyName()
       Description = faker.Lorem.Paragraph()
       Location = faker.Address.City()
+      City = 
+        if faker.Hacker.Random.Bool() then
+            None
+        else
+            Some(faker.Address.City())
       OrganizerName = $"{faker.Person.FirstName} {faker.Person.LastName}"
       OrganizerEmail = faker.Person.Email
+      TargetAudience = 
+        if faker.Hacker.Random.Bool() then
+            None
+        else
+            Some(faker.Commerce.Department())
       MaxParticipants =
           if faker.Hacker.Random.Bool() then
               None
@@ -98,6 +108,11 @@ let generateEvent () : Models.EventWriteModel =
       IsExternal = faker.Hacker.Random.Bool()
       IsHidden =
           if faker.Random.Number(0, 10) = 0 then
+              true
+          else
+              false
+      IsPubliclyAvailable =
+          if faker.Hacker.Random.Bool() then
               true
           else
               false
