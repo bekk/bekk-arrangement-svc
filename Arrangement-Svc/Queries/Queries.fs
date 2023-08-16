@@ -142,13 +142,18 @@ let getPublicEvents (db: DatabaseContext) =
                    E.TargetAudience,
                    E.IsPubliclyAvailable
             FROM Events E
-            WHERE IsCancelled = 0
+            WHERE EndDate >= @sixMonthsAgo
+                And IsCancelled = 0
                 AND IsHidden = 0
                 AND (IsPubliclyAvailable = 1 OR IsExternal = 1)
             "
 
+        let parameters = {|
+            sixMonthsAgo = DateTime.Now.Date.AddMonths(-6)
+        |}
+
         try
-            let! result = db.Connection.QueryAsync<Models.EventSummary>(query, db.Transaction)
+            let! result = db.Connection.QueryAsync<Models.EventSummary>(query, parameters, db.Transaction)
             return Ok result
         with
         | ex ->
