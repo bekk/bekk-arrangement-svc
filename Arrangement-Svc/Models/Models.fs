@@ -92,11 +92,25 @@ module Validate =
         | x when not <| Seq.forall Uri.IsHexDigit x -> Decode.fail "Ugyldig tegn, hex-koden må bestå av tegn mellom a..f og 0..9"
         | x -> Decode.succeed x
 
+    let city (city: string) = 
+        if String.length city > 200 then
+            Decode.fail "By kan ha maks 200 tegn"
+        else 
+            Decode.succeed city
+
+    let targetAudience (targetAudience: string) = 
+        if String.length targetAudience > 200 then
+            Decode.fail "Deltakergruppe kan ha maks 200 tegn"
+        else 
+            Decode.succeed targetAudience
+
     let organizerEmail (email: string) =
         if email.Contains '@' then
             Decode.succeed email
         else
             Decode.fail "E-post må inneholde alfakrøll (@)"
+    
+
 
 [<AutoOpen>]
 module Office =
@@ -153,12 +167,14 @@ module EventWriteModel =
                            (Decode.string |> Decode.andThen Validate.description)
               Location = get.Required.Field "location"
                           (Decode.string |> Decode.andThen Validate.location)
-              City = get.Optional.Field "city" Decode.string
+              City = get.Optional.Field "city" 
+                          (Decode.string |> Decode.andThen Validate.city)
               OrganizerName = get.Required.Field "organizerName"
                           (Decode.string |> Decode.andThen Validate.organizerName)
               OrganizerEmail = get.Required.Field "organizerEmail"
                           (Decode.string |> Decode.andThen Validate.organizerEmail)
-              TargetAudience = get.Optional.Field "targetAudience" Decode.string
+              TargetAudience = get.Optional.Field "targetAudience" 
+                          (Decode.string |> Decode.andThen Validate.targetAudience)
               MaxParticipants = get.Optional.Field "maxParticipants"
                                     (Decode.int |> Decode.andThen Validate.maxParticipants)
               StartDate = get.Required.Field "startDate" DateTimeCustom.DateTimeCustom.decoder
@@ -245,6 +261,7 @@ type EventSummary = {
     Title: string
     StartDate: DateTime
     IsExternal: bool
+    IsPubliclyAvailable: bool
     City: string option
     TargetAudience: string option
 }
@@ -304,6 +321,7 @@ module Event =
                 "title", Encode.string event.Title
                 "startDate", Encode.datetime event.StartDate
                 "isExternal", Encode.bool event.IsExternal
+                "isPubliclyAvailable", Encode.bool event.IsPubliclyAvailable
                 if event.City.IsSome then
                     "city", Encode.string event.City.Value
                 if event.TargetAudience.IsSome then

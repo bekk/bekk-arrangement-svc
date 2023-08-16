@@ -61,17 +61,6 @@ type DatabaseFixture() =
         let databaseConnection = new SqlConnection(connectionString)
         new DatabaseContext(databaseConnection, null)
 
-    member this.removeAllEvents() =
-        use connection = new SqlConnection(connectionString)
-        do connection.Open()
-        use command = new SqlCommand("
-            DELETE from ParticipantAnswers;
-            DELETE from ParticipantQuestions; 
-            DELETE from Participants; 
-            DELETE from Events;"
-            , connection)
-        do command.ExecuteNonQuery() |> ignore
-
 
 [<CollectionDefinition("Database collection")>]
 type DatabaseCollection() =

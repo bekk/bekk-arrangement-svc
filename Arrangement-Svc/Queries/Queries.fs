@@ -139,12 +139,12 @@ let getPublicEvents (db: DatabaseContext) =
                    E.StartDate,
                    E.IsExternal,
                    E.City,
-                   E.TargetAudience
+                   E.TargetAudience,
+                   E.IsPubliclyAvailable
             FROM Events E
             WHERE IsCancelled = 0
                 AND IsHidden = 0
-                AND IsPubliclyAvailable = 1
-                OR IsExternal = 1
+                AND (IsPubliclyAvailable = 1 OR IsExternal = 1)
             "
 
         try

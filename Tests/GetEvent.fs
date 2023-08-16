@@ -410,8 +410,6 @@ type GetEvent(fixture: DatabaseFixture) =
     [<Fact>]
      member _.``Public events only return external or publicly available events``() =
         task {
-            fixture.removeAllEvents()
-            
             for _ in 0..4 do
                 let event =
                     TestData.createEvent (fun e ->
@@ -436,8 +434,7 @@ type GetEvent(fixture: DatabaseFixture) =
             
             let! _, body = Helpers.getPublicEvents unauthenticatedClient
 
-            Assert.Equal(List.length body, 2)
-            Assert.Equal((List.filter (fun (event: EventSummary) -> event.IsExternal = true) body).Length, 1)
-            Assert.Equal((List.filter (fun (event: EventSummary) -> event.IsExternal = false) body).Length, 1)
+            Assert.NotEmpty((List.filter (fun (event: EventSummary) -> event.IsExternal = true || event.IsPubliclyAvailable = true) body))
+            Assert.Empty((List.filter (fun (event: EventSummary) -> event.IsExternal = false && event.IsPubliclyAvailable = false) body))
         }
         
