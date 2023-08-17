@@ -140,16 +140,17 @@ let getPublicEvents (db: DatabaseContext) =
                    E.IsExternal,
                    E.City,
                    E.TargetAudience,
-                   E.IsPubliclyAvailable
+                   E.EventType
             FROM Events E
             WHERE EndDate >= @sixMonthsAgo
                 And IsCancelled = 0
                 AND IsHidden = 0
-                AND (IsPubliclyAvailable = 1 OR IsExternal = 1)
+                AND EventType = @eventType
             "
 
         let parameters = {|
             sixMonthsAgo = DateTime.Now.Date.AddMonths(-6)
+            eventType = Models.EventType.EventType.Faglig.ToString()
         |}
 
         try
@@ -237,7 +238,7 @@ let getFutureEvents (employeeId: int) (db: DatabaseContext) =
                    E.IsExternal,
                    E.OrganizerId,
                    E.IsHidden,
-                   E.IsPubliclyAvailable,
+                   E.EventType,
                    E.CloseRegistrationTime,
                    E.CustomHexColor,
                    E.Shortname,
@@ -307,7 +308,7 @@ let getPastEvents (employeeId: int) (db: DatabaseContext) =
                    E.IsExternal,
                    E.OrganizerId,
                    E.IsHidden,
-                   E.IsPubliclyAvailable,
+                   E.EventType,
                    E.CloseRegistrationTime,
                    E.CustomHexColor,
                    E.Shortname,
@@ -366,7 +367,7 @@ let getEventsOrganizedByEmail (email: string) (db : DatabaseContext) =
                    E.IsExternal,
                    E.OrganizerId,
                    E.IsHidden,
-                   E.IsPubliclyAvailable,
+                   E.EventType,
                    E.CloseRegistrationTime,
                    E.CustomHexColor,
                    E.Shortname,
@@ -421,7 +422,7 @@ let getEventsOrganizedById (id: int) (db: DatabaseContext) =
                    E.IsExternal,
                    E.OrganizerId,
                    E.IsHidden,
-                   E.IsPubliclyAvailable,
+                   E.EventType,
                    E.CloseRegistrationTime,
                    E.CustomHexColor,
                    E.Shortname,
@@ -550,7 +551,7 @@ let getEvent (eventId: Guid) (db: DatabaseContext) =
                    E.IsExternal,
                    E.OrganizerId,
                    E.IsHidden,
-                   E.IsPubliclyAvailable,
+                   E.EventType,
                    E.CloseRegistrationTime,
                    E.CustomHexColor,
                    E.Shortname,
@@ -767,7 +768,7 @@ let updateEvent eventId (model: Models.EventWriteModel) (db: DatabaseContext) =
                 IsCancelled = @isCancelled,
                 IsExternal = @isExternal,
                 IsHidden = @isHidden,
-                IsPubliclyAvailable = @isPubliclyAvailable,
+                EventType = @eventType,
                 CloseRegistrationTime = @closeRegistrationTime,
                 CustomHexColor = @customHexColor,
                 Shortname = @shortname,
@@ -797,7 +798,7 @@ let updateEvent eventId (model: Models.EventWriteModel) (db: DatabaseContext) =
             IsCancelled = false
             IsExternal = model.IsExternal
             IsHidden = model.IsHidden
-            IsPubliclyAvailable = model.IsPubliclyAvailable
+            EventType = model.EventType.ToString()
             CloseRegistrationTime = model.CloseRegistrationTime
             CustomHexColor = model.CustomHexColor
             Shortname = model.Shortname
@@ -952,7 +953,7 @@ let createEvent (writeModel: Models.EventWriteModel) employeeId (db: DatabaseCon
                     IsExternal,
                     OrganizerId,
                     IsHidden,
-                    IsPubliclyAvailable,
+                    EventType,
                     CloseRegistrationTime,
                     CustomHexColor,
                     Shortname,
@@ -979,7 +980,7 @@ let createEvent (writeModel: Models.EventWriteModel) employeeId (db: DatabaseCon
                     @isExternal,
                     @organizerId,
                     @isHidden,
-                    @isPubliclyAvailable,
+                    @eventType,
                     @closeRegistrationTime,
                     @customHexColor,
                     @shortname,
@@ -1010,7 +1011,7 @@ let createEvent (writeModel: Models.EventWriteModel) employeeId (db: DatabaseCon
             IsExternal = writeModel.IsExternal
             OrganizerId = employeeId
             IsHidden = writeModel.IsHidden
-            IsPubliclyAvailable = writeModel.IsPubliclyAvailable
+            EventType = writeModel.EventType.ToString()
             CloseRegistrationTime = writeModel.CloseRegistrationTime
             CustomHexColor = writeModel.CustomHexColor
             Shortname = writeModel.Shortname

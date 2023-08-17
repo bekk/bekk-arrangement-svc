@@ -111,11 +111,11 @@ let generateEvent () : Models.EventWriteModel =
               true
           else
               false
-      IsPubliclyAvailable =
+      EventType =
           if faker.Hacker.Random.Bool() then
-              true
+              Sosialt
           else
-              false
+              Faglig
       Shortname =
           if faker.Random.Number(0, 5) <> 0 then
               None

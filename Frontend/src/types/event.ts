@@ -62,6 +62,8 @@ export type PickedOffice = {
   Trondheim: boolean;
 };
 
+export type EventType = 'Faglig' | 'Sosialt';
+
 export interface IEventViewModel {
   title: string;
   description: string;
@@ -80,7 +82,7 @@ export interface IEventViewModel {
   isCancelled: boolean;
   isExternal: boolean;
   isHidden: boolean;
-  isPubliclyAvailable: boolean;
+  eventType: EventType;
   numberOfParticipants: number;
   shortname?: string;
   customHexColor?: string;
@@ -145,7 +147,7 @@ export interface IEvent {
   isCancelled: boolean;
   isExternal: boolean;
   isHidden: boolean;
-  isPubliclyAvailable: boolean;
+  eventType: EventType;
   numberOfParticipants: number;
   shortname?: string;
   customHexColor?: string;
@@ -171,7 +173,7 @@ export interface IEditEvent {
   isCancelled: boolean;
   isExternal: boolean;
   isHidden: boolean;
-  isPubliclyAvailable: boolean;
+  eventType: EventType;
   numberOfParticipants: number;
   shortname?: string;
   customHexColor?: string;
@@ -197,7 +199,7 @@ export const parseEditEvent = ({
   isCancelled,
   isExternal,
   isHidden,
-  isPubliclyAvailable,
+  eventType,
   numberOfParticipants,
   shortname,
   customHexColor,
@@ -224,7 +226,7 @@ export const parseEditEvent = ({
     isCancelled,
     isExternal,
     isHidden,
-    isPubliclyAvailable,
+    eventType,
     numberOfParticipants,
     shortname: parseShortname(shortname),
     customHexColor,
@@ -294,7 +296,7 @@ export const parseEventViewModel = (eventView: IEventViewModel): IEvent => {
   const isCancelled = eventView.isCancelled;
   const isExternal = eventView.isExternal;
   const isHidden = eventView.isHidden;
-  const isPubliclyAvailable = eventView.isPubliclyAvailable;
+  const eventType = eventView.eventType;
   const numberOfParticipants = eventView.numberOfParticipants;
   const shortname = parseShortname(eventView.shortname);
   const customHexColor = eventView.customHexColor;
@@ -319,7 +321,7 @@ export const parseEventViewModel = (eventView: IEventViewModel): IEvent => {
     isCancelled,
     isExternal,
     isHidden,
-    isPubliclyAvailable,
+    eventType,
     numberOfParticipants,
     shortname,
     customHexColor,
@@ -350,7 +352,7 @@ export const toEditEvent = ({
   isCancelled,
   isExternal,
   isHidden,
-  isPubliclyAvailable,
+  eventType,
   numberOfParticipants,
   shortname,
   customHexColor,
@@ -376,7 +378,7 @@ export const toEditEvent = ({
   isCancelled,
   isExternal,
   isHidden,
-  isPubliclyAvailable,
+  eventType,
   numberOfParticipants,
   shortname,
   customHexColor,
@@ -411,7 +413,7 @@ export const initialEditEvent = (email?: string, name?: string): IEditEvent => {
     isCancelled: false,
     isExternal: false,
     isHidden: false,
-    isPubliclyAvailable: false,
+    eventType: 'Sosialt',
     numberOfParticipants: 0,
     city: undefined,
     targetAudience: undefined,
