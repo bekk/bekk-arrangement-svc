@@ -13,6 +13,7 @@ let uriBuilder path = UriBuilder($"{basePath}/{path}")
 let private extraCoders =
     Extra.empty
     |> Extra.withCustom Models.Office.encoder Models.Office.decoder
+    |> Extra.withCustom Models.EventType.encoder Models.EventType.decoder
     |> Extra.withCustom DateTimeCustom.DateTimeCustom.encoder DateTimeCustom.DateTimeCustom.decoder
     |> Extra.withInt64
 

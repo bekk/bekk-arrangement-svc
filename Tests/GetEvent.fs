@@ -408,33 +408,28 @@ type GetEvent(fixture: DatabaseFixture) =
         }
 
     [<Fact>]
-     member _.``Public events only return external or publicly available events``() =
+     member _.``Public events does not return social events``() =
         task {
             for _ in 0..4 do
                 let event =
                     TestData.createEvent (fun e ->
                         { e with
                             IsExternal = false
-                            IsPubliclyAvailable = false })
+                            EventType = Sosialt })
 
                 let! _, _ = Helpers.createEvent authenticatedClient event
                 ()
-            
-            let externalEvent = TestData.createEvent (fun e -> 
-                { e with 
-                    IsExternal = true 
-                    IsPubliclyAvailable = false})
-            let! _, _ = Helpers.createEvent authenticatedClient externalEvent
 
-            let publiclyAvailableEvent = TestData.createEvent (fun e -> 
+            let fagligEvent = TestData.createEvent (fun e -> 
                 { e with 
                     IsExternal = false 
-                    IsPubliclyAvailable = true})
-            let! _, _ = Helpers.createEvent authenticatedClient publiclyAvailableEvent
+                    EventType = Faglig})
+
+            let! _, _ = Helpers.createEvent authenticatedClient fagligEvent
             
             let! _, body = Helpers.getPublicEvents unauthenticatedClient
 
-            Assert.NotEmpty((List.filter (fun (event: EventSummary) -> event.IsExternal = true || event.IsPubliclyAvailable = true) body))
-            Assert.Empty((List.filter (fun (event: EventSummary) -> event.IsExternal = false && event.IsPubliclyAvailable = false) body))
+            Assert.NotEmpty((List.filter (fun (event: EventSummary) -> event.EventType = Faglig) body))
+            Assert.Empty((List.filter (fun (event: EventSummary) -> event.EventType = Sosialt) body))
         }
         

@@ -131,6 +131,25 @@ module Office =
         )
     let encoder (office: Office) = Encode.string (office.ToString())
 
+[<AutoOpen>]
+module EventType =
+    type EventType =
+        | Faglig
+        | Sosialt
+        with override this.ToString() =
+                match this with
+                | Faglig -> "Faglig"
+                | Sosialt -> "Sosialt"
+    let decoder: Decoder<EventType> =
+        Decode.string
+        |> Decode.andThen (fun value ->
+            match value with
+            | "Faglig" -> Decode.succeed Faglig
+            | "Sosialt" -> Decode.succeed Sosialt
+            | _ -> Decode.fail "Ugyldig arrangementstype"
+        )
+    let encoder (eventType: EventType) = Encode.string (eventType.ToString())
+
 type EventWriteModel =
     { Title: string
       Description: string
@@ -152,7 +171,7 @@ type EventWriteModel =
       HasWaitingList: bool
       IsExternal: bool
       IsHidden: bool
-      IsPubliclyAvailable: bool
+      EventType: EventType
       Shortname: string option
       CustomHexColor: string option
       Offices: Option<Office list>
@@ -190,12 +209,14 @@ module EventWriteModel =
               HasWaitingList = get.Required.Field "hasWaitingList" Decode.bool
               IsExternal = get.Required.Field "isExternal" Decode.bool
               IsHidden = get.Required.Field "isHidden" Decode.bool
-              IsPubliclyAvailable = get.Required.Field "isPubliclyAvailable" Decode.bool
+              EventType = get.Required.Field "eventType" EventType.decoder
               CustomHexColor = get.Optional.Field "customHexColor"
                           (Decode.string |> Decode.andThen Validate.customHexColor)
               Shortname =  get.Optional.Field "shortname"
                           (Decode.string |> Decode.andThen Validate.shortname)
               Offices = get.Optional.Field "offices" (Decode.list Office.decoder) })
+
+
 
 [<CLIMutable>]
 type Event =
@@ -219,7 +240,7 @@ type Event =
       IsCancelled: bool
       IsExternal: bool
       IsHidden: bool
-      IsPubliclyAvailable: bool
+      EventType: EventType
       EditToken: Guid
       OrganizerId: int
       CustomHexColor: string option
@@ -261,7 +282,7 @@ type EventSummary = {
     Title: string
     StartDate: DateTime
     IsExternal: bool
-    IsPubliclyAvailable: bool
+    EventType: EventType
     City: string option
     TargetAudience: string option
 }
@@ -299,7 +320,7 @@ module Event =
                 "isCancelled", Encode.bool event.IsCancelled
                 "isExternal", Encode.bool event.IsExternal
                 "isHidden", Encode.bool event.IsHidden
-                "isPubliclyAvailable", Encode.bool event.IsPubliclyAvailable
+                "eventType", EventType.encoder event.EventType
                 "organizerId", Encode.int event.OrganizerId
                 if event.Shortname.IsSome then
                     "shortname", Encode.string event.Shortname.Value
@@ -321,7 +342,7 @@ module Event =
                 "title", Encode.string event.Title
                 "startDate", Encode.datetime event.StartDate
                 "isExternal", Encode.bool event.IsExternal
-                "isPubliclyAvailable", Encode.bool event.IsPubliclyAvailable
+                "eventType", EventType.encoder event.EventType
                 if event.City.IsSome then
                     "city", Encode.string event.City.Value
                 if event.TargetAudience.IsSome then
