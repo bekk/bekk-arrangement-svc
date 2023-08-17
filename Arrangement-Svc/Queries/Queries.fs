@@ -150,7 +150,7 @@ let getPublicEvents (db: DatabaseContext) =
 
         let parameters = {|
             sixMonthsAgo = DateTime.Now.Date.AddMonths(-6)
-            eventType = Models.EventType.EventType.Sosialt.ToString()
+            eventType = Models.EventType.EventType.Faglig.ToString()
         |}
 
         try

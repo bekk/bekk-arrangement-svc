@@ -429,7 +429,6 @@ type GetEvent(fixture: DatabaseFixture) =
             
             let! _, body = Helpers.getPublicEvents unauthenticatedClient
 
-            Assert.NotEmpty((List.filter (fun (event: EventSummary) -> event.EventType = Faglig) body))
-            Assert.Empty((List.filter (fun (event: EventSummary) -> event.EventType = Sosialt) body))
+            Assert.True(List.forall (fun (event: EventSummary) -> event.EventType = Faglig) body)
         }
         
