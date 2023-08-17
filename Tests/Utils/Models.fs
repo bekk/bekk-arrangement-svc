@@ -38,13 +38,13 @@ type InnerEvent = { Id: string
 type CreatedEvent =
     { EditToken: string
       Event: InnerEvent }
-    
+
 type InnerParticipant =
     { Name: string
       Email: string
       EmployeeId: int option
       QuestionAndAnswers: QuestionAndAnswer list }
-    
+
 type CreatedParticipant =
     { Participant: InnerParticipant
       CancellationToken: string }
@@ -57,7 +57,7 @@ let questionAndAnswerDecoder: Decoder<QuestionAndAnswer> =
     Decode.object (fun get ->
         { Question = get.Required.Field "question" Decode.string
           Answer = get.Required.Field "answer" Decode.string })
-    
+
 let participantAndAnswerDecoder: Decoder<ParticipantAndAnswers> =
     Decode.object (fun get ->
         { Name = get.Required.Field "name" Decode.string
@@ -134,7 +134,7 @@ type ResponseBody =
 let getCreatedEvent (responseBody: ResponseBody): CreatedEvent =
     match responseBody with
     | CreatedEvent createdEvent -> createdEvent
-    | _ -> failwith "Not a valid created event model"
+    | error -> failwith $"Not a valid created event model: {error}"
 
 let useCreatedEvent (responseBody: ResponseBody) (f: CreatedEvent -> unit) =
     responseBody

@@ -980,7 +980,7 @@ let createEvent (writeModel: Models.EventWriteModel) employeeId (db: DatabaseCon
                     @isExternal,
                     @organizerId,
                     @isHidden,
-                    @isPubliclyAvailable,
+                    @eventType,
                     @closeRegistrationTime,
                     @customHexColor,
                     @shortname,
