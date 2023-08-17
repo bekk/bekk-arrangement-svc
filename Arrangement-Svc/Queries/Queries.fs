@@ -145,7 +145,7 @@ let getPublicEvents (db: DatabaseContext) =
             WHERE EndDate >= @sixMonthsAgo
                 And IsCancelled = 0
                 AND IsHidden = 0
-                AND (IsPubliclyAvailable = 1 OR IsExternal = 1)
+                AND IsPubliclyAvailable = 1
             "
 
         let parameters = {|
