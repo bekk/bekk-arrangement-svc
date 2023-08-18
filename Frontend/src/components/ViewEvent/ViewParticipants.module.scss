@@ -11,6 +11,12 @@
   }
 }
 
+.hideOnMobile {
+    @media only screen and (max-width: #{$desktopMinWidth}){
+        display: none !important;
+    }
+}
+
 .table {
   @include regularText;
   font-size: 16px;
