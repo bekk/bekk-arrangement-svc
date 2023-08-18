@@ -175,6 +175,8 @@ function hasPermission(permission: string): boolean {
 
 const readPermission = 'read:arrangement';
 const adminPermission = 'admin:arrangement';
+const salesPermission = 'readWrite:prognosis';
 
 export const userIsLoggedIn = () => hasPermission(readPermission);
 export const userIsAdmin = () => hasPermission(adminPermission);
+export const userIsSales = () => hasPermission(salesPermission);
