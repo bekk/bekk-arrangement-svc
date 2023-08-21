@@ -127,7 +127,16 @@ const ParticipantTableDesktop = (props: {
     : true;
   const questions = (hasLoaded(event) && event.data.participantQuestions) || [];
   const [wasCopied, setWasCopied] = useState(false);
-  const [showModal, setShowModal] = useState<IParticipant | null>(null);
+  const [showDeleteParticipantModal, setShowDeleteParticipantModal] =
+    useState<IParticipant | null>(null);
+  const [showCopyQuestionsModal, setShowQuestionsModal] = useState<
+    string[] | null
+  >(null);
+
+  const questionsAndAnswers = props.participants.map(
+    (participant) => (participant as any).questionAndAnswers
+  );
+
   const copyAttendees = async () => {
     await navigator.clipboard.writeText(
       props.participants.map((p) => p.name).join(', ')
@@ -147,6 +156,10 @@ const ParticipantTableDesktop = (props: {
     }, 3000);
   };
 
+  const showQuestionsModal = () => {
+    setShowQuestionsModal(questions);
+  };
+
   if (!hasLoaded(event)) return <></>;
 
   return (
@@ -155,6 +168,11 @@ const ParticipantTableDesktop = (props: {
         Kopier deltakernavn til utklippstavle
       </Button>
       <Button onClick={copyEmails}>Kopier eposter til utklippstavle</Button>
+      {questions.length > 0 && (
+        <Button onClick={showQuestionsModal}>
+          Kopier svar til utklippstavle
+        </Button>
+      )}
       {wasCopied && 'Kopiert!'}
       <table className={style.table}>
         <thead>
@@ -192,7 +210,7 @@ const ParticipantTableDesktop = (props: {
               <td className={style.desktopCell}>
                 <button
                   className={style.deleteParticipantButton}
-                  onClick={() => setShowModal(attendee)}>
+                  onClick={() => setShowDeleteParticipantModal(attendee)}>
                   <Plus title="Meld av" />
                 </button>
               </td>
@@ -200,12 +218,18 @@ const ParticipantTableDesktop = (props: {
           ))}
         </tbody>
       </table>
-      {showModal !== null && (
+      {showDeleteParticipantModal !== null && (
         <DeleteParticipantModal
           eventId={props.eventId}
           eventName={event.data.title}
-          participant={showModal}
-          closeModal={() => setShowModal(null)}
+          participant={showDeleteParticipantModal}
+          closeModal={() => setShowDeleteParticipantModal(null)}
+        />
+      )}
+      {showCopyQuestionsModal !== null && (
+        <CopyQuestionsModal
+          questionsAndAnswers={questionsAndAnswers}
+          closeModal={() => setShowQuestionsModal(null)}
         />
       )}
     </>
@@ -264,6 +288,44 @@ const DeleteParticipantModal = ({
             closeModal();
           }}>
           Meld av
+        </Button>
+      </div>
+    </Modal>
+  );
+};
+
+const CopyQuestionsModal = ({
+  questionsAndAnswers,
+  closeModal,
+}: {
+  questionsAndAnswers: { question: string; answer: string }[];
+  closeModal: () => void;
+}) => {
+  console.log(questionsAndAnswers);
+  const questionsWithAnswers = [
+    ...new Set(
+      questionsAndAnswers
+        .filter((qAndA) => qAndA.answer !== '')
+        .map((qAndA) => qAndA.question)
+    ),
+  ];
+
+  return (
+    <Modal header={'Eksporter svar på spørsmål'} closeModal={closeModal}>
+      <div className={style.modalContent}>
+        <div>
+          <p>Hei</p>
+        </div>
+      </div>
+      <div className={style.deleteParticipantModalContainer}>
+        <Button
+          color={'Secondary'}
+          className={style.modalButton}
+          onClick={closeModal}>
+          Avbryt
+        </Button>
+        <Button className={style.modalButton} onClick={closeModal}>
+          Kopier
         </Button>
       </div>
     </Modal>
