@@ -1,5 +1,6 @@
 namespace Tests.SendMailOnUpdateEvent
 
+open System
 open Tests
 open Xunit
 
@@ -176,4 +177,19 @@ type General(fixture: DatabaseFixture) =
             Assert.Contains(data.UpdatedEvent.OrganizerEmail, actual)
             Assert.False(actual.Contains(data.CreatedEvent.Event.OrganizerName))
             Assert.False(actual.Contains(data.CreatedEvent.Event.OrganizerEmail))
+        }
+
+
+    [<Fact>]
+    member _.``Changing something in old event does not send email``() =
+        task {
+            let! data =
+                init (fun ev ->
+                    { ev with
+                        StartDate = Generator.generateDateTimeCustomPast()
+                        Location = ev.Location + "_NEW_LOCATION" // just to trigger email
+                        OrganizerName = "ORGANIZER_" + Generator.generateName ()
+                        OrganizerEmail = "ORGANIZER_EMAIL_" + Generator.generateEmail () })
+
+            Assert.Equal(data.Message, None)
         }

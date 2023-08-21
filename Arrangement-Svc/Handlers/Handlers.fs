@@ -250,7 +250,7 @@ let getEventsSummary =
                        |> Encode.seq
             }
         jsonResult result next context
-        
+
 let getPublicEvents =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
@@ -676,19 +676,20 @@ let updateEvent (eventId: Guid) =
                         |> TaskResult.mapError InternalError
                     db.Commit()
 
-                    sendEmailToNewParticipants
-                        oldEvent.Event.MaxParticipants
-                        writeModel.MaxParticipants
-                        oldEventParticipants
-                        updatedEvent
-                        context
+                    if writeModel.StartDate > DateTimeCustom.now() then
+                        sendEmailToNewParticipants
+                            oldEvent.Event.MaxParticipants
+                            writeModel.MaxParticipants
+                            oldEventParticipants
+                            updatedEvent
+                            context
 
-                    sendUpdateEmailToOldParticipants
-                        oldEvent.Event
-                        updatedEvent
-                        oldEventParticipants
-                        writeModel.CancelParticipationUrlTemplate
-                        context
+                        sendUpdateEmailToOldParticipants
+                            oldEvent.Event
+                            updatedEvent
+                            oldEventParticipants
+                            writeModel.CancelParticipationUrlTemplate
+                            context
 
                     let eventAndQuestions = { Event = updatedEvent; NumberOfParticipants = None; Questions = eventQuestions }
                     return Event.encodeEventAndQuestions eventAndQuestions
