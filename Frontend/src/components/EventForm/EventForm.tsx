@@ -795,7 +795,7 @@ const helpText = {
   externalEventRed:
     'Eksterne kan ikke se de påmeldtes e-postadresser eller navn.',
   hiddenEvent:
-    'Arrangementet vil ikke dukke opp i oversikten over arrangementer eller på forsiden.',
+    'Arrangementet vil ikke dukke opp på landingssiden, forside.bekk.no eller www.bekk.no.',
 };
 
 const buttonText = {
