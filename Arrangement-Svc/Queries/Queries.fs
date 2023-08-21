@@ -130,6 +130,37 @@ let getEventsSummary (db: DatabaseContext) =
             return Error ex
     }
 
+let getPublicEvents (db: DatabaseContext) =
+    task {
+        let query =
+            "
+            SELECT E.Id,
+                   E.Title,
+                   E.StartDate,
+                   E.IsExternal,
+                   E.City,
+                   E.TargetAudience,
+                   E.EventType
+            FROM Events E
+            WHERE EndDate >= @sixMonthsAgo
+                And IsCancelled = 0
+                AND IsHidden = 0
+                AND EventType = @eventType
+            "
+
+        let parameters = {|
+            sixMonthsAgo = DateTime.Now.Date.AddMonths(-6)
+            eventType = Models.EventType.EventType.Faglig.ToString()
+        |}
+
+        try
+            let! result = db.Connection.QueryAsync<Models.EventSummary>(query, parameters, db.Transaction)
+            return Ok result
+        with
+        | ex ->
+            return Error ex
+    }
+
 let private getEventAndParticipantQuestions query numParticipantsQuery (parameters: obj) (db: DatabaseContext) =
     task {
         try
@@ -171,7 +202,7 @@ let private getEventAndParticipantQuestions query numParticipantsQuery (paramete
             return Error ex
     }
 
-// Denne querien returnerer alle events som ikke er ferdig enda
+// Denne querien returnerer alle events som ikke er gjennomført enda
 // Gjemte arrangementer vises kun dersom man arrangerer de eller deltar på de
 let getFutureEvents (employeeId: int) (db: DatabaseContext) =
     task {
@@ -190,12 +221,14 @@ let getFutureEvents (employeeId: int) (db: DatabaseContext) =
                    E.Title,
                    E.Description,
                    E.Location,
+                   E.City,
                    E.OrganizerName,
                    E.OrganizerEmail,
                    E.StartDate,
                    E.StartTime,
                    E.EndDate,
                    E.EndTime,
+                   E.TargetAudience,
                    E.MaxParticipants,
                    E.OrganizerEmail,
                    E.OpenForRegistrationTime,
@@ -205,6 +238,7 @@ let getFutureEvents (employeeId: int) (db: DatabaseContext) =
                    E.IsExternal,
                    E.OrganizerId,
                    E.IsHidden,
+                   E.EventType,
                    E.CloseRegistrationTime,
                    E.CustomHexColor,
                    E.Shortname,
@@ -257,12 +291,14 @@ let getPastEvents (employeeId: int) (db: DatabaseContext) =
                    E.Title,
                    E.Description,
                    E.Location,
+                   E.City,
                    E.OrganizerName,
                    E.OrganizerEmail,
                    E.StartDate,
                    E.StartTime,
                    E.EndDate,
                    E.EndTime,
+                   E.TargetAudience,
                    E.MaxParticipants,
                    E.OrganizerEmail,
                    E.OpenForRegistrationTime,
@@ -272,6 +308,7 @@ let getPastEvents (employeeId: int) (db: DatabaseContext) =
                    E.IsExternal,
                    E.OrganizerId,
                    E.IsHidden,
+                   E.EventType,
                    E.CloseRegistrationTime,
                    E.CustomHexColor,
                    E.Shortname,
@@ -313,12 +350,14 @@ let getEventsOrganizedByEmail (email: string) (db : DatabaseContext) =
                    E.Title,
                    E.Description,
                    E.Location,
+                   E.City,
                    E.OrganizerName,
                    E.OrganizerEmail,
                    E.StartDate,
                    E.StartTime,
                    E.EndDate,
                    E.EndTime,
+                   E.TargetAudience,
                    E.MaxParticipants,
                    E.OrganizerEmail,
                    E.OpenForRegistrationTime,
@@ -328,6 +367,7 @@ let getEventsOrganizedByEmail (email: string) (db : DatabaseContext) =
                    E.IsExternal,
                    E.OrganizerId,
                    E.IsHidden,
+                   E.EventType,
                    E.CloseRegistrationTime,
                    E.CustomHexColor,
                    E.Shortname,
@@ -365,12 +405,14 @@ let getEventsOrganizedById (id: int) (db: DatabaseContext) =
                    E.Title,
                    E.Description,
                    E.Location,
+                   E.City,
                    E.OrganizerName,
                    E.OrganizerEmail,
                    E.StartDate,
                    E.StartTime,
                    E.EndDate,
                    E.EndTime,
+                   E.TargetAudience,
                    E.MaxParticipants,
                    E.OrganizerEmail,
                    E.OpenForRegistrationTime,
@@ -380,6 +422,7 @@ let getEventsOrganizedById (id: int) (db: DatabaseContext) =
                    E.IsExternal,
                    E.OrganizerId,
                    E.IsHidden,
+                   E.EventType,
                    E.CloseRegistrationTime,
                    E.CustomHexColor,
                    E.Shortname,
@@ -491,12 +534,14 @@ let getEvent (eventId: Guid) (db: DatabaseContext) =
                    E.Title,
                    E.Description,
                    E.Location,
+                   E.City,
                    E.OrganizerName,
                    E.OrganizerEmail,
                    E.StartDate,
                    E.StartTime,
                    E.EndDate,
                    E.EndTime,
+                   E.TargetAudience,
                    E.MaxParticipants,
                    E.OrganizerEmail,
                    E.OpenForRegistrationTime,
@@ -506,6 +551,7 @@ let getEvent (eventId: Guid) (db: DatabaseContext) =
                    E.IsExternal,
                    E.OrganizerId,
                    E.IsHidden,
+                   E.EventType,
                    E.CloseRegistrationTime,
                    E.CustomHexColor,
                    E.Shortname,
@@ -708,11 +754,13 @@ let updateEvent eventId (model: Models.EventWriteModel) (db: DatabaseContext) =
             SET Title = @title,
                 Description = @description,
                 Location = @location,
+                City = @city,
                 OrganizerEmail = @organizerEmail,
                 StartDate = @startDate,
                 StartTime = @startTime,
                 EndDate = @endDate,
                 EndTime = @endTime,
+                TargetAudience = @targetAudience,
                 MaxParticipants = @maxParticipants,
                 OrganizerName = @organizerName,
                 OpenForRegistrationTime = @openForRegistrationTime,
@@ -720,6 +768,7 @@ let updateEvent eventId (model: Models.EventWriteModel) (db: DatabaseContext) =
                 IsCancelled = @isCancelled,
                 IsExternal = @isExternal,
                 IsHidden = @isHidden,
+                EventType = @eventType,
                 CloseRegistrationTime = @closeRegistrationTime,
                 CustomHexColor = @customHexColor,
                 Shortname = @shortname,
@@ -735,11 +784,13 @@ let updateEvent eventId (model: Models.EventWriteModel) (db: DatabaseContext) =
             Title = model.Title
             Description = model.Description
             Location = model.Location
+            City = model.City
             OrganizerEmail = model.OrganizerEmail
             StartDate = DateTimeCustom.customToDateTime model.StartDate.Date
             StartTime = DateTimeCustom.customToTimeSpan model.StartDate.Time
             EndDate = DateTimeCustom.customToDateTime model.EndDate.Date
             EndTime = DateTimeCustom.customToTimeSpan model.EndDate.Time
+            TargetAudience = model.TargetAudience
             MaxParticipants = model.MaxParticipants
             OrganizerName = model.OrganizerName
             OpenForRegistrationTime = model.OpenForRegistrationTime
@@ -747,6 +798,7 @@ let updateEvent eventId (model: Models.EventWriteModel) (db: DatabaseContext) =
             IsCancelled = false
             IsExternal = model.IsExternal
             IsHidden = model.IsHidden
+            EventType = model.EventType.ToString()
             CloseRegistrationTime = model.CloseRegistrationTime
             CustomHexColor = model.CustomHexColor
             Shortname = model.Shortname
@@ -885,11 +937,13 @@ let createEvent (writeModel: Models.EventWriteModel) employeeId (db: DatabaseCon
                     Title,
                     Description,
                     Location,
+                    City,
                     OrganizerEmail,
                     StartDate,
                     StartTime,
                     EndDate,
                     EndTime,
+                    TargetAudience,
                     MaxParticipants,
                     OrganizerName,
                     OpenForRegistrationTime,
@@ -899,6 +953,7 @@ let createEvent (writeModel: Models.EventWriteModel) employeeId (db: DatabaseCon
                     IsExternal,
                     OrganizerId,
                     IsHidden,
+                    EventType,
                     CloseRegistrationTime,
                     CustomHexColor,
                     Shortname,
@@ -909,11 +964,13 @@ let createEvent (writeModel: Models.EventWriteModel) employeeId (db: DatabaseCon
                     @title,
                     @description,
                     @location,
+                    @city,
                     @organizerEmail,
                     @startDate,
                     @startTime,
                     @endDate,
                     @endTime,
+                    @targetAudience,
                     @maxParticipants,
                     @organizerName,
                     @openForRegistrationTime,
@@ -923,6 +980,7 @@ let createEvent (writeModel: Models.EventWriteModel) employeeId (db: DatabaseCon
                     @isExternal,
                     @organizerId,
                     @isHidden,
+                    @eventType,
                     @closeRegistrationTime,
                     @customHexColor,
                     @shortname,
@@ -937,11 +995,13 @@ let createEvent (writeModel: Models.EventWriteModel) employeeId (db: DatabaseCon
             Title = writeModel.Title
             Description = writeModel.Description
             Location = writeModel.Location
+            City = writeModel.City
             OrganizerEmail = writeModel.OrganizerEmail
             StartDate = DateTimeCustom.customToDateTime writeModel.StartDate.Date
             StartTime = DateTimeCustom.customToTimeSpan writeModel.StartDate.Time
             EndDate = DateTimeCustom.customToDateTime writeModel.EndDate.Date
             EndTime = DateTimeCustom.customToTimeSpan writeModel.EndDate.Time
+            TargetAudience = writeModel.TargetAudience
             MaxParticipants = writeModel.MaxParticipants
             OrganizerName = writeModel.OrganizerName
             OpenForRegistrationTime = writeModel.OpenForRegistrationTime
@@ -951,6 +1011,7 @@ let createEvent (writeModel: Models.EventWriteModel) employeeId (db: DatabaseCon
             IsExternal = writeModel.IsExternal
             OrganizerId = employeeId
             IsHidden = writeModel.IsHidden
+            EventType = writeModel.EventType.ToString()
             CloseRegistrationTime = writeModel.CloseRegistrationTime
             CustomHexColor = writeModel.CustomHexColor
             Shortname = writeModel.Shortname

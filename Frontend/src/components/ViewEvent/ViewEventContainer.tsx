@@ -7,6 +7,7 @@ import {
   needsToAuthenticate,
   userIsAdmin,
   userIsLoggedIn,
+  userIsSales,
 } from 'src/auth';
 import { Button } from 'src/components/Common/Button/Button';
 import { DownloadIcon } from 'src/components/Common/Icons/DownloadIcon/DownloadIcon';
@@ -208,6 +209,9 @@ export const ViewEventContainer = ({ eventId }: IProps) => {
     );
   };
 
+  const canAccessParticipants =
+    editTokenFound || userIsAdmin() || userIsSales();
+
   return (
     <>
       <ViewEvent
@@ -308,13 +312,11 @@ export const ViewEventContainer = ({ eventId }: IProps) => {
               </div>
             </div>
           )}
-          {editTokenFound || userIsAdmin() ? (
+          {canAccessParticipants ? (
             <>
               <div className={style.attendeesTitleContainer}>
                 <h2 className={style.subHeader}>Påmeldte</h2>
-                {(editTokenFound || userIsAdmin()) && (
-                  <DownloadExportLink eventId={eventId} />
-                )}
+                <DownloadExportLink eventId={eventId} />
               </div>
               <p>{participantsText}</p>
               <ViewParticipants eventId={eventId} editToken={editTokenFound} />
@@ -325,7 +327,7 @@ export const ViewEventContainer = ({ eventId }: IProps) => {
               <>
                 <div className={style.attendeesTitleContainer}>
                   <h2 className={style.subHeader}>Påmeldte</h2>
-                  {(editTokenFound || userIsAdmin()) && (
+                  {canAccessParticipants && (
                     <DownloadExportLink eventId={eventId} />
                   )}
                 </div>

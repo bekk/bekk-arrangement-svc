@@ -62,6 +62,8 @@ export type PickedOffice = {
   Trondheim: boolean;
 };
 
+export type EventType = 'Faglig' | 'Sosialt';
+
 export interface IEventViewModel {
   title: string;
   description: string;
@@ -80,9 +82,12 @@ export interface IEventViewModel {
   isCancelled: boolean;
   isExternal: boolean;
   isHidden: boolean;
+  eventType: EventType;
   numberOfParticipants: number;
   shortname?: string;
   customHexColor?: string;
+  city?: string;
+  targetAudience?: string;
 }
 
 export interface IEventWriteModel {
@@ -107,6 +112,8 @@ export interface IEventWriteModel {
   isHidden: boolean;
   shortname?: string;
   customHexColor?: string;
+  city?: string;
+  targetAudience?: string;
 }
 
 type UnlimitedParticipants = ['unlimited'];
@@ -140,9 +147,12 @@ export interface IEvent {
   isCancelled: boolean;
   isExternal: boolean;
   isHidden: boolean;
+  eventType: EventType;
   numberOfParticipants: number;
   shortname?: string;
   customHexColor?: string;
+  city?: string;
+  targetAudience?: string;
 }
 
 export interface IEditEvent {
@@ -163,9 +173,12 @@ export interface IEditEvent {
   isCancelled: boolean;
   isExternal: boolean;
   isHidden: boolean;
+  eventType: EventType;
   numberOfParticipants: number;
   shortname?: string;
   customHexColor?: string;
+  city?: string;
+  targetAudience?: string;
 }
 
 export const parseEditEvent = ({
@@ -186,9 +199,12 @@ export const parseEditEvent = ({
   isCancelled,
   isExternal,
   isHidden,
+  eventType,
   numberOfParticipants,
   shortname,
   customHexColor,
+  city,
+  targetAudience,
 }: IEditEvent): IEvent | IError[] => {
   const event = {
     title: parseTitle(title),
@@ -210,9 +226,12 @@ export const parseEditEvent = ({
     isCancelled,
     isExternal,
     isHidden,
+    eventType,
     numberOfParticipants,
     shortname: parseShortname(shortname),
     customHexColor,
+    city,
+    targetAudience,
   };
 
   try {
@@ -265,7 +284,7 @@ export const parseEventViewModel = (eventView: IEventViewModel): IEvent => {
     eventView.maxParticipants !== undefined
       ? (['limited', eventView.maxParticipants.toString()] as [
           'limited',
-          string
+          string,
         ])
       : (['unlimited'] as ['unlimited'])
   );
@@ -277,9 +296,12 @@ export const parseEventViewModel = (eventView: IEventViewModel): IEvent => {
   const isCancelled = eventView.isCancelled;
   const isExternal = eventView.isExternal;
   const isHidden = eventView.isHidden;
+  const eventType = eventView.eventType;
   const numberOfParticipants = eventView.numberOfParticipants;
   const shortname = parseShortname(eventView.shortname);
   const customHexColor = eventView.customHexColor;
+  const city = eventView.city;
+  const targetAudience = eventView.targetAudience;
 
   const event = {
     title,
@@ -299,9 +321,12 @@ export const parseEventViewModel = (eventView: IEventViewModel): IEvent => {
     isCancelled,
     isExternal,
     isHidden,
+    eventType,
     numberOfParticipants,
     shortname,
     customHexColor,
+    city,
+    targetAudience,
   };
 
   assertIsValid(event);
@@ -327,9 +352,12 @@ export const toEditEvent = ({
   isCancelled,
   isExternal,
   isHidden,
+  eventType,
   numberOfParticipants,
   shortname,
   customHexColor,
+  city,
+  targetAudience,
 }: IEvent): IEditEvent => ({
   title,
   description,
@@ -350,9 +378,12 @@ export const toEditEvent = ({
   isCancelled,
   isExternal,
   isHidden,
+  eventType,
   numberOfParticipants,
   shortname,
   customHexColor,
+  city,
+  targetAudience,
 });
 
 export const initialEditEvent = (email?: string, name?: string): IEditEvent => {
@@ -382,7 +413,10 @@ export const initialEditEvent = (email?: string, name?: string): IEditEvent => {
     isCancelled: false,
     isExternal: false,
     isHidden: false,
+    eventType: 'Sosialt',
     numberOfParticipants: 0,
+    city: undefined,
+    targetAudience: undefined,
   };
 };
 

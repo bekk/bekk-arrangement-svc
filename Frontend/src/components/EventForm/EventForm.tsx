@@ -34,6 +34,8 @@ import { datesInOrder, EditDate, parseEditDate } from 'src/types/date';
 import { EditTime, parseEditTime, toEditTime } from 'src/types/time';
 import { InfoBox } from 'src/components/Common/InfoBox/InfoBox';
 import { CheckBox } from 'src/components/Common/Checkbox/CheckBox';
+import { TextInput } from '../Common/TextInput/TextInput';
+import { RadioButton } from '../Common/RadioButton/RadioButton';
 
 interface IProps {
   eventResult: IEditEvent;
@@ -98,6 +100,27 @@ export const EventForm = ({ eventResult: event, updateEvent }: IProps) => {
             }
           />
         </div>
+        <fieldset className={style.eventType}>
+          <legend className={style.textLabel}>{labels.eventType}</legend>
+          <RadioButton
+            label="Faglig"
+            onChange={(isActive) => {
+              if (isActive) {
+                updateEvent({ ...event, eventType: 'Faglig' });
+              }
+            }}
+            checked={event.eventType === 'Faglig'}
+          />
+          <RadioButton
+            label="Sosialt"
+            onChange={(isActive) => {
+              if (isActive) {
+                updateEvent({ ...event, eventType: 'Sosialt' });
+              }
+            }}
+            checked={event.eventType === 'Sosialt'}
+          />
+        </fieldset>
         <div>
           <ValidatedTextInput
             label={labels.location}
@@ -113,33 +136,52 @@ export const EventForm = ({ eventResult: event, updateEvent }: IProps) => {
             }
           />
         </div>
-        <div className={style.office}>
-          <CheckBox
-            onChange={() =>
+        <div>
+          <TextInput
+            label={labels.city}
+            placeholder={placeholders.city}
+            value={event.city ?? ''}
+            onLightBackground
+            onChange={(city) =>
               updateEvent({
                 ...event,
-                offices: {
-                  Oslo: !event.offices?.Oslo,
-                  Trondheim: event.offices?.Trondheim || false,
-                },
+                city,
               })
             }
-            isChecked={event.offices?.Oslo || false}
-            label="Oslo"
           />
-          <CheckBox
-            onChange={() =>
-              updateEvent({
-                ...event,
-                offices: {
-                  Oslo: event.offices?.Oslo || false,
-                  Trondheim: !event.offices?.Trondheim,
-                },
-              })
-            }
-            isChecked={event.offices?.Trondheim || false}
-            label="Trondheim"
-          />
+        </div>
+        <div>
+          <label className={style.textLabel} htmlFor="office">
+            Kontor
+          </label>
+          <fieldset id="office" className={style.office}>
+            <CheckBox
+              onChange={() =>
+                updateEvent({
+                  ...event,
+                  offices: {
+                    Oslo: !event.offices?.Oslo,
+                    Trondheim: event.offices?.Trondheim || false,
+                  },
+                })
+              }
+              isChecked={event.offices?.Oslo || false}
+              label="Oslo"
+            />
+            <CheckBox
+              onChange={() =>
+                updateEvent({
+                  ...event,
+                  offices: {
+                    Oslo: event.offices?.Oslo || false,
+                    Trondheim: !event.offices?.Trondheim,
+                  },
+                })
+              }
+              isChecked={event.offices?.Trondheim || false}
+              label="Trondheim"
+            />
+          </fieldset>
         </div>
         <div>
           <div
@@ -245,6 +287,20 @@ export const EventForm = ({ eventResult: event, updateEvent }: IProps) => {
             onLightBackground>
             {isMultiDayEvent ? buttonText.removeEndDate : buttonText.addEndDate}
           </Button>
+        </div>
+        <div>
+          <TextInput
+            label={labels.targetAudience}
+            placeholder={placeholders.targetAudience}
+            value={event.targetAudience ?? ''}
+            onLightBackground
+            onChange={(targetAudience) =>
+              updateEvent({
+                ...event,
+                targetAudience,
+              })
+            }
+          />
         </div>
         <div>
           <ValidatedTextArea
@@ -698,8 +754,10 @@ const labels = {
   endTime: 'Til*',
   endDate: 'Arrangementet slutter*',
   timeWithEndDate: 'Kl*',
-  location: 'Lokasjon*',
+  location: 'Adresse/lokasjon*',
+  city: 'By',
   description: 'Beskrivelse*',
+  targetAudience: 'Hvem er arrangementet for?',
   organizerName: 'Navn på arrangør*',
   organizerEmail: 'Arrangørens e-post*',
   registrationStartDate: 'Påmelding åpner*',
@@ -710,6 +768,7 @@ const labels = {
   waitingList: 'Venteliste',
   externalEvent: 'Eksternt arrangement',
   hiddenEvent: 'Skjul arrangementet fra oversikten',
+  eventType: 'Hvilken type arrangement er dette?',
   participantQuestion: 'Spørsmål til deltakerne*',
   shortname: 'Lag en penere URL for arrangementet',
   program: 'Program',
@@ -718,10 +777,12 @@ const labels = {
 const placeholders = {
   title: 'Navn på arrangementet ditt',
   location: 'Eventyrland',
+  city: 'Gondor',
   description:
     '# Overskrift\n\nVi støtter litt pseudomarkdown!\n\n- bullet points med bindestrek (-)\n- overskrifter med skigard (#)\n- du kan også paste inn linker direkte',
   organizerName: 'Kari Nordmann*',
   organizerEmail: 'kari.nordmann@bekk.no',
+  targetAudience: 'Bransje, kunder og studenter',
   participantQuestion: 'Allergier, preferanser eller noe annet på hjertet?',
   limitSpots: 'F.eks. 10',
   program:

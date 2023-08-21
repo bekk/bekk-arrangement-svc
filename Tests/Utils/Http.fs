@@ -13,6 +13,7 @@ let uriBuilder path = UriBuilder($"{basePath}/{path}")
 let private extraCoders =
     Extra.empty
     |> Extra.withCustom Models.Office.encoder Models.Office.decoder
+    |> Extra.withCustom Models.EventType.encoder Models.EventType.decoder
     |> Extra.withCustom DateTimeCustom.DateTimeCustom.encoder DateTimeCustom.DateTimeCustom.decoder
     |> Extra.withInt64
 
@@ -48,6 +49,15 @@ let requestDecode<'a, 'b> client (decoder: Decoder<'a>) url (body: 'b option) me
         let! response, content = request client url body method
         let decode =
             Decode.fromString decoder content
+            |> Result.mapError(fun _ -> decodeUserMessage content)
+        return response, decode
+    }
+
+let requestDecodeList<'a, 'b> client (decoder: Decoder<'a>) url (body: 'b option) method =
+    task {
+        let! response, content = request client url body method
+        let decode =
+            Decode.fromString (Decode.list decoder) content
             |> Result.mapError(fun _ -> decodeUserMessage content)
         return response, decode
     }
@@ -119,6 +129,7 @@ let getEventIdByShortname (client: HttpClient) (shortname: string) =
         builder.ToString()
 
     request client url None HttpMethod.Get
+    
 
 let getParticipationsForEvent (client: HttpClient) email =
     requestDecode
@@ -130,6 +141,9 @@ let getParticipationsForEvent (client: HttpClient) email =
 
 let getParticipationsAndWaitlist (client: HttpClient) eventId =
     requestDecode client participationsAndWaitingListDecoder $"/events/{eventId}/participants" None HttpMethod.Get
+
+let getPublicEvents (client: HttpClient) =
+    requestDecodeList client publicEventDecoder $"/events/public" None HttpMethod.Get
 
 let deleteParticipantFromEvent (client: HttpClient) eventId email =
     request client $"/events/{eventId}/participants/{email}" None HttpMethod.Delete

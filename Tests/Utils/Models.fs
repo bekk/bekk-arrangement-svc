@@ -21,6 +21,7 @@ type Event = {
     IsCancelled: bool
     IsExternal: bool
     IsHidden: bool
+    EventType: EventType
     NumberOfParticipants: int
     Shortname: string option
     CustomHexColor: string option
@@ -37,13 +38,13 @@ type InnerEvent = { Id: string
 type CreatedEvent =
     { EditToken: string
       Event: InnerEvent }
-    
+
 type InnerParticipant =
     { Name: string
       Email: string
       EmployeeId: int option
       QuestionAndAnswers: QuestionAndAnswer list }
-    
+
 type CreatedParticipant =
     { Participant: InnerParticipant
       CancellationToken: string }
@@ -56,7 +57,7 @@ let questionAndAnswerDecoder: Decoder<QuestionAndAnswer> =
     Decode.object (fun get ->
         { Question = get.Required.Field "question" Decode.string
           Answer = get.Required.Field "answer" Decode.string })
-    
+
 let participantAndAnswerDecoder: Decoder<ParticipantAndAnswers> =
     Decode.object (fun get ->
         { Name = get.Required.Field "name" Decode.string
@@ -79,6 +80,17 @@ let innerEventDecoder: Decoder<InnerEvent> =
           OrganizerEmail = get.Required.Field "organizerEmail" Decode.string
           OrganizerName = get.Required.Field "organizerName" Decode.string
           OrganizerId = get.Required.Field "organizerId" Decode.int
+          })
+
+let publicEventDecoder: Decoder<EventSummary> =
+    Decode.object (fun get ->
+        { Id = get.Required.Field "id" Decode.guid
+          Title = get.Required.Field "title" Decode.string
+          City = get.Optional.Field "city" Decode.string
+          TargetAudience = get.Optional.Field "targetAudience" Decode.string
+          StartDate = get.Required.Field "startDate" Decode.datetime
+          IsExternal = get.Required.Field "isExternal" Decode.bool
+          EventType = get.Required.Field "eventType" decoder
           })
 
 let createdEventDecoder: Decoder<CreatedEvent> =
@@ -122,7 +134,7 @@ type ResponseBody =
 let getCreatedEvent (responseBody: ResponseBody): CreatedEvent =
     match responseBody with
     | CreatedEvent createdEvent -> createdEvent
-    | _ -> failwith "Not a valid created event model"
+    | error -> failwith $"Not a valid created event model: {error}"
 
 let useCreatedEvent (responseBody: ResponseBody) (f: CreatedEvent -> unit) =
     responseBody

@@ -163,7 +163,7 @@ const ParticipantTableDesktop = (props: {
   if (!hasLoaded(event)) return <></>;
 
   return (
-    <>
+    <div className={style.hideOnMobile}>
       <Button onClick={copyAttendees}>
         Kopier deltakernavn til utklippstavle
       </Button>
@@ -232,7 +232,7 @@ const ParticipantTableDesktop = (props: {
           closeModal={() => setShowQuestionsModal(null)}
         />
       )}
-    </>
+    </div>
   );
 };
 
