@@ -239,25 +239,26 @@ const CopyQuestionsModal = ({
   questionsAndAnswers: { question: string; answer: string }[][];
   closeModal: () => void;
 }) => {
-  const questionsWithValidAnswers: { question: string; answer: string }[] =
+  const questionsAndValidAnswers: { question: string; answer: string }[] =
     questionsAndAnswers
       .map((questions) => questions.filter((qAndA) => qAndA.answer.length > 0))
       .flat();
 
-  const eventQuestionsWithValidAnswers = [
-    ...new Set(questionsWithValidAnswers.map((qAndA) => qAndA.question)),
+  const eventQuestions = [
+    ...new Set(questionsAndValidAnswers.map((qAndA) => qAndA.question)),
   ];
 
   const [selectedQuestion, setSelectedQuestion] = useState<string>(
-    eventQuestionsWithValidAnswers[0]
+    eventQuestions[0]
   );
 
   const copyQuestions = () => {
     var answers = '';
-    const counter = 1;
-    for (let qAndA of questionsWithValidAnswers) {
+    var counter = 1;
+    for (let qAndA of questionsAndValidAnswers) {
       if (qAndA.question !== selectedQuestion) continue;
       answers += `Deltaker ${counter}: ${qAndA.answer}, \n`;
+      counter += 1;
     }
     navigator.clipboard.writeText(answers);
     closeModal();
@@ -267,7 +268,7 @@ const CopyQuestionsModal = ({
     <Modal header={'Eksporter svar på spørsmål'} closeModal={closeModal}>
       <div className={style.modalContent}>
         <div>
-          {eventQuestionsWithValidAnswers.map((question) => (
+          {eventQuestions.map((question) => (
             <RadioButton
               onChange={() => setSelectedQuestion(question)}
               checked={selectedQuestion == question}
