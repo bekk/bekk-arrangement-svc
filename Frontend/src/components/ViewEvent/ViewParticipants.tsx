@@ -256,8 +256,8 @@ const CopyQuestionsModal = ({
     var answers = '';
     const counter = 1;
     for (let qAndA of questionsWithValidAnswers) {
-      if (qAndA.question != selectedQuestion) break;
-      answers += `Deltaker ${counter}: ${qAndA.answer},`;
+      if (qAndA.question !== selectedQuestion) continue;
+      answers += `Deltaker ${counter}: ${qAndA.answer}, \n`;
     }
     navigator.clipboard.writeText(answers);
     closeModal();
