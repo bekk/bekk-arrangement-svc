@@ -12,6 +12,7 @@ import { deleteParticipant } from 'src/api/arrangementSvc';
 import { useNotification } from '../NotificationHandler/NotificationHandler';
 import { useHistory } from 'react-router';
 import { Plus } from '../Common/Icons/Plus';
+import { RadioButton } from '../Common/RadioButton/RadioButton';
 
 interface IProps {
   eventId: string;
@@ -129,9 +130,8 @@ const ParticipantTableDesktop = (props: {
   const [wasCopied, setWasCopied] = useState(false);
   const [showDeleteParticipantModal, setShowDeleteParticipantModal] =
     useState<IParticipant | null>(null);
-  const [showCopyQuestionsModal, setShowQuestionsModal] = useState<
-    string[] | null
-  >(null);
+  const [showCopyQuestionsModal, setShowQuestionsModal] =
+    useState<boolean>(false);
 
   const questionsAndAnswers = props.participants.map(
     (participant) => (participant as any).questionAndAnswers
@@ -156,10 +156,6 @@ const ParticipantTableDesktop = (props: {
     }, 3000);
   };
 
-  const showQuestionsModal = () => {
-    setShowQuestionsModal(questions);
-  };
-
   if (!hasLoaded(event)) return <></>;
 
   return (
@@ -169,7 +165,7 @@ const ParticipantTableDesktop = (props: {
       </Button>
       <Button onClick={copyEmails}>Kopier eposter til utklippstavle</Button>
       {questions.length > 0 && (
-        <Button onClick={showQuestionsModal}>
+        <Button onClick={() => setShowQuestionsModal(true)}>
           Kopier svar til utklippstavle
         </Button>
       )}
@@ -226,13 +222,71 @@ const ParticipantTableDesktop = (props: {
           closeModal={() => setShowDeleteParticipantModal(null)}
         />
       )}
-      {showCopyQuestionsModal !== null && (
+      {showCopyQuestionsModal && (
         <CopyQuestionsModal
           questionsAndAnswers={questionsAndAnswers}
-          closeModal={() => setShowQuestionsModal(null)}
+          closeModal={() => setShowQuestionsModal(false)}
         />
       )}
     </div>
+  );
+};
+
+const CopyQuestionsModal = ({
+  questionsAndAnswers,
+  closeModal,
+}: {
+  questionsAndAnswers: { question: string; answer: string }[][];
+  closeModal: () => void;
+}) => {
+  const questionsWithValidAnswers: { question: string; answer: string }[] =
+    questionsAndAnswers
+      .map((questions) => questions.filter((qAndA) => qAndA.answer.length > 0))
+      .flat();
+
+  const eventQuestionsWithValidAnswers = [
+    ...new Set(questionsWithValidAnswers.map((qAndA) => qAndA.question)),
+  ];
+
+  const [selectedQuestion, setSelectedQuestion] = useState<string>(
+    eventQuestionsWithValidAnswers[0]
+  );
+
+  const copyQuestions = () => {
+    var answers = '';
+    const counter = 1;
+    for (let qAndA of questionsWithValidAnswers) {
+      if (qAndA.question != selectedQuestion) break;
+      answers += `Deltaker ${counter}: ${qAndA.answer},`;
+    }
+    navigator.clipboard.writeText(answers);
+    closeModal();
+  };
+
+  return (
+    <Modal header={'Eksporter svar på spørsmål'} closeModal={closeModal}>
+      <div className={style.modalContent}>
+        <div>
+          {eventQuestionsWithValidAnswers.map((question) => (
+            <RadioButton
+              onChange={() => setSelectedQuestion(question)}
+              checked={selectedQuestion == question}
+              label={question}></RadioButton>
+          ))}
+        </div>
+      </div>
+      <div className={style.deleteParticipantModalContainer}>
+        <Button
+          color={'Secondary'}
+          className={style.modalButton}
+          onClick={closeModal}>
+          Avbryt
+        </Button>
+        <Button className={style.modalButton} onClick={copyQuestions}>
+          Kopier
+        </Button>
+      </div>
+    </Modal>
   );
 };
 
@@ -288,44 +342,6 @@ const DeleteParticipantModal = ({
             closeModal();
           }}>
           Meld av
-        </Button>
-      </div>
-    </Modal>
-  );
-};
-
-const CopyQuestionsModal = ({
-  questionsAndAnswers,
-  closeModal,
-}: {
-  questionsAndAnswers: { question: string; answer: string }[];
-  closeModal: () => void;
-}) => {
-  console.log(questionsAndAnswers);
-  const questionsWithAnswers = [
-    ...new Set(
-      questionsAndAnswers
-        .filter((qAndA) => qAndA.answer !== '')
-        .map((qAndA) => qAndA.question)
-    ),
-  ];
-
-  return (
-    <Modal header={'Eksporter svar på spørsmål'} closeModal={closeModal}>
-      <div className={style.modalContent}>
-        <div>
-          <p>Hei</p>
-        </div>
-      </div>
-      <div className={style.deleteParticipantModalContainer}>
-        <Button
-          color={'Secondary'}
-          className={style.modalButton}
-          onClick={closeModal}>
-          Avbryt
-        </Button>
-        <Button className={style.modalButton} onClick={closeModal}>
-          Kopier
         </Button>
       </div>
     </Modal>
