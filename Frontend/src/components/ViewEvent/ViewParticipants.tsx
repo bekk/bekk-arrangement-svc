@@ -223,7 +223,7 @@ const ParticipantTableDesktop = (props: {
         />
       )}
       {showCopyQuestionsModal && (
-        <CopyQuestionsModal
+        <CopyAnswersModal
           questionsAndAnswers={questionsAndAnswers}
           closeModal={() => setShowQuestionsModal(false)}
         />
@@ -232,7 +232,7 @@ const ParticipantTableDesktop = (props: {
   );
 };
 
-const CopyQuestionsModal = ({
+const CopyAnswersModal = ({
   questionsAndAnswers,
   closeModal,
 }: {
@@ -252,7 +252,7 @@ const CopyQuestionsModal = ({
     eventQuestions[0]
   );
 
-  const copyQuestions = () => {
+  const copyAnswers = () => {
     var answers = '';
     var counter = 1;
     for (let qAndA of questionsAndValidAnswers) {
@@ -283,7 +283,7 @@ const CopyQuestionsModal = ({
           onClick={closeModal}>
           Avbryt
         </Button>
-        <Button className={style.modalButton} onClick={copyQuestions}>
+        <Button className={style.modalButton} onClick={copyAnswers}>
           Kopier
         </Button>
       </div>
