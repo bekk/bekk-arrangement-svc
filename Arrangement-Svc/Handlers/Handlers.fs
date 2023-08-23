@@ -1,5 +1,6 @@
 module Handlers
 
+open System.Text
 open Giraffe
 open System
 open System.Web
@@ -730,12 +731,16 @@ let getParticipantsForEvent (eventId: Guid) =
         jsonResult result next context
 
 let createCsvString (event: Models.Event) (questions: ParticipantQuestion list) (participants: ParticipationsAndWaitlist) =
+    let formatString (input: string) =
+        input.Replace("\n", " ")
+        |> sprintf "\"%s\""
+    
     let createParticipant (builder: System.Text.StringBuilder) (participantAndAnswers: ParticipantAndAnswers) =
         let participant = participantAndAnswers.Participant
         let questionAndAnswers = participantAndAnswers.QuestionAndAnswers
         let answers =
             questionAndAnswers
-            |> List.map (fun a -> $"\"{a.Answer}\"")
+            |> List.map (fun a -> formatString a.Answer)
             |> String.concat ","
         let employeeId =
             participant.EmployeeId
@@ -750,7 +755,7 @@ let createCsvString (event: Models.Event) (questions: ParticipantQuestion list) 
 
     let questions =
         questions
-        |> List.map (fun q -> $"\"{q.Question}\"")
+        |> List.map (fun q -> formatString q.Question)
         |> String.concat ","
 
     builder.Append($"{event.Title}\n") |> ignore
@@ -762,6 +767,12 @@ let createCsvString (event: Models.Event) (questions: ParticipantQuestion list) 
         Seq.iter (createParticipant builder) participants.WaitingList
 
     builder.ToString()
+
+let addUtf8BomToCsv (csvString: string) =
+    Array.concat [
+        Encoding.UTF8.GetPreamble()
+        Encoding.UTF8.GetBytes(csvString)
+    ]
 
 let exportParticipationsForEvent (eventId: Guid) =
     fun (next: HttpFunc) (context: HttpContext) ->
@@ -785,7 +796,9 @@ let exportParticipationsForEvent (eventId: Guid) =
                     Queries.getParticipantsAndAnswersForEvent eventId db
                     |> TaskResult.mapError InternalError
                 let participants = participationsToAttendeesAndWaitlist eventAndQuestions.Event.MaxParticipants (participations |> Seq.toList)
-                return createCsvString eventAndQuestions.Event eventAndQuestions.Questions participants
+                let csvString = createCsvString eventAndQuestions.Event eventAndQuestions.Questions participants
+                let encodedCsvString = addUtf8BomToCsv csvString
+                return encodedCsvString
             }
         csvResult eventId result next context
 
