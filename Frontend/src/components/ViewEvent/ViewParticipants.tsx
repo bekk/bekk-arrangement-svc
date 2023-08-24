@@ -3,7 +3,7 @@ import style from './ViewParticipants.module.scss';
 import { stringifyEmail } from 'src/types/email';
 import { useEvent, useParticipants } from 'src/hooks/cache';
 import { hasLoaded, isBad } from 'src/remote-data';
-import { IParticipant } from 'src/types/participant';
+import { IParticipant, IQuestionAndAnswer } from 'src/types/participant';
 import { Button } from 'src/components/Common/Button/Button';
 import { Spinner } from 'src/components/Common/Spinner/spinner';
 import { Modal } from '../Common/Modal/Modal';
@@ -133,8 +133,8 @@ const ParticipantTableDesktop = (props: {
   const [showCopyQuestionsModal, setShowQuestionsModal] =
     useState<boolean>(false);
 
-  const questionsAndAnswers = props.participants.map(
-    (participant) => (participant as any).questionAndAnswers
+  const questionsAndAnswers = props.participants.flatMap(
+    (participant) => participant.questionAndAnswers ?? []
   );
 
   const copyAttendees = async () => {
@@ -164,7 +164,7 @@ const ParticipantTableDesktop = (props: {
         Kopier deltakernavn til utklippstavle
       </Button>
       <Button onClick={copyEmails}>Kopier eposter til utklippstavle</Button>
-      {questions.length > 0 && (
+      {questionsAndAnswers.length > 0 && (
         <Button onClick={() => setShowQuestionsModal(true)}>
           Kopier svar til utklippstavle
         </Button>
@@ -236,16 +236,14 @@ const CopyAnswersModal = ({
   questionsAndAnswers,
   closeModal,
 }: {
-  questionsAndAnswers: { question: string; answer: string }[][];
+  questionsAndAnswers?: IQuestionAndAnswer[];
   closeModal: () => void;
 }) => {
-  const questionsAndValidAnswers: { question: string; answer: string }[] =
-    questionsAndAnswers
-      .map((questions) => questions.filter((qAndA) => qAndA.answer.length > 0))
-      .flat();
+  const questionsAndValidAnswers: IQuestionAndAnswer[] | undefined =
+    questionsAndAnswers?.filter((qAndA) => qAndA.answer.length > 0);
 
   const eventQuestions = [
-    ...new Set(questionsAndValidAnswers.map((qAndA) => qAndA.question)),
+    ...new Set(questionsAndValidAnswers?.map((qAndA) => qAndA.question)),
   ];
 
   const [selectedQuestion, setSelectedQuestion] = useState<string>(
@@ -253,14 +251,15 @@ const CopyAnswersModal = ({
   );
 
   const copyAnswers = () => {
-    var answers = '';
-    var counter = 1;
-    for (let qAndA of questionsAndValidAnswers) {
-      if (qAndA.question !== selectedQuestion) continue;
-      answers += `Deltaker ${counter}: ${qAndA.answer}, \n`;
-      counter += 1;
+    if (questionsAndValidAnswers !== undefined) {
+      var answers = questionsAndValidAnswers
+        .filter((qAndA) => qAndA.question === selectedQuestion)
+        .map((qAndA, index) => `Deltaker ${index + 1}: ${qAndA.answer}, \n`)
+        .join('');
+
+      navigator.clipboard.writeText(answers);
     }
-    navigator.clipboard.writeText(answers);
+
     closeModal();
   };
 
