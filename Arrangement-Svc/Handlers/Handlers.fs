@@ -528,9 +528,10 @@ let private canUpdateNumberOfParticipants (oldEvent: Models.Event) (newEvent: Mo
             else
                 Error invalidMaxParticipantValue
 
-let private canUpdateQuestions newEventQuestions (oldEventQuestions: ParticipantQuestion list) oldEventParticipants =
+let private canUpdateQuestions (newEventQuestions: ParticipantQuestionWriteModel list) (oldEventQuestions: ParticipantQuestion list) oldEventParticipants =
     let newEventQuestions =
         newEventQuestions
+        |> List.map (fun question -> question.Question)
         |> List.sort
 
     let oldEventQuestions =
@@ -734,7 +735,7 @@ let createCsvString (event: Models.Event) (questions: ParticipantQuestion list) 
     let formatString (input: string) =
         input.Replace("\n", " ")
         |> sprintf "\"%s\""
-    
+
     let createParticipant (builder: System.Text.StringBuilder) (participantAndAnswers: ParticipantAndAnswers) =
         let participant = participantAndAnswers.Participant
         let questionAndAnswers = participantAndAnswers.QuestionAndAnswers

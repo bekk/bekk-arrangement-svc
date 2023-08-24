@@ -85,8 +85,8 @@ const ParticipantTableMobile = (props: {
                   {questions.map(
                     (q, i) =>
                       attendee.participantAnswers[i] && (
-                        <div key={q}>
-                          <div className={style.question}>{q}</div>
+                        <div key={q.question}>
+                          <div className={style.question}>{q.question}</div>
                           <div className={style.answer}>
                             {attendee.participantAnswers[i]}
                           </div>
@@ -180,7 +180,7 @@ const ParticipantTableDesktop = (props: {
                     (q, i) =>
                       attendee.participantAnswers[i] && (
                         <div key={`${q}:${i}`}>
-                          <div className={style.question}>{q}</div>
+                          <div className={style.question}>{q.question}</div>
                           <div className={style.answer}>
                             {attendee.participantAnswers[i]}
                           </div>

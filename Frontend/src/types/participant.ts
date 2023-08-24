@@ -11,9 +11,16 @@ import {
 } from '../routing';
 import { IEvent } from './event';
 
+export interface IQuestionAndAnswerWriteModel {
+  questionId: string;
+  eventId: string;
+  email: string;
+  answer: string;
+}
+
 export interface IParticipantWriteModel {
   name: string;
-  participantAnswers: string[];
+  participantAnswers: IQuestionAndAnswerWriteModel[];
   viewUrlTemplate: string;
   cancelUrlTemplate: string;
 }
@@ -67,6 +74,8 @@ export const toParticipantWriteModel = (
 ): IParticipantWriteModel => {
   return {
     ...participant,
+    // TODO: FIXME
+    participantAnswers: [],
     viewUrlTemplate: createViewUrlTemplate(event),
     cancelUrlTemplate: cancelParticipationUrlTemplate,
   };

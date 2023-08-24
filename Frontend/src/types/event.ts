@@ -76,7 +76,7 @@ export interface IEventViewModel {
   organizerName: string;
   organizerEmail: string;
   maxParticipants?: number;
-  participantQuestions: string[];
+  participantQuestions: IQuestion[];
   program?: string;
   hasWaitingList: boolean;
   isCancelled: boolean;
@@ -105,7 +105,7 @@ export interface IEventWriteModel {
   viewUrlTemplate: string;
   editUrlTemplate: string;
   cancelParticipationUrlTemplate: string;
-  participantQuestions: string[];
+  participantQuestions: IQuestion[];
   program?: string;
   hasWaitingList: boolean;
   isExternal: boolean;
@@ -129,6 +129,11 @@ export const isMaxParticipantsLimited = <t>(
 export const maxParticipantsLimit = <t>(prop: LimitedParticipants<t>): t =>
   prop[1];
 
+export interface IQuestion {
+  id: number | undefined; // Denne er undefined dersom man ikke har opprettet arrangementet enda
+  question: string;
+}
+
 export interface IEvent {
   title: string;
   description: string;
@@ -141,7 +146,7 @@ export interface IEvent {
   organizerName: string;
   organizerEmail: Email;
   maxParticipants: MaxParticipants<number>;
-  participantQuestions: string[];
+  participantQuestions: IQuestion[];
   program?: string;
   hasWaitingList: boolean;
   isCancelled: boolean;
@@ -167,7 +172,7 @@ export interface IEditEvent {
   organizerName: string;
   organizerEmail: string;
   maxParticipants: MaxParticipants<string>;
-  participantQuestions: string[];
+  participantQuestions: IQuestion[];
   program?: string;
   hasWaitingList: boolean;
   isCancelled: boolean;
