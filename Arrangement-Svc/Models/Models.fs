@@ -18,6 +18,23 @@ type ParticipantAnswer = {
   Answer: string
 }
 
+module ParticipantAnswer =
+    let decoder : Decoder<ParticipantAnswer> =
+        Decode.object (fun get -> {
+          QuestionId = get.Required.Field "questionId" Decode.int
+          EventId = get.Required.Field "eventId" Decode.guid
+          Email = get.Required.Field "email" Decode.string
+          Answer = get.Required.Field "answer" Decode.string
+        })
+
+    let validate (questions: ParticipantAnswer list) =
+        let condition = List.forall (fun (answer: ParticipantAnswer) -> answer.Answer.Length < 1000) questions
+        if condition then
+            Decode.succeed questions
+        else
+            Decode.fail "Svar kan ha mask 1000 tegn"
+
+
 module Validate =
     let private containsChars (toTest: string) (chars: string) =
         Seq.exists (fun c -> Seq.contains c chars) toTest
@@ -62,13 +79,6 @@ module Validate =
             Decode.succeed maxParticipants
         else
             Decode.fail "Maks antall påmeldte kan ikke være negativt"
-
-    let participantAnswers (questions: string list) =
-        let condition = List.forall (fun (question: string) -> question.Length < 1000) questions
-        if condition then
-            Decode.succeed questions
-        else
-            Decode.fail "Svar kan ha mask 1000 tegn"
 
     let shortname (shortname: string) =
         match shortname with
@@ -407,7 +417,7 @@ module Event =
 type ParticipantWriteModel =
     { Name: string
       Department: string
-      ParticipantAnswers: string list
+      ParticipantAnswers: ParticipantAnswer list
       ViewUrlTemplate: string
       CancelUrlTemplate: string
     }
@@ -420,7 +430,7 @@ module ParticipantWriteModel =
                    (Decode.string |> Decode.andThen Validate.organizerName)
         Department = get.Required.Field "department" Decode.string
         ParticipantAnswers = get.Required.Field "participantAnswers"
-                                 (Decode.list Decode.string |> Decode.andThen Validate.participantAnswers)
+                                 (Decode.list ParticipantAnswer.decoder |> Decode.andThen ParticipantAnswer.validate)
         ViewUrlTemplate = get.Required.Field "viewUrlTemplate" Decode.string
         CancelUrlTemplate = get.Required.Field "cancelUrlTemplate" Decode.string
       })

@@ -76,21 +76,20 @@ module Helpers =
             return response, responseBody
         }
 
-    let createParticipantwithQuestions client eventId numberOfQuestions =
-        let participant =
-            Generator.generateParticipant numberOfQuestions
-
+    let createParticipantwithQuestions client event =
         let email = Generator.generateEmail ()
-        createParticipantForEvent client eventId email participant
+        let participant = Generator.generateParticipant email event
 
-    let createParticipant client eventId = createParticipantwithQuestions client eventId 0
+        createParticipantForEvent client event.Id email participant
 
-    let createParticipantAndUse client eventId f =
-        createParticipant client eventId
+    let createParticipant client event = createParticipantwithQuestions client event
+
+    let createParticipantAndUse client event f =
+        createParticipant client event
         |> Task.map (fun (_, x) -> useParticipant x f)
 
-    let createParticipantAndGet client eventId =
-        createParticipant client eventId
+    let createParticipantAndGet client event =
+        createParticipant client event
         |> Task.map (fun (_, x) -> getParticipant x)
 
     let getParticipationsAndWaitlist client eventId =

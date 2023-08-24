@@ -141,11 +141,17 @@ let generateEmail () = faker.Internet.Email()
 let generateName () = faker.Company.CompanyName()
 let generateRandomString () = faker.Lorem.Paragraph()[0..199]
 
-let generateParticipant (number_of_questions: int): Models.ParticipantWriteModel =
+let generateParticipant email (event: Event): Models.ParticipantWriteModel =
     { Name = $"{faker.Name.FirstName()} {faker.Name.LastName()}"
       Department = faker.Company.CompanySuffix()
       ParticipantAnswers =
-          [0..number_of_questions]
-          |> List.map (fun _ -> faker.Lorem.Sentence())
+          event.ParticipantQuestions
+          |> Array.toList
+          |> List.map (fun (question: ParticipantQuestionWriteModel) -> {
+               QuestionId = question.Id.Value
+               EventId = Guid.Parse(event.Id)
+               Email = email
+               Answer = faker.Lorem.Sentence()
+          })
       CancelUrlTemplate = "{eventId}{email}{cancellationToken}"
       ViewUrlTemplate = "{eventId}" }

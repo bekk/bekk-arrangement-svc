@@ -627,6 +627,7 @@ let getParticipantsForEvent (eventId: Guid) (db: DatabaseContext) =
     }
 
 let addParticipantToEvent (eventId: Guid) email (userId: int option) name department (db: DatabaseContext) =
+    printfn "Adding participant to event: %A %A %A %A" email userId name department
     let query =
         "
         INSERT INTO Participants
@@ -668,6 +669,7 @@ let getEventQuestions eventId (db: DatabaseContext) =
     |> Seq.toList
 
 let createParticipantAnswers (participantAnswers: Models.ParticipantAnswer list) (db: DatabaseContext) =
+    printfn "CREASTEIG NASWERS: %A" participantAnswers
     let answer = List.tryHead participantAnswers
     match answer with
     | None -> Ok []

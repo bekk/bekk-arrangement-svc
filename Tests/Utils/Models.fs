@@ -13,6 +13,7 @@ type Event = {
     OpenForRegistrationTime: int64
     CloseRegistrationTime: int64 option
     OrganizerName: string
+    OrganizerId: int
     OrganizerEmail: string
     MaxParticipants: int option
     ParticipantQuestions: ParticipantQuestionWriteModel[]
@@ -37,7 +38,7 @@ type InnerEvent = { Id: string
 
 type CreatedEvent =
     { EditToken: string
-      Event: InnerEvent }
+      Event: Event }
 
 type InnerParticipant =
     { Name: string
@@ -93,10 +94,10 @@ let publicEventDecoder: Decoder<EventSummary> =
           EventType = get.Required.Field "eventType" decoder
           })
 
-let createdEventDecoder: Decoder<CreatedEvent> =
-    Decode.object (fun get ->
-        { EditToken = get.Required.Field "editToken" Decode.string
-          Event = get.Required.Field "event" innerEventDecoder })
+// let createdEventDecoder: Decoder<CreatedEvent> =
+//     Decode.object (fun get ->
+//         { EditToken = get.Required.Field "editToken" Decode.string
+//           Event = get.Required.Field "event" innerEventDecoder })
 
 let innerParticipantDecoder: Decoder<InnerParticipant> =
     Decode.object (fun get ->
@@ -154,7 +155,7 @@ let useUpdatedEvent (responseBody: ResponseBody) (f: InnerEvent -> unit) =
 let getParticipant (responseBody: ResponseBody): ParticipantTest =
     match responseBody with
     | Participant participantTest -> participantTest
-    | _ -> failwith "Not a valid participant test model"
+    | e -> failwith $"Not a valid participant test model {e}"
 
 let useParticipant (responseBody: ResponseBody) (f: ParticipantTest -> unit) =
     responseBody

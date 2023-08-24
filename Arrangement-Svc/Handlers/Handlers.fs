@@ -155,7 +155,6 @@ let registerParticipation (eventId: Guid, email): HttpHandler =
                         | IsWaitListed | CanParticipate -> Ok ()
                     |> Result.mapError (fun e -> BadRequest e)
 
-                let eventQuestions = Queries.getEventQuestions eventId db
                 let! participant, answers =
                     let result =
                         let participant = Queries.addParticipantToEvent eventId email userId writeModel.Name writeModel.Department db
@@ -163,18 +162,7 @@ let registerParticipation (eventId: Guid, email): HttpHandler =
                             if List.isEmpty writeModel.ParticipantAnswers then
                                 Ok []
                             else
-                                // FIXME: Here we need to fetch all the questions from the database. This is because we have no question ID related to the answers. This does not feel right and should be fixed. Does require a frontend fix as well
-                                let participantAnswerDbModels: ParticipantAnswer list =
-                                    writeModel.ParticipantAnswers
-                                    |> Seq.zip eventQuestions
-                                    |> Seq.map (fun (question, answer) ->
-                                        { QuestionId = question.Id
-                                          EventId = eventId
-                                          Email = email
-                                          Answer = answer
-                                        })
-                                    |> Seq.toList
-                                Queries.createParticipantAnswers participantAnswerDbModels db
+                                Queries.createParticipantAnswers writeModel.ParticipantAnswers db
                         Ok (participant, answers)
                     result |> Result.mapError InternalError
                 let! participant = participant |> Result.mapError InternalError
@@ -186,7 +174,7 @@ let registerParticipation (eventId: Guid, email): HttpHandler =
                     |> TaskResult.mapError InternalError
 
                 // Sende epost
-                let questionAndAnswers = createQuestionAndAnswer eventQuestions answers
+                let questionAndAnswers = createQuestionAndAnswer eventAndQuestions.Questions answers
                 let isWaitlisted = eventAndQuestions.Event.HasWaitingList && isParticipating = false
                 let email =
                     let viewUrl = createViewUrl writeModel.ViewUrlTemplate eventAndQuestions.Event

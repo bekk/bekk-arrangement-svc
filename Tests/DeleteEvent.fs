@@ -129,7 +129,7 @@ type DeleteEvent(fixture: DatabaseFixture) =
 
         task {
             let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
-            let! participant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event.Id
+            let! participant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event
 
             let! response, _ =
                 Http.deleteParticipantFromEvent clientDifferentUserAdmin createdEvent.Event.Id participant.Email
@@ -144,7 +144,7 @@ type DeleteEvent(fixture: DatabaseFixture) =
 
         task {
             let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
-            let! participant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event.Id
+            let! participant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event
 
             let! response, _ =
                 Http.deleteParticipantFromEventWithCancellationToken
@@ -163,7 +163,7 @@ type DeleteEvent(fixture: DatabaseFixture) =
 
         task {
             let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
-            let! participant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event.Id
+            let! participant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event
 
             let! response, _ =
                 Http.deleteParticipantFromEventWithEditToken
@@ -186,7 +186,7 @@ type DeleteEvent(fixture: DatabaseFixture) =
 
         task {
             let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
-            let! participant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event.Id
+            let! participant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event
 
             let! _, contentBeforeDelete =
                 Http.get authenticatedClient $"/events/{createdEvent.Event.Id}/participants/count"
@@ -218,8 +218,8 @@ type DeleteEvent(fixture: DatabaseFixture) =
 
         task {
             let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
-            let! firstParticipant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event.Id
-            let! secondParticipant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event.Id
+            let! firstParticipant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event
+            let! secondParticipant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event
 
             let! _, secondParticipantSpot =
                 Http.get
@@ -260,7 +260,7 @@ type DeleteEvent(fixture: DatabaseFixture) =
 
         task {
             let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
-            let! participant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event.Id
+            let! participant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event
 
             emptyDevMailbox ()
             let! _ = Http.deleteParticipantFromEvent clientDifferentUserAdmin createdEvent.Event.Id participant.Email
