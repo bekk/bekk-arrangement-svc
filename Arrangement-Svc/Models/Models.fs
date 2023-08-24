@@ -170,6 +170,7 @@ type EventWriteModel =
       CancelParticipationUrlTemplate: string
       HasWaitingList: bool
       IsExternal: bool
+      IsPubliclyAvailable: bool
       IsHidden: bool
       EventType: EventType
       Shortname: string option
@@ -209,6 +210,7 @@ module EventWriteModel =
               HasWaitingList = get.Required.Field "hasWaitingList" Decode.bool
               IsExternal = get.Required.Field "isExternal" Decode.bool
               IsHidden = get.Required.Field "isHidden" Decode.bool
+              IsPubliclyAvailable = get.Required.Field "isPubliclyAvailable" Decode.bool
               EventType = get.Required.Field "eventType" EventType.decoder
               CustomHexColor = get.Optional.Field "customHexColor"
                           (Decode.string |> Decode.andThen Validate.customHexColor)
@@ -240,6 +242,7 @@ type Event =
       IsCancelled: bool
       IsExternal: bool
       IsHidden: bool
+      IsPubliclyAvailable: bool
       EventType: EventType
       EditToken: Guid
       OrganizerId: int
@@ -282,6 +285,7 @@ type EventSummary = {
     Title: string
     StartDate: DateTime
     IsExternal: bool
+    IsPubliclyAvailable: bool
     EventType: EventType
     City: string option
     TargetAudience: string option
@@ -320,6 +324,7 @@ module Event =
                 "isCancelled", Encode.bool event.IsCancelled
                 "isExternal", Encode.bool event.IsExternal
                 "isHidden", Encode.bool event.IsHidden
+                "isPubliclyAvailable", Encode.bool event.IsPubliclyAvailable
                 "eventType", EventType.encoder event.EventType
                 "organizerId", Encode.int event.OrganizerId
                 if event.Shortname.IsSome then
@@ -342,6 +347,7 @@ module Event =
                 "title", Encode.string event.Title
                 "startDate", Encode.datetime event.StartDate
                 "isExternal", Encode.bool event.IsExternal
+                "isPubliclyAvailable", Encode.bool event.IsPubliclyAvailable
                 "eventType", EventType.encoder event.EventType
                 if event.City.IsSome then
                     "city", Encode.string event.City.Value

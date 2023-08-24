@@ -106,6 +106,7 @@ let generateEvent () : Models.EventWriteModel =
       CancelParticipationUrlTemplate = "/events/{eventId}/cancel/{email}?cancellationToken={cancellationToken}"
       HasWaitingList = faker.Hacker.Random.Bool()
       IsExternal = faker.Hacker.Random.Bool()
+      IsPubliclyAvailable = faker.Hacker.Random.Bool()
       IsHidden =
           if faker.Random.Number(0, 10) = 0 then
               true
