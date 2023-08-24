@@ -51,3 +51,8 @@
 .checkboxLabelOnDarkBG {
   color: var(--hvit);
 }
+
+.checkBoxDisabled {
+  cursor: initial;
+  opacity: 0.7;
+}

@@ -431,4 +431,29 @@ type GetEvent(fixture: DatabaseFixture) =
 
             Assert.True(List.forall (fun (event: EventSummary) -> event.EventType = Faglig) body)
         }
+
+    [<Fact>]
+     member _.``Public events returns only publicly available events``() =
+        task {
+            for _ in 0..4 do
+                let event =
+                    TestData.createEvent (fun e ->
+                        { e with
+                            IsExternal = false
+                            EventType = Sosialt })
+
+                let! _, _ = Helpers.createEvent authenticatedClient event
+                ()
+
+            let fagligEvent = TestData.createEvent (fun e -> 
+                { e with 
+                    IsExternal = false 
+                    EventType = Faglig})
+
+            let! _, _ = Helpers.createEvent authenticatedClient fagligEvent
+            
+            let! _, body = Helpers.getPublicEvents unauthenticatedClient
+
+            Assert.True(List.forall (fun (event: EventSummary) -> event.IsPubliclyAvailable = true) body)
+        }
         
