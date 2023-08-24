@@ -140,12 +140,14 @@ let getPublicEvents (db: DatabaseContext) =
                    E.IsExternal,
                    E.City,
                    E.TargetAudience,
-                   E.EventType
+                   E.EventType,
+                   E.IsPubliclyAvailable
             FROM Events E
             WHERE EndDate >= @sixMonthsAgo
                 And IsCancelled = 0
                 AND IsHidden = 0
                 AND EventType = @eventType
+                AND IsPubliclyAvailable = 1
             "
 
         let parameters = {|
@@ -238,6 +240,7 @@ let getFutureEvents (employeeId: int) (db: DatabaseContext) =
                    E.IsExternal,
                    E.OrganizerId,
                    E.IsHidden,
+                   E.IsPubliclyAvailable,
                    E.EventType,
                    E.CloseRegistrationTime,
                    E.CustomHexColor,
@@ -308,6 +311,7 @@ let getPastEvents (employeeId: int) (db: DatabaseContext) =
                    E.IsExternal,
                    E.OrganizerId,
                    E.IsHidden,
+                   E.IsPubliclyAvailable,
                    E.EventType,
                    E.CloseRegistrationTime,
                    E.CustomHexColor,
@@ -367,6 +371,7 @@ let getEventsOrganizedByEmail (email: string) (db : DatabaseContext) =
                    E.IsExternal,
                    E.OrganizerId,
                    E.IsHidden,
+                   E.IsPubliclyAvailable,
                    E.EventType,
                    E.CloseRegistrationTime,
                    E.CustomHexColor,
@@ -422,6 +427,7 @@ let getEventsOrganizedById (id: int) (db: DatabaseContext) =
                    E.IsExternal,
                    E.OrganizerId,
                    E.IsHidden,
+                   E.IsPubliclyAvailable,
                    E.EventType,
                    E.CloseRegistrationTime,
                    E.CustomHexColor,
@@ -551,6 +557,7 @@ let getEvent (eventId: Guid) (db: DatabaseContext) =
                    E.IsExternal,
                    E.OrganizerId,
                    E.IsHidden,
+                   E.IsPubliclyAvailable,
                    E.EventType,
                    E.CloseRegistrationTime,
                    E.CustomHexColor,
@@ -768,6 +775,7 @@ let updateEvent eventId (model: Models.EventWriteModel) (db: DatabaseContext) =
                 IsCancelled = @isCancelled,
                 IsExternal = @isExternal,
                 IsHidden = @isHidden,
+                IsPubliclyAvailable = @isPubliclyAvailable,
                 EventType = @eventType,
                 CloseRegistrationTime = @closeRegistrationTime,
                 CustomHexColor = @customHexColor,
@@ -798,6 +806,7 @@ let updateEvent eventId (model: Models.EventWriteModel) (db: DatabaseContext) =
             IsCancelled = false
             IsExternal = model.IsExternal
             IsHidden = model.IsHidden
+            IsPubliclyAvailable = model.IsPubliclyAvailable
             EventType = model.EventType.ToString()
             CloseRegistrationTime = model.CloseRegistrationTime
             CustomHexColor = model.CustomHexColor
@@ -953,6 +962,7 @@ let createEvent (writeModel: Models.EventWriteModel) employeeId (db: DatabaseCon
                     IsExternal,
                     OrganizerId,
                     IsHidden,
+                    IsPubliclyAvailable,
                     EventType,
                     CloseRegistrationTime,
                     CustomHexColor,
@@ -980,6 +990,7 @@ let createEvent (writeModel: Models.EventWriteModel) employeeId (db: DatabaseCon
                     @isExternal,
                     @organizerId,
                     @isHidden,
+                    @isPubliclyAvailable,
                     @eventType,
                     @closeRegistrationTime,
                     @customHexColor,
@@ -1011,6 +1022,7 @@ let createEvent (writeModel: Models.EventWriteModel) employeeId (db: DatabaseCon
             IsExternal = writeModel.IsExternal
             OrganizerId = employeeId
             IsHidden = writeModel.IsHidden
+            IsPubliclyAvailable = writeModel.IsPubliclyAvailable
             EventType = writeModel.EventType.ToString()
             CloseRegistrationTime = writeModel.CloseRegistrationTime
             CustomHexColor = writeModel.CustomHexColor
