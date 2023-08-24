@@ -183,3 +183,17 @@ A shortname can only be taken if:
 - It is not currently used by an active event.
 - The event that has it has ended (`endDate` in the past).
 - The event that has it is cancelled.
+
+## EventType and IsPubliclyAvailable
+
+When the new bekk.no was launched, a desire to show our events on that site was expressed.
+Which events that should be shown to the public should follow some constraints:
+
+- No social events
+- No hidden events
+- Both external and internal events
+-- Need to be able to hide faglige, internal events
+
+To satisfy these constraints, `EventType` (`Faglig` og `Sosialt`) and `IsPubliclyAvailable` (`boolean`) was added.
+
+
