@@ -88,7 +88,7 @@ const ParticipantTableMobile = (props: {
                         <div key={q.question}>
                           <div className={style.question}>{q.question}</div>
                           <div className={style.answer}>
-                            {attendee.participantAnswers[i]}
+                            {attendee.participantAnswers[i].answer}
                           </div>
                         </div>
                       )
@@ -182,7 +182,7 @@ const ParticipantTableDesktop = (props: {
                         <div key={`${q}:${i}`}>
                           <div className={style.question}>{q.question}</div>
                           <div className={style.answer}>
-                            {attendee.participantAnswers[i]}
+                            {attendee.participantAnswers[i].answer}
                           </div>
                         </div>
                       )

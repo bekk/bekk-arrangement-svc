@@ -448,6 +448,7 @@ type Participant =
 
 [<CLIMutable>]
 type QuestionAndAnswer = {
+    QuestionId: int
     Question: string
     Answer: string
 }
@@ -463,13 +464,17 @@ type ParticipationsAndWaitlist =
 let createQuestionAndAnswer (questions: ParticipantQuestion list) (answers: ParticipantAnswer list) =
     List.map (fun (answer: ParticipantAnswer) ->
         let question: ParticipantQuestion = List.find (fun q -> q.Id = answer.QuestionId) questions
-        { Question = question.Question
+        { QuestionId = question.Id
+          Question = question.Question
           Answer = answer.Answer
         }) answers
 
 module Participant =
-    let encodeQuestionAndAnswer (questionAndAnswer: QuestionAndAnswer) =
+    let encodeQuestionAndAnswer eventId email (questionAndAnswer: QuestionAndAnswer) =
         Encode.object [
+            "questionId", Encode.int questionAndAnswer.QuestionId
+            "eventId", Encode.guid eventId
+            "email", Encode.string email
             "question", Encode.string questionAndAnswer.Question
             "answer", Encode.string questionAndAnswer.Answer
     ]
@@ -481,7 +486,7 @@ module Participant =
             "email", Encode.string participant.Email
             "questionAndAnswers",
                 questionAndAnswers
-                |> List.map encodeQuestionAndAnswer
+                |> List.map (encodeQuestionAndAnswer participantAndAnswers.Participant.EventId participantAndAnswers.Participant.Email)
                 |> Encode.list
             "registrationTime", Encode.int64 participant.RegistrationTime
             "eventId", Encode.guid participant.EventId
@@ -502,7 +507,7 @@ module Participant =
             "email", Encode.string participantAndAnswers.Participant.Email
             "cancellationToken", Encode.guid participantAndAnswers.Participant.CancellationToken
             "questionAndAnswers", participantAndAnswers.QuestionAndAnswers
-                       |> List.map encodeQuestionAndAnswer
+                       |> List.map (encodeQuestionAndAnswer participantAndAnswers.Participant.EventId participantAndAnswers.Participant.Email)
                        |> Encode.list
         ]
 

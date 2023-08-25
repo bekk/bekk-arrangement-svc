@@ -5,7 +5,8 @@ import {
   initalParticipant,
   parseEditParticipant,
   parseName,
-  parseAnswers,
+  IQuestionAndAnswerViewModel,
+  parseAnswerString,
 } from 'src/types/participant';
 import { ValidatedTextInput } from 'src/components/Common/ValidatedTextInput/ValidatedTextInput';
 import { parseEditEmail } from 'src/types/email';
@@ -128,14 +129,21 @@ export const AddParticipant = ({
           <MultipleChoiceQuestion
             question={actualQuestion}
             alternatives={alternatives}
-            value={participant.participantAnswers[i]}
+            value={participant.participantAnswers[i].answer}
             onChange={(s) =>
               setParticipant({
                 ...participant,
                 participantAnswers: participant.participantAnswers.map(
                   (a, oldI) => {
                     if (i === oldI) {
-                      return s;
+                      const newAnswer: IQuestionAndAnswerViewModel = {
+                        questionId: (q.id && q.id.toString()) || '',
+                        eventId: eventId,
+                        email: email || '',
+                        question: q.question,
+                        answer: s,
+                      };
+                      return newAnswer;
                     }
                     return a;
                   }
@@ -148,8 +156,8 @@ export const AddParticipant = ({
             <ValidatedTextArea
               label={q.question}
               placeholder={''}
-              value={participant.participantAnswers[i] ?? ''}
-              validation={(answer) => parseAnswers([answer])}
+              value={participant.participantAnswers[i].answer ?? ''}
+              validation={(answer) => parseAnswerString(answer)}
               minRow={3}
               onChange={(answer: string) =>
                 setParticipant({
@@ -157,7 +165,14 @@ export const AddParticipant = ({
                   participantAnswers: participant.participantAnswers.map(
                     (a, oldI) => {
                       if (i === oldI) {
-                        return answer;
+                        const newAnswer: IQuestionAndAnswerViewModel = {
+                          questionId: (q.id && q.id.toString()) || '',
+                          eventId: eventId,
+                          email: email || '',
+                          question: q.question,
+                          answer: answer,
+                        };
+                        return newAnswer;
                       }
                       return a;
                     }

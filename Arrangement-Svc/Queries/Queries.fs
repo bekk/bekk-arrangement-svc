@@ -483,9 +483,9 @@ let getParticipationsById (id: int) (db: DatabaseContext) =
                     query,
                     (fun (participant: Models.Participant) (question: string) (answer: Models.ParticipantAnswer) ->
                             if participants.ContainsKey(participant) && not (answer :> obj = null) then
-                                participants[participant] <- participants[participant] @ [{Question = question; Answer = answer.Answer}]
+                                participants[participant] <- participants[participant] @ [{QuestionId = answer.QuestionId; Question = question; Answer = answer.Answer}]
                             else if not (participants.ContainsKey(participant)) && not (answer :> obj = null) then
-                                participants.Add(participant, [{Question = question; Answer = answer.Answer}])
+                                participants.Add(participant, [{QuestionId = answer.QuestionId; Question = question; Answer = answer.Answer}])
                             else
                                 participants.Add(participant, [])
                         ),
@@ -627,7 +627,6 @@ let getParticipantsForEvent (eventId: Guid) (db: DatabaseContext) =
     }
 
 let addParticipantToEvent (eventId: Guid) email (userId: int option) name department (db: DatabaseContext) =
-    printfn "Adding participant to event: %A %A %A %A" email userId name department
     let query =
         "
         INSERT INTO Participants
@@ -1103,9 +1102,9 @@ let getParticipantsAndAnswersForEvent (eventId: Guid) (db: DatabaseContext) =
                     query,
                     (fun (participant: Models.Participant) (question: string) (answer: Models.ParticipantAnswer) ->
                             if participants.ContainsKey(participant) && not (answer :> obj = null) then
-                                participants[participant] <- participants[participant] @ [{Question = question; Answer = answer.Answer}]
+                                participants[participant] <- participants[participant] @ [{QuestionId = answer.QuestionId; Question = question; Answer = answer.Answer}]
                             else if not (participants.ContainsKey(participant)) && not (answer :> obj = null) then
-                                participants.Add(participant, [{Question = question; Answer = answer.Answer}])
+                                participants.Add(participant, [{QuestionId = answer.QuestionId; Question = question; Answer = answer.Answer}])
                             else
                                 participants.Add(participant, [])
                         ),
@@ -1156,9 +1155,9 @@ let getParticipationsForParticipant email (db: DatabaseContext) =
                     query,
                     (fun (participant: Models.Participant) (question: string) (answer: Models.QuestionAndAnswer) ->
                             if participants.ContainsKey(participant) && not (answer :> obj = null) then
-                                participants[participant] <- participants[participant] @ [{Question = question; Answer = answer.Answer}]
+                                participants[participant] <- participants[participant] @ [{QuestionId = answer.QuestionId; Question = question; Answer = answer.Answer}]
                             else if not (participants.ContainsKey(participant)) && not (answer :> obj = null) then
-                                participants.Add(participant, [{Question = question; Answer = answer.Answer}])
+                                participants.Add(participant, [{QuestionId = answer.QuestionId; Question = question; Answer = answer.Answer}])
                             else
                                 participants.Add(participant, [])
                         ),

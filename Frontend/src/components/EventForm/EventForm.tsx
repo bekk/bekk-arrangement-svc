@@ -555,7 +555,7 @@ export const EventForm = ({ eventResult: event, updateEvent }: IProps) => {
         <div>
           {event.participantQuestions.map((q, i) => (
             <ValidatedTextArea
-              key={q.question}
+              key={i}
               label={labels.participantQuestion}
               placeholder={placeholders.participantQuestion}
               value={q.question}

@@ -18,6 +18,14 @@ export interface IQuestionAndAnswerWriteModel {
   answer: string;
 }
 
+export interface IQuestionAndAnswerViewModel {
+  questionId: string;
+  eventId: string;
+  email: string;
+  question: string;
+  answer: string;
+}
+
 export interface IParticipantWriteModel {
   name: string;
   participantAnswers: IQuestionAndAnswerWriteModel[];
@@ -31,12 +39,7 @@ export interface IParticipantViewModel {
   department: string;
   eventId: string;
   registrationTime: number;
-  questionAndAnswers: IQuestionAndAnswer[];
-}
-
-export interface IQuestionAndAnswer {
-  question: string;
-  answer: string;
+  questionAndAnswers: IQuestionAndAnswerViewModel[];
 }
 
 export interface IParticipantsWithWaitingList {
@@ -58,14 +61,14 @@ export interface IParticipant {
   name: string;
   email: Email;
   department: string;
-  participantAnswers: string[];
+  participantAnswers: IQuestionAndAnswerViewModel[];
 }
 
 export interface IEditParticipant {
   name: string;
   email: string;
   department: string;
-  participantAnswers: string[];
+  participantAnswers: IQuestionAndAnswerViewModel[];
 }
 
 export const toParticipantWriteModel = (
@@ -74,8 +77,7 @@ export const toParticipantWriteModel = (
 ): IParticipantWriteModel => {
   return {
     ...participant,
-    // TODO: FIXME
-    participantAnswers: [],
+    participantAnswers: participant.participantAnswers,
     viewUrlTemplate: createViewUrlTemplate(event),
     cancelUrlTemplate: cancelParticipationUrlTemplate,
   };
@@ -88,9 +90,7 @@ export const parseParticipantViewModel = (
     ? parseEmailViewModel(participantView.email)
     : { email: '' };
   const name = parseName(participantView.name);
-  const answers = parseAnswers(
-    participantView.questionAndAnswers.map((qa) => qa.answer)
-  );
+  const answers = parseAnswers(participantView.questionAndAnswers);
 
   const participant = {
     ...participantView,
@@ -146,12 +146,24 @@ export const parseName = (value: string): string | IError[] => {
   return validator.resolve(value);
 };
 
-export const parseAnswers = (value: string[]): string[] | IError[] => {
+export const parseAnswerString = (value: string): string | IError[] => {
   if (value.length === 0) {
     return value;
   }
-  const validator = validate<string[]>({
-    'Svar kan ha maks 500 tegn': value.some((s) => s.length > 500),
+  const validator = validate<string>({
+    'Svar kan ha maks 500 tegn': value.length > 500,
+  });
+  return validator.resolve(value);
+};
+
+export const parseAnswers = (
+  value: IQuestionAndAnswerViewModel[]
+): IQuestionAndAnswerViewModel[] | IError[] => {
+  if (value.length === 0) {
+    return value;
+  }
+  const validator = validate<IQuestionAndAnswerViewModel[]>({
+    'Svar kan ha maks 500 tegn': value.some((s) => s.answer.length > 500),
   });
   return validator.resolve(value);
 };
@@ -166,6 +178,12 @@ export function initalParticipant(
     email: { email: email ?? '' },
     name: name ?? '',
     department: department ?? '',
-    participantAnswers: Array(numberOfParticipantQuestions).fill(''),
+    participantAnswers: Array(numberOfParticipantQuestions).fill({
+      questionId: '',
+      eventId: '',
+      email: '',
+      question: '',
+      answer: '',
+    }),
   };
 }
