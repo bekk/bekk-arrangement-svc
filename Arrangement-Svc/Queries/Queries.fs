@@ -668,7 +668,6 @@ let getEventQuestions eventId (db: DatabaseContext) =
     |> Seq.toList
 
 let createParticipantAnswers (participantAnswers: Models.ParticipantAnswer list) (db: DatabaseContext) =
-    printfn "CREASTEIG NASWERS: %A" participantAnswers
     let answer = List.tryHead participantAnswers
     match answer with
     | None -> Ok []
