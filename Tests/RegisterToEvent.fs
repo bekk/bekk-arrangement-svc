@@ -245,3 +245,38 @@ type RegisterToEvent(fixture: DatabaseFixture) =
 
             Assert.True(List.forall isParticipatingEmail mailbox)
         }
+
+    [<Fact>]
+    member _.``Registering participant saves answers correctly``() =
+        let generatedEvent =
+            TestData.createEvent (fun e ->
+                { e with MaxParticipants = None
+                         HasWaitingList = false
+                         ParticipantQuestions = [ { Id = None; Question = "Question 0" }
+                                                  { Id = None; Question = "Question 1" }
+                                                  { Id = None; Question = "Question 2" }
+                                                  { Id = None; Question = "Question 3" }
+                                                  { Id = None; Question = "Question 4" } ]
+                })
+
+        let email = Generator.generateEmail()
+
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
+            let participant =
+                let generated = Generator.generateParticipant email createdEvent.Event
+                { generated with ParticipantAnswers = List.mapi (fun index answer -> {answer with Answer = $"Answer {index}" }) generated.ParticipantAnswers }
+
+            let! _, _ = Helpers.createParticipantForEvent authenticatedClient createdEvent.Event.Id email participant
+            let! _, body = Helpers.getParticipationsForEvent authenticatedClient email
+
+            let actual =
+                body
+                |> List.collect (fun qa -> qa.QuestionAndAnswers)
+                |> List.mapi (fun index qa -> index, qa)
+                |> List.forall (fun (index, qa) -> qa.Answer = $"Answer {index}" && qa.Question = $"Question {index}")
+
+            Assert.True(actual)
+        }
+
+

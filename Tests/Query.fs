@@ -106,12 +106,10 @@ type Queries(fixture: DatabaseFixture) =
         let event = TestData.createEvent (fun e -> { e with IsExternal = false })
         task {
             let! createdEvent = Helpers.createEventAndGet authenticatedClient event
-            printfn "CREATED EVENT: %A" createdEvent
             let! createdParticipant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event
-            ()
-            // let! existingParticipant = Queries.getParticipantForEvent (System.Guid.Parse createdEvent.Event.Id) createdParticipant.Email fixture.dbContext
+            let! existingParticipant = Queries.getParticipantForEvent (System.Guid.Parse createdEvent.Event.Id) createdParticipant.Email fixture.dbContext
 
-            // match existingParticipant with
-            // | Ok optionalParticipant -> Assert.True(optionalParticipant.IsSome)
-            // | Error e -> failwith $"Test failed: {e}"
+            match existingParticipant with
+            | Ok optionalParticipant -> Assert.True(optionalParticipant.IsSome)
+            | Error e -> failwith $"Test failed: {e}"
         }
