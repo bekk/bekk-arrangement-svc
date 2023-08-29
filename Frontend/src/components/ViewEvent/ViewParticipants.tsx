@@ -86,17 +86,19 @@ const ParticipantTableMobile = (props: {
               </tr>
               <tr>
                 <td colSpan={2} className={style.mobileCommentCell}>
-                  {questions.map(
-                    (q, i) =>
-                      attendee.participantAnswers[i] && (
-                        <div key={q.question}>
+                  {questions.map((q) => {
+                    const answer = attendee.participantAnswers.find(
+                      (a) => q.id && a.questionId === q.id
+                    );
+                    return (
+                      answer && (
+                        <div key={q.id}>
                           <div className={style.question}>{q.question}</div>
-                          <div className={style.answer}>
-                            {attendee.participantAnswers[i].answer}
-                          </div>
+                          <div className={style.answer}>{answer.answer}</div>
                         </div>
                       )
-                  )}
+                    );
+                  })}
                   <Button
                     className={style.deleteParticipantButtonMobile}
                     onClick={() => setShowModal(attendee)}>
@@ -193,17 +195,19 @@ const ParticipantTableDesktop = (props: {
               </td>
               {hasComments && (
                 <td className={style.desktopCell}>
-                  {questions.map(
-                    (q, i) =>
-                      attendee.participantAnswers[i] && (
-                        <div key={`${q}:${i}`}>
+                  {questions.map((q) => {
+                    const answer = attendee.participantAnswers.find(
+                      (a) => q.id && a.questionId === q.id
+                    );
+                    return (
+                      answer && (
+                        <div key={q.id}>
                           <div className={style.question}>{q.question}</div>
-                          <div className={style.answer}>
-                            {attendee.participantAnswers[i].answer}
-                          </div>
+                          <div className={style.answer}>{answer.answer}</div>
                         </div>
                       )
-                  )}
+                    );
+                  })}
                 </td>
               )}
               <td className={style.desktopCell}>

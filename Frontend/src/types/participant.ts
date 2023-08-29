@@ -12,14 +12,14 @@ import {
 import { IEvent } from './event';
 
 export interface IQuestionAndAnswerWriteModel {
-  questionId: string;
+  questionId: number;
   eventId: string;
   email: string;
   answer: string;
 }
 
 export interface IQuestionAndAnswerViewModel {
-  questionId: string;
+  questionId: number;
   eventId: string;
   email: string;
   question: string;
