@@ -3,7 +3,10 @@ import style from './ViewParticipants.module.scss';
 import { stringifyEmail } from 'src/types/email';
 import { useEvent, useParticipants } from 'src/hooks/cache';
 import { hasLoaded, isBad } from 'src/remote-data';
-import { IParticipant, IQuestionAndAnswer } from 'src/types/participant';
+import {
+  IParticipant,
+  IQuestionAndAnswerViewModel,
+} from 'src/types/participant';
 import { Button } from 'src/components/Common/Button/Button';
 import { Spinner } from 'src/components/Common/Spinner/spinner';
 import { Modal } from '../Common/Modal/Modal';
@@ -134,7 +137,7 @@ const ParticipantTableDesktop = (props: {
     useState<boolean>(false);
 
   const questionsAndAnswers = props.participants.flatMap(
-    (participant) => participant.questionAndAnswers ?? []
+    (participant) => participant.participantAnswers ?? []
   );
 
   const copyAttendees = async () => {
@@ -236,10 +239,10 @@ const CopyAnswersModal = ({
   questionsAndAnswers,
   closeModal,
 }: {
-  questionsAndAnswers?: IQuestionAndAnswer[];
+  questionsAndAnswers?: IQuestionAndAnswerViewModel[];
   closeModal: () => void;
 }) => {
-  const questionsAndValidAnswers: IQuestionAndAnswer[] | undefined =
+  const questionsAndValidAnswers: IQuestionAndAnswerViewModel[] | undefined =
     questionsAndAnswers?.filter((qAndA) => qAndA.answer.length > 0);
 
   const eventQuestions = [
@@ -252,7 +255,7 @@ const CopyAnswersModal = ({
 
   const copyAnswers = () => {
     if (questionsAndValidAnswers !== undefined) {
-      var answers = questionsAndValidAnswers
+      const answers = questionsAndValidAnswers
         .filter((qAndA) => qAndA.question === selectedQuestion)
         .map((qAndA, index) => `Deltaker ${index + 1}: ${qAndA.answer}, \n`)
         .join('');
@@ -269,6 +272,7 @@ const CopyAnswersModal = ({
         <div>
           {eventQuestions.map((question) => (
             <RadioButton
+              key={question}
               onChange={() => setSelectedQuestion(question)}
               checked={selectedQuestion == question}
               label={question}></RadioButton>

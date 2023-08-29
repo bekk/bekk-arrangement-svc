@@ -153,20 +153,12 @@ let registerParticipation (eventId: Guid, email): HttpHandler =
                         | NoRoom ->
                             Error "Arrangementet har ikke plass"
                         | IsWaitListed | CanParticipate -> Ok ()
-                    |> Result.mapError (fun e -> BadRequest e)
+                    |> Result.mapError BadRequest
 
-                let! participant, answers =
-                    let result =
-                        let participant = Queries.addParticipantToEvent eventId email userId writeModel.Name writeModel.Department db
-                        let answers =
-                            if List.isEmpty writeModel.ParticipantAnswers then
-                                Ok []
-                            else
-                                Queries.createParticipantAnswers writeModel.ParticipantAnswers db
-                        Ok (participant, answers)
-                    result |> Result.mapError InternalError
-                let! participant = participant |> Result.mapError InternalError
-                let! answers = answers |> Result.mapError InternalError
+                let! participant = Queries.addParticipantToEvent eventId email userId writeModel.Name writeModel.Department db
+                                   |> Result.mapError InternalError
+                let! answers = Queries.createParticipantAnswers writeModel.ParticipantAnswers db
+                               |> Result.mapError InternalError
                 db.Commit()
 
                 let! isParticipating =

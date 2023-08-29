@@ -103,6 +103,9 @@ export const AddParticipant = ({
           onChange={(name: string) =>
             setParticipant({
               ...participant,
+              participantAnswers: participant.participantAnswers.map(
+                (answer) => ({ ...answer, email: email || '' })
+              ),
               name,
             })
           }
@@ -118,6 +121,9 @@ export const AddParticipant = ({
             setParticipant({
               ...participant,
               email,
+              participantAnswers: participant.participantAnswers.map(
+                (answer) => ({ ...answer, email })
+              ),
             })
           }
         />
