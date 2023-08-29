@@ -97,11 +97,6 @@ let publicEventDecoder: Decoder<EventSummary> =
           EventType = get.Required.Field "eventType" decoder
           })
 
-// let createdEventDecoder: Decoder<CreatedEvent> =
-//     Decode.object (fun get ->
-//         { EditToken = get.Required.Field "editToken" Decode.string
-//           Event = get.Required.Field "event" innerEventDecoder })
-
 let innerParticipantDecoder: Decoder<InnerParticipant> =
     Decode.object (fun get ->
         { Name = get.Required.Field "name" Decode.string
