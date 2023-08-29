@@ -3,7 +3,7 @@ import style from './ViewParticipants.module.scss';
 import { stringifyEmail } from 'src/types/email';
 import { useEvent, useParticipants } from 'src/hooks/cache';
 import { hasLoaded, isBad } from 'src/remote-data';
-import { IParticipant } from 'src/types/participant';
+import { IParticipant, IQuestionAndAnswer } from 'src/types/participant';
 import { Button } from 'src/components/Common/Button/Button';
 import { Spinner } from 'src/components/Common/Spinner/spinner';
 import { Modal } from '../Common/Modal/Modal';
@@ -12,6 +12,7 @@ import { deleteParticipant } from 'src/api/arrangementSvc';
 import { useNotification } from '../NotificationHandler/NotificationHandler';
 import { useHistory } from 'react-router';
 import { Plus } from '../Common/Icons/Plus';
+import { RadioButton } from '../Common/RadioButton/RadioButton';
 
 interface IProps {
   eventId: string;
@@ -127,7 +128,15 @@ const ParticipantTableDesktop = (props: {
     : true;
   const questions = (hasLoaded(event) && event.data.participantQuestions) || [];
   const [wasCopied, setWasCopied] = useState(false);
-  const [showModal, setShowModal] = useState<IParticipant | null>(null);
+  const [showDeleteParticipantModal, setShowDeleteParticipantModal] =
+    useState<IParticipant | null>(null);
+  const [showCopyQuestionsModal, setShowQuestionsModal] =
+    useState<boolean>(false);
+
+  const questionsAndAnswers = props.participants.flatMap(
+    (participant) => participant.questionAndAnswers ?? []
+  );
+
   const copyAttendees = async () => {
     await navigator.clipboard.writeText(
       props.participants.map((p) => p.name).join(', ')
@@ -155,6 +164,11 @@ const ParticipantTableDesktop = (props: {
         Kopier deltakernavn til utklippstavle
       </Button>
       <Button onClick={copyEmails}>Kopier eposter til utklippstavle</Button>
+      {questionsAndAnswers.length > 0 && (
+        <Button onClick={() => setShowQuestionsModal(true)}>
+          Kopier svar til utklippstavle
+        </Button>
+      )}
       {wasCopied && 'Kopiert!'}
       <table className={style.table}>
         <thead>
@@ -192,7 +206,7 @@ const ParticipantTableDesktop = (props: {
               <td className={style.desktopCell}>
                 <button
                   className={style.deleteParticipantButton}
-                  onClick={() => setShowModal(attendee)}>
+                  onClick={() => setShowDeleteParticipantModal(attendee)}>
                   <Plus title="Meld av" />
                 </button>
               </td>
@@ -200,15 +214,79 @@ const ParticipantTableDesktop = (props: {
           ))}
         </tbody>
       </table>
-      {showModal !== null && (
+      {showDeleteParticipantModal !== null && (
         <DeleteParticipantModal
           eventId={props.eventId}
           eventName={event.data.title}
-          participant={showModal}
-          closeModal={() => setShowModal(null)}
+          participant={showDeleteParticipantModal}
+          closeModal={() => setShowDeleteParticipantModal(null)}
+        />
+      )}
+      {showCopyQuestionsModal && (
+        <CopyAnswersModal
+          questionsAndAnswers={questionsAndAnswers}
+          closeModal={() => setShowQuestionsModal(false)}
         />
       )}
     </div>
+  );
+};
+
+const CopyAnswersModal = ({
+  questionsAndAnswers,
+  closeModal,
+}: {
+  questionsAndAnswers?: IQuestionAndAnswer[];
+  closeModal: () => void;
+}) => {
+  const questionsAndValidAnswers: IQuestionAndAnswer[] | undefined =
+    questionsAndAnswers?.filter((qAndA) => qAndA.answer.length > 0);
+
+  const eventQuestions = [
+    ...new Set(questionsAndValidAnswers?.map((qAndA) => qAndA.question)),
+  ];
+
+  const [selectedQuestion, setSelectedQuestion] = useState<string>(
+    eventQuestions[0]
+  );
+
+  const copyAnswers = () => {
+    if (questionsAndValidAnswers !== undefined) {
+      var answers = questionsAndValidAnswers
+        .filter((qAndA) => qAndA.question === selectedQuestion)
+        .map((qAndA, index) => `Deltaker ${index + 1}: ${qAndA.answer}, \n`)
+        .join('');
+
+      navigator.clipboard.writeText(answers);
+    }
+
+    closeModal();
+  };
+
+  return (
+    <Modal header={'Eksporter svar på spørsmål'} closeModal={closeModal}>
+      <div className={style.modalContent}>
+        <div>
+          {eventQuestions.map((question) => (
+            <RadioButton
+              onChange={() => setSelectedQuestion(question)}
+              checked={selectedQuestion == question}
+              label={question}></RadioButton>
+          ))}
+        </div>
+      </div>
+      <div className={style.deleteParticipantModalContainer}>
+        <Button
+          color={'Secondary'}
+          className={style.modalButton}
+          onClick={closeModal}>
+          Avbryt
+        </Button>
+        <Button className={style.modalButton} onClick={copyAnswers}>
+          Kopier
+        </Button>
+      </div>
+    </Modal>
   );
 };
 

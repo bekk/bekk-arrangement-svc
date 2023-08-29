@@ -106,7 +106,11 @@ export const EventForm = ({ eventResult: event, updateEvent }: IProps) => {
             label="Faglig"
             onChange={(isActive) => {
               if (isActive) {
-                updateEvent({ ...event, eventType: 'Faglig' });
+                updateEvent({
+                  ...event,
+                  eventType: 'Faglig',
+                  isPubliclyAvailable: true,
+                });
               }
             }}
             checked={event.eventType === 'Faglig'}
@@ -115,7 +119,11 @@ export const EventForm = ({ eventResult: event, updateEvent }: IProps) => {
             label="Sosialt"
             onChange={(isActive) => {
               if (isActive) {
-                updateEvent({ ...event, eventType: 'Sosialt' });
+                updateEvent({
+                  ...event,
+                  eventType: 'Sosialt',
+                  isPubliclyAvailable: false,
+                });
               }
             }}
             checked={event.eventType === 'Sosialt'}
@@ -502,13 +510,35 @@ export const EventForm = ({ eventResult: event, updateEvent }: IProps) => {
         </div>
         <div>
           <CheckBox
-            label={labels.hiddenEvent}
-            onChange={(isHidden) => updateEvent({ ...event, isHidden })}
+            label={labels.hiddenEventForEveryone}
+            onChange={(isHidden) =>
+              updateEvent({
+                ...event,
+                isHidden,
+                isPubliclyAvailable: isHidden
+                  ? false
+                  : event.isPubliclyAvailable,
+              })
+            }
             isChecked={event.isHidden}
           />
-          <p className={style.helpTextCheckBox}>{helpText.hiddenEvent}</p>
+          <p className={style.helpTextCheckBox}>
+            {helpText.hiddenEventForEveryone}
+          </p>
         </div>
-
+        <div className={style.subField}>
+          <CheckBox
+            label={labels.hiddenEventForPublic}
+            onChange={(isHiddenForPublic) =>
+              updateEvent({ ...event, isPubliclyAvailable: !isHiddenForPublic })
+            }
+            isChecked={event.isHidden || !event.isPubliclyAvailable}
+            isDisabled={event.isHidden || event.eventType === 'Sosialt'}
+          />
+          <p className={style.helpTextCheckBox}>
+            {helpText.hiddenEventForPublic}
+          </p>
+        </div>
         <div className={style.shortName}>
           <CheckBox
             label={'Tilpass URL'}
@@ -771,7 +801,8 @@ const labels = {
   limitSpots: 'Maks antall*',
   waitingList: 'Venteliste',
   externalEvent: 'Eksternt arrangement',
-  hiddenEvent: 'Skjul arrangementet fra oversikten',
+  hiddenEventForEveryone: 'Skjult arrangement',
+  hiddenEventForPublic: 'Skjul fra arrangementer på bekk.no',
   eventType: 'Hvilken type arrangement er dette?',
   participantQuestion: 'Spørsmål til deltakerne*',
   shortname: 'Lag en penere URL for arrangementet',
@@ -798,8 +829,10 @@ const helpText = {
     'Eksterne arrangement er tilgjengelig for personer utenfor Bekk.',
   externalEventRed:
     'Eksterne kan ikke se de påmeldtes e-postadresser eller navn.',
-  hiddenEvent:
-    'Arrangementet vil ikke dukke opp på landingssiden, forside.bekk.no eller www.bekk.no.',
+  hiddenEventForEveryone:
+    'Arrangementet vil ikke dukke opp på i oversikten på skjer.bekk.no, forside.bekk.no eller bekk.no.',
+  hiddenEventForPublic:
+    'På bekk.no ønsker vi å vise fram mye av det fine som skjer på fagfronten i Bekk – også av interne, faglige ting. Krysser du av for denne vil arrangementet ditt ikke vises på bekk.no.',
 };
 
 const buttonText = {

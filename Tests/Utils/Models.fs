@@ -22,6 +22,7 @@ type Event = {
     IsCancelled: bool
     IsExternal: bool
     IsHidden: bool
+    IsPubliclyAvailable: bool
     EventType: EventType
     NumberOfParticipants: int
     Shortname: string option
@@ -92,6 +93,7 @@ let publicEventDecoder: Decoder<EventSummary> =
           TargetAudience = get.Optional.Field "targetAudience" Decode.string
           StartDate = get.Required.Field "startDate" Decode.datetime
           IsExternal = get.Required.Field "isExternal" Decode.bool
+          IsPubliclyAvailable = get.Required.Field "isPubliclyAvailable" Decode.bool
           EventType = get.Required.Field "eventType" decoder
           })
 

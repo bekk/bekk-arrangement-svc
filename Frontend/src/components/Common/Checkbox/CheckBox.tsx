@@ -6,6 +6,7 @@ interface IProps {
   onChange: (isChecked: boolean) => void;
   onDarkBackground?: boolean;
   isChecked: boolean;
+  isDisabled?: boolean;
   label: string;
 }
 
@@ -13,13 +14,16 @@ export const CheckBox = ({
   onChange,
   onDarkBackground,
   isChecked,
+  isDisabled = false,
   label,
 }: IProps) => {
   const labelStyle = classNames(style.checkboxLabel, {
     [style.checkboxLabelOnDarkBG]: onDarkBackground,
+    [style.checkBoxDisabled]: isDisabled,
   });
   const checkboxStyle = classNames(style.checkbox, {
     [style.checkBoxOnDarkBG]: onDarkBackground,
+    [style.checkBoxDisabled]: isDisabled,
   });
   return (
     <label className={labelStyle}>
@@ -30,6 +34,7 @@ export const CheckBox = ({
           onChange(e.target.checked)
         }
         checked={isChecked}
+        disabled={isDisabled}
       />
       {label}
     </label>
