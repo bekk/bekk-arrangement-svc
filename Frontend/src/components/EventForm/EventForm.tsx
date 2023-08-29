@@ -318,7 +318,6 @@ export const EventForm = ({ eventResult: event, updateEvent }: IProps) => {
             value={event.description}
             validation={parseDescription}
             onLightBackground
-            minRow={8}
             onChange={(description) =>
               updateEvent({
                 ...event,
@@ -347,7 +346,6 @@ export const EventForm = ({ eventResult: event, updateEvent }: IProps) => {
               value={event.program ?? ''}
               validation={parseProgram}
               onLightBackground
-              minRow={8}
               onChange={(program) =>
                 updateEvent({
                   ...event,
@@ -593,7 +591,6 @@ export const EventForm = ({ eventResult: event, updateEvent }: IProps) => {
                 parseQuestions([{ id: undefined, question: s }])
               }
               onLightBackground
-              minRow={4}
               onChange={(participantQuestion) =>
                 updateEvent({
                   ...event,

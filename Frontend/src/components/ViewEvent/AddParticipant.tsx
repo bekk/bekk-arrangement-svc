@@ -129,13 +129,21 @@ export const AddParticipant = ({
         />
       </div>
       {event.participantQuestions.map((q, i) => {
+        if (q.id === undefined)
+          return <>Det skjedde en feil under lasting av spørsmål</>;
+
+        const questionId = q.id;
+
         const { isMultipleChoiceQuestion, alternatives, actualQuestion } =
           multipleChoiceAlternatives(q.question);
+        const foundAnswer = participant.participantAnswers.find(
+          (answer) => answer.questionId === questionId
+        );
         return isMultipleChoiceQuestion ? (
           <MultipleChoiceQuestion
             question={actualQuestion}
             alternatives={alternatives}
-            value={participant.participantAnswers[i].answer}
+            value={foundAnswer?.answer || ''}
             onChange={(s) =>
               setParticipant({
                 ...participant,
@@ -143,7 +151,7 @@ export const AddParticipant = ({
                   (a, oldI) => {
                     if (i === oldI) {
                       const newAnswer: IQuestionAndAnswerViewModel = {
-                        questionId: (q.id && q.id.toString()) || '',
+                        questionId,
                         eventId: eventId,
                         email: email || '',
                         question: q.question,
@@ -162,9 +170,8 @@ export const AddParticipant = ({
             <ValidatedTextArea
               label={q.question}
               placeholder={''}
-              value={participant.participantAnswers[i].answer ?? ''}
+              value={foundAnswer?.answer || ''}
               validation={(answer) => parseAnswerString(answer)}
-              minRow={3}
               onChange={(answer: string) =>
                 setParticipant({
                   ...participant,
@@ -172,7 +179,7 @@ export const AddParticipant = ({
                     (a, oldI) => {
                       if (i === oldI) {
                         const newAnswer: IQuestionAndAnswerViewModel = {
-                          questionId: (q.id && q.id.toString()) || '',
+                          questionId,
                           eventId: eventId,
                           email: email || '',
                           question: q.question,

@@ -77,7 +77,9 @@ export const toParticipantWriteModel = (
 ): IParticipantWriteModel => {
   return {
     ...participant,
-    participantAnswers: participant.participantAnswers,
+    participantAnswers: participant.participantAnswers.filter(
+      (a) => a.questionId !== undefined
+    ),
     viewUrlTemplate: createViewUrlTemplate(event),
     cancelUrlTemplate: cancelParticipationUrlTemplate,
   };
@@ -163,7 +165,7 @@ export const parseAnswers = (
     return value;
   }
   const validator = validate<IQuestionAndAnswerViewModel[]>({
-    'Svar kan ha maks 500 tegn': value.some((s) => s.answer.length > 500),
+    'Svar kan ha maks 500 tegn': value.some((s) => s && s.answer.length > 500),
   });
   return validator.resolve(value);
 };
@@ -179,7 +181,7 @@ export function initalParticipant(
     name: name ?? '',
     department: department ?? '',
     participantAnswers: Array(numberOfParticipantQuestions).fill({
-      questionId: '',
+      questionId: undefined,
       eventId: '',
       email: '',
       question: '',
