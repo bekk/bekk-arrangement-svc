@@ -67,7 +67,6 @@ const ParticipantTableMobile = (props: {
   participants: IParticipant[];
 }) => {
   const event = useEvent(props.eventId);
-  const questions = (hasLoaded(event) && event.data.participantQuestions) || [];
   const [showModal, setShowModal] = useState<IParticipant | null>(null);
   if (!hasLoaded(event)) return <></>;
   return (
@@ -86,19 +85,12 @@ const ParticipantTableMobile = (props: {
               </tr>
               <tr>
                 <td colSpan={2} className={style.mobileCommentCell}>
-                  {questions.map((q) => {
-                    const answer = attendee.participantAnswers.find(
-                      (a) => q.id && a.questionId === q.id
-                    );
-                    return (
-                      answer && (
-                        <div key={q.id}>
-                          <div className={style.question}>{q.question}</div>
-                          <div className={style.answer}>{answer.answer}</div>
-                        </div>
-                      )
-                    );
-                  })}
+                  {attendee.participantAnswers.map((qa) => (
+                    <div key={qa.questionId}>
+                      <div className={style.question}>{qa.question}</div>
+                      <div className={style.answer}>{qa.answer}</div>
+                    </div>
+                  ))}
                   <Button
                     className={style.deleteParticipantButtonMobile}
                     onClick={() => setShowModal(attendee)}>
@@ -131,7 +123,6 @@ const ParticipantTableDesktop = (props: {
   const hasComments = hasLoaded(event)
     ? event.data.participantQuestions.length > 0
     : true;
-  const questions = (hasLoaded(event) && event.data.participantQuestions) || [];
   const [wasCopied, setWasCopied] = useState(false);
   const [showDeleteParticipantModal, setShowDeleteParticipantModal] =
     useState<IParticipant | null>(null);
@@ -195,19 +186,12 @@ const ParticipantTableDesktop = (props: {
               </td>
               {hasComments && (
                 <td className={style.desktopCell}>
-                  {questions.map((q) => {
-                    const answer = attendee.participantAnswers.find(
-                      (a) => q.id && a.questionId === q.id
-                    );
-                    return (
-                      answer && (
-                        <div key={q.id}>
-                          <div className={style.question}>{q.question}</div>
-                          <div className={style.answer}>{answer.answer}</div>
-                        </div>
-                      )
-                    );
-                  })}
+                  {attendee.participantAnswers.map((qa) => (
+                    <div key={qa.questionId}>
+                      <div className={style.question}>{qa.question}</div>
+                      <div className={style.answer}>{qa.answer}</div>
+                    </div>
+                  ))}
                 </td>
               )}
               <td className={style.desktopCell}>
