@@ -92,6 +92,27 @@ export const AddParticipant = ({
     }
   });
 
+  const updateQuestion = (
+    a: IQuestionAndAnswerViewModel,
+    questionId: number,
+    question: string,
+    answer: string,
+    i: number,
+    oldI: number
+  ) => {
+    if (i === oldI) {
+      const newAnswer: IQuestionAndAnswerViewModel = {
+        questionId,
+        eventId: eventId,
+        email: email || '',
+        question,
+        answer,
+      };
+      return newAnswer;
+    }
+    return a;
+  };
+
   return (
     <div className={style.addParticipantContainer}>
       <div>
@@ -148,19 +169,8 @@ export const AddParticipant = ({
               setParticipant({
                 ...participant,
                 participantAnswers: participant.participantAnswers.map(
-                  (a, oldI) => {
-                    if (i === oldI) {
-                      const newAnswer: IQuestionAndAnswerViewModel = {
-                        questionId,
-                        eventId: eventId,
-                        email: email || '',
-                        question: q.question,
-                        answer: s,
-                      };
-                      return newAnswer;
-                    }
-                    return a;
-                  }
+                  (a, oldI) =>
+                    updateQuestion(a, questionId, q.question, s, i, oldI)
                 ),
               })
             }
@@ -172,23 +182,12 @@ export const AddParticipant = ({
               placeholder={''}
               value={foundAnswer?.answer || ''}
               validation={(answer) => parseAnswerString(answer)}
-              onChange={(answer: string) =>
+              onChange={(s) =>
                 setParticipant({
                   ...participant,
                   participantAnswers: participant.participantAnswers.map(
-                    (a, oldI) => {
-                      if (i === oldI) {
-                        const newAnswer: IQuestionAndAnswerViewModel = {
-                          questionId,
-                          eventId: eventId,
-                          email: email || '',
-                          question: q.question,
-                          answer: answer,
-                        };
-                        return newAnswer;
-                      }
-                      return a;
-                    }
+                    (a, oldI) =>
+                      updateQuestion(a, questionId, q.question, s, i, oldI)
                   ),
                 })
               }
