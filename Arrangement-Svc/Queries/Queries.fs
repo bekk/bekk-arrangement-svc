@@ -678,26 +678,29 @@ let createParticipantAnswers (participantAnswers: Models.ParticipantAnswer list)
     let answer = List.tryHead participantAnswers
     match answer with
     | None -> Ok []
-    | Some _ ->
-        let values =
-            let values =
-                participantAnswers
-                |> List.map (fun answer -> $"({answer.QuestionId}, '{answer.EventId}', '{answer.Email}', '{answer.Answer}')")
+    | Some answer ->
+    let insertQuery =
+        "
+        INSERT INTO ParticipantAnswers (QuestionId, EventId, Email, Answer)
+        VALUES (@QuestionId, @EventId, @Email, @Answer);
+        "
+    let selectQuery =
+        "
+        SELECT * FROM ParticipantAnswers
+        WHERE EventId = @eventId AND Email = @email;
+        "
+    let selectParameters = {|
+        EventId = answer.EventId
+        Email = answer.Email
+    |}
 
-            String.Join(",", values)
-
-        let query =
-            $"
-            INSERT INTO ParticipantAnswers (QuestionId, EventId, Email, Answer)
-            OUTPUT INSERTED.*
-            VALUES {values}
-            "
-        try
-            db.Connection.Query<Models.ParticipantAnswer>(query, transaction = db.Transaction)
-            |> Seq.toList
-            |> Ok
-        with
-            | ex -> Error ex
+    try
+        db.Connection.Execute(insertQuery, participantAnswers |> List.toSeq, db.Transaction) |> ignore
+        db.Connection.Query<Models.ParticipantAnswer>(selectQuery, selectParameters, db.Transaction)
+        |> Seq.toList
+        |> Ok
+    with
+        | ex -> Error ex
 
 let cancelEvent eventId (db: DatabaseContext) =
     task {
