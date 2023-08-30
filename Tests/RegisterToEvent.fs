@@ -279,4 +279,22 @@ type RegisterToEvent(fixture: DatabaseFixture) =
             Assert.True(actual)
         }
 
+    [<Fact>]
+    member _.``Registering participant without answering questions is OK ``() =
+        let generatedEvent =
+            TestData.createEvent (fun e ->
+                { e with MaxParticipants = None
+                         HasWaitingList = false
+                         ParticipantQuestions = [ { Id = None; Question = "Question 0" }
+                                                  { Id = None; Question = "Question 1" }
+                                                  { Id = None; Question = "Question 2" }
+                                                  { Id = None; Question = "Question 3" }
+                                                  { Id = None; Question = "Question 4" } ]
+                })
+
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
+            let! response, _ = Helpers.createParticipant authenticatedClient createdEvent.Event
+            response.EnsureSuccessStatusCode() |> ignore
+        }
 

@@ -124,19 +124,14 @@ let registerParticipation (eventId: Guid, email): HttpHandler =
                 let config = context.GetService<AppConfig>()
 
                 use db = openTransaction context
-                let! isEventExternal =
-                    Queries.isEventExternal eventId db
-                    |> TaskResult.mapError InternalError
-                do! (isBekker || isEventExternal) |> Result.requireTrue mustBeAuthorizedOrEventMustBeExternal
                 let! eventAndQuestions =
                     Queries.getEvent eventId db
                     |> TaskResult.mapError InternalError
                 let! eventAndQuestions =
                     eventAndQuestions
                     |> Result.requireSome (eventNotFound eventId)
-                let! numberOfParticipants =
-                    Queries.getNumberOfParticipantsForEvent eventId db
-                    |> TaskResult.mapError InternalError
+                do! (isBekker || eventAndQuestions.Event.IsExternal) |> Result.requireTrue mustBeAuthorizedOrEventMustBeExternal
+                let numberOfParticipants = Option.defaultValue 0 eventAndQuestions.NumberOfParticipants
 
                 // Verdien blir ignorert da vi nå kun bruker dette til å returnere riktig feil til brukeren.
                 // Om arrangemenet har plass eller man er ventelista henter vi ut fra databasen lenger ned.
@@ -328,9 +323,6 @@ let getUnfurlEvent (idOrName: string) =
         let result =
             taskResult {
                 use db = openConnection context
-                // TODO: USikker på hvilken av disse som er riktig.
-                // Gamle versjon gjør det på utkommentert måte, men den funker ikke i postman
-//                let success, parsedEventId = Guid.TryParse (idOrName |> strSkip ("/events/" |> String.length))
                 let! eventId =
                     match Guid.TryParse idOrName with
                     | true, guid ->
@@ -345,9 +337,7 @@ let getUnfurlEvent (idOrName: string) =
                 let! eventAndQuestions =
                     eventAndQuestions
                     |> Result.requireSome (eventNotFound eventId)
-                let! numberOfParticipants =
-                    Queries.getNumberOfParticipantsForEvent eventId db
-                    |> TaskResult.mapError InternalError
+                let numberOfParticipants = Option.defaultValue 0 eventAndQuestions.NumberOfParticipants
                 return {| event = Event.encodeEventAndQuestions eventAndQuestions; numberOfParticipants = numberOfParticipants |}
             }
         jsonResult result next context
@@ -629,9 +619,7 @@ let updateEvent (eventId: Guid) =
                 let! oldEvent =
                     oldEvent
                     |> Result.requireSome (eventNotFound eventId)
-                let! numberOfParticipantsForOldEvent =
-                    Queries.getNumberOfParticipantsForEvent eventId db
-                    |> TaskResult.mapError InternalError
+                let numberOfParticipantsForOldEvent = Option.defaultValue 0 oldEvent.NumberOfParticipants
 
                 do! canUpdateNumberOfParticipants oldEvent.Event writeModel numberOfParticipantsForOldEvent
                     |> Result.mapError id
@@ -716,7 +704,7 @@ let createCsvString (event: Models.Event) (questions: ParticipantQuestion list) 
         input.Replace("\n", " ")
         |> sprintf "\"%s\""
 
-    let createParticipant (builder: System.Text.StringBuilder) (participantAndAnswers: ParticipantAndAnswers) =
+    let createParticipant (builder: StringBuilder) (participantAndAnswers: ParticipantAndAnswers) =
         let participant = participantAndAnswers.Participant
         let questionAndAnswers = participantAndAnswers.QuestionAndAnswers
         let answers =
@@ -732,7 +720,7 @@ let createCsvString (event: Models.Event) (questions: ParticipantQuestion list) 
             |> Option.defaultValue ""
         builder.Append($"{employeeId},{participant.Name},{participant.Email},{department},{answers}\n") |> ignore
 
-    let builder = System.Text.StringBuilder()
+    let builder = StringBuilder()
 
     let questions =
         questions
