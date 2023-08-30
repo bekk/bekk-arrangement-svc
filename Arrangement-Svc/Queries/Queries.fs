@@ -682,7 +682,7 @@ let createParticipantAnswers (participantAnswers: Models.ParticipantAnswer list)
         let values =
             let values =
                 participantAnswers
-                |> List.map (fun answer -> $"({answer.QuestionId}, {answer.EventId}, {answer.Email}, {answer.Answer})")
+                |> List.map (fun answer -> $"({answer.QuestionId}, '{answer.EventId}', '{answer.Email}', '{answer.Answer}')")
 
             String.Join(",", values)
 
@@ -692,9 +692,8 @@ let createParticipantAnswers (participantAnswers: Models.ParticipantAnswer list)
             OUTPUT INSERTED.*
             VALUES {values}
             "
-
         try
-            db.Connection.Query<Models.ParticipantAnswer>(query, db.Transaction)
+            db.Connection.Query<Models.ParticipantAnswer>(query, transaction = db.Transaction)
             |> Seq.toList
             |> Ok
         with
