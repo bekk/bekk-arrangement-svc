@@ -467,8 +467,8 @@ let getParticipationsById (id: int) (db: DatabaseContext) =
                    P.RegistrationTime,
                    P.CancellationToken,
                    P.Name,
-                   P.IsWaitlisted,
                    P.EmployeeId,
+                   P.IsWaitlisted,
                    Q.Question,
                    A.QuestionId,
                    A.EventId,
@@ -477,8 +477,8 @@ let getParticipationsById (id: int) (db: DatabaseContext) =
             FROM Participants P
                      LEFT JOIN ParticipantAnswers A ON A.EventId = P.EventId AND A.Email = P.Email
                      LEFT JOIN ParticipantQuestions Q ON Q.EventId = P.EventId AND Q.Id = A.QuestionId
-            WHERE P.EmployeeId = @id;
-            ORDER BY P.RegistrationTime
+            WHERE P.EmployeeId = @id
+            ORDER BY P.RegistrationTime;
             "
         let parameters = {|
             Id = id
@@ -1157,7 +1157,7 @@ let getParticipationsForParticipant email (db: DatabaseContext) =
                 LEFT JOIN ParticipantAnswers A on P.Email = A.Email AND P.EventId = A.EventId
                 LEFT JOIN ParticipantQuestions Q ON Q.EventId = P.EventId AND Q.Id = A.QuestionId
             WHERE P.Email = @email
-            ORDER BY P.RegistrationTime
+            ORDER BY P.RegistrationTime;
             "
 
         let parameters = {|
@@ -1198,6 +1198,12 @@ let deleteParticipantFromEvent eventId email (db: DatabaseContext) =
             DELETE FROM Participants
             OUTPUT DELETED.*
             WHERE EventId = @eventId AND Email = @email
+
+            UPDATE Participants SET IsWaitlisted = 0 WHERE Email IN (
+            SELECT TOP (1) Email
+            FROM Participants
+            WHERE EventId = @eventId AND IsWaitlisted = 1
+            ORDER BY RegistrationTime);
             "
 
         let parameters = {|

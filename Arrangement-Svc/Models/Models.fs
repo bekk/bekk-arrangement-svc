@@ -499,6 +499,7 @@ module Participant =
             "eventId", Encode.guid participant.EventId
             "cancellationToken", Encode.guid participant.CancellationToken
             "employeeId", Encode.option Encode.int participant.EmployeeId
+            "isWaitlisted", Encode.bool participant.IsWaitlisted
         ]
 
     let encodeWithCancelInfo (participant: Participant) (questionAndAnswers: QuestionAndAnswer list) =
