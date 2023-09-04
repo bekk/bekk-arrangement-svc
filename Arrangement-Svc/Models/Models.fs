@@ -450,6 +450,7 @@ type Participant =
     EventId: Guid
     CancellationToken: Guid
     EmployeeId: int option
+    IsWaitlisted: bool
   }
 
 [<CLIMutable>]

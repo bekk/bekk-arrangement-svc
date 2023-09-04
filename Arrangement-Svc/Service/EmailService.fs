@@ -106,6 +106,7 @@ let organizerAsParticipant (event: Models.Event): Participant =
       RegistrationTime = DateTimeOffset.Now.ToUnixTimeSeconds()
       CancellationToken = Guid.Empty
       EmployeeId = Some event.OrganizerId
+      IsWaitlisted = false
     }
 
 let private createEmail viewUrl editUrl noReplyMail (event: Models.Event) =

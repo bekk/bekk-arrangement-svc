@@ -467,6 +467,7 @@ let getParticipationsById (id: int) (db: DatabaseContext) =
                    P.RegistrationTime,
                    P.CancellationToken,
                    P.Name,
+                   P.IsWaitlisted,
                    P.EmployeeId,
                    Q.Question,
                    A.QuestionId,
@@ -477,6 +478,7 @@ let getParticipationsById (id: int) (db: DatabaseContext) =
                      LEFT JOIN ParticipantAnswers A ON A.EventId = P.EventId AND A.Email = P.Email
                      LEFT JOIN ParticipantQuestions Q ON Q.EventId = P.EventId AND Q.Id = A.QuestionId
             WHERE P.EmployeeId = @id;
+            ORDER BY P.RegistrationTime
             "
         let parameters = {|
             Id = id
@@ -633,12 +635,12 @@ let getParticipantsForEvent (eventId: Guid) (db: DatabaseContext) =
             | ex -> return Error ex
     }
 
-let addParticipantToEvent (eventId: Guid) email (userId: int option) name department (db: DatabaseContext) =
+let addParticipantToEvent (eventId: Guid) email (userId: int option) name department isWaitlisted (db: DatabaseContext) =
     let query =
         "
         INSERT INTO Participants
         OUTPUT INSERTED.*
-        VALUES (@email, @eventId, @currentEpoch, @cancellationToken, @name, @employeeId, @department);
+        VALUES (@email, @eventId, @currentEpoch, @cancellationToken, @name, @employeeId, @department, @isWaitlisted);
         "
 
     let parameters = {|
@@ -649,6 +651,7 @@ let addParticipantToEvent (eventId: Guid) email (userId: int option) name depart
         Name = name
         Department = department
         EmployeeId = userId
+        IsWaitlisted = isWaitlisted
     |}
 
     try
@@ -1089,6 +1092,7 @@ let getParticipantsAndAnswersForEvent (eventId: Guid) (db: DatabaseContext) =
                    P.Department,
                    P.EventId,
                    P.RegistrationTime,
+                   P.IsWaitlisted,
                    Q.Question,
                    A.QuestionId,
                    A.EventId,
@@ -1143,6 +1147,7 @@ let getParticipationsForParticipant email (db: DatabaseContext) =
                    P.EmployeeId,
                    P.Name,
                    P.EmployeeId,
+                   P.IsWaitlisted,
                    Q.Question,
                    A.QuestionId,
                    A.EventId,
@@ -1152,6 +1157,7 @@ let getParticipationsForParticipant email (db: DatabaseContext) =
                 LEFT JOIN ParticipantAnswers A on P.Email = A.Email AND P.EventId = A.EventId
                 LEFT JOIN ParticipantQuestions Q ON Q.EventId = P.EventId AND Q.Id = A.QuestionId
             WHERE P.Email = @email
+            ORDER BY P.RegistrationTime
             "
 
         let parameters = {|
