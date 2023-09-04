@@ -269,7 +269,9 @@ let private sendMailWithCancellationConfirmation event participant context =
     sendMail mail context
 
 let sendParticipantCancelMails (event: Models.Event) (participant: Models.Participant) (participantAnswers: QuestionAndAnswer list) (personWhoGotIt: ParticipantAndAnswers option) context =
-    sendMailToOrganizerAboutCancellation event participant participantAnswers context
+    // We only want to send the email if the participant was not on the waitinglist.
+    if not participant.IsWaitlisted then
+        sendMailToOrganizerAboutCancellation event participant participantAnswers context
     sendMailWithCancellationConfirmation event participant context
     match personWhoGotIt with
     | Some person -> sendMailToFirstPersonOnWaitingList event person.Participant context

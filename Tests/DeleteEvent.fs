@@ -271,6 +271,28 @@ type DeleteEvent(fixture: DatabaseFixture) =
             Assert.True(List.exists participantIsAvmeldt mailbox)
         }
 
+    [<Fact>]
+    member _.``Deleting a participant on waitinglist should generate 1 email``() =
+        let generatedEvent =
+            TestData.createEvent (fun e ->
+                { e with
+                    HasWaitingList = true
+                    MaxParticipants = Some 0
+                    ParticipantQuestions = [] })
+
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
+            let! participant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event
+
+            emptyDevMailbox ()
+            let! _ = Http.deleteParticipantFromEvent clientDifferentUserAdmin createdEvent.Event.Id participant.Email
+            let mailbox = getDevMailbox ()
+
+            Assert.Equal(1, List.length mailbox)
+            Assert.True(List.exists isAvmeldtEmail mailbox)
+            Assert.False(List.exists participantIsAvmeldt mailbox)
+        }
+
 
     [<Fact>]
     member _.``Deleting participant that does not exist returns 404``() =
