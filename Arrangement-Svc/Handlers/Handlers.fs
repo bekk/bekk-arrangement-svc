@@ -653,6 +653,10 @@ let updateEvent (eventId: Guid) =
                     let! updatedEvent =
                         Queries.updateEvent eventId writeModel db
                         |> TaskResult.mapError InternalError
+
+                    let! updatedUsers =
+                        Queries.uptateUserWaitlist eventId 10 db
+                        |> TaskResult.mapError InternalError
                     db.Commit()
 
                     if writeModel.StartDate > DateTimeCustom.now() then

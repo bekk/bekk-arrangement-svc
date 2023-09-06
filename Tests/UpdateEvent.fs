@@ -5,6 +5,7 @@ open Xunit
 
 open Models
 open Tests
+open Email.Service
 
 [<Collection("Database collection")>]
 type UpdateEvent(fixture: DatabaseFixture) =
@@ -13,6 +14,8 @@ type UpdateEvent(fixture: DatabaseFixture) =
 
     let unauthenticatedClient =
         fixture.getUnauthenticatedClient
+
+    let isPaameldt (email: DevEmail) = email.Email.Message.Contains "Du har rykket opp fra ventelisten"
 
     let clientDifferentUserAdmin =
         fixture.getAuthedClientWithClaims 40 [ "admin:arrangement" ]
@@ -229,6 +232,56 @@ type UpdateEvent(fixture: DatabaseFixture) =
         }
 
     [<Fact>]
+    member _.``Increasing max-participants by N will give N top people from waitinglist space and sends them emails``() =
+        task {
+            let generatedEvent = TestData.createEvent (fun e -> { e with MaxParticipants = Some 0; HasWaitingList = true; StartDate = Generator.generateDateTimeCustomFuture() })
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
+            let! firstParticipant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event
+            let! secondParticipant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event
+            let! _, firstParticipantSpot =
+                Http.get
+                    authenticatedClient
+                    $"/events/{createdEvent.Event.Id}/participants/{firstParticipant.Email}/waitinglist-spot"
+
+            let! _, secondParticipantSpot =
+                Http.get
+                    authenticatedClient
+                    $"/events/{createdEvent.Event.Id}/participants/{secondParticipant.Email}/waitinglist-spot"
+
+            // Assert that they are on waitinglist
+            Assert.Equal(firstParticipantSpot, "1")
+            Assert.Equal(secondParticipantSpot, "2")
+
+            emptyDevMailbox ()
+
+            let! response, _ =
+                Helpers.updateEvent
+                    authenticatedClient
+                    createdEvent.Event.Id
+                    { generatedEvent with MaxParticipants = Some 10 }
+
+            response.EnsureSuccessStatusCode() |> ignore
+
+            let! _, firstParticipantSpot =
+                Http.get
+                    authenticatedClient
+                    $"/events/{createdEvent.Event.Id}/participants/{firstParticipant.Email}/waitinglist-spot"
+
+            let! _, secondParticipantSpot =
+                Http.get
+                    authenticatedClient
+                    $"/events/{createdEvent.Event.Id}/participants/{secondParticipant.Email}/waitinglist-spot"
+
+            // Assert that they are no longer on waitlinglist
+            Assert.Equal("0", firstParticipantSpot)
+            Assert.Equal("0", secondParticipantSpot)
+
+            let mailbox = getDevMailbox ()
+            Assert.Equal(2, List.length mailbox)
+            Assert.True(List.forall isPaameldt mailbox)
+        }
+
+    [<Fact>]
     member _.``Can change questions if no one has answered any yet``() =
         task {
             let generatedEvent =
@@ -289,5 +342,3 @@ type UpdateEvent(fixture: DatabaseFixture) =
 
             response.EnsureSuccessStatusCode() |> ignore
         }
-
-        // TODO CHANGE TO NO OFFICE

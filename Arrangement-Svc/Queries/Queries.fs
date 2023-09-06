@@ -1219,6 +1219,30 @@ let deleteParticipantFromEvent eventId email (db: DatabaseContext) =
     }
 
 
+let uptateUserWaitlist eventId numberOfUsers (db: DatabaseContext) =
+    task {
+        let query =
+            "
+            UPDATE Participants SET IsWaitlisted = 0 WHERE Email IN (
+            SELECT TOP (@numberOfUsers) Email
+            FROM Participants
+            WHERE EventId = @eventId AND IsWaitlisted = 1
+            ORDER BY RegistrationTime);
+            "
+
+        let parameters = {|
+            EventId = eventId
+            NumberOfUsers = numberOfUsers
+        |}
+
+        try
+            let! result = db.Connection.ExecuteAsync(query, parameters, db.Transaction)
+            return Ok result
+        with
+            | ex -> return Error ex
+    }
+
+
 let isParticipating eventId email (db: DatabaseContext) =
     task {
         let query =
