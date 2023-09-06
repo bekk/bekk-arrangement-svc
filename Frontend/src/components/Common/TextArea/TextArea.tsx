@@ -10,7 +10,6 @@ interface IProps {
   isError?: boolean;
   onBlur?: () => void;
   onLightBackground?: boolean;
-  minRow?: number;
   className?: string;
 }
 

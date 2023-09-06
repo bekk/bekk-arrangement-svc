@@ -219,6 +219,7 @@ export const ViewEventContainer = ({ eventId }: IProps) => {
         isPossibleToRegister={isPossibleToRegister()}
         event={event}
         participantsText={shortParticipantsText}
+        // This is weird, but intentional
         userCanEdit={editTokenFound || userIsAdmin() ? true : false}
       />
       <Page>

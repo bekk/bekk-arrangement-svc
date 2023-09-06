@@ -5,7 +5,8 @@ import {
   initalParticipant,
   parseEditParticipant,
   parseName,
-  parseAnswers,
+  IQuestionAndAnswerViewModel,
+  parseAnswerString,
 } from 'src/types/participant';
 import { ValidatedTextInput } from 'src/components/Common/ValidatedTextInput/ValidatedTextInput';
 import { parseEditEmail } from 'src/types/email';
@@ -91,6 +92,27 @@ export const AddParticipant = ({
     }
   });
 
+  const updateQuestion = (
+    a: IQuestionAndAnswerViewModel,
+    questionId: number,
+    question: string,
+    answer: string,
+    i: number,
+    oldI: number
+  ) => {
+    if (i === oldI) {
+      const newAnswer: IQuestionAndAnswerViewModel = {
+        questionId,
+        eventId: eventId,
+        email: email || '',
+        question,
+        answer,
+      };
+      return newAnswer;
+    }
+    return a;
+  };
+
   return (
     <div className={style.addParticipantContainer}>
       <div>
@@ -102,6 +124,9 @@ export const AddParticipant = ({
           onChange={(name: string) =>
             setParticipant({
               ...participant,
+              participantAnswers: participant.participantAnswers.map(
+                (answer) => ({ ...answer, email: email || '' })
+              ),
               name,
             })
           }
@@ -117,50 +142,52 @@ export const AddParticipant = ({
             setParticipant({
               ...participant,
               email,
+              participantAnswers: participant.participantAnswers.map(
+                (answer) => ({ ...answer, email })
+              ),
             })
           }
         />
       </div>
       {event.participantQuestions.map((q, i) => {
+        if (q.id === undefined)
+          return <>Det skjedde en feil under lasting av spørsmål</>;
+
+        const questionId = q.id;
+
         const { isMultipleChoiceQuestion, alternatives, actualQuestion } =
-          multipleChoiceAlternatives(q);
+          multipleChoiceAlternatives(q.question);
+        const foundAnswer = participant.participantAnswers.find(
+          (answer) => answer.questionId === questionId
+        );
         return isMultipleChoiceQuestion ? (
           <MultipleChoiceQuestion
             question={actualQuestion}
             alternatives={alternatives}
-            value={participant.participantAnswers[i]}
+            value={foundAnswer?.answer || ''}
             onChange={(s) =>
               setParticipant({
                 ...participant,
                 participantAnswers: participant.participantAnswers.map(
-                  (a, oldI) => {
-                    if (i === oldI) {
-                      return s;
-                    }
-                    return a;
-                  }
+                  (a, oldI) =>
+                    updateQuestion(a, questionId, q.question, s, i, oldI)
                 ),
               })
             }
           />
         ) : (
-          <div key={q}>
+          <div key={q.id}>
             <ValidatedTextArea
-              label={q}
+              label={q.question}
               placeholder={''}
-              value={participant.participantAnswers[i] ?? ''}
-              validation={(answer) => parseAnswers([answer])}
-              minRow={3}
-              onChange={(answer: string) =>
+              value={foundAnswer?.answer || ''}
+              validation={(answer) => parseAnswerString(answer)}
+              onChange={(s) =>
                 setParticipant({
                   ...participant,
                   participantAnswers: participant.participantAnswers.map(
-                    (a, oldI) => {
-                      if (i === oldI) {
-                        return answer;
-                      }
-                      return a;
-                    }
+                    (a, oldI) =>
+                      updateQuestion(a, questionId, q.question, s, i, oldI)
                   ),
                 })
               }

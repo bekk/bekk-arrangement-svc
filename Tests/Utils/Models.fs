@@ -13,9 +13,10 @@ type Event = {
     OpenForRegistrationTime: int64
     CloseRegistrationTime: int64 option
     OrganizerName: string
+    OrganizerId: int
     OrganizerEmail: string
     MaxParticipants: int option
-    ParticipantQuestions: string[]
+    ParticipantQuestions: ParticipantQuestionWriteModel[]
     Program: string option
     HasWaitingList: bool
     IsCancelled: bool
@@ -38,7 +39,7 @@ type InnerEvent = { Id: string
 
 type CreatedEvent =
     { EditToken: string
-      Event: InnerEvent }
+      Event: Event }
 
 type InnerParticipant =
     { Name: string
@@ -56,7 +57,8 @@ type ParticipantAndAnswers =
 
 let questionAndAnswerDecoder: Decoder<QuestionAndAnswer> =
     Decode.object (fun get ->
-        { Question = get.Required.Field "question" Decode.string
+        { QuestionId = get.Required.Field "questionId" Decode.int
+          Question = get.Required.Field "question" Decode.string
           Answer = get.Required.Field "answer" Decode.string })
 
 let participantAndAnswerDecoder: Decoder<ParticipantAndAnswers> =
@@ -94,11 +96,6 @@ let publicEventDecoder: Decoder<EventSummary> =
           IsPubliclyAvailable = get.Required.Field "isPubliclyAvailable" Decode.bool
           EventType = get.Required.Field "eventType" decoder
           })
-
-let createdEventDecoder: Decoder<CreatedEvent> =
-    Decode.object (fun get ->
-        { EditToken = get.Required.Field "editToken" Decode.string
-          Event = get.Required.Field "event" innerEventDecoder })
 
 let innerParticipantDecoder: Decoder<InnerParticipant> =
     Decode.object (fun get ->
@@ -156,7 +153,7 @@ let useUpdatedEvent (responseBody: ResponseBody) (f: InnerEvent -> unit) =
 let getParticipant (responseBody: ResponseBody): ParticipantTest =
     match responseBody with
     | Participant participantTest -> participantTest
-    | _ -> failwith "Not a valid participant test model"
+    | e -> failwith $"Not a valid participant test model {e}"
 
 let useParticipant (responseBody: ResponseBody) (f: ParticipantTest -> unit) =
     responseBody
