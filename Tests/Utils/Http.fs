@@ -47,7 +47,6 @@ let request (client: HttpClient) (url: string) (body: 'a option) (method: HttpMe
 let requestDecode<'a, 'b> client (decoder: Decoder<'a>) url (body: 'b option) method =
     task {
         let! response, content = request client url body method
-        let a = 10
         let decode =
             Decode.fromString decoder content
             |> Result.mapError(fun _ -> decodeUserMessage content)
