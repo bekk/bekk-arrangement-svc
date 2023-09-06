@@ -120,7 +120,7 @@ type GetEvent(fixture: DatabaseFixture) =
             let! createdEvent = Helpers.createEventAndGet authenticatedClient event
 
             for _ in 0..4 do
-                let! _ = Helpers.createParticipant authenticatedClient createdEvent.Event
+                let! _ = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
                 ()
 
             let! _, content = Http.get authenticatedClient $"/events/{createdEvent.Event.Id}/participants/count"
@@ -134,7 +134,7 @@ type GetEvent(fixture: DatabaseFixture) =
 
         task {
             let! createdEvent = Helpers.createEventAndGet authenticatedClient event
-            let! created = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event
+            let! created = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event.Id
 
             let! response, _ =
                 Http.get
@@ -152,7 +152,7 @@ type GetEvent(fixture: DatabaseFixture) =
 
         task {
             let! createdEvent = Helpers.createEventAndGet authenticatedClient event
-            let! created = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event
+            let! created = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event.Id
 
             let! response, _ =
                 Http.get
@@ -169,7 +169,7 @@ type GetEvent(fixture: DatabaseFixture) =
 
         task {
             let! createdEvent = Helpers.createEventAndGet authenticatedClient event
-            let! created = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event
+            let! created = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event.Id
 
             let! response, _ =
                 Http.get
@@ -190,7 +190,7 @@ type GetEvent(fixture: DatabaseFixture) =
 
         task {
             let! createdEvent = Helpers.createEventAndGet authenticatedClient event
-            let! created = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event
+            let! created = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event.Id
 
             let! _, content =
                 Http.get
@@ -352,7 +352,7 @@ type GetEvent(fixture: DatabaseFixture) =
             let! createdEvent = Helpers.createEventAndGet authenticatedClient event
 
             for _ in 0..7 do
-                let! _ = Helpers.createParticipant authenticatedClient createdEvent.Event
+                let! _ = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
                 ()
 
             let! response, result = Helpers.getParticipationsAndWaitlist authenticatedClient createdEvent.Event.Id
@@ -373,7 +373,11 @@ type GetEvent(fixture: DatabaseFixture) =
     [<Fact>]
     member _.``Authenticated users can get participations for participant``() =
         task {
+            let participant =
+                Generator.generateParticipant 0
+
             let email = Generator.generateEmail ()
+
             for _ in 0..4 do
                 let event =
                     TestData.createEvent (fun e ->
@@ -383,9 +387,10 @@ type GetEvent(fixture: DatabaseFixture) =
                             HasWaitingList = true })
 
                 let! _, createdEvent = Helpers.createEvent authenticatedClient event
-                let createdEvent = getCreatedEvent createdEvent
 
-                let participant = Generator.generateParticipant email createdEvent.Event
+                let createdEvent =
+                    getCreatedEvent createdEvent
+
                 let! _ = Helpers.createParticipantForEvent authenticatedClient createdEvent.Event.Id email participant
                 ()
 
@@ -394,7 +399,7 @@ type GetEvent(fixture: DatabaseFixture) =
 
             response.EnsureSuccessStatusCode() |> ignore
         }
-
+    
      [<Fact>]
      member _.``Unauthenticated users can get publicly available event info``() =
         task {
@@ -415,21 +420,20 @@ type GetEvent(fixture: DatabaseFixture) =
                 let! _, _ = Helpers.createEvent authenticatedClient event
                 ()
 
-            let fagligEvent = TestData.createEvent (fun e ->
-                { e with
-                    IsExternal = false
+            let fagligEvent = TestData.createEvent (fun e -> 
+                { e with 
+                    IsExternal = false 
                     EventType = Faglig})
 
             let! _, _ = Helpers.createEvent authenticatedClient fagligEvent
-
+            
             let! _, body = Helpers.getPublicEvents unauthenticatedClient
 
             Assert.True(List.forall (fun (event: EventSummary) -> event.EventType = Faglig) body)
         }
 
-
     [<Fact>]
-    member _.``Public events returns only publicly available events``() =
+     member _.``Public events returns only publicly available events``() =
         task {
             for _ in 0..4 do
                 let event =
@@ -441,15 +445,15 @@ type GetEvent(fixture: DatabaseFixture) =
                 let! _, _ = Helpers.createEvent authenticatedClient event
                 ()
 
-            let fagligEvent = TestData.createEvent (fun e ->
-                { e with
-                    IsExternal = false
+            let fagligEvent = TestData.createEvent (fun e -> 
+                { e with 
+                    IsExternal = false 
                     EventType = Faglig})
 
             let! _, _ = Helpers.createEvent authenticatedClient fagligEvent
-
+            
             let! _, body = Helpers.getPublicEvents unauthenticatedClient
 
             Assert.True(List.forall (fun (event: EventSummary) -> event.IsPubliclyAvailable = true) body)
         }
-
+        

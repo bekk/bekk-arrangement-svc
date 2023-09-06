@@ -12,8 +12,8 @@ let uriBuilder path = UriBuilder($"{basePath}/{path}")
 
 let private extraCoders =
     Extra.empty
-    |> Extra.withCustom Office.encoder Office.decoder
-    |> Extra.withCustom encoder decoder
+    |> Extra.withCustom Models.Office.encoder Models.Office.decoder
+    |> Extra.withCustom Models.EventType.encoder Models.EventType.decoder
     |> Extra.withCustom DateTimeCustom.DateTimeCustom.encoder DateTimeCustom.DateTimeCustom.decoder
     |> Extra.withInt64
 
@@ -66,7 +66,7 @@ let get (client: HttpClient) (url: string) = request client url None HttpMethod.
 
 let getEvent (client: HttpClient) (eventId: string) =
     task {
-        let! _, content = get client $"/events/{eventId}"
+        let! (_, content) = get client $"/events/{eventId}"
         let event : Result<Event, string> = Decode.fromString autoDecoder content
         return event
     }
@@ -80,8 +80,7 @@ let postParticipant (client: HttpClient) eventId email (participant: Models.Part
         HttpMethod.Post
 
 let postEvent (client: HttpClient) (event: Models.EventWriteModel) =
-
-    requestDecode client autoDecoder<CreatedEvent> "/events" (Some event) HttpMethod.Post
+    requestDecode client createdEventDecoder "/events" (Some event) HttpMethod.Post
 
 let updateEvent (client: HttpClient) eventId (event: Models.EventWriteModel) =
     requestDecode client innerEventDecoder $"/events/{eventId}" (Some event) HttpMethod.Put
@@ -130,7 +129,7 @@ let getEventIdByShortname (client: HttpClient) (shortname: string) =
         builder.ToString()
 
     request client url None HttpMethod.Get
-
+    
 
 let getParticipationsForEvent (client: HttpClient) email =
     requestDecode

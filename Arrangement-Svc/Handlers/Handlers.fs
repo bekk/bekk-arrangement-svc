@@ -124,14 +124,19 @@ let registerParticipation (eventId: Guid, email): HttpHandler =
                 let config = context.GetService<AppConfig>()
 
                 use db = openTransaction context
+                let! isEventExternal =
+                    Queries.isEventExternal eventId db
+                    |> TaskResult.mapError InternalError
+                do! (isBekker || isEventExternal) |> Result.requireTrue mustBeAuthorizedOrEventMustBeExternal
                 let! eventAndQuestions =
                     Queries.getEvent eventId db
                     |> TaskResult.mapError InternalError
                 let! eventAndQuestions =
                     eventAndQuestions
                     |> Result.requireSome (eventNotFound eventId)
-                do! (isBekker || eventAndQuestions.Event.IsExternal) |> Result.requireTrue mustBeAuthorizedOrEventMustBeExternal
-                let numberOfParticipants = Option.defaultValue 0 eventAndQuestions.NumberOfParticipants
+                let! numberOfParticipants =
+                    Queries.getNumberOfParticipantsForEvent eventId db
+                    |> TaskResult.mapError InternalError
 
                 // Verdien blir ignorert da vi nå kun bruker dette til å returnere riktig feil til brukeren.
                 // Om arrangemenet har plass eller man er ventelista henter vi ut fra databasen lenger ned.
@@ -148,12 +153,32 @@ let registerParticipation (eventId: Guid, email): HttpHandler =
                         | NoRoom ->
                             Error "Arrangementet har ikke plass"
                         | IsWaitListed | CanParticipate -> Ok ()
-                    |> Result.mapError BadRequest
+                    |> Result.mapError (fun e -> BadRequest e)
 
-                let! participant = Queries.addParticipantToEvent eventId email userId writeModel.Name writeModel.Department db
-                                   |> Result.mapError InternalError
-                let! answers = Queries.createParticipantAnswers writeModel.ParticipantAnswers db
-                               |> Result.mapError InternalError
+                let eventQuestions = Queries.getEventQuestions eventId db
+                let! participant, answers =
+                    let result =
+                        let participant = Queries.addParticipantToEvent eventId email userId writeModel.Name writeModel.Department db
+                        let answers =
+                            if List.isEmpty writeModel.ParticipantAnswers then
+                                Ok []
+                            else
+                                // FIXME: Here we need to fetch all the questions from the database. This is because we have no question ID related to the answers. This does not feel right and should be fixed. Does require a frontend fix as well
+                                let participantAnswerDbModels: ParticipantAnswer list =
+                                    writeModel.ParticipantAnswers
+                                    |> Seq.zip eventQuestions
+                                    |> Seq.map (fun (question, answer) ->
+                                        { QuestionId = question.Id
+                                          EventId = eventId
+                                          Email = email
+                                          Answer = answer
+                                        })
+                                    |> Seq.toList
+                                Queries.createParticipantAnswers participantAnswerDbModels db
+                        Ok (participant, answers)
+                    result |> Result.mapError InternalError
+                let! participant = participant |> Result.mapError InternalError
+                let! answers = answers |> Result.mapError InternalError
                 db.Commit()
 
                 let! isParticipating =
@@ -161,7 +186,7 @@ let registerParticipation (eventId: Guid, email): HttpHandler =
                     |> TaskResult.mapError InternalError
 
                 // Sende epost
-                let questionAndAnswers = createQuestionAndAnswer eventAndQuestions.Questions answers
+                let questionAndAnswers = createQuestionAndAnswer eventQuestions answers
                 let isWaitlisted = eventAndQuestions.Event.HasWaitingList && isParticipating = false
                 let email =
                     let viewUrl = createViewUrl writeModel.ViewUrlTemplate eventAndQuestions.Event
@@ -323,6 +348,9 @@ let getUnfurlEvent (idOrName: string) =
         let result =
             taskResult {
                 use db = openConnection context
+                // TODO: USikker på hvilken av disse som er riktig.
+                // Gamle versjon gjør det på utkommentert måte, men den funker ikke i postman
+//                let success, parsedEventId = Guid.TryParse (idOrName |> strSkip ("/events/" |> String.length))
                 let! eventId =
                     match Guid.TryParse idOrName with
                     | true, guid ->
@@ -337,7 +365,9 @@ let getUnfurlEvent (idOrName: string) =
                 let! eventAndQuestions =
                     eventAndQuestions
                     |> Result.requireSome (eventNotFound eventId)
-                let numberOfParticipants = Option.defaultValue 0 eventAndQuestions.NumberOfParticipants
+                let! numberOfParticipants =
+                    Queries.getNumberOfParticipantsForEvent eventId db
+                    |> TaskResult.mapError InternalError
                 return {| event = Event.encodeEventAndQuestions eventAndQuestions; numberOfParticipants = numberOfParticipants |}
             }
         jsonResult result next context
@@ -498,10 +528,9 @@ let private canUpdateNumberOfParticipants (oldEvent: Models.Event) (newEvent: Mo
             else
                 Error invalidMaxParticipantValue
 
-let private canUpdateQuestions (newEventQuestions: ParticipantQuestionWriteModel list) (oldEventQuestions: ParticipantQuestion list) oldEventParticipants =
+let private canUpdateQuestions newEventQuestions (oldEventQuestions: ParticipantQuestion list) oldEventParticipants =
     let newEventQuestions =
         newEventQuestions
-        |> List.map (fun question -> question.Question)
         |> List.sort
 
     let oldEventQuestions =
@@ -619,7 +648,9 @@ let updateEvent (eventId: Guid) =
                 let! oldEvent =
                     oldEvent
                     |> Result.requireSome (eventNotFound eventId)
-                let numberOfParticipantsForOldEvent = Option.defaultValue 0 oldEvent.NumberOfParticipants
+                let! numberOfParticipantsForOldEvent =
+                    Queries.getNumberOfParticipantsForEvent eventId db
+                    |> TaskResult.mapError InternalError
 
                 do! canUpdateNumberOfParticipants oldEvent.Event writeModel numberOfParticipantsForOldEvent
                     |> Result.mapError id
@@ -703,8 +734,8 @@ let createCsvString (event: Models.Event) (questions: ParticipantQuestion list) 
     let formatString (input: string) =
         input.Replace("\n", " ")
         |> sprintf "\"%s\""
-
-    let createParticipant (builder: StringBuilder) (participantAndAnswers: ParticipantAndAnswers) =
+    
+    let createParticipant (builder: System.Text.StringBuilder) (participantAndAnswers: ParticipantAndAnswers) =
         let participant = participantAndAnswers.Participant
         let questionAndAnswers = participantAndAnswers.QuestionAndAnswers
         let answers =
@@ -720,7 +751,7 @@ let createCsvString (event: Models.Event) (questions: ParticipantQuestion list) 
             |> Option.defaultValue ""
         builder.Append($"{employeeId},{participant.Name},{participant.Email},{department},{answers}\n") |> ignore
 
-    let builder = StringBuilder()
+    let builder = System.Text.StringBuilder()
 
     let questions =
         questions

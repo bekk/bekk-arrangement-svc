@@ -106,7 +106,7 @@ type UpdateEvent(fixture: DatabaseFixture) =
                 Helpers.updateEvent
                     authenticatedClient
                     createdEvent.Event.Id
-                    { generatedEvent with MaxParticipants = None }
+                    ({ generatedEvent with MaxParticipants = None })
 
             response.EnsureSuccessStatusCode() |> ignore
         }
@@ -118,7 +118,7 @@ type UpdateEvent(fixture: DatabaseFixture) =
                 TestData.createEvent (fun e -> { e with MaxParticipants = Some 1 })
 
             let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
-            let! _ = Helpers.createParticipant authenticatedClient createdEvent.Event
+            let! _ = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
 
             let! _, result =
                 Helpers.updateEvent
@@ -160,7 +160,7 @@ type UpdateEvent(fixture: DatabaseFixture) =
                         HasWaitingList = true })
 
             let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
-            let! _ = Helpers.createParticipant authenticatedClient createdEvent.Event
+            let! _ = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
 
             let! _, result =
                 Helpers.updateEvent
@@ -179,7 +179,7 @@ type UpdateEvent(fixture: DatabaseFixture) =
                 TestData.createEvent (fun e -> { e with MaxParticipants = None })
 
             let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
-            let! _ = Helpers.createParticipant authenticatedClient createdEvent.Event
+            let! _ = Helpers.createParticipant authenticatedClient createdEvent.Event.Id
 
             let! _, result =
                 Helpers.updateEvent
@@ -252,7 +252,7 @@ type UpdateEvent(fixture: DatabaseFixture) =
                 TestData.createEvent (fun e -> { e with ParticipantQuestions = Generator.generateQuestions 10 })
 
             let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
-            let! _ = Helpers.createParticipantwithQuestions authenticatedClient createdEvent.Event
+            let! _ = Helpers.createParticipantwithQuestions authenticatedClient createdEvent.Event.Id 10
 
             let! _, result =
                 Helpers.updateEvent

@@ -3,10 +3,7 @@ import style from './ViewParticipants.module.scss';
 import { stringifyEmail } from 'src/types/email';
 import { useEvent, useParticipants } from 'src/hooks/cache';
 import { hasLoaded, isBad } from 'src/remote-data';
-import {
-  IParticipant,
-  IQuestionAndAnswerViewModel,
-} from 'src/types/participant';
+import { IParticipant, IQuestionAndAnswer } from 'src/types/participant';
 import { Button } from 'src/components/Common/Button/Button';
 import { Spinner } from 'src/components/Common/Spinner/spinner';
 import { Modal } from '../Common/Modal/Modal';
@@ -67,6 +64,7 @@ const ParticipantTableMobile = (props: {
   participants: IParticipant[];
 }) => {
   const event = useEvent(props.eventId);
+  const questions = (hasLoaded(event) && event.data.participantQuestions) || [];
   const [showModal, setShowModal] = useState<IParticipant | null>(null);
   if (!hasLoaded(event)) return <></>;
   return (
@@ -85,12 +83,17 @@ const ParticipantTableMobile = (props: {
               </tr>
               <tr>
                 <td colSpan={2} className={style.mobileCommentCell}>
-                  {attendee.participantAnswers.map((qa) => (
-                    <div key={qa.questionId}>
-                      <div className={style.question}>{qa.question}</div>
-                      <div className={style.answer}>{qa.answer}</div>
-                    </div>
-                  ))}
+                  {questions.map(
+                    (q, i) =>
+                      attendee.participantAnswers[i] && (
+                        <div key={q}>
+                          <div className={style.question}>{q}</div>
+                          <div className={style.answer}>
+                            {attendee.participantAnswers[i]}
+                          </div>
+                        </div>
+                      )
+                  )}
                   <Button
                     className={style.deleteParticipantButtonMobile}
                     onClick={() => setShowModal(attendee)}>
@@ -123,6 +126,7 @@ const ParticipantTableDesktop = (props: {
   const hasComments = hasLoaded(event)
     ? event.data.participantQuestions.length > 0
     : true;
+  const questions = (hasLoaded(event) && event.data.participantQuestions) || [];
   const [wasCopied, setWasCopied] = useState(false);
   const [showDeleteParticipantModal, setShowDeleteParticipantModal] =
     useState<IParticipant | null>(null);
@@ -130,7 +134,7 @@ const ParticipantTableDesktop = (props: {
     useState<boolean>(false);
 
   const questionsAndAnswers = props.participants.flatMap(
-    (participant) => participant.participantAnswers ?? []
+    (participant) => participant.questionAndAnswers ?? []
   );
 
   const copyAttendees = async () => {
@@ -186,12 +190,17 @@ const ParticipantTableDesktop = (props: {
               </td>
               {hasComments && (
                 <td className={style.desktopCell}>
-                  {attendee.participantAnswers.map((qa) => (
-                    <div key={qa.questionId}>
-                      <div className={style.question}>{qa.question}</div>
-                      <div className={style.answer}>{qa.answer}</div>
-                    </div>
-                  ))}
+                  {questions.map(
+                    (q, i) =>
+                      attendee.participantAnswers[i] && (
+                        <div key={`${q}:${i}`}>
+                          <div className={style.question}>{q}</div>
+                          <div className={style.answer}>
+                            {attendee.participantAnswers[i]}
+                          </div>
+                        </div>
+                      )
+                  )}
                 </td>
               )}
               <td className={style.desktopCell}>
@@ -227,10 +236,10 @@ const CopyAnswersModal = ({
   questionsAndAnswers,
   closeModal,
 }: {
-  questionsAndAnswers?: IQuestionAndAnswerViewModel[];
+  questionsAndAnswers?: IQuestionAndAnswer[];
   closeModal: () => void;
 }) => {
-  const questionsAndValidAnswers: IQuestionAndAnswerViewModel[] | undefined =
+  const questionsAndValidAnswers: IQuestionAndAnswer[] | undefined =
     questionsAndAnswers?.filter((qAndA) => qAndA.answer.length > 0);
 
   const eventQuestions = [
@@ -243,7 +252,7 @@ const CopyAnswersModal = ({
 
   const copyAnswers = () => {
     if (questionsAndValidAnswers !== undefined) {
-      const answers = questionsAndValidAnswers
+      var answers = questionsAndValidAnswers
         .filter((qAndA) => qAndA.question === selectedQuestion)
         .map((qAndA, index) => `Deltaker ${index + 1}: ${qAndA.answer}, \n`)
         .join('');
@@ -260,7 +269,6 @@ const CopyAnswersModal = ({
         <div>
           {eventQuestions.map((question) => (
             <RadioButton
-              key={question}
               onChange={() => setSelectedQuestion(question)}
               checked={selectedQuestion == question}
               label={question}></RadioButton>
