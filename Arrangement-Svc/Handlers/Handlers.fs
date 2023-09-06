@@ -704,7 +704,7 @@ let getParticipantsForEvent (eventId: Guid) =
                     Queries.getEvent eventId db
                     |> TaskResult.mapError InternalError
                 let! event = event |> Result.requireSome (eventNotFound eventId)
-                return Participant.encodeParticipationsAndWaitlist (participationsToAttendeesAndWaitlist event.Event.MaxParticipants (participations |> Seq.toList))
+                return Participant.encodeParticipationsAndWaitlist (participationsToAttendeesAndWaitlist (participations |> Seq.toList))
             }
         jsonResult result next context
 
@@ -773,7 +773,7 @@ let exportParticipationsForEvent (eventId: Guid) =
                 let! participations =
                     Queries.getParticipantsAndAnswersForEvent eventId db
                     |> TaskResult.mapError InternalError
-                let participants = participationsToAttendeesAndWaitlist eventAndQuestions.Event.MaxParticipants (participations |> Seq.toList)
+                let participants = participationsToAttendeesAndWaitlist (participations |> Seq.toList)
                 let csvString = createCsvString eventAndQuestions.Event eventAndQuestions.Questions participants
                 let encodedCsvString = addUtf8BomToCsv csvString
                 return encodedCsvString
@@ -799,7 +799,7 @@ let getWaitinglistSpot (eventId: Guid) (email: string) =
                 let! participations =
                     Queries.getParticipantsAndAnswersForEvent eventId db
                     |> TaskResult.mapError InternalError
-                let attendeesAndWaitlist = participationsToAttendeesAndWaitlist eventAndQuestions.Event.MaxParticipants (participations |> Seq.toList)
+                let attendeesAndWaitlist = participationsToAttendeesAndWaitlist (participations |> Seq.toList)
 
                 let waitingListIndex =
                     attendeesAndWaitlist.WaitingList
