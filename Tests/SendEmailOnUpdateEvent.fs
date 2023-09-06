@@ -1,5 +1,6 @@
 namespace Tests.SendMailOnUpdateEvent
 
+open System
 open Tests
 open Xunit
 
@@ -36,7 +37,7 @@ type General(fixture: DatabaseFixture) =
 
             let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
 
-            let! createdParticipant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event
+            let! createdParticipant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event.Id
 
             emptyDevMailbox ()
 

@@ -11,24 +11,9 @@ import {
 } from '../routing';
 import { IEvent } from './event';
 
-export interface IQuestionAndAnswerWriteModel {
-  questionId: number;
-  eventId: string;
-  email: string;
-  answer: string;
-}
-
-export interface IQuestionAndAnswerViewModel {
-  questionId: number;
-  eventId: string;
-  email: string;
-  question: string;
-  answer: string;
-}
-
 export interface IParticipantWriteModel {
   name: string;
-  participantAnswers: IQuestionAndAnswerWriteModel[];
+  participantAnswers: string[];
   viewUrlTemplate: string;
   cancelUrlTemplate: string;
 }
@@ -39,7 +24,12 @@ export interface IParticipantViewModel {
   department: string;
   eventId: string;
   registrationTime: number;
-  questionAndAnswers: IQuestionAndAnswerViewModel[];
+  questionAndAnswers: IQuestionAndAnswer[];
+}
+
+export interface IQuestionAndAnswer {
+  question: string;
+  answer: string;
 }
 
 export interface IParticipantsWithWaitingList {
@@ -61,14 +51,14 @@ export interface IParticipant {
   name: string;
   email: Email;
   department: string;
-  participantAnswers: IQuestionAndAnswerViewModel[];
+  participantAnswers: string[];
 }
 
 export interface IEditParticipant {
   name: string;
   email: string;
   department: string;
-  participantAnswers: IQuestionAndAnswerViewModel[];
+  participantAnswers: string[];
 }
 
 export const toParticipantWriteModel = (
@@ -77,9 +67,6 @@ export const toParticipantWriteModel = (
 ): IParticipantWriteModel => {
   return {
     ...participant,
-    participantAnswers: participant.participantAnswers.filter(
-      (a) => a.questionId !== undefined
-    ),
     viewUrlTemplate: createViewUrlTemplate(event),
     cancelUrlTemplate: cancelParticipationUrlTemplate,
   };
@@ -92,7 +79,9 @@ export const parseParticipantViewModel = (
     ? parseEmailViewModel(participantView.email)
     : { email: '' };
   const name = parseName(participantView.name);
-  const answers = parseAnswers(participantView.questionAndAnswers);
+  const answers = parseAnswers(
+    participantView.questionAndAnswers.map((qa) => qa.answer)
+  );
 
   const participant = {
     ...participantView,
@@ -148,24 +137,12 @@ export const parseName = (value: string): string | IError[] => {
   return validator.resolve(value);
 };
 
-export const parseAnswerString = (value: string): string | IError[] => {
+export const parseAnswers = (value: string[]): string[] | IError[] => {
   if (value.length === 0) {
     return value;
   }
-  const validator = validate<string>({
-    'Svar kan ha maks 500 tegn': value.length > 500,
-  });
-  return validator.resolve(value);
-};
-
-export const parseAnswers = (
-  value: IQuestionAndAnswerViewModel[]
-): IQuestionAndAnswerViewModel[] | IError[] => {
-  if (value.length === 0) {
-    return value;
-  }
-  const validator = validate<IQuestionAndAnswerViewModel[]>({
-    'Svar kan ha maks 500 tegn': value.some((s) => s && s.answer.length > 500),
+  const validator = validate<string[]>({
+    'Svar kan ha maks 500 tegn': value.some((s) => s.length > 500),
   });
   return validator.resolve(value);
 };
@@ -180,12 +157,6 @@ export function initalParticipant(
     email: { email: email ?? '' },
     name: name ?? '',
     department: department ?? '',
-    participantAnswers: Array(numberOfParticipantQuestions).fill({
-      questionId: undefined,
-      eventId: '',
-      email: '',
-      question: '',
-      answer: '',
-    }),
+    participantAnswers: Array(numberOfParticipantQuestions).fill(''),
   };
 }

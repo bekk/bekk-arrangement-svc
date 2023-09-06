@@ -489,9 +489,9 @@ let getParticipationsById (id: int) (db: DatabaseContext) =
                     query,
                     (fun (participant: Models.Participant) (question: string) (answer: Models.ParticipantAnswer) ->
                             if participants.ContainsKey(participant) && not (answer :> obj = null) then
-                                participants[participant] <- participants[participant] @ [{QuestionId = answer.QuestionId; Question = question; Answer = answer.Answer}]
+                                participants[participant] <- participants[participant] @ [{Question = question; Answer = answer.Answer}]
                             else if not (participants.ContainsKey(participant)) && not (answer :> obj = null) then
-                                participants.Add(participant, [{QuestionId = answer.QuestionId; Question = question; Answer = answer.Answer}])
+                                participants.Add(participant, [{Question = question; Answer = answer.Answer}])
                             else
                                 participants.Add(participant, [])
                         ),
@@ -880,7 +880,7 @@ let doesShortnameExist (shortname: string option) (db: DatabaseContext) =
             | ex -> return Error ex
     }
 
-let createParticipantQuestions (eventId: Guid) (participantQuestions: Models.ParticipantQuestionWriteModel list) (db: DatabaseContext) =
+let createParticipantQuestions (eventId: Guid) (participantQuestions: string list) (db: DatabaseContext) =
     task {
         let question = List.tryHead participantQuestions
 
@@ -895,7 +895,7 @@ let createParticipantQuestions (eventId: Guid) (participantQuestions: Models.Par
 
             let insertParameters =
                 participantQuestions
-                |> Seq.map (fun question -> {| EventId = eventId; Question = question.Question |})
+                |> Seq.map (fun question -> {| EventId = eventId; Question = question |})
 
             let selectQuery =
                 "
@@ -1113,9 +1113,9 @@ let getParticipantsAndAnswersForEvent (eventId: Guid) (db: DatabaseContext) =
                     query,
                     (fun (participant: Models.Participant) (question: string) (answer: Models.ParticipantAnswer) ->
                             if participants.ContainsKey(participant) && not (answer :> obj = null) then
-                                participants[participant] <- participants[participant] @ [{QuestionId = answer.QuestionId; Question = question; Answer = answer.Answer}]
+                                participants[participant] <- participants[participant] @ [{Question = question; Answer = answer.Answer}]
                             else if not (participants.ContainsKey(participant)) && not (answer :> obj = null) then
-                                participants.Add(participant, [{QuestionId = answer.QuestionId; Question = question; Answer = answer.Answer}])
+                                participants.Add(participant, [{Question = question; Answer = answer.Answer}])
                             else
                                 participants.Add(participant, [])
                         ),
@@ -1166,9 +1166,9 @@ let getParticipationsForParticipant email (db: DatabaseContext) =
                     query,
                     (fun (participant: Models.Participant) (question: string) (answer: Models.QuestionAndAnswer) ->
                             if participants.ContainsKey(participant) && not (answer :> obj = null) then
-                                participants[participant] <- participants[participant] @ [{QuestionId = answer.QuestionId; Question = question; Answer = answer.Answer}]
+                                participants[participant] <- participants[participant] @ [{Question = question; Answer = answer.Answer}]
                             else if not (participants.ContainsKey(participant)) && not (answer :> obj = null) then
-                                participants.Add(participant, [{QuestionId = answer.QuestionId; Question = question; Answer = answer.Answer}])
+                                participants.Add(participant, [{Question = question; Answer = answer.Answer}])
                             else
                                 participants.Add(participant, [])
                         ),

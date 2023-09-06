@@ -53,21 +53,21 @@ let private generateDateTimeCustomSoon () : DateTimeCustom.DateTimeCustom =
 
 let generateQuestions numberOfQuestions =
   [ 0 .. numberOfQuestions ]
-  |> List.map (fun _ -> { Id = None; Question = faker.Lorem.Sentence()})
+  |> List.map (fun _ -> faker.Lorem.Sentence())
 
 let generateEvent () : Models.EventWriteModel =
     let start = DateTime.Now.AddDays(-1)
     { Title = faker.Company.CompanyName()
       Description = faker.Lorem.Paragraph()
       Location = faker.Address.City()
-      City =
+      City = 
         if faker.Hacker.Random.Bool() then
             None
         else
             Some(faker.Address.City())
       OrganizerName = $"{faker.Person.FirstName} {faker.Person.LastName}"
       OrganizerEmail = faker.Person.Email
-      TargetAudience =
+      TargetAudience = 
         if faker.Hacker.Random.Bool() then
             None
         else
@@ -79,19 +79,19 @@ let generateEvent () : Models.EventWriteModel =
               Some <| faker.Random.Number(1, 100)
       StartDate = DateTimeCustom.toCustomDateTime start.Date start.TimeOfDay
       EndDate = generateDateTimeCustomFuture ()
-      OpenForRegistrationTime = DateTimeOffset(start).AddDays(-1).ToUnixTimeMilliseconds().ToString()
+      OpenForRegistrationTime = (DateTimeOffset(start).AddDays(-1).ToUnixTimeMilliseconds().ToString())
       CloseRegistrationTime =
           if faker.Hacker.Random.Bool() then
               None
           else
               Some(
-                  DateTimeOffset(faker.Date.Future(10, refDate = start).Date)
-                      .ToUnixTimeMilliseconds()
+                  (DateTimeOffset(faker.Date.Future(10, refDate = start).Date)
+                      .ToUnixTimeMilliseconds())
                       .ToString()
               )
       ParticipantQuestions =
           [ 0 .. faker.Random.Number(0, 5) ]
-          |> List.map (fun _ -> { Id = None; Question = faker.Lorem.Sentence()})
+          |> List.map (fun _ -> faker.Lorem.Sentence())
       Program =
           if faker.Random.Number(0, 5) <> 0 then
               None
@@ -142,17 +142,11 @@ let generateEmail () = faker.Internet.Email()
 let generateName () = faker.Company.CompanyName()
 let generateRandomString () = faker.Lorem.Paragraph()[0..199]
 
-let generateParticipant email (event: Event): Models.ParticipantWriteModel =
+let generateParticipant (number_of_questions: int): Models.ParticipantWriteModel =
     { Name = $"{faker.Name.FirstName()} {faker.Name.LastName()}"
       Department = faker.Company.CompanySuffix()
       ParticipantAnswers =
-          event.ParticipantQuestions
-          |> Array.toList
-          |> List.map (fun (question: ParticipantQuestionWriteModel) -> {
-               QuestionId = question.Id.Value
-               EventId = Guid.Parse(event.Id)
-               Email = email
-               Answer = faker.Lorem.Sentence()
-          })
+          [0..number_of_questions]
+          |> List.map (fun _ -> faker.Lorem.Sentence())
       CancelUrlTemplate = "{eventId}{email}{cancellationToken}"
       ViewUrlTemplate = "{eventId}" }

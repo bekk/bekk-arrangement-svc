@@ -4,7 +4,6 @@ import {
   maxParticipantsLimit,
   Office,
   PickedOffice,
-  IQuestion,
 } from 'src/types/event';
 import { validate, IError } from './validation';
 
@@ -101,16 +100,14 @@ export const toEditMaxAttendees = (
   return ['limited', maxParticipantsLimit(value).toString()];
 };
 
-export const parseQuestions = (value: IQuestion[]): IQuestion[] | IError[] => {
+export const parseQuestions = (value: string[]): string[] | IError[] => {
   if (value.length === 0) {
     return value;
   }
-  const validator = validate<IQuestion[]>({
-    'Spørsmål til deltaker må ha minst 5 tegn': value.some(
-      (s) => s.question.length < 5
-    ),
+  const validator = validate<string[]>({
+    'Spørsmål til deltaker må ha minst 5 tegn': value.some((s) => s.length < 5),
     'Spørsmål til deltaker kan ha maks 500 tegn': value.some(
-      (s) => s.question.length > 500
+      (s) => s.length > 500
     ),
   });
   return validator.resolve(value);

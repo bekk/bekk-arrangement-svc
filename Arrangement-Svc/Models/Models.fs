@@ -18,23 +18,6 @@ type ParticipantAnswer = {
   Answer: string
 }
 
-module ParticipantAnswer =
-    let decoder : Decoder<ParticipantAnswer> =
-        Decode.object (fun get -> {
-          QuestionId = get.Required.Field "questionId" Decode.int
-          EventId = get.Required.Field "eventId" Decode.guid
-          Email = get.Required.Field "email" Decode.string
-          Answer = get.Required.Field "answer" Decode.string
-        })
-
-    let validate (questions: ParticipantAnswer list) =
-        let condition = List.forall (fun (answer: ParticipantAnswer) -> answer.Answer.Length < 1000) questions
-        if condition then
-            Decode.succeed questions
-        else
-            Decode.fail "Svar kan ha maks 1000 tegn"
-
-
 module Validate =
     let private containsChars (toTest: string) (chars: string) =
         Seq.exists (fun c -> Seq.contains c chars) toTest
@@ -80,6 +63,20 @@ module Validate =
         else
             Decode.fail "Maks antall påmeldte kan ikke være negativt"
 
+    let participantQuestions (questions: string list) =
+        let condition = List.forall (fun (question: string) -> question.Length < 200) questions
+        if condition then
+            Decode.succeed questions
+        else
+            Decode.fail "Spørsmål til deltaker kan ha maks 200 tegn"
+
+    let participantAnswers (questions: string list) =
+        let condition = List.forall (fun (question: string) -> question.Length < 1000) questions
+        if condition then
+            Decode.succeed questions
+        else
+            Decode.fail "Svar kan ha mask 1000 tegn"
+
     let shortname (shortname: string) =
         match shortname with
         | x when x.Length = 0 -> Decode.fail "URL Kortnavn kan ikke være en tom streng"
@@ -95,16 +92,16 @@ module Validate =
         | x when not <| Seq.forall Uri.IsHexDigit x -> Decode.fail "Ugyldig tegn, hex-koden må bestå av tegn mellom a..f og 0..9"
         | x -> Decode.succeed x
 
-    let city (city: string) =
+    let city (city: string) = 
         if String.length city > 200 then
             Decode.fail "By kan ha maks 200 tegn"
-        else
+        else 
             Decode.succeed city
 
-    let targetAudience (targetAudience: string) =
+    let targetAudience (targetAudience: string) = 
         if String.length targetAudience > 200 then
             Decode.fail "Deltakergruppe kan ha maks 200 tegn"
-        else
+        else 
             Decode.succeed targetAudience
 
     let organizerEmail (email: string) =
@@ -112,7 +109,7 @@ module Validate =
             Decode.succeed email
         else
             Decode.fail "E-post må inneholde alfakrøll (@)"
-
+    
 
 
 [<AutoOpen>]
@@ -153,24 +150,6 @@ module EventType =
         )
     let encoder (eventType: EventType) = Encode.string (eventType.ToString())
 
-type ParticipantQuestionWriteModel =
-    { Id: int option
-      Question: string }
-
-module ParticipantQuestionWriteModel =
-    let decoder : Decoder<ParticipantQuestionWriteModel> =
-        Decode.object (fun get -> {
-           Id = get.Optional.Field "id" Decode.int
-           Question = get.Required.Field "question" Decode.string
-        })
-
-    let validateParticipantQuestions (questions: ParticipantQuestionWriteModel list) =
-        let condition = List.forall (fun question -> question.Question.Length < 200) questions
-        if condition then
-            Decode.succeed questions
-        else
-            Decode.fail "Spørsmål til deltaker kan ha maks 200 tegn"
-
 type EventWriteModel =
     { Title: string
       Description: string
@@ -184,7 +163,7 @@ type EventWriteModel =
       EndDate: DateTimeCustom.DateTimeCustom
       OpenForRegistrationTime: string
       CloseRegistrationTime: string option
-      ParticipantQuestions: ParticipantQuestionWriteModel list
+      ParticipantQuestions: string list
       Program: string option
       ViewUrlTemplate: string
       EditUrlTemplate: string
@@ -208,13 +187,13 @@ module EventWriteModel =
                            (Decode.string |> Decode.andThen Validate.description)
               Location = get.Required.Field "location"
                           (Decode.string |> Decode.andThen Validate.location)
-              City = get.Optional.Field "city"
+              City = get.Optional.Field "city" 
                           (Decode.string |> Decode.andThen Validate.city)
               OrganizerName = get.Required.Field "organizerName"
                           (Decode.string |> Decode.andThen Validate.organizerName)
               OrganizerEmail = get.Required.Field "organizerEmail"
                           (Decode.string |> Decode.andThen Validate.organizerEmail)
-              TargetAudience = get.Optional.Field "targetAudience"
+              TargetAudience = get.Optional.Field "targetAudience" 
                           (Decode.string |> Decode.andThen Validate.targetAudience)
               MaxParticipants = get.Optional.Field "maxParticipants"
                                     (Decode.int |> Decode.andThen Validate.maxParticipants)
@@ -223,7 +202,7 @@ module EventWriteModel =
               OpenForRegistrationTime = get.Required.Field "openForRegistrationTime" Decode.string
               CloseRegistrationTime = get.Optional.Field "closeRegistrationTime" Decode.string
               ParticipantQuestions = get.Required.Field "participantQuestions"
-                                         (Decode.list ParticipantQuestionWriteModel.decoder |> Decode.andThen ParticipantQuestionWriteModel.validateParticipantQuestions)
+                                         (Decode.list Decode.string |> Decode.andThen Validate.participantQuestions)
               Program = get.Optional.Field "program" Decode.string
               ViewUrlTemplate = get.Required.Field "viewUrlTemplate" Decode.string
               EditUrlTemplate = get.Required.Field "editUrlTemplate" Decode.string
@@ -322,7 +301,7 @@ module Event =
                 "title", Encode.string event.Title
                 "description", Encode.string event.Description
                 "location", Encode.string event.Location
-                if event.City.IsSome then
+                if event.City.IsSome then 
                     "city", Encode.string event.City.Value
                 "organizerName", Encode.string event.OrganizerName
                 "organizerEmail", Encode.string event.OrganizerEmail
@@ -334,11 +313,7 @@ module Event =
                 "endDate", DateTimeCustom.DateTimeCustom.encoder (DateTimeCustom.toCustomDateTime event.EndDate event.EndTime)
                 "participantQuestions",
                     participantQuestions
-                    |> List.map (fun q ->
-                        Encode.object [
-                            "id", Encode.int q.Id
-                            "question", Encode.string q.Question
-                        ])
+                    |> List.map (fun q -> Encode.string q.Question)
                     |> Encode.list
                 if event.Program.IsSome then
                     "program", Encode.string event.Program.Value
@@ -423,7 +398,7 @@ module Event =
 type ParticipantWriteModel =
     { Name: string
       Department: string
-      ParticipantAnswers: ParticipantAnswer list
+      ParticipantAnswers: string list
       ViewUrlTemplate: string
       CancelUrlTemplate: string
     }
@@ -436,7 +411,7 @@ module ParticipantWriteModel =
                    (Decode.string |> Decode.andThen Validate.organizerName)
         Department = get.Required.Field "department" Decode.string
         ParticipantAnswers = get.Required.Field "participantAnswers"
-                                 (Decode.list ParticipantAnswer.decoder |> Decode.andThen ParticipantAnswer.validate)
+                                 (Decode.list Decode.string |> Decode.andThen Validate.participantAnswers)
         ViewUrlTemplate = get.Required.Field "viewUrlTemplate" Decode.string
         CancelUrlTemplate = get.Required.Field "cancelUrlTemplate" Decode.string
       })
@@ -451,10 +426,9 @@ type Participant =
     CancellationToken: Guid
     EmployeeId: int option
   }
-
+  
 [<CLIMutable>]
 type QuestionAndAnswer = {
-    QuestionId: int
     Question: string
     Answer: string
 }
@@ -470,17 +444,13 @@ type ParticipationsAndWaitlist =
 let createQuestionAndAnswer (questions: ParticipantQuestion list) (answers: ParticipantAnswer list) =
     List.map (fun (answer: ParticipantAnswer) ->
         let question: ParticipantQuestion = List.find (fun q -> q.Id = answer.QuestionId) questions
-        { QuestionId = question.Id
-          Question = question.Question
+        { Question = question.Question
           Answer = answer.Answer
         }) answers
-
+    
 module Participant =
-    let encodeQuestionAndAnswer eventId email (questionAndAnswer: QuestionAndAnswer) =
+    let encodeQuestionAndAnswer (questionAndAnswer: QuestionAndAnswer) =
         Encode.object [
-            "questionId", Encode.int questionAndAnswer.QuestionId
-            "eventId", Encode.guid eventId
-            "email", Encode.string email
             "question", Encode.string questionAndAnswer.Question
             "answer", Encode.string questionAndAnswer.Answer
     ]
@@ -492,7 +462,7 @@ module Participant =
             "email", Encode.string participant.Email
             "questionAndAnswers",
                 questionAndAnswers
-                |> List.map (encodeQuestionAndAnswer participantAndAnswers.Participant.EventId participantAndAnswers.Participant.Email)
+                |> List.map encodeQuestionAndAnswer
                 |> Encode.list
             "registrationTime", Encode.int64 participant.RegistrationTime
             "eventId", Encode.guid participant.EventId
@@ -513,7 +483,7 @@ module Participant =
             "email", Encode.string participantAndAnswers.Participant.Email
             "cancellationToken", Encode.guid participantAndAnswers.Participant.CancellationToken
             "questionAndAnswers", participantAndAnswers.QuestionAndAnswers
-                       |> List.map (encodeQuestionAndAnswer participantAndAnswers.Participant.EventId participantAndAnswers.Participant.Email)
+                       |> List.map encodeQuestionAndAnswer
                        |> Encode.list
         ]
 

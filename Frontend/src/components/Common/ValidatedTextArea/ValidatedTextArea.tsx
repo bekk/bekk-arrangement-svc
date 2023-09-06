@@ -11,6 +11,7 @@ interface ValidTextAreaProps {
   validation: (value: string) => unknown | IError[];
   onChange: (value: string) => void;
   onLightBackground?: boolean;
+  minRow?: number;
   isError?: boolean;
   className?: string;
 }
@@ -22,6 +23,7 @@ export const ValidatedTextArea = ({
   validation,
   onChange,
   onLightBackground = false,
+  minRow,
   isError,
   className = '',
 }: ValidTextAreaProps) => {
@@ -40,6 +42,7 @@ export const ValidatedTextArea = ({
         isError={showError && isError}
         onBlur={() => setShowError(true)}
         onLightBackground={onLightBackground}
+        minRow={minRow}
       />
       {showError && !isValid(validationResult) && (
         <ValidationResult
