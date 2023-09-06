@@ -176,7 +176,7 @@ export const AddParticipant = ({
             }
           />
         ) : (
-          <div key={q.question}>
+          <div key={q.id}>
             <ValidatedTextArea
               label={q.question}
               placeholder={''}

@@ -32,7 +32,7 @@ module ParticipantAnswer =
         if condition then
             Decode.succeed questions
         else
-            Decode.fail "Svar kan ha mask 1000 tegn"
+            Decode.fail "Svar kan ha maks 1000 tegn"
 
 
 module Validate =
