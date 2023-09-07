@@ -110,6 +110,12 @@ module Helpers =
             | Ok result -> return response, result
         }
 
+    let getParticipantWaitlistSpot client eventId email =
+        task {
+            let! _, response = Http.get client $"/events/{eventId}/participants/{email}/waitinglist-spot"
+            return response
+        }
+
     let getPublicEvents client =
         task {
             let! response, content = Http.getPublicEvents client

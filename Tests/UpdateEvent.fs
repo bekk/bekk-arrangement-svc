@@ -236,21 +236,19 @@ type UpdateEvent(fixture: DatabaseFixture) =
         task {
             let generatedEvent = TestData.createEvent (fun e -> { e with MaxParticipants = Some 0; HasWaitingList = true; StartDate = Generator.generateDateTimeCustomFuture() })
             let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
+
             let! firstParticipant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event
             let! secondParticipant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event
-            let! _, firstParticipantSpot =
-                Http.get
-                    authenticatedClient
-                    $"/events/{createdEvent.Event.Id}/participants/{firstParticipant.Email}/waitinglist-spot"
+            let! thirdParticipant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event
 
-            let! _, secondParticipantSpot =
-                Http.get
-                    authenticatedClient
-                    $"/events/{createdEvent.Event.Id}/participants/{secondParticipant.Email}/waitinglist-spot"
+            let! firstParticipantSpot = Helpers.getParticipantWaitlistSpot authenticatedClient createdEvent.Event.Id firstParticipant.Email
+            let! secondParticipantSpot = Helpers.getParticipantWaitlistSpot authenticatedClient createdEvent.Event.Id secondParticipant.Email
+            let! thirdParticipantSpot = Helpers.getParticipantWaitlistSpot authenticatedClient createdEvent.Event.Id thirdParticipant.Email
 
             // Assert that they are on waitinglist
-            Assert.Equal(firstParticipantSpot, "1")
-            Assert.Equal(secondParticipantSpot, "2")
+            Assert.Equal("1", firstParticipantSpot)
+            Assert.Equal("2", secondParticipantSpot)
+            Assert.Equal("3", thirdParticipantSpot)
 
             emptyDevMailbox ()
 
@@ -258,23 +256,19 @@ type UpdateEvent(fixture: DatabaseFixture) =
                 Helpers.updateEvent
                     authenticatedClient
                     createdEvent.Event.Id
-                    { generatedEvent with MaxParticipants = Some 10 }
+                    { generatedEvent with MaxParticipants = Some 2 }
 
             response.EnsureSuccessStatusCode() |> ignore
 
-            let! _, firstParticipantSpot =
-                Http.get
-                    authenticatedClient
-                    $"/events/{createdEvent.Event.Id}/participants/{firstParticipant.Email}/waitinglist-spot"
+            let! firstParticipantSpot = Helpers.getParticipantWaitlistSpot authenticatedClient createdEvent.Event.Id firstParticipant.Email
+            let! secondParticipantSpot = Helpers.getParticipantWaitlistSpot authenticatedClient createdEvent.Event.Id secondParticipant.Email
+            let! thirdParticipantSpot = Helpers.getParticipantWaitlistSpot authenticatedClient createdEvent.Event.Id thirdParticipant.Email
 
-            let! _, secondParticipantSpot =
-                Http.get
-                    authenticatedClient
-                    $"/events/{createdEvent.Event.Id}/participants/{secondParticipant.Email}/waitinglist-spot"
-
-            // Assert that they are no longer on waitlinglist
+            // Assert that two are no longer on waitlinglist
             Assert.Equal("0", firstParticipantSpot)
             Assert.Equal("0", secondParticipantSpot)
+            // Assert that the third participant is first in line
+            Assert.Equal("1", thirdParticipantSpot)
 
             let mailbox = getDevMailbox ()
             Assert.Equal(2, List.length mailbox)

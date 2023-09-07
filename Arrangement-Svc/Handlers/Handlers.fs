@@ -654,9 +654,12 @@ let updateEvent (eventId: Guid) =
                         Queries.updateEvent eventId writeModel db
                         |> TaskResult.mapError InternalError
 
-                    let! updatedUsers =
-                        Queries.uptateUserWaitlist eventId 10 db
-                        |> TaskResult.mapError InternalError
+                    if writeModel.MaxParticipants.IsSome && numberOfParticipantsForOldEvent <> writeModel.MaxParticipants.Value then
+                        let! updatedUsers =
+                            Queries.uptateUserWaitlist eventId writeModel.MaxParticipants.Value db
+                            |> TaskResult.mapError InternalError
+                        ()
+
                     db.Commit()
 
                     if writeModel.StartDate > DateTimeCustom.now() then
