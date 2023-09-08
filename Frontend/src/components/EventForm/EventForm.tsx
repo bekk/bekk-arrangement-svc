@@ -318,7 +318,6 @@ export const EventForm = ({ eventResult: event, updateEvent }: IProps) => {
             value={event.description}
             validation={parseDescription}
             onLightBackground
-            minRow={8}
             onChange={(description) =>
               updateEvent({
                 ...event,
@@ -347,7 +346,6 @@ export const EventForm = ({ eventResult: event, updateEvent }: IProps) => {
               value={event.program ?? ''}
               validation={parseProgram}
               onLightBackground
-              minRow={8}
               onChange={(program) =>
                 updateEvent({
                   ...event,
@@ -585,20 +583,21 @@ export const EventForm = ({ eventResult: event, updateEvent }: IProps) => {
         <div>
           {event.participantQuestions.map((q, i) => (
             <ValidatedTextArea
-              key={q}
+              key={i}
               label={labels.participantQuestion}
               placeholder={placeholders.participantQuestion}
-              value={q}
-              validation={(s) => parseQuestions([s])}
+              value={q.question}
+              validation={(s) =>
+                parseQuestions([{ id: undefined, question: s }])
+              }
               onLightBackground
-              minRow={4}
               onChange={(participantQuestion) =>
                 updateEvent({
                   ...event,
                   participantQuestions: event.participantQuestions.map(
                     (oldQ, oldI) => {
                       if (i === oldI) {
-                        return participantQuestion;
+                        return { id: undefined, question: participantQuestion };
                       }
                       return oldQ;
                     }
@@ -633,7 +632,9 @@ export const EventForm = ({ eventResult: event, updateEvent }: IProps) => {
           onClick={() =>
             updateEvent({
               ...event,
-              participantQuestions: event.participantQuestions.concat(['']),
+              participantQuestions: event.participantQuestions.concat([
+                { id: undefined, question: '' },
+              ]),
             })
           }>
           {buttonText.addParticipantQuestion}
