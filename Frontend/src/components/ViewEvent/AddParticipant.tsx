@@ -104,7 +104,7 @@ export const AddParticipant = ({
       const newAnswer: IQuestionAndAnswerViewModel = {
         questionId,
         eventId: eventId,
-        email: email || '',
+        email: participant.email,
         question,
         answer,
       };
