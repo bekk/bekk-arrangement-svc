@@ -760,9 +760,6 @@ let createCsvString (event: Models.Event) (questions: ParticipantQuestion list) 
 
     builder.Append($"AnsattId,Navn,Epost,Avdeling,{questions}\n") |> ignore
     Seq.iter (createParticipant builder) participants.Attendees
-    if not <| Seq.isEmpty participants.WaitingList then
-        builder.Append("Venteliste\n") |> ignore
-        Seq.iter (createParticipant builder) participants.WaitingList
 
     builder.ToString()
 
