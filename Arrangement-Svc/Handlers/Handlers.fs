@@ -213,20 +213,6 @@ let getFutureEvents (next: HttpFunc) (context: HttpContext) =
         }
     jsonResult result next context
 
-let getEventsSummary =
-    fun (next: HttpFunc) (context: HttpContext) ->
-        let result =
-            taskResult {
-                use db = openConnection context
-                let! events =
-                    Queries.getEventsSummary db
-                    |> TaskResult.mapError InternalError
-                return events
-                       |> Seq.map Event.encodeSummary
-                       |> Encode.seq
-            }
-        jsonResult result next context
-
 let getPublicEvents =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
@@ -881,7 +867,6 @@ let routes: HttpHandler =
           GET
           >=> choose [
             route "/api/events/id" >=> getEventIdByShortname
-            route "/api/events/summary" >=> getEventsSummary
             route "/api/events/public" >=> getPublicEvents
             routef "/api/events/%O" getEvent
             routef "/api/events/%s/unfurl" getUnfurlEvent
