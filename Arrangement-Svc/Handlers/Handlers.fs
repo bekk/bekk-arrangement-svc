@@ -727,13 +727,8 @@ let createCsvString (event: Models.Event) (questions: ParticipantQuestion list) 
         |> List.map (fun q -> formatString q.Question)
         |> String.concat ","
 
-    builder.Append($"{event.Title}\n") |> ignore
-    builder.Append("Påmeldte\n") |> ignore
     builder.Append($"AnsattId,Navn,Epost,Avdeling,{questions}\n") |> ignore
     Seq.iter (createParticipant builder) participants.Attendees
-    if not <| Seq.isEmpty participants.WaitingList then
-        builder.Append("Venteliste\n") |> ignore
-        Seq.iter (createParticipant builder) participants.WaitingList
 
     builder.ToString()
 
