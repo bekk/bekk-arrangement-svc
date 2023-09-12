@@ -104,32 +104,6 @@ let getEventsForForside (email: string) (db: DatabaseContext) =
             return Error ex
     }
 
-let getEventsSummary (db: DatabaseContext) =
-    task {
-        let query =
-            "
-            SELECT E.Id,
-                   E.Title,
-                   E.StartDate,
-                   E.IsExternal
-            FROM Events E
-            WHERE EndDate >= @now
-                AND IsCancelled = 0
-                AND IsHidden = 0
-            "
-
-        let parameters = {|
-            Now = DateTime.Now.Date
-        |}
-
-        try
-            let! result = db.Connection.QueryAsync<Models.EventSummary>(query, parameters, db.Transaction)
-            return Ok result
-        with
-        | ex ->
-            return Error ex
-    }
-
 let getPublicEvents (db: DatabaseContext) =
     task {
         let query =
