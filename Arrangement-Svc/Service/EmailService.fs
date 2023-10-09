@@ -267,8 +267,10 @@ let private sendMailWithCancellationConfirmation event participant context =
     let mail = createCancelledParticipationMailToAttendee event participant
     sendMail mail context
 
-let sendParticipantCancelMails (event: Models.Event) (participant: Models.Participant) (participantAnswers: QuestionAndAnswer list) (personWhoGotIt: ParticipantAndAnswers option) context =
-    sendMailToOrganizerAboutCancellation event participant participantAnswers context
+let sendParticipantCancelMails (event: Models.Event) (participant: Models.Participant) (participantAnswers: QuestionAndAnswer list) (personWhoGotIt: ParticipantAndAnswers option) participantIsAttendee context =
+    if participantIsAttendee then
+        sendMailToOrganizerAboutCancellation event participant participantAnswers context
+
     sendMailWithCancellationConfirmation event participant context
     match personWhoGotIt with
     | Some person -> sendMailToFirstPersonOnWaitingList event person.Participant context

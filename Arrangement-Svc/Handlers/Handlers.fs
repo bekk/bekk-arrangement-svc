@@ -133,10 +133,13 @@ let registerParticipation (eventId: Guid, email): HttpHandler =
                 do! (isBekker || eventAndQuestions.Event.IsExternal) |> Result.requireTrue mustBeAuthorizedOrEventMustBeExternal
                 let numberOfParticipants = Option.defaultValue 0 eventAndQuestions.NumberOfParticipants
 
+                let participationStatus =
+                    participateEvent isBekker numberOfParticipants eventAndQuestions.Event
+
                 // Verdien blir ignorert da vi nå kun bruker dette til å returnere riktig feil til brukeren.
                 // Om arrangemenet har plass eller man er ventelista henter vi ut fra databasen lenger ned.
                 let! _ =
-                    match participateEvent isBekker numberOfParticipants eventAndQuestions.Event with
+                    match participationStatus with
                         | NotExternal ->
                             Error "Arrangementet er ikke eksternt"
                         | IsCancelled ->
@@ -156,13 +159,9 @@ let registerParticipation (eventId: Guid, email): HttpHandler =
                                |> Result.mapError InternalError
                 db.Commit()
 
-                let! isParticipating =
-                    Queries.isParticipating eventId email db
-                    |> TaskResult.mapError InternalError
-
                 // Sende epost
                 let questionAndAnswers = createQuestionAndAnswer eventAndQuestions.Questions answers
-                let isWaitlisted = eventAndQuestions.Event.HasWaitingList && isParticipating = false
+                let isWaitlisted = participationStatus = IsWaitListed
                 let email =
                     let viewUrl = createViewUrl writeModel.ViewUrlTemplate eventAndQuestions.Event
                     let cancelUrl = createCancelUrl writeModel.CancelUrlTemplate participant
@@ -844,7 +843,7 @@ let deleteParticipantFromEvent (eventId: Guid) (email: string) =
                     participants
                     |> Seq.find (fun pa -> pa.Participant.Email = email)
                     |> fun p -> p.QuestionAndAnswers
-                sendParticipantCancelMails eventAndQuestions.Event deletedParticipant deletedParticipantAnswers personWhoGotIt context
+                sendParticipantCancelMails eventAndQuestions.Event deletedParticipant deletedParticipantAnswers personWhoGotIt participantIsAttendee context
                 return ()
             }
         jsonResult result next context

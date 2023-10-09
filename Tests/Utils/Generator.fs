@@ -43,7 +43,7 @@ let generateDateTimeCustomPast () : DateTimeCustom.DateTimeCustom =
     { Date = generateDatePast ()
       Time = generateTimePast () }
 
-let private generateDateTimeCustomFuture () : DateTimeCustom.DateTimeCustom =
+let generateDateTimeCustomFuture () : DateTimeCustom.DateTimeCustom =
     { Date = generateDateFuture ()
       Time = generateTimeFuture () }
 

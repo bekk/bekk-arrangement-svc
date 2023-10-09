@@ -318,7 +318,7 @@ type GetEvent(fixture: DatabaseFixture) =
         }
 
     [<Fact>]
-    member _.``Admin can can get events and participations for different users``() =
+    member _.``Admin can get events and participations for different users``() =
         task {
             let! response, _ = Http.get clientDifferentUserAdmin "/events-and-participations/0"
             response.EnsureSuccessStatusCode() |> ignore

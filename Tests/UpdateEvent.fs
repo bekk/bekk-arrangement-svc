@@ -5,6 +5,7 @@ open Xunit
 
 open Models
 open Tests
+open Email.Service
 
 [<Collection("Database collection")>]
 type UpdateEvent(fixture: DatabaseFixture) =
@@ -13,6 +14,8 @@ type UpdateEvent(fixture: DatabaseFixture) =
 
     let unauthenticatedClient =
         fixture.getUnauthenticatedClient
+
+    let isPaameldt (email: DevEmail) = email.Email.Message.Contains "Du har rykket opp fra ventelisten"
 
     let clientDifferentUserAdmin =
         fixture.getAuthedClientWithClaims 40 [ "admin:arrangement" ]
@@ -226,6 +229,52 @@ type UpdateEvent(fixture: DatabaseFixture) =
                     { generatedEvent with MaxParticipants = Some 1 }
 
             response.EnsureSuccessStatusCode() |> ignore
+        }
+
+    [<Fact>]
+    member _.``Increasing max-participants by N will give N top people from waitinglist space and sends them emails``() =
+        task {
+            let generatedEvent =
+                TestData.createEvent (fun e -> { e with MaxParticipants = Some 0; HasWaitingList = true; StartDate = Generator.generateDateTimeCustomFuture() })
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
+
+            let! firstParticipant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event
+            let! secondParticipant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event
+            let! thirdParticipant = Helpers.createParticipantAndGet authenticatedClient createdEvent.Event
+
+            let! firstParticipantSpot = Helpers.getParticipantWaitlistSpot authenticatedClient createdEvent.Event.Id firstParticipant.Email
+            let! secondParticipantSpot = Helpers.getParticipantWaitlistSpot authenticatedClient createdEvent.Event.Id secondParticipant.Email
+            let! thirdParticipantSpot = Helpers.getParticipantWaitlistSpot authenticatedClient createdEvent.Event.Id thirdParticipant.Email
+
+            // Assert that they are on waitinglist
+            Assert.Equal("1", firstParticipantSpot)
+            Assert.Equal("2", secondParticipantSpot)
+            Assert.Equal("3", thirdParticipantSpot)
+
+            emptyDevMailbox()
+
+            let! response, _ =
+                Helpers.updateEvent
+                    authenticatedClient
+                    createdEvent.Event.Id
+                    { generatedEvent with MaxParticipants = Some 2 }
+            
+            response.EnsureSuccessStatusCode() |> ignore
+
+            let! firstParticipantSpot = Helpers.getParticipantWaitlistSpot authenticatedClient createdEvent.Event.Id firstParticipant.Email
+            let! secondParticipantSpot = Helpers.getParticipantWaitlistSpot authenticatedClient createdEvent.Event.Id secondParticipant.Email
+            let! thirdParticipantSpot = Helpers.getParticipantWaitlistSpot authenticatedClient createdEvent.Event.Id thirdParticipant.Email
+
+            // Assert that two are no longer on waitlinglist
+            Assert.Equal("0", firstParticipantSpot)
+            Assert.Equal("0", secondParticipantSpot)
+            // Assert that the third participant is first in line
+            Assert.Equal("1", thirdParticipantSpot)
+
+            let mailbox = getDevMailbox()
+
+            Assert.Equal(2, List.length mailbox)
+            Assert.True(List.forall isPaameldt mailbox)
         }
 
     [<Fact>]
