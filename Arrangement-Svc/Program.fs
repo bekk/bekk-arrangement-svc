@@ -47,7 +47,6 @@ let configureApp (configuration : IConfiguration) (app: IApplicationBuilder) =
         clearResponse >=> ServerErrors.INTERNAL_ERROR ex.Message
         ) |> ignore
     app.UseMiddleware<Middleware.RequestLogging>() |> ignore
-    app.UseMiddleware<Middleware.RetryOnDeadlock>() |> ignore
     app.UseGiraffe(webApp)
     app.UseEndpoints(fun e ->
             // NOTE: The default pattern is {*path:nonfile}, which excludes routes which looks like filenames

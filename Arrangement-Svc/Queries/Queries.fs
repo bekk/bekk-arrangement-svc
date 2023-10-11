@@ -649,32 +649,23 @@ let getEventQuestions eventId (db: DatabaseContext) =
     |> Seq.toList
 
 let createParticipantAnswers (participantAnswers: Models.ParticipantAnswer list) (db: DatabaseContext) =
-    let answer = List.tryHead participantAnswers
-    match answer with
-    | None -> Ok []
-    | Some answer ->
-    let insertQuery =
-        "
-        INSERT INTO ParticipantAnswers (QuestionId, EventId, Email, Answer)
-        VALUES (@QuestionId, @EventId, @Email, @Answer);
-        "
-    let selectQuery =
-        "
-        SELECT * FROM ParticipantAnswers
-        WHERE EventId = @eventId AND Email = @email;
-        "
-    let selectParameters = {|
-        EventId = answer.EventId
-        Email = answer.Email
-    |}
+    match List.isEmpty participantAnswers with
+    | true -> Ok []
+    | false ->
+        let insertQuery =
+            "
+            INSERT INTO ParticipantAnswers (QuestionId, EventId, Email, Answer)
+            VALUES (@QuestionId, @EventId, @Email, @Answer);
+            "
 
-    try
-        db.Connection.Execute(insertQuery, participantAnswers |> List.toSeq, db.Transaction) |> ignore
-        db.Connection.Query<Models.ParticipantAnswer>(selectQuery, selectParameters, db.Transaction)
-        |> Seq.toList
-        |> Ok
-    with
-        | ex -> Error ex
+        try
+            let insertedRows = db.Connection.Execute(insertQuery, participantAnswers |> List.toSeq, db.Transaction)
+            if insertedRows = participantAnswers.Length then
+                Ok participantAnswers
+            else
+                Error (exn "Failed to insert all participant answers")
+        with
+            | ex -> Error ex
 
 let cancelEvent eventId (db: DatabaseContext) =
     task {
