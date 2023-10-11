@@ -128,6 +128,7 @@
   margin-top: 40px;
   white-space: pre-wrap;
   max-width: 800px;
+  overflow-wrap: break-word;
 
   @media #{$desktop} {
     margin-top: 50px;
