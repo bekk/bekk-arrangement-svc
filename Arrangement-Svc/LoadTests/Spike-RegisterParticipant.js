@@ -7,15 +7,15 @@ export let options = {
   insecureSkipTLSVerify: true,
   noConnectionReuse: false,
   stages: [
-    { duration: "1m", target: 100 },
-    { duration: "2m", target: 100 },
+    { duration: "1m", target: 5 },
+    { duration: "2m", target: 5 },
     { duration: "1m", target: 0 },
   ],
 };
 
 export default function () {
   const token = "";
-  const eventId = "aa42634a-cc08-4446-b7d3-2c0489afe561";
+  const eventId = "A5A427F0-2E2F-4C9D-92D0-6818749A448A";
   let email = `${randomString(10)}@foo`;
   const params = {
     headers: {
@@ -31,35 +31,35 @@ export default function () {
     },
       participantAnswers: [
       {
-        questionId: "2572",
+        questionId: "631",
         eventId,
         email,
         question: "spm one",
         answer: "1",
       },
       {
-        questionId: "2573",
+        questionId: "632",
         eventId,
         email,
         question: "spm two",
         answer: "2",
       },
       {
-        questionId: "2574",
+        questionId: "633",
         eventId,
         email,
         question: "spm three",
         answer: "3",
       },
       {
-        questionId: "2575",
+        questionId: "634",
         eventId,
         email,
         question: "spm four",
         answer: "4",
       },
       {
-        questionId: "2576",
+        questionId: "635",
         eventId,
         email,
         question: "spm five",
