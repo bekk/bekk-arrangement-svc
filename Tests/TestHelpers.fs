@@ -109,6 +109,11 @@ module Helpers =
             | Error e -> return failwith $"Error decoding participations and answers: {e}"
             | Ok result -> return response, result
         }
+    let getParticipantWaitlistSpot client eventId email =
+        task {
+            let! _, response = Http.get client $"/events/{eventId}/participants/{email}/waitinglist-spot"
+            return response
+        }
 
     let getPublicEvents client =
         task {
