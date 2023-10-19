@@ -135,6 +135,12 @@ let registerParticipation (eventId: Guid, email): HttpHandler =
 
                 let participationStatus =
                     participateEvent isBekker numberOfParticipants eventAndQuestions.Event
+                    
+                let! duplicateEmail =
+                    Queries.isEmailRegisteredForEvent eventId email db
+                    |> TaskResult.mapError InternalError
+                do! duplicateEmail
+                    |> Result.requireFalse (emailAlreadyRegistered email)
 
                 // Verdien blir ignorert da vi nå kun bruker dette til å returnere riktig feil til brukeren.
                 // Om arrangemenet har plass eller man er ventelista henter vi ut fra databasen lenger ned.

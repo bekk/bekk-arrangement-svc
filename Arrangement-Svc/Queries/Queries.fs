@@ -606,8 +606,31 @@ let getParticipantsForEvent (eventId: Guid) (db: DatabaseContext) =
         with
             | ex -> return Error ex
     }
-
+let isEmailRegisteredForEvent (eventId: Guid) email (db: DatabaseContext) =
+    task{
+        let query =
+            "
+            SELECT COUNT(*)
+            FROM [Participants]
+            WHERE EventId = @eventId AND Email = @email
+            "
+            
+        let parameters = {|
+            EventId = eventId
+            Email = email
+        |}
+        
+        try
+            let! hasExistingParticipant = db.Connection.QuerySingleAsync<int>(query, parameters, db.Transaction)
+            if hasExistingParticipant > 0 then
+                return Ok true
+            else
+                return Ok false
+        with
+            | ex -> return Error ex
+    }
 let addParticipantToEvent (eventId: Guid) email (userId: int option) name department (db: DatabaseContext) =
+    
     let query =
         "
         INSERT INTO Participants
