@@ -271,7 +271,7 @@ type Event =
       Shortname: string option
       Offices: string option
     }
-
+    
 type EventAndQuestions = {
     Event: Event
     NumberOfParticipants: int option
@@ -380,7 +380,7 @@ module Event =
                     "targetAudience", Encode.string event.TargetAudience.Value
             ]
         encoding
-
+    
     let encodeForside (event: ForsideEvent) =
         let encoding =
             Encode.object [

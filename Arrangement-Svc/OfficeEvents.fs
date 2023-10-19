@@ -1,6 +1,7 @@
 module OfficeEvents
 
 open System
+open Models
 open UserMessage
 open FsToolkit.ErrorHandling
 
@@ -183,8 +184,7 @@ module WebApi =
         let timezone = if timeZone = "UTC" then "Z" else ""
         $"{dateString}{timezone}"
 
-    let get (date: string) (next: HttpFunc) (context: HttpContext) =
-        let result =
+    let getAsList (date: string) (context: HttpContext) =
             taskResult {
                 let! date =
                     DateTime.TryParse(date)
@@ -220,4 +220,44 @@ module WebApi =
                     // The json serializer doesn't work with F# or dotnet AsyncEnumerable
                     |> FSharp.Control.AsyncSeq.toListAsync
             }
+    let getOfficeEvents (date: string) (context: HttpContext) =
+        taskResult{
+            let! date =
+                    DateTime.TryParse(date)
+                    |> function
+                        | false, _ -> Error $"{date} er ikke en gyldig datetime."
+                        | true, date -> Ok date
+                    |> Result.mapError BadRequest
+
+            let start, end' =
+                let startOfMonth = DateTime(date.Year, date.Month, 1)
+                let endOfMonth = startOfMonth.AddMonths(1)
+                (startOfMonth.AddDays(-7), endOfMonth.AddDays(7))
+                    
+            return!
+                CalendarLookup.getEvents
+                    (context.GetService<CalendarLookup.Options>())
+                    context.RequestAborted
+                    start
+                    end'
+            
+                |> FSharp.Control.AsyncSeq.map (fun e ->
+                    let startDate = DateTime.Parse (generateTimezoneString e.Start.DateTime e.Start.TimeZone)
+                    let body = Parser.parse e.Body.Content
+                    {
+                        Id = Guid.NewGuid()
+                        Title =  if String.IsNullOrWhiteSpace(e.Subject) then "Tittel ikke satt" else e.Subject
+                        StartDate = startDate
+                        IsExternal = false
+                        IsPubliclyAvailable = true
+                        EventType = EventType.Faglig
+                        City = if e.Location.Address = null then Some String.Empty else Some e.Location.Address.City
+                        TargetAudience = Some "Bekkere"
+                    })
+                // The json serializer doesn't work with F# or dotnet AsyncEnumerable
+                |> FSharp.Control.AsyncSeq.toListAsync
+        }
+        
+    let get (date: string) (next: HttpFunc) (context: HttpContext) =
+        let result = getAsList date context
         jsonResult result next context

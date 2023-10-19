@@ -20,6 +20,12 @@ jobs:
         run: dotnet build --configuration Release --no-restore
       - name: Test
         run: ARRANGEMENT_SVC_CONTAINER_MANAGER=docker dotnet test --no-restore
+        env:
+            OFFICEEVENTS__TENANTID: ${{ secrets.OFFICEEVENTS__TENANTID }}
+            OFFICEEVENTS__MAILBOX: ${{ secrets.OFFICEEVENTS__MAILBOX }}
+            OFFICEEVENTS__CLIENTID: ${{ secrets.OFFICEEVENTS__CLIENTID }}
+            OFFICEEVENTS__CLIENTSECRET: ${{ secrets.OFFICEEVENTS__CLIENTSECRET }}
+
 
   build:
     if: contains(github.event.pull_request.title, 'preview')
