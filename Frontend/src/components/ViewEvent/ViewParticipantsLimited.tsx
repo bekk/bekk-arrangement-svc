@@ -1,9 +1,10 @@
 import React from 'react';
 import style from './ViewParticipants.module.scss';
 import { useParticipants } from 'src/hooks/cache';
-import { hasLoaded, isBad } from 'src/remote-data';
+import { hasLoaded, isBad, isUnauthorized } from 'src/remote-data';
 import { IParticipant } from 'src/types/participant';
 import { Spinner } from 'src/components/Common/Spinner/spinner';
+import { getAuth0Url } from "src/auth";
 
 interface IProps {
   eventId: string;
@@ -18,7 +19,9 @@ export const ViewParticipantsLimited = ({ eventId, editToken }: IProps) => {
   const remoteParticipants = useParticipants(eventId, editToken);
 
   if (isBad(remoteParticipants)) {
-    return <div>Det er noe galt med dataen</div>;
+    return isUnauthorized(remoteParticipants)
+      ? <div className={style.badRemoteData}>Du må være autentisert for å se påmeldte deltakere. <a href={getAuth0Url()}>Trykk her</a> for å logge på.</div>
+      : <div>Det har skjedd en feil i bakomliggende systemer. Ta kontakt med #basen på Slack.</div>;
   }
 
   if (!hasLoaded(remoteParticipants)) {

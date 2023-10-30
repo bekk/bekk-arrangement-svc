@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import style from './ViewParticipants.module.scss';
 import { stringifyEmail } from 'src/types/email';
 import { useEvent, useParticipants } from 'src/hooks/cache';
-import { hasLoaded, isBad } from 'src/remote-data';
+import { hasLoaded, isBad, isUnauthorized } from 'src/remote-data';
 import {
   IParticipant,
   IQuestionAndAnswerViewModel,
@@ -16,6 +16,7 @@ import { useNotification } from '../NotificationHandler/NotificationHandler';
 import { useHistory } from 'react-router';
 import { Plus } from '../Common/Icons/Plus';
 import { RadioButton } from '../Common/RadioButton/RadioButton';
+import { getAuth0Url } from "src/auth";
 
 interface IProps {
   eventId: string;
@@ -26,7 +27,9 @@ export const ViewParticipants = ({ eventId, editToken }: IProps) => {
   const remoteParticipants = useParticipants(eventId, editToken);
 
   if (isBad(remoteParticipants)) {
-    return <div>Det er noe galt med dataen</div>;
+    return isUnauthorized(remoteParticipants)
+      ? <div className={style.badRemoteData}>Du må være autentisert for å se påmeldte deltakere. <a href={getAuth0Url()}>Trykk her</a> for å logge på.</div>
+      : <div>Det har skjedd en feil i bakomliggende systemer. Ta kontakt med #basen på Slack.</div>;
   }
 
   if (!hasLoaded(remoteParticipants)) {
