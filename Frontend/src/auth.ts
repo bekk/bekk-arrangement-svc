@@ -63,7 +63,7 @@ function getCurrentState(): string {
   return encodeURIComponent(state);
 }
 
-function getAuth0Url(): string {
+export function getAuth0Url(): string {
   const encodedCallback = encodeURIComponent(
     getApplicationRoot() + '/redirect'
   );

@@ -31,6 +31,10 @@ export type Bad = {
   userMessage: string;
 };
 
+enum HttpStatusCode {
+  Unauthorized = 401,
+}
+
 export type RemoteData<T> = Ok<T> | Loading | Updating<T> | Bad | NotRequested;
 
 export function isLoading<T>(data: RemoteData<T>): data is Loading {
@@ -55,6 +59,10 @@ export function isNotRequested<T>(data: RemoteData<T>): data is NotRequested {
 
 export function isBad<T>(data: RemoteData<T>): data is Bad {
   return data.status === 'ERROR';
+}
+
+export function isUnauthorized(badRemoteData: Bad): boolean {
+  return badRemoteData.statusCode === HttpStatusCode.Unauthorized;
 }
 
 export function cachedRemoteData<Key extends string, T>() {

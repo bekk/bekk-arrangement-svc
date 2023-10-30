@@ -210,7 +210,7 @@ export const ViewEventContainer = ({ eventId }: IProps) => {
   };
 
   const canAccessParticipants =
-    editTokenFound || userIsAdmin() || userIsSales();
+    !!editTokenFound || userIsAdmin() || userIsSales();
 
   return (
     <>
@@ -328,9 +328,6 @@ export const ViewEventContainer = ({ eventId }: IProps) => {
               <>
                 <div className={style.attendeesTitleContainer}>
                   <h2 className={style.subHeader}>Påmeldte</h2>
-                  {canAccessParticipants && (
-                    <DownloadExportLink eventId={eventId} />
-                  )}
                 </div>
                 <p>{participantsText}</p>
                 <ViewParticipantsLimited
