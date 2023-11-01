@@ -234,16 +234,16 @@ let getPublicEvents =
                     
                 let today = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
                 let! officeEvents =
-                    OfficeEvents.WebApi.getOfficeEvents today context
+                    OfficeEvents.WebApi.getAsList today context
                     
                 let encodedEvents =
                    events
-                   |> Seq.map Event.encodeSummary
+                   |> Seq.map Event.encodeSkjerEventSummary
                    |> Encode.seq
                    
                 let encodedOfficeEvents =
                    officeEvents
-                   |> Seq.map Event.encodeSummary
+                   |> Seq.map Event.encodeOfficeEventSummary
                    |> Encode.seq
                    
                 let result = Seq.append encodedEvents encodedOfficeEvents
