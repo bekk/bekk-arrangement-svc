@@ -205,58 +205,23 @@ module WebApi =
                         end'
                     |> FSharp.Control.AsyncSeq.map (fun e ->
                         let body = Parser.parse e.Body.Content
-                        {| Id = e.Id
-                           Title =  if String.IsNullOrWhiteSpace(e.Subject) then "Tittel ikke satt" else e.Subject
-                           Description = body.description
-                           Types = body.types
-                           Themes = body.themes
-                           StartTime = generateTimezoneString e.Start.DateTime e.Start.TimeZone
-                           EndTime = generateTimezoneString e.End.DateTime e.End.TimeZone
-                           ContactPerson = e.Organizer.EmailAddress.Name;
-                           ModifiedAt = e.LastModifiedDateTime.Value.UtcDateTime;
-                           CreatedAt = e.CreatedDateTime.Value.UtcDateTime;
-                           Location = if String.IsNullOrWhiteSpace(e.Location.DisplayName) then "Sted ikke satt" else e.Location.DisplayName
-                        |})
+                        {
+                            Id = e.Id
+                            Title =  if String.IsNullOrWhiteSpace(e.Subject) then "Tittel ikke satt" else e.Subject
+                            Description = body.description
+                            Types = body.types
+                            Themes = body.themes
+                            StartTime = generateTimezoneString e.Start.DateTime e.Start.TimeZone
+                            EndTime = generateTimezoneString e.End.DateTime e.End.TimeZone
+                            ContactPerson = e.Organizer.EmailAddress.Name;
+                            ModifiedAt = e.LastModifiedDateTime.Value.UtcDateTime;
+                            CreatedAt = e.CreatedDateTime.Value.UtcDateTime;
+                            Location = if String.IsNullOrWhiteSpace(e.Location.DisplayName) then "Sted ikke satt" else e.Location.DisplayName
+                            City = if e.Location.Address = null then String.Empty else e.Location.Address.City
+                        })
                     // The json serializer doesn't work with F# or dotnet AsyncEnumerable
                     |> FSharp.Control.AsyncSeq.toListAsync
             }
-    let getOfficeEvents (date: string) (context: HttpContext) =
-        taskResult{
-            let! date =
-                    DateTime.TryParse(date)
-                    |> function
-                        | false, _ -> Error $"{date} er ikke en gyldig datetime."
-                        | true, date -> Ok date
-                    |> Result.mapError BadRequest
-
-            let start, end' =
-                let startOfMonth = DateTime(date.Year, date.Month, 1)
-                let endOfMonth = startOfMonth.AddMonths(1)
-                (startOfMonth.AddDays(-7), endOfMonth.AddDays(7))
-                    
-            return!
-                CalendarLookup.getEvents
-                    (context.GetService<CalendarLookup.Options>())
-                    context.RequestAborted
-                    start
-                    end'
-            
-                |> FSharp.Control.AsyncSeq.map (fun e ->
-                    let startDate = DateTime.Parse (generateTimezoneString e.Start.DateTime e.Start.TimeZone)
-                    let body = Parser.parse e.Body.Content
-                    {
-                        Id = Guid.NewGuid()
-                        Title =  if String.IsNullOrWhiteSpace(e.Subject) then "Tittel ikke satt" else e.Subject
-                        StartDate = startDate
-                        IsExternal = false
-                        IsPubliclyAvailable = true
-                        EventType = EventType.Faglig
-                        City = if e.Location.Address = null then Some String.Empty else Some e.Location.Address.City
-                        TargetAudience = Some "Bekkere"
-                    })
-                // The json serializer doesn't work with F# or dotnet AsyncEnumerable
-                |> FSharp.Control.AsyncSeq.toListAsync
-        }
         
     let get (date: string) (next: HttpFunc) (context: HttpContext) =
         let result = getAsList date context
