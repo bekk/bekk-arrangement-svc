@@ -271,7 +271,7 @@ type Event =
       Shortname: string option
       Offices: string option
     }
-
+    
 type EventAndQuestions = {
     Event: Event
     NumberOfParticipants: int option
@@ -298,6 +298,22 @@ type ForsideEvent = {
     IsWaitlisted: bool
     PositionInWaitlist: int
     Offices: string option
+}
+
+[<CLIMutable>]
+type OfficeEvent = {
+    Id: string
+    Title: string
+    Description: string
+    Types: string list
+    Themes: string list
+    StartTime: string
+    EndTime: string
+    ContactPerson: string
+    ModifiedAt: DateTime
+    CreatedAt: DateTime
+    Location: string
+    City: string
 }
 
 [<CLIMutable>]
@@ -365,7 +381,7 @@ module Event =
             ]
         encoding
 
-    let encodeSummary (event: EventSummary) =
+    let encodeSkjerEventSummary (event: EventSummary) =
         let encoding =
             Encode.object [
                 "id", Encode.guid event.Id
@@ -380,7 +396,19 @@ module Event =
                     "targetAudience", Encode.string event.TargetAudience.Value
             ]
         encoding
-
+        
+    let encodeOfficeEventSummary (event: OfficeEvent) =
+        Encode.object [
+            "id", Encode.guid (Guid.NewGuid())
+            "title", Encode.string event.Title
+            "startDate", Encode.datetime (DateTime.Parse event.StartTime)
+            "isExternal", Encode.bool false
+            "isPubliclyAvailable", Encode.bool true
+            "eventType", EventType.encoder EventType.Faglig
+            "city", Encode.string event.City
+            "targetAudience", Encode.string "Bekkere"
+        ]
+    
     let encodeForside (event: ForsideEvent) =
         let encoding =
             Encode.object [

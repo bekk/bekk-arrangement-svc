@@ -218,6 +218,11 @@ let getFutureEvents (next: HttpFunc) (context: HttpContext) =
         }
     jsonResult result next context
 
+let getOfficeEvents =
+    fun (date: string) ->
+        outputCache (fun opt -> opt.Duration <- TimeSpan.FromMinutes(5).TotalSeconds)
+        >=> OfficeEvents.WebApi.get date
+        
 let getPublicEvents =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
@@ -226,9 +231,25 @@ let getPublicEvents =
                 let! events =
                     Queries.getPublicEvents db
                     |> TaskResult.mapError InternalError
-                return events
-                       |> Seq.map Event.encodeSummary
-                       |> Encode.seq
+                    
+                let today = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                let! officeEvents =
+                    OfficeEvents.WebApi.getAsList today context
+                    
+                let encodedEvents =
+                   events
+                   |> Seq.map Event.encodeSkjerEventSummary
+                   |> Encode.seq
+                   
+                let encodedOfficeEvents =
+                   officeEvents
+                   |> Seq.map Event.encodeOfficeEventSummary
+                   |> Encode.seq
+                   
+                let result = Seq.append encodedEvents encodedOfficeEvents
+               
+               return result
+               
             }
         jsonResult result next context
 
@@ -887,10 +908,7 @@ let routes: HttpHandler =
             routef "/api/events/%O/participants" (isAuthenticatedf getParticipantsForEvent)
             routef "/api/participants/%s/events" (isAuthenticatedf getParticipationsForParticipant)
             routef "/api/office-events/%s" (fun date ->
-                isAuthenticated >=>
-                outputCache (fun opt -> opt.Duration <- TimeSpan.FromMinutes(5).TotalSeconds)
-                >=> OfficeEvents.WebApi.get date
-                )
+                isAuthenticated >=> getOfficeEvents date)
           ]
           DELETE
           >=> choose [

@@ -1,6 +1,7 @@
 module OfficeEvents
 
 open System
+open Models
 open UserMessage
 open FsToolkit.ErrorHandling
 
@@ -183,8 +184,7 @@ module WebApi =
         let timezone = if timeZone = "UTC" then "Z" else ""
         $"{dateString}{timezone}"
 
-    let get (date: string) (next: HttpFunc) (context: HttpContext) =
-        let result =
+    let getAsList (date: string) (context: HttpContext) =
             taskResult {
                 let! date =
                     DateTime.TryParse(date)
@@ -205,19 +205,24 @@ module WebApi =
                         end'
                     |> FSharp.Control.AsyncSeq.map (fun e ->
                         let body = Parser.parse e.Body.Content
-                        {| Id = e.Id
-                           Title =  if String.IsNullOrWhiteSpace(e.Subject) then "Tittel ikke satt" else e.Subject
-                           Description = body.description
-                           Types = body.types
-                           Themes = body.themes
-                           StartTime = generateTimezoneString e.Start.DateTime e.Start.TimeZone
-                           EndTime = generateTimezoneString e.End.DateTime e.End.TimeZone
-                           ContactPerson = e.Organizer.EmailAddress.Name;
-                           ModifiedAt = e.LastModifiedDateTime.Value.UtcDateTime;
-                           CreatedAt = e.CreatedDateTime.Value.UtcDateTime;
-                           Location = if String.IsNullOrWhiteSpace(e.Location.DisplayName) then "Sted ikke satt" else e.Location.DisplayName
-                        |})
+                        {
+                            Id = e.Id
+                            Title =  if String.IsNullOrWhiteSpace(e.Subject) then "Tittel ikke satt" else e.Subject
+                            Description = body.description
+                            Types = body.types
+                            Themes = body.themes
+                            StartTime = generateTimezoneString e.Start.DateTime e.Start.TimeZone
+                            EndTime = generateTimezoneString e.End.DateTime e.End.TimeZone
+                            ContactPerson = e.Organizer.EmailAddress.Name;
+                            ModifiedAt = e.LastModifiedDateTime.Value.UtcDateTime;
+                            CreatedAt = e.CreatedDateTime.Value.UtcDateTime;
+                            Location = if String.IsNullOrWhiteSpace(e.Location.DisplayName) then "Sted ikke satt" else e.Location.DisplayName
+                            City = if e.Location.Address = null then String.Empty else e.Location.Address.City
+                        })
                     // The json serializer doesn't work with F# or dotnet AsyncEnumerable
                     |> FSharp.Control.AsyncSeq.toListAsync
             }
+        
+    let get (date: string) (next: HttpFunc) (context: HttpContext) =
+        let result = getAsList date context
         jsonResult result next context
