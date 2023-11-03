@@ -243,7 +243,7 @@ let getPublicEvents =
                     
                 let currentAndFutureOEvents =
                     List.filter (fun (p: OfficeEvent) -> DateTime.Parse p.StartTime >= DateTime.Now) officeEvents
-                    |> Seq.sortByDescending (fun x -> DateTime.Parse x.StartTime)
+                    |> Seq.sortBy (fun x -> DateTime.Parse x.StartTime)
                     |> Seq.truncate 8
                     
                 let encodedEvents =
