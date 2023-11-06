@@ -236,13 +236,23 @@ let getPublicEvents =
                 let! officeEvents =
                     OfficeEvents.WebApi.getAsList today context
                     
+                let pastOfficeEvents =
+                    List.filter (fun (p: OfficeEvent) -> DateTime.Parse p.StartTime < DateTime.Now) officeEvents
+                    |> Seq.sortByDescending (fun x -> DateTime.Parse x.StartTime)
+                    |> Seq.truncate 4
+                    
+                let currentAndFutureOEvents =
+                    List.filter (fun (p: OfficeEvent) -> DateTime.Parse p.StartTime >= DateTime.Now) officeEvents
+                    |> Seq.sortBy (fun x -> DateTime.Parse x.StartTime)
+                    |> Seq.truncate 8
+                    
                 let encodedEvents =
                    events
                    |> Seq.map Event.encodeSkjerEventSummary
                    |> Encode.seq
                    
                 let encodedOfficeEvents =
-                   officeEvents
+                   Seq.append pastOfficeEvents currentAndFutureOEvents
                    |> Seq.map Event.encodeOfficeEventSummary
                    |> Encode.seq
                    
