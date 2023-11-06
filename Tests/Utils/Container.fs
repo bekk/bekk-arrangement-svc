@@ -54,3 +54,4 @@ let waitForContainer () =
     // Need to wait a bit longer
     // Did not find a clean way of doing this
     async { do! Async.Sleep 5000 } |> Async.RunSynchronously
+
