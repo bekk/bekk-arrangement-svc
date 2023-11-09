@@ -53,4 +53,4 @@ let waitForContainer () =
     // Even though container is running it is not ready for connections
     // Need to wait a bit longer
     // Did not find a clean way of doing this
-    async { do! Async.Sleep 5000 } |> Async.RunSynchronously
+    async { do! Async.Sleep 7500 } |> Async.RunSynchronously
