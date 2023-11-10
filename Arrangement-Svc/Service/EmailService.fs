@@ -257,7 +257,7 @@ let private createCancelledEventNotificationEmail
     (participant: Participant)
     =
     {   Subject = $"Avlyst: {event.Title}"
-        Message = $"{event.Title} {event.StartDate} er dessverre avlyst. Ta kontakt med {event.OrganizerEmail} for mer informasjon."
+        Message = $"{event.Title} {DateTimeCustom.toReadableString (DateTimeCustom.toCustomDateTime event.StartDate event.StartTime)} er dessverre avlyst. Ta kontakt med {event.OrganizerEmail} for mer informasjon."
         To = participant.Email
         CalendarInvite = None 
     }
