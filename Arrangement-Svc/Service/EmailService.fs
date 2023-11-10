@@ -263,7 +263,7 @@ let private createCancelledEventNotificationEmail
                   ""
                   $"Begrunnelse er: {message}"
                   ""
-                  "Ta kontakt med {event.OrganizerEmail} for mer informasjon."
+                  $"Ta kontakt med {event.OrganizerEmail} for mer informasjon."
                   ]
                   |> String.concat "<br/>"
         To = participant.Email
