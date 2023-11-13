@@ -252,6 +252,24 @@ let private createCancelledEventMail
               (event, participant, noReplyMail, message, Cancel) |> Some
     }
 
+let private createCancelledEventNotificationEmail
+    (message: string)
+    (event: Models.Event)
+    (participant: Participant)
+    =
+    {   Subject = $"Avlyst: {event.Title}"
+        Message = [
+                  $"{event.Title} {DateTimeCustom.toReadableString (DateTimeCustom.toCustomDateTime event.StartDate event.StartTime)} er dessverre avlyst."
+                  ""
+                  $"Begrunnelse er: {message}"
+                  ""
+                  $"Ta kontakt med <a href=\"mailto:{event.OrganizerEmail}\">{event.OrganizerEmail}</a> for mer informasjon."
+                  ]
+                  |> String.concat "<br/>"
+        To = participant.Email
+        CalendarInvite = None 
+    }
+
 let private sendMailToFirstPersonOnWaitingList
     (event: Models.Event)
     (personWhoGotIt: Models.Participant)
@@ -306,6 +324,9 @@ let sendCancellationMailToParticipants
         sendMail
             (createCancelledEventMail messageToParticipants event
                  noReplyMail participant) ctx
+        sendMail
+            (createCancelledEventNotificationEmail messageToParticipants event
+                 participant) ctx
 
     sendMail
             (createCancellationConfirmationToOrganizer event messageToParticipants) ctx
