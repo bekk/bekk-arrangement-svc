@@ -88,11 +88,13 @@ const ParticipantTableMobile = (props: {
               </tr>
               <tr>
                 <td colSpan={2} className={style.mobileCommentCell}>
-                  {attendee.participantAnswers.map((qa) => (
-                    <div key={qa.questionId}>
-                      <div className={style.question}>{qa.question}</div>
-                      <div className={style.answer}>{qa.answer}</div>
-                    </div>
+                  {attendee.participantAnswers
+                    .filter((qa) => qa.answer.length > 0)
+                    .map((qa) => (
+                      <div key={qa.questionId}>
+                        <div className={style.question}>{qa.question}</div>
+                        <div className={style.answer}>{qa.answer}</div>
+                      </div>
                   ))}
                   <Button
                     className={style.deleteParticipantButtonMobile}
@@ -189,11 +191,13 @@ const ParticipantTableDesktop = (props: {
               </td>
               {hasComments && (
                 <td className={style.desktopCell}>
-                  {attendee.participantAnswers.map((qa) => (
-                    <div key={qa.questionId}>
-                      <div className={style.question}>{qa.question}</div>
-                      <div className={style.answer}>{qa.answer}</div>
-                    </div>
+                  {attendee.participantAnswers
+                    .filter((qa) => qa.answer.length > 0)
+                    .map((qa) => (
+                      <div key={qa.questionId}>
+                        <div className={style.question}>{qa.question}</div>
+                        <div className={style.answer}>{qa.answer}</div>
+                      </div>
                   ))}
                 </td>
               )}

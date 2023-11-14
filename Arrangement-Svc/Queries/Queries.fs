@@ -1078,15 +1078,18 @@ let getParticipantsAndAnswersForEvent (eventId: Guid) (db: DatabaseContext) =
                    P.EventId,
                    P.RegistrationTime,
                    Q.Question,
-                   A.QuestionId,
-                   A.EventId,
-                   A.Email,
-                   A.Answer
+                   Q.Id AS QuestionId,
+                   P.EventId,
+                   P.Email,
+                   ISNULL(A.Answer, '') AS Answer
             FROM Participants P
-                LEFT JOIN ParticipantAnswers A ON A.EventId = P.EventId AND A.Email = P.Email
-                LEFT JOIN ParticipantQuestions Q ON Q.EventId = P.EventId AND Q.Id = A.QuestionId
-            WHERE P.EventId = @eventId
-            ORDER BY RegistrationTime;
+                LEFT JOIN ParticipantQuestions Q ON Q.EventId = P.EventId
+                LEFT JOIN ParticipantAnswers A ON A.QuestionId = Q.Id AND A.Email = P.Email
+            WHERE
+                P.EventId = @eventId
+            ORDER BY
+                RegistrationTime,
+                Q.Id;
             "
 
         let parameters = {|
