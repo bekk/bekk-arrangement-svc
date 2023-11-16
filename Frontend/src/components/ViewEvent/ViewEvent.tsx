@@ -1,6 +1,6 @@
 import React from 'react';
 import { useHistory } from 'react-router';
-import { userIsLoggedIn } from 'src/auth';
+import { authenticateUser, userIsLoggedIn } from 'src/auth';
 import { Button } from 'src/components/Common/Button/Button';
 import { WavySubHeader } from 'src/components/Common/Header/WavySubHeader';
 import { ExternalIconBig } from 'src/components/Common/Icons/ExternalIconBig';
@@ -65,6 +65,16 @@ export const ViewEvent = ({
             Dupliser
           </Button>
         </div>
+      )}
+      {!userCanEdit && eventId !== undefined && (
+        <div className={style.editGroup}>
+
+        <Button
+        onClick={() => authenticateUser()}
+        color={'Secondary'}>
+        Logg inn
+      </Button>
+      </div>
       )}
       <WavySubHeader
         eventId={eventId}
