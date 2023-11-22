@@ -443,7 +443,7 @@ module Event =
 
     let encoderWithEditInfo eventAndQuestions =
         Encode.object [
-            "event", encodeEventAndQuestions eventAndQuestions
+            "eventId", Encode.guid eventAndQuestions.Event.Id
             "editToken", Encode.guid eventAndQuestions.Event.EditToken
         ]
 
