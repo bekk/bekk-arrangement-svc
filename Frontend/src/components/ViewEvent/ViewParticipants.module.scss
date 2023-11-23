@@ -12,9 +12,9 @@
 }
 
 .hideOnMobile {
-    @media only screen and (max-width: #{$desktopMinWidth}){
-        display: none !important;
-    }
+  @media only screen and (max-width: #{$desktopMinWidth}) {
+    display: none !important;
+  }
 }
 
 .table {
@@ -123,9 +123,9 @@
 
 .badRemoteData {
   a {
-    color: var(--linkColor)
+    color: var(--linkColor);
   }
   a:hover {
-    color: var(--linkColorHover)
+    color: var(--linkColorHover);
   }
 }

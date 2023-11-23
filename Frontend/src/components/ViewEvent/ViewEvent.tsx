@@ -1,6 +1,6 @@
 import React from 'react';
 import { useHistory } from 'react-router';
-import { authenticateUser, userIsLoggedIn } from 'src/auth';
+import { userIsLoggedIn } from 'src/auth';
 import { Button } from 'src/components/Common/Button/Button';
 import { WavySubHeader } from 'src/components/Common/Header/WavySubHeader';
 import { ExternalIconBig } from 'src/components/Common/Icons/ExternalIconBig';
