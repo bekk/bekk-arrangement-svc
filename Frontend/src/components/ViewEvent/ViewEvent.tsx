@@ -50,7 +50,7 @@ export const ViewEvent = ({
 
   return (
     <section className={style.container}>
-      {userCanEdit && eventId !== undefined ? (
+      {userCanEdit && eventId !== undefined && (
         <div className={style.editGroup}>
           <Button
             onClick={() => history.push(editEventRoute(eventId))}
@@ -65,15 +65,6 @@ export const ViewEvent = ({
             Dupliser
           </Button>
         </div>
-      ) : (
-        !userIsLoggedIn() &&
-        eventId !== undefined && (
-          <div className={style.editGroup}>
-            <Button onClick={() => authenticateUser()} color={'Secondary'}>
-              Logg inn
-            </Button>
-          </div>
-        )
       )}
       <WavySubHeader
         eventId={eventId}
