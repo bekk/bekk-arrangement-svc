@@ -447,7 +447,11 @@ module Event =
             "editToken", Encode.guid eventAndQuestions.Event.EditToken
         ]
 
-
+    let encodeEditableEvents eventAndQuestions =
+        Encode.object [
+            "eventId", Encode.guid eventAndQuestions.Event.Id
+            "editToken", Encode.guid eventAndQuestions.Event.EditToken
+        ]
 type ParticipantWriteModel =
     { Name: string
       Department: string
@@ -547,7 +551,7 @@ module Participant =
 
     let encodeWithLocalStorage (eventAndQuestions: EventAndQuestions list) (participations: ParticipantAndAnswers list) =
         Encode.object [
-           "editableEvents", eventAndQuestions |> List.map Event.encoderWithEditInfo |> Encode.list
+           "editableEvents", eventAndQuestions |> List.map Event.encodeEditableEvents |> Encode.list
            "participations", participations |> List.map encodeToLocalStorage |> Encode.list
         ]
 

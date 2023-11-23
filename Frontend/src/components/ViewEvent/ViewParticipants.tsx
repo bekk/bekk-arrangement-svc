@@ -16,7 +16,7 @@ import { useNotification } from '../NotificationHandler/NotificationHandler';
 import { useHistory } from 'react-router';
 import { Plus } from '../Common/Icons/Plus';
 import { RadioButton } from '../Common/RadioButton/RadioButton';
-import { getAuth0Url } from "src/auth";
+import { getAuth0Url } from 'src/auth';
 
 interface IProps {
   eventId: string;
@@ -27,9 +27,17 @@ export const ViewParticipants = ({ eventId, editToken }: IProps) => {
   const remoteParticipants = useParticipants(eventId, editToken);
 
   if (isBad(remoteParticipants)) {
-    return isUnauthorized(remoteParticipants)
-      ? <div className={style.badRemoteData}>Du må være autentisert for å se påmeldte deltakere. <a href={getAuth0Url()}>Trykk her</a> for å logge på.</div>
-      : <div>Det har skjedd en feil i bakomliggende systemer. Ta kontakt med #basen på Slack.</div>;
+    return isUnauthorized(remoteParticipants) ? (
+      <div className={style.badRemoteData}>
+        Du må være autentisert for å se påmeldte deltakere.{' '}
+        <a href={getAuth0Url()}>Trykk her</a> for å logge på.
+      </div>
+    ) : (
+      <div>
+        Det har skjedd en feil i bakomliggende systemer. Ta kontakt med #basen
+        på Slack.
+      </div>
+    );
   }
 
   if (!hasLoaded(remoteParticipants)) {
