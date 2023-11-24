@@ -35,6 +35,8 @@ module "aws-deploy" {
   listener_path_patterns = var.listener_path_patterns
   task_image             = var.task_image
   task_image_tag         = var.task_image_tag
+  task_cpu               = var.task_cpu
+  task_memory            = var.task_memory
   task_environment       = var.task_environment
   task_secrets           = var.task_secrets
   enable_tracing         = true
