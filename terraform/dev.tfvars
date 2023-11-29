@@ -3,8 +3,6 @@ sld_domain             = "bekk.dev"
 hostname               = "skjer"
 task_image             = "882089634282.dkr.ecr.eu-central-1.amazonaws.com/bekk-arrangement-svc"
 task_image_tag         = "latest"
-task_cpu               = 1024
-task_memory            = 2048
 listener_path_patterns = ["/*"]
 create_dns_record      = true
 
