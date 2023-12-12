@@ -10,9 +10,10 @@ create_dns_record      = true
 task_environment = {
   DOTNET_ENVIRONMENT                 = "Production"
   Auth0__Audience                    = "HuH7oGHSgymn4mYLzEClyE2bhQSM1iTC"
+  Auth0__Ansattlista_iOS_Audience    = "eS3wyVKSqWtLVXfDbFBRF7NJsbunXwwM"
+  Auth0__Scheduled_Tasks_Audience    = "https://api.bekk.no"
   Auth0__Issuer_Domain               = "bekk.eu.auth0.com"
   Auth0__PERMISSION_CLAIM_TYPE       = "https://api.bekk.no/claims/permission"
-  Auth0__Scheduled_Tasks_Audience    = "https://api.bekk.no"
   Config__Employee_Svc_url           = "https://api.bekk.no/employee-svc"
   Sendgrid__Dev_White_List_Addresses = ""
 }

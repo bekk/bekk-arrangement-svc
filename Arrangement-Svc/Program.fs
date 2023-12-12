@@ -111,6 +111,7 @@ let configureServices (configuration : IConfiguration) (services: IServiceCollec
             .AddJwtBearer(fun options ->
             let audiences =
                 [ configuration["Auth0:Audience"]
+                  configuration["Auth0:Ansattlista_iOS_Audience"]
                   configuration["Auth0:Scheduled_Tasks_Audience"] ]
             options.Authority <-
                 sprintf "https://%s" configuration["Auth0:Issuer_Domain"]
