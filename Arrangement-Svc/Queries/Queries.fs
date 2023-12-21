@@ -320,62 +320,6 @@ let getPastEvents (employeeId: int) (db: DatabaseContext) =
         return! getEventAndParticipantQuestions query numParticipantsQuery parameters db
     }
 
-let getEventsOrganizedByEmail (email: string) (db : DatabaseContext) =
-    task {
-        let query =
-            "
-            SELECT E.Id,
-                   E.Title,
-                   E.Description,
-                   E.Location,
-                   E.City,
-                   E.OrganizerName,
-                   E.OrganizerEmail,
-                   E.StartDate,
-                   E.StartTime,
-                   E.EndDate,
-                   E.EndTime,
-                   E.TargetAudience,
-                   E.MaxParticipants,
-                   E.OrganizerEmail,
-                   E.OpenForRegistrationTime,
-                   E.EditToken,
-                   E.HasWaitingList,
-                   E.IsCancelled,
-                   E.IsExternal,
-                   E.OrganizerId,
-                   E.IsHidden,
-                   E.IsPubliclyAvailable,
-                   E.EventType,
-                   E.CloseRegistrationTime,
-                   E.CustomHexColor,
-                   E.Shortname,
-                   E.Program,
-                   E.Offices,
-                   P.Id,
-                   P.EventId,
-                   P.Question
-            FROM Events E
-                     LEFT JOIN ParticipantQuestions P ON E.Id = P.EventId
-            WHERE E.OrganizerEmail = @email
-            ORDER BY StartDate DESC;
-            "
-        let parameters = {|
-            Email = email
-        |}
-
-        let numParticipantsQuery =
-            "
-            SELECT Id, Count(Id) as NumParticipants
-            FROM EVENTS
-                INNER JOIN Participants P on Events.Id = P.EventId
-            WHERE OrganizerEmail = @email
-            GROUP BY Id
-            "
-
-        return! getEventAndParticipantQuestions query numParticipantsQuery parameters db
-    }
-
 let getEventsOrganizedById (id: int) (db: DatabaseContext) =
     task {
         let query =

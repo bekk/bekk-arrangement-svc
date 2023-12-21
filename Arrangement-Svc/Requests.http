@@ -26,10 +26,6 @@ Authorization: Bearer {{token}}
 GET localhost:5000/api/events/previous
 Authorization: Bearer {{token}}
 
-### Get all events by organizer email
-GET localhost:5000/api/events/organizer/<enter organizer email here>
-Authorization: Bearer {{token}}
-
 ### Get all events and participations by employee id
 GET localhost:5000/api/events-and-participations/<enter employee id here>
 Authorization: Bearer {{token}}

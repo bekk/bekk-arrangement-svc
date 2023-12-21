@@ -280,20 +280,6 @@ let getPastEvents (next: HttpFunc) (context: HttpContext) =
             }
         jsonResult result next context
 
-let getEventsOrganizedBy (email: string) =
-    fun (next: HttpFunc) (context: HttpContext) ->
-        let result =
-            taskResult {
-                use db = openConnection context
-                let! eventAndQuestions =
-                    Queries.getEventsOrganizedByEmail email db
-                    |> TaskResult.mapError InternalError
-                return
-                    eventAndQuestions
-                    |> List.map Event.encodeEventAndQuestions
-            }
-        jsonResult result next context
-
 let getEventIdByShortnameHttpResult shortname db =
     taskResult {
         let! result =
@@ -883,7 +869,6 @@ let routes: HttpHandler =
             route "/api/events" >=> isAuthenticated >=> getFutureEvents
             route "/api/events/previous" >=> isAuthenticated >=> getPastEvents
             routef "/api/events/forside/%s" (isAuthenticatedf getEventsForForside)
-            routef "/api/events/organizer/%s" (isAuthenticatedf getEventsOrganizedBy)
             routef "/api/events-and-participations/%i" (isAuthenticatedf getEventsAndParticipations)
             routef "/api/events/%O/participants" (isAuthenticatedf getParticipantsForEvent)
             routef "/api/participants/%s/events" (isAuthenticatedf getParticipationsForParticipant)

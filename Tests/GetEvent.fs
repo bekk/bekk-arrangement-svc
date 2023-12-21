@@ -277,21 +277,6 @@ type GetEvent(fixture: DatabaseFixture) =
             response.EnsureSuccessStatusCode() |> ignore
         }
 
-
-    [<Fact>]
-    member _.``Unauthenticated users cannot get events organized by id``() =
-        task {
-            let! response, _ = Http.get unauthenticatedClient "/events/organizer/0"
-            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode)
-        }
-
-    [<Fact>]
-    member _.``Authenticated users can get events organized by id``() =
-        task {
-            let! response, _ = Http.get authenticatedClient "/events/organizer/0"
-            response.EnsureSuccessStatusCode() |> ignore
-        }
-
     [<Fact>]
     member _.``Unauthenticated users cannot get events and participations``() =
         task {
