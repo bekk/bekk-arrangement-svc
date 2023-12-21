@@ -268,10 +268,10 @@ type RegisterToEvent(fixture: DatabaseFixture) =
                 { generated with ParticipantAnswers = List.mapi (fun index answer -> {answer with Answer = $"Answer {index}" }) generated.ParticipantAnswers }
 
             let! _, _ = Helpers.createParticipantForEvent authenticatedClient createdEvent.Event.Id email participant
-            let! _, body = Helpers.getParticipationsForEvent authenticatedClient email
+            let! _, body = Helpers.getParticipationsAndWaitlist authenticatedClient createdEvent.Event.Id
 
             let actual =
-                body
+                body.Attendees
                 |> List.collect (fun qa -> qa.QuestionAndAnswers)
                 |> List.mapi (fun index qa -> index, qa)
                 |> List.forall (fun (index, qa) -> qa.Answer = $"Answer {index}" && qa.Question = $"Question {index}")
@@ -297,4 +297,3 @@ type RegisterToEvent(fixture: DatabaseFixture) =
             let! response, _ = Helpers.createParticipant authenticatedClient createdEvent.Event
             response.EnsureSuccessStatusCode() |> ignore
         }
-

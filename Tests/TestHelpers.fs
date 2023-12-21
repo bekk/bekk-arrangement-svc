@@ -101,12 +101,12 @@ module Helpers =
             | Ok result -> return response, result
         }
 
-    let getParticipationsForEvent client email =
+    let getParticipationsForEmployee client employeeId =
         task {
-            let! response, content = Http.getParticipationsForEvent client email
+            let! response, content = Http.getParticipationsForEmployee client employeeId
 
             match content with
-            | Error e -> return failwith $"Error decoding participations and answers: {e}"
+            | Error e -> return failwith $"Error decoding participations for employee: {e}"
             | Ok result -> return response, result
         }
     let getParticipantWaitlistSpot client eventId email =
