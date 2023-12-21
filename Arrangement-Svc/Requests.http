@@ -18,10 +18,6 @@ Authorization: Bearer {{token}}
 ### Get event by ID
 GET localhost:5000/api/events/<Enter a GUID here>
 
-### Get unfurled event by ID
-GET localhost:5000/api/events/<enter a event id here>/unfurl
-Authorization: Bearer {{token}}
-
 ### Get all future events
 GET localhost:5000/api/events
 Authorization: Bearer {{token}}

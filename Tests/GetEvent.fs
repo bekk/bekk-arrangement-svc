@@ -65,17 +65,6 @@ type GetEvent(fixture: DatabaseFixture) =
         }
 
     [<Fact>]
-    member _.``Unfurl events can be seen by anyone``() =
-        let event =
-            TestData.createEvent (fun e -> { e with IsExternal = false })
-
-        task {
-            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
-            let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.Event.Id}/unfurl"
-            response.EnsureSuccessStatusCode() |> ignore
-        }
-
-    [<Fact>]
     member _.``Participants can be counted by anyone if event is external``() =
         let event =
             TestData.createEvent (fun e -> { e with IsExternal = true })
@@ -452,4 +441,3 @@ type GetEvent(fixture: DatabaseFixture) =
     
             Assert.True(List.forall (fun (event: EventSummary) -> event.IsPubliclyAvailable = true) body)
         }
-

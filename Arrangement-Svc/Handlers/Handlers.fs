@@ -335,35 +335,6 @@ let getEvent (eventId: Guid) =
             }
         jsonResult result next context
 
-let getUnfurlEvent (idOrName: string) =
-    fun (next: HttpFunc) (context: HttpContext) ->
-        let strSkip n (s: string) =
-            s
-            |> Seq.safeSkip n
-            |> Seq.map string
-            |> String.concat ""
-        let result =
-            taskResult {
-                use db = openConnection context
-                let! eventId =
-                    match Guid.TryParse idOrName with
-                    | true, guid ->
-                        TaskResult.ok guid
-                    | false, _ ->
-                        let name = idOrName |> strSkip 1
-                        getEventIdByShortnameHttpResult name db
-
-                let! eventAndQuestions =
-                    Queries.getEvent eventId db
-                    |> TaskResult.mapError InternalError
-                let! eventAndQuestions =
-                    eventAndQuestions
-                    |> Result.requireSome (eventNotFound eventId)
-                let numberOfParticipants = Option.defaultValue 0 eventAndQuestions.NumberOfParticipants
-                return {| event = Event.encodeEventAndQuestions eventAndQuestions; numberOfParticipants = numberOfParticipants |}
-            }
-        jsonResult result next context
-
 let createEvent =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
@@ -905,7 +876,6 @@ let routes: HttpHandler =
             route "/api/events/id" >=> getEventIdByShortname
             route "/api/events/public" >=> getPublicEvents
             routef "/api/events/%O" getEvent
-            routef "/api/events/%s/unfurl" getUnfurlEvent
             routef "/api/events/%O/participants/count" getNumberOfParticipantsForEvent
             routef "/api/events/%O/participants/%s/waitinglist-spot" (fun (eventId, email) -> getWaitinglistSpot eventId email)
             routef "/api/events/%O/participants/export" exportParticipationsForEvent
