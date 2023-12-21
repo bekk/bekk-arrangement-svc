@@ -338,8 +338,8 @@ type GetEvent(fixture: DatabaseFixture) =
     [<Fact>]
     member _.``Authenticated users can get its own participations``() =
         task {
-            let email = Generator.generateEmail ()
             let mutable eventIds = []
+
             for _ in 0..4 do
                 let event =
                     TestData.createEvent (fun e ->
@@ -352,6 +352,7 @@ type GetEvent(fixture: DatabaseFixture) =
                 let createdEvent = getCreatedEvent createdEvent
                 eventIds <- List.append eventIds [ createdEvent.Event.Id ]
 
+                let email = Generator.generateEmail ()
                 let participant = Generator.generateParticipant email createdEvent.Event
                 let! _ = Helpers.createParticipantForEvent authenticatedClient createdEvent.Event.Id email participant
                 ()

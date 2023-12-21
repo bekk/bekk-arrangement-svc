@@ -65,6 +65,7 @@ let participantAndAnswerDecoder: Decoder<ParticipantAndAnswers> =
     Decode.object (fun get ->
         { Name = get.Required.Field "name" Decode.string
           QuestionAndAnswers = get.Required.Field "questionAndAnswers" (Decode.list questionAndAnswerDecoder) })
+
 type Participations =
     { Participations: string list }
 
