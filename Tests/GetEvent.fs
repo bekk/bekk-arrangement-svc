@@ -336,15 +336,6 @@ type GetEvent(fixture: DatabaseFixture) =
         }
 
     [<Fact>]
-    member _.``Unauthenticated users cannot get participations for participant``() =
-        let email = Generator.generateEmail ()
-
-        task {
-            let! response, _ = Http.get unauthenticatedClient $"/participants/{email}/events"
-            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode)
-        }
-
-    [<Fact>]
     member _.``Authenticated users can get participations for participant``() =
         task {
             let email = Generator.generateEmail ()

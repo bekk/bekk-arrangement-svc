@@ -776,20 +776,6 @@ let getWaitinglistSpot (eventId: Guid) (email: string) =
             }
         jsonResult result next context
 
-let getParticipationsForParticipant (email: string) =
-    fun (next: HttpFunc) (context: HttpContext) ->
-        let result =
-            taskResult {
-                use db = openConnection context
-                let! result =
-                    Queries.getParticipationsForParticipant email db
-                    |> TaskResult.mapError InternalError
-                return
-                    result
-                    |> Seq.map Participant.encodeParticipantAndAnswers
-            }
-        jsonResult result next context
-
 let deleteParticipantFromEvent (eventId: Guid) (email: string) =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
@@ -871,7 +857,6 @@ let routes: HttpHandler =
             routef "/api/events/forside/%s" (isAuthenticatedf getEventsForForside)
             routef "/api/events-and-participations/%i" (isAuthenticatedf getEventsAndParticipations)
             routef "/api/events/%O/participants" (isAuthenticatedf getParticipantsForEvent)
-            routef "/api/participants/%s/events" (isAuthenticatedf getParticipationsForParticipant)
             routef "/api/office-events/%s" (fun date ->
                 isAuthenticated >=> getOfficeEvents date)
           ]
