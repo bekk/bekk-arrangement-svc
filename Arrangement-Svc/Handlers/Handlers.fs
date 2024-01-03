@@ -280,20 +280,6 @@ let getPastEvents (next: HttpFunc) (context: HttpContext) =
             }
         jsonResult result next context
 
-let getEventsOrganizedBy (email: string) =
-    fun (next: HttpFunc) (context: HttpContext) ->
-        let result =
-            taskResult {
-                use db = openConnection context
-                let! eventAndQuestions =
-                    Queries.getEventsOrganizedByEmail email db
-                    |> TaskResult.mapError InternalError
-                return
-                    eventAndQuestions
-                    |> List.map Event.encodeEventAndQuestions
-            }
-        jsonResult result next context
-
 let getEventIdByShortnameHttpResult shortname db =
     taskResult {
         let! result =
@@ -332,35 +318,6 @@ let getEvent (eventId: Guid) =
                     eventAndQuestions
                     |> Result.requireSome (eventNotFound eventId)
                 return Event.encodeEventAndQuestions eventAndQuestions
-            }
-        jsonResult result next context
-
-let getUnfurlEvent (idOrName: string) =
-    fun (next: HttpFunc) (context: HttpContext) ->
-        let strSkip n (s: string) =
-            s
-            |> Seq.safeSkip n
-            |> Seq.map string
-            |> String.concat ""
-        let result =
-            taskResult {
-                use db = openConnection context
-                let! eventId =
-                    match Guid.TryParse idOrName with
-                    | true, guid ->
-                        TaskResult.ok guid
-                    | false, _ ->
-                        let name = idOrName |> strSkip 1
-                        getEventIdByShortnameHttpResult name db
-
-                let! eventAndQuestions =
-                    Queries.getEvent eventId db
-                    |> TaskResult.mapError InternalError
-                let! eventAndQuestions =
-                    eventAndQuestions
-                    |> Result.requireSome (eventNotFound eventId)
-                let numberOfParticipants = Option.defaultValue 0 eventAndQuestions.NumberOfParticipants
-                return {| event = Event.encodeEventAndQuestions eventAndQuestions; numberOfParticipants = numberOfParticipants |}
             }
         jsonResult result next context
 
@@ -819,20 +776,6 @@ let getWaitinglistSpot (eventId: Guid) (email: string) =
             }
         jsonResult result next context
 
-let getParticipationsForParticipant (email: string) =
-    fun (next: HttpFunc) (context: HttpContext) ->
-        let result =
-            taskResult {
-                use db = openConnection context
-                let! result =
-                    Queries.getParticipationsForParticipant email db
-                    |> TaskResult.mapError InternalError
-                return
-                    result
-                    |> Seq.map Participant.encodeParticipantAndAnswers
-            }
-        jsonResult result next context
-
 let deleteParticipantFromEvent (eventId: Guid) (email: string) =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
@@ -905,7 +848,6 @@ let routes: HttpHandler =
             route "/api/events/id" >=> getEventIdByShortname
             route "/api/events/public" >=> getPublicEvents
             routef "/api/events/%O" getEvent
-            routef "/api/events/%s/unfurl" getUnfurlEvent
             routef "/api/events/%O/participants/count" getNumberOfParticipantsForEvent
             routef "/api/events/%O/participants/%s/waitinglist-spot" (fun (eventId, email) -> getWaitinglistSpot eventId email)
             routef "/api/events/%O/participants/export" exportParticipationsForEvent
@@ -913,10 +855,8 @@ let routes: HttpHandler =
             route "/api/events" >=> isAuthenticated >=> getFutureEvents
             route "/api/events/previous" >=> isAuthenticated >=> getPastEvents
             routef "/api/events/forside/%s" (isAuthenticatedf getEventsForForside)
-            routef "/api/events/organizer/%s" (isAuthenticatedf getEventsOrganizedBy)
             routef "/api/events-and-participations/%i" (isAuthenticatedf getEventsAndParticipations)
             routef "/api/events/%O/participants" (isAuthenticatedf getParticipantsForEvent)
-            routef "/api/participants/%s/events" (isAuthenticatedf getParticipationsForParticipant)
             routef "/api/office-events/%s" (fun date ->
                 isAuthenticated >=> getOfficeEvents date)
           ]

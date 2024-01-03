@@ -132,11 +132,11 @@ let getEventIdByShortname (client: HttpClient) (shortname: string) =
     request client url None HttpMethod.Get
 
 
-let getParticipationsForEvent (client: HttpClient) email =
+let getParticipationsForEmployee (client: HttpClient) employeeId =
     requestDecode
         client
-        (participantAndAnswerDecoder |> Decode.list)
-        $"/participants/{email}/events"
+        participationsForEmployeeDecoder
+        $"/events-and-participations/{employeeId}"
         None
         HttpMethod.Get
 

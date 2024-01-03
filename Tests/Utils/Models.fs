@@ -66,6 +66,16 @@ let participantAndAnswerDecoder: Decoder<ParticipantAndAnswers> =
         { Name = get.Required.Field "name" Decode.string
           QuestionAndAnswers = get.Required.Field "questionAndAnswers" (Decode.list questionAndAnswerDecoder) })
 
+type Participations =
+    { Participations: string list }
+
+let eventIdDecoder: Decoder<string> =
+    Decode.object (fun get -> get.Required.Field "eventId" Decode.string)
+
+let participationsForEmployeeDecoder: Decoder<Participations> =
+    Decode.object (fun get ->
+        { Participations = get.Required.Field "participations" (Decode.list eventIdDecoder) })
+
 type ParticipationsAndWaitlist =
     { Attendees: ParticipantAndAnswers list
       WaitingList: ParticipantAndAnswers list }

@@ -65,17 +65,6 @@ type GetEvent(fixture: DatabaseFixture) =
         }
 
     [<Fact>]
-    member _.``Unfurl events can be seen by anyone``() =
-        let event =
-            TestData.createEvent (fun e -> { e with IsExternal = false })
-
-        task {
-            let! createdEvent = Helpers.createEventAndGet authenticatedClient event
-            let! response, _ = Http.get unauthenticatedClient $"/events/{createdEvent.Event.Id}/unfurl"
-            response.EnsureSuccessStatusCode() |> ignore
-        }
-
-    [<Fact>]
     member _.``Participants can be counted by anyone if event is external``() =
         let event =
             TestData.createEvent (fun e -> { e with IsExternal = true })
@@ -288,21 +277,6 @@ type GetEvent(fixture: DatabaseFixture) =
             response.EnsureSuccessStatusCode() |> ignore
         }
 
-
-    [<Fact>]
-    member _.``Unauthenticated users cannot get events organized by id``() =
-        task {
-            let! response, _ = Http.get unauthenticatedClient "/events/organizer/0"
-            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode)
-        }
-
-    [<Fact>]
-    member _.``Authenticated users can get events organized by id``() =
-        task {
-            let! response, _ = Http.get authenticatedClient "/events/organizer/0"
-            response.EnsureSuccessStatusCode() |> ignore
-        }
-
     [<Fact>]
     member _.``Unauthenticated users cannot get events and participations``() =
         task {
@@ -362,18 +336,10 @@ type GetEvent(fixture: DatabaseFixture) =
         }
 
     [<Fact>]
-    member _.``Unauthenticated users cannot get participations for participant``() =
-        let email = Generator.generateEmail ()
-
+    member _.``Authenticated users can get its own participations``() =
         task {
-            let! response, _ = Http.get unauthenticatedClient $"/participants/{email}/events"
-            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode)
-        }
+            let mutable eventIds = []
 
-    [<Fact>]
-    member _.``Authenticated users can get participations for participant``() =
-        task {
-            let email = Generator.generateEmail ()
             for _ in 0..4 do
                 let event =
                     TestData.createEvent (fun e ->
@@ -384,13 +350,18 @@ type GetEvent(fixture: DatabaseFixture) =
 
                 let! _, createdEvent = Helpers.createEvent authenticatedClient event
                 let createdEvent = getCreatedEvent createdEvent
+                eventIds <- List.append eventIds [ createdEvent.Event.Id ]
 
+                let email = Generator.generateEmail ()
                 let participant = Generator.generateParticipant email createdEvent.Event
                 let! _ = Helpers.createParticipantForEvent authenticatedClient createdEvent.Event.Id email participant
                 ()
 
-            let! response, content = Helpers.getParticipationsForEvent authenticatedClient email
-            Assert.Equal(List.length content, 5)
+            let! response, content = Helpers.getParticipationsForEmployee authenticatedClient 0
+            let filteredParticipations =
+                List.filter (fun eventId -> List.contains eventId eventIds) content.Participations
+            
+            Assert.Equal(5, List.length filteredParticipations)
 
             response.EnsureSuccessStatusCode() |> ignore
         }
@@ -452,4 +423,3 @@ type GetEvent(fixture: DatabaseFixture) =
     
             Assert.True(List.forall (fun (event: EventSummary) -> event.IsPubliclyAvailable = true) body)
         }
-

@@ -320,62 +320,6 @@ let getPastEvents (employeeId: int) (db: DatabaseContext) =
         return! getEventAndParticipantQuestions query numParticipantsQuery parameters db
     }
 
-let getEventsOrganizedByEmail (email: string) (db : DatabaseContext) =
-    task {
-        let query =
-            "
-            SELECT E.Id,
-                   E.Title,
-                   E.Description,
-                   E.Location,
-                   E.City,
-                   E.OrganizerName,
-                   E.OrganizerEmail,
-                   E.StartDate,
-                   E.StartTime,
-                   E.EndDate,
-                   E.EndTime,
-                   E.TargetAudience,
-                   E.MaxParticipants,
-                   E.OrganizerEmail,
-                   E.OpenForRegistrationTime,
-                   E.EditToken,
-                   E.HasWaitingList,
-                   E.IsCancelled,
-                   E.IsExternal,
-                   E.OrganizerId,
-                   E.IsHidden,
-                   E.IsPubliclyAvailable,
-                   E.EventType,
-                   E.CloseRegistrationTime,
-                   E.CustomHexColor,
-                   E.Shortname,
-                   E.Program,
-                   E.Offices,
-                   P.Id,
-                   P.EventId,
-                   P.Question
-            FROM Events E
-                     LEFT JOIN ParticipantQuestions P ON E.Id = P.EventId
-            WHERE E.OrganizerEmail = @email
-            ORDER BY StartDate DESC;
-            "
-        let parameters = {|
-            Email = email
-        |}
-
-        let numParticipantsQuery =
-            "
-            SELECT Id, Count(Id) as NumParticipants
-            FROM EVENTS
-                INNER JOIN Participants P on Events.Id = P.EventId
-            WHERE OrganizerEmail = @email
-            GROUP BY Id
-            "
-
-        return! getEventAndParticipantQuestions query numParticipantsQuery parameters db
-    }
-
 let getEventsOrganizedById (id: int) (db: DatabaseContext) =
     task {
         let query =
@@ -1112,58 +1056,6 @@ let getParticipantsAndAnswersForEvent (eventId: Guid) (db: DatabaseContext) =
                         ),
                     parameters,
                     db.Transaction,
-                    splitOn = "Question,QuestionId")
-
-            let result: Models.ParticipantAndAnswers seq =
-                participants
-                |> Seq.fromDict
-                |> Seq.map (fun (x, y) -> { Participant = x; QuestionAndAnswers = y })
-
-            return Ok result
-        with
-            | ex -> return Error ex
-    }
-
-let getParticipationsForParticipant email (db: DatabaseContext) =
-    task {
-        let query =
-            "
-            SELECT P.Email,
-                   P.EventId,
-                   P.RegistrationTime,
-                   P.EmployeeId,
-                   P.Name,
-                   P.EmployeeId,
-                   Q.Question,
-                   A.QuestionId,
-                   A.EventId,
-                   A.Email,
-                   A.Answer
-            FROM Participants P
-                LEFT JOIN ParticipantAnswers A on P.Email = A.Email AND P.EventId = A.EventId
-                LEFT JOIN ParticipantQuestions Q ON Q.EventId = P.EventId AND Q.Id = A.QuestionId
-            WHERE P.Email = @email
-            "
-
-        let parameters = {|
-            Email = email
-        |}
-
-        let participants = Dictionary<Models.Participant, Models.QuestionAndAnswer list>()
-
-        try
-            let! _ =
-                db.Connection.QueryAsync(
-                    query,
-                    (fun (participant: Models.Participant) (question: string) (answer: Models.QuestionAndAnswer) ->
-                            if participants.ContainsKey(participant) && not (answer :> obj = null) then
-                                participants[participant] <- participants[participant] @ [{QuestionId = answer.QuestionId; Question = question; Answer = answer.Answer}]
-                            else if not (participants.ContainsKey(participant)) && not (answer :> obj = null) then
-                                participants.Add(participant, [{QuestionId = answer.QuestionId; Question = question; Answer = answer.Answer}])
-                            else
-                                participants.Add(participant, [])
-                        ),
-                    parameters,
                     splitOn = "Question,QuestionId")
 
             let result: Models.ParticipantAndAnswers seq =
