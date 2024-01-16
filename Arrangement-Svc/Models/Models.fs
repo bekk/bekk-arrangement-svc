@@ -516,7 +516,7 @@ module Participant =
             "question", Encode.string questionAndAnswer.Question
             "answer", Encode.string questionAndAnswer.Answer
     ]
-    let encodeParticipantAndAnswers (useQuestions: bool, participantAndAnswers: ParticipantAndAnswers) =
+    let encodeParticipantAndAnswers (useQuestions: bool) (participantAndAnswers: ParticipantAndAnswers) =
         let participant = participantAndAnswers.Participant
         let questionAndAnswers = participantAndAnswers.QuestionAndAnswers
         Encode.object [
@@ -537,7 +537,7 @@ module Participant =
     let encodeWithCancelInfo (participant: Participant) (questionAndAnswers: QuestionAndAnswer list) =
         let participantAndAnswers = {Participant = participant; QuestionAndAnswers = questionAndAnswers }
         Encode.object [
-            "participant", encodeParticipantAndAnswers participantAndAnswers
+            "participant", encodeParticipantAndAnswers true participantAndAnswers //a single participant registering their own answers can see them?
             "cancellationToken", Encode.guid participantAndAnswers.Participant.CancellationToken
         ]
 
@@ -565,6 +565,6 @@ module Participant =
                 |> Encode.list
             "waitingList",
                 participationsAndWaitlist.WaitingList
-                |> List.map (fun x -> encodeParticipantAndAnswers x showQuestions)
+                |> List.map (encodeParticipantAndAnswers showQuestions)
                 |> Encode.list
         ]
