@@ -516,16 +516,18 @@ module Participant =
             "question", Encode.string questionAndAnswer.Question
             "answer", Encode.string questionAndAnswer.Answer
     ]
-    let encodeParticipantAndAnswers (participantAndAnswers: ParticipantAndAnswers) =
+    let encodeParticipantAndAnswers (useQuestions: bool, participantAndAnswers: ParticipantAndAnswers) =
         let participant = participantAndAnswers.Participant
         let questionAndAnswers = participantAndAnswers.QuestionAndAnswers
         Encode.object [
             "name", Encode.string participant.Name
             "email", Encode.string participant.Email
-            "questionAndAnswers",
-                questionAndAnswers
-                |> List.map (encodeQuestionAndAnswer participantAndAnswers.Participant.EventId participantAndAnswers.Participant.Email)
-                |> Encode.list
+            "questionAndAnswers", if useQuestions then
+                                    questionAndAnswers
+                                    |> List.map (encodeQuestionAndAnswer participantAndAnswers.Participant.EventId participantAndAnswers.Participant.Email)
+                                    |> Encode.list
+                                    else
+                                    null
             "registrationTime", Encode.int64 participant.RegistrationTime
             "eventId", Encode.guid participant.EventId
             "cancellationToken", Encode.guid participant.CancellationToken
@@ -555,14 +557,14 @@ module Participant =
            "participations", participations |> List.map encodeToLocalStorage |> Encode.list
         ]
 
-    let encodeParticipationsAndWaitlist (participationsAndWaitlist: ParticipationsAndWaitlist) =
+    let encodeParticipationsAndWaitlist (participationsAndWaitlist: ParticipationsAndWaitlist) (showQuestions: bool) =
         Encode.object [
             "attendees",
                 participationsAndWaitlist.Attendees
-                |> List.map encodeParticipantAndAnswers
+                |> List.map (encodeParticipantAndAnswers showQuestions)
                 |> Encode.list
             "waitingList",
                 participationsAndWaitlist.WaitingList
-                |> List.map encodeParticipantAndAnswers
+                |> List.map (fun x -> encodeParticipantAndAnswers x showQuestions)
                 |> Encode.list
         ]
