@@ -554,7 +554,7 @@ module Participant =
            "participations", participations |> List.map encodeToLocalStorage |> Encode.list
         ]
 
-    let encodeParticipationsAndWaitlist (participationsAndWaitlist: ParticipationsAndWaitlist) (showQuestions: bool) =
+    let encodeParticipationsAndWaitlist (showQuestions: bool) (participationsAndWaitlist: ParticipationsAndWaitlist) =
         Encode.object [
             "attendees",
                 participationsAndWaitlist.Attendees

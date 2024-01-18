@@ -680,7 +680,7 @@ let getParticipantsForEvent (eventId: Guid) =
                     Queries.getEvent eventId db
                     |> TaskResult.mapError InternalError
                 let! event = event |> Result.requireSome (eventNotFound eventId)
-                return Participant.encodeParticipationsAndWaitlist (participationsToAttendeesAndWaitlist event.Event.MaxParticipants (participations |> Seq.toList)) canEditEvent
+                return Participant.encodeParticipationsAndWaitlist canEditEvent (participationsToAttendeesAndWaitlist event.Event.MaxParticipants (participations |> Seq.toList)) 
             }
         jsonResult result next context
 
