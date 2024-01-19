@@ -95,7 +95,7 @@ export const parseParticipantViewModel = (
   const answers = parseAnswers(
     participantView
       .questionAndAnswers
-      .filter(qa => qa.answer?.length > 0)
+      .filter(qa => qa.answer.length > 0)
   );
   const participant = {
     ...participantView,

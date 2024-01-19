@@ -508,13 +508,13 @@ let createQuestionAndAnswer (questions: ParticipantQuestion list) (answers: Part
         }) answers
 
 module Participant =
-    let encodeQuestionAndAnswer useQuestions eventId email (questionAndAnswer: QuestionAndAnswer) =
+    let encodeQuestionAndAnswer eventId email (questionAndAnswer: QuestionAndAnswer) =
         Encode.object [
-            "questionId", if useQuestions then Encode.int questionAndAnswer.QuestionId else null
-            "eventId", if useQuestions then Encode.guid eventId else null
-            "email", if useQuestions then Encode.string email else null
-            "question", if useQuestions then Encode.string questionAndAnswer.Question else null
-            "answer", if useQuestions then Encode.string questionAndAnswer.Answer else null
+            "questionId", Encode.int questionAndAnswer.QuestionId
+            "eventId", Encode.guid eventId
+            "email", Encode.string email
+            "question", Encode.string questionAndAnswer.Question
+            "answer", Encode.string questionAndAnswer.Answer
     ]
     let encodeParticipantAndAnswers (useQuestions: bool) (participantAndAnswers: ParticipantAndAnswers) =
         let participant = participantAndAnswers.Participant
@@ -522,8 +522,12 @@ module Participant =
         Encode.object [
             "name", Encode.string participant.Name
             "email", Encode.string participant.Email
-            "questionAndAnswers", questionAndAnswers
-                                    |> List.map (encodeQuestionAndAnswer useQuestions participantAndAnswers.Participant.EventId participantAndAnswers.Participant.Email)
+            "questionAndAnswers", if useQuestions then
+                                    questionAndAnswers
+                                    |> List.map (encodeQuestionAndAnswer participantAndAnswers.Participant.EventId participantAndAnswers.Participant.Email)
+                                    |> Encode.list
+                                    else
+                                    []
                                     |> Encode.list
             "registrationTime", Encode.int64 participant.RegistrationTime
             "eventId", Encode.guid participant.EventId
@@ -544,7 +548,7 @@ module Participant =
             "email", Encode.string participantAndAnswers.Participant.Email
             "cancellationToken", Encode.guid participantAndAnswers.Participant.CancellationToken
             "questionAndAnswers", participantAndAnswers.QuestionAndAnswers
-                       |> List.map (encodeQuestionAndAnswer true participantAndAnswers.Participant.EventId participantAndAnswers.Participant.Email)
+                       |> List.map (encodeQuestionAndAnswer participantAndAnswers.Participant.EventId participantAndAnswers.Participant.Email)
                        |> Encode.list
         ]
 
