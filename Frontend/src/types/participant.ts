@@ -97,7 +97,6 @@ export const parseParticipantViewModel = (
       .questionAndAnswers
       .filter(qa => qa.answer.length > 0)
   );
-
   const participant = {
     ...participantView,
     email,

@@ -667,6 +667,12 @@ let getParticipantsForEvent (eventId: Guid) =
         let result =
             taskResult {
                 use db = openConnection context
+                let userId = getUserId context
+                let userIsAdmin = isAdmin context
+                let editToken = getEditTokenFromQuery context
+                let! canEditEvent =
+                    Queries.canEditEvent eventId userIsAdmin userId editToken db
+                    |> TaskResult.mapError InternalError
                 let! participations =
                     Queries.getParticipantsAndAnswersForEvent eventId db
                     |> TaskResult.mapError InternalError
@@ -674,7 +680,7 @@ let getParticipantsForEvent (eventId: Guid) =
                     Queries.getEvent eventId db
                     |> TaskResult.mapError InternalError
                 let! event = event |> Result.requireSome (eventNotFound eventId)
-                return Participant.encodeParticipationsAndWaitlist (participationsToAttendeesAndWaitlist event.Event.MaxParticipants (participations |> Seq.toList))
+                return Participant.encodeParticipationsAndWaitlist canEditEvent (participationsToAttendeesAndWaitlist event.Event.MaxParticipants (participations |> Seq.toList)) 
             }
         jsonResult result next context
 
