@@ -110,6 +110,14 @@ let private participateEvent isBekker numberOfParticipants (event: Models.Event)
     else
         CanParticipate
 
+let allRequiredQuestionsAnswered (questions: ParticipantQuestion list) (answers: ParticipantAnswer list) =
+    questions
+    |> List.filter (_.Required)
+    |> List.forall (fun q ->
+        answers
+        |> List.exists (fun a -> a.QuestionId = q.Id && a.Answer.Length > 0)
+    )
+
 let registerParticipation (eventId: Guid, email): HttpHandler =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
@@ -141,6 +149,9 @@ let registerParticipation (eventId: Guid, email): HttpHandler =
                     |> TaskResult.mapError InternalError
                 do! duplicateEmail
                     |> Result.requireFalse (emailAlreadyRegistered email)
+                    
+                do! allRequiredQuestionsAnswered eventAndQuestions.Questions writeModel.ParticipantAnswers
+                    |> Result.requireTrue unansweredQuestions
 
                 // Verdien blir ignorert da vi nå kun bruker dette til å returnere riktig feil til brukeren.
                 // Om arrangemenet har plass eller man er ventelista henter vi ut fra databasen lenger ned.

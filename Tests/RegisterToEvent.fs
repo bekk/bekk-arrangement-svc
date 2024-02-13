@@ -252,11 +252,11 @@ type RegisterToEvent(fixture: DatabaseFixture) =
             TestData.createEvent (fun e ->
                 { e with MaxParticipants = None
                          HasWaitingList = false
-                         ParticipantQuestions = [ { Id = None; Question = "Question 0" }
-                                                  { Id = None; Question = "Question 1" }
-                                                  { Id = None; Question = "Question 2" }
-                                                  { Id = None; Question = "Question 3" }
-                                                  { Id = None; Question = "Question 4" } ]
+                         ParticipantQuestions = [ { Id = None; Question = "Question 0"; Required = false }
+                                                  { Id = None; Question = "Question 1"; Required = false }
+                                                  { Id = None; Question = "Question 2"; Required = false }
+                                                  { Id = None; Question = "Question 3"; Required = false }
+                                                  { Id = None; Question = "Question 4"; Required = false } ]
                 })
 
         let email = Generator.generateEmail()
@@ -280,16 +280,16 @@ type RegisterToEvent(fixture: DatabaseFixture) =
         }
 
     [<Fact>]
-    member _.``Registering participant without answering questions is OK ``() =
+    member _.``Registering participant without answering non-required questions is OK ``() =
         let generatedEvent =
             TestData.createEvent (fun e ->
                 { e with MaxParticipants = None
                          HasWaitingList = false
-                         ParticipantQuestions = [ { Id = None; Question = "Question 0" }
-                                                  { Id = None; Question = "Question 1" }
-                                                  { Id = None; Question = "Question 2" }
-                                                  { Id = None; Question = "Question 3" }
-                                                  { Id = None; Question = "Question 4" } ]
+                         ParticipantQuestions = [ { Id = None; Question = "Question 0"; Required = false }
+                                                  { Id = None; Question = "Question 1"; Required = false }
+                                                  { Id = None; Question = "Question 2"; Required = false }
+                                                  { Id = None; Question = "Question 3"; Required = false }
+                                                  { Id = None; Question = "Question 4"; Required = false } ]
                 })
 
         task {
