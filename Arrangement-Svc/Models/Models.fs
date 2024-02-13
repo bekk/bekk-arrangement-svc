@@ -25,7 +25,7 @@ module ParticipantAnswer =
           QuestionId = get.Required.Field "questionId" Decode.int
           EventId = get.Required.Field "eventId" Decode.guid
           Email = get.Required.Field "email" Decode.string
-          Answer = get.Required.Field "answer" Decode.string
+          Answer = get.Required.Field "answer" Decode.string |> _.Trim()
         })
 
     let validate (questions: ParticipantAnswer list) =

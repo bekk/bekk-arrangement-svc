@@ -86,7 +86,7 @@ export const toParticipantWriteModel = (
         questionId: a.questionId,
         eventId: a.eventId,
         email: a.email,
-        answer: a.answer,
+        answer: a.answer.trim(),
       })),
     viewUrlTemplate: createViewUrlTemplate(event),
     cancelUrlTemplate: cancelParticipationUrlTemplate,

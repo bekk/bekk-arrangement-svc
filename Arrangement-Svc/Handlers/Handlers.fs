@@ -113,9 +113,9 @@ let private participateEvent isBekker numberOfParticipants (event: Models.Event)
 let allRequiredQuestionsAnswered (questions: ParticipantQuestion list) (answers: ParticipantAnswer list) =
     questions
     |> List.filter (_.Required)
-    |> List.forall (fun q ->
+    |> List.forall (fun question ->
         answers
-        |> List.exists (fun a -> a.QuestionId = q.Id && a.Answer.Length > 0)
+        |> List.exists (fun answer -> answer.QuestionId = question.Id && not (String.IsNullOrWhiteSpace answer.Answer))
     )
 
 let registerParticipation (eventId: Guid, email): HttpHandler =
