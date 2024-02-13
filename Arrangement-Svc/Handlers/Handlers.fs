@@ -112,7 +112,7 @@ let private participateEvent isBekker numberOfParticipants (event: Models.Event)
 
 let allRequiredQuestionsAnswered (questions: ParticipantQuestion list) (answers: ParticipantAnswer list) =
     questions
-    |> List.filter (_.Required)
+    |> List.filter (fun question -> question.Required)
     |> List.forall (fun question ->
         answers
         |> List.exists (fun answer -> answer.QuestionId = question.Id && not (String.IsNullOrWhiteSpace answer.Answer))

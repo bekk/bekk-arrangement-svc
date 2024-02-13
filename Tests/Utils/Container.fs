@@ -13,7 +13,7 @@ let ContainerName =
 let ContainerManagerProgram =
     Environment.GetEnvironmentVariable("ARRANGEMENT_SVC_CONTAINER_MANAGER")
     |> Option.ofObj
-    |> Option.defaultValue "docker"
+    |> Option.defaultValue "podman"
 
 
 let runCLI arguments =
