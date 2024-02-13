@@ -294,6 +294,38 @@ type RegisterToEvent(fixture: DatabaseFixture) =
 
         task {
             let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
-            let! response, _ = Helpers.createParticipant authenticatedClient createdEvent.Event
+            
+            let generatedEmail = Generator.generateEmail()
+            let participant =
+                let generated = Generator.generateParticipant generatedEmail createdEvent.Event
+                { generated with ParticipantAnswers = List.mapi (fun _ answer -> {answer with Answer = "" }) generated.ParticipantAnswers }
+            
+            let! response, _ = Helpers.createParticipantForEvent authenticatedClient createdEvent.Event.Id generatedEmail participant
             response.EnsureSuccessStatusCode() |> ignore
+        }
+        
+    [<Fact>]
+    member _.``Registering participant without answering all required questions fails``() =
+        let generatedEvent =
+            TestData.createEvent (fun e ->
+                { e with MaxParticipants = None
+                         HasWaitingList = false
+                         ParticipantQuestions = [ { Id = None; Question = "Question 0"; Required = false }
+                                                  { Id = None; Question = "Question 1"; Required = false }
+                                                  { Id = None; Question = "Question 2"; Required = false }
+                                                  { Id = None; Question = "Question 3"; Required = false }
+                                                  { Id = None; Question = "Question 4"; Required = true } ]
+                })
+
+        task {
+            let! createdEvent = Helpers.createEventAndGet authenticatedClient generatedEvent
+            
+            let generatedEmail = Generator.generateEmail()
+            let participant =
+                let generated = Generator.generateParticipant generatedEmail createdEvent.Event
+                { generated with ParticipantAnswers = List.mapi (fun _ answer -> {answer with Answer = "" }) generated.ParticipantAnswers }
+            
+            let! response, _ = Helpers.createParticipantForEvent authenticatedClient createdEvent.Event.Id generatedEmail participant
+            
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode)
         }
