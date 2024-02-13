@@ -491,12 +491,12 @@ let private canUpdateNumberOfParticipants (oldEvent: Models.Event) (newEvent: Mo
 let private canUpdateQuestions (newEventQuestions: ParticipantQuestionWriteModel list) (oldEventQuestions: ParticipantQuestion list) oldEventParticipants =
     let newEventQuestions =
         newEventQuestions
-        |> List.map (fun question -> question.Question)
+        |> List.map (fun question -> $"{question.Question}:{question.Required}")
         |> List.sort
 
     let oldEventQuestions =
         oldEventQuestions
-        |> List.map (fun question -> question.Question)
+        |> List.map (fun question -> $"{question.Question}:{question.Required}")
         |> List.sort
 
     let shouldChangeQuestions = newEventQuestions <> oldEventQuestions

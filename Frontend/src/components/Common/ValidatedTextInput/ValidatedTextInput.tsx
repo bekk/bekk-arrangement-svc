@@ -25,7 +25,7 @@ export const ValidatedTextInput = ({
   onLightBackground,
   isSubmitClicked = false,
 }: ValidTextInputProps) => {
-  const errors = validation(value);
+  const validationResult = validation(value);
   const [shouldShowErrors, setShouldShowErrors] = useState(false);
 
   return (
@@ -36,13 +36,13 @@ export const ValidatedTextInput = ({
         value={value}
         isNumber={isNumber}
         onChange={onChange}
-        isError={(isSubmitClicked || shouldShowErrors) && isIErrorList(errors)}
+        isError={(isSubmitClicked || shouldShowErrors) && isIErrorList(validationResult)}
         onBlur={() => setShouldShowErrors(true)}
         onLightBackground={onLightBackground}
       />
-      {(isSubmitClicked || shouldShowErrors) && isIErrorList(errors) && (
+      {(isSubmitClicked || shouldShowErrors) && isIErrorList(validationResult) && (
         <ValidationResult
-          validationResult={errors}
+          validationResult={validationResult}
           onLightBackground={onLightBackground}
         />
       )}

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useState } from 'react';
 import { TextArea } from 'src/components/Common/TextArea/TextArea';
 import { ValidationResult } from 'src/components/Common/ValidationResult/ValidationResult';
@@ -25,8 +25,8 @@ export const ValidatedTextArea = ({
   isSubmitClicked = false,
   className = '',
 }: ValidTextAreaProps) => {
+  const validationResult = validation(value);
   const [isEdited, setIsEdited] = useState(false);
-  const validationResult = useMemo(() => validation(value), [value]);
 
   return (
     <>

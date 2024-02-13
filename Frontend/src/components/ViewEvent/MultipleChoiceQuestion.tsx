@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { CheckBox } from '../Common/Checkbox/CheckBox';
 import { IError, isValid } from 'src/types/validation';
 import { ValidationResult } from 'src/components/Common/ValidationResult/ValidationResult';
@@ -21,8 +21,8 @@ export const MultipleChoiceQuestion = ({
   validation,
   isSubmitClicked,
 }: Props) => {
+  const validationResult = validation(value);
   const [isEdited, setIsEdited] = useState(false);
-  const validationError = useMemo(() => validation(value), [value]);
 
   const currentlySelectedAlternatives = parseAlternatives(value);
   return (
@@ -50,8 +50,8 @@ export const MultipleChoiceQuestion = ({
           isChecked={currentlySelectedAlternatives.includes(alternative)}
         />
       ))}
-      {(isSubmitClicked || isEdited) && !isValid(validationError) && (
-        <ValidationResult validationResult={validationError} />
+      {(isSubmitClicked || isEdited) && !isValid(validationResult) && (
+        <ValidationResult validationResult={validationResult} />
       )}
     </div>
   );
