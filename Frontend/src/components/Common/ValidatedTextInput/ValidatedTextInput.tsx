@@ -12,6 +12,7 @@ interface ValidTextInputProps {
   validation: (value: string) => unknown | IError[];
   onChange: (value: string) => void;
   onLightBackground?: boolean;
+  isSubmitClicked?: boolean;
 }
 
 export const ValidatedTextInput = ({
@@ -22,9 +23,9 @@ export const ValidatedTextInput = ({
   validation,
   onChange,
   onLightBackground,
+  isSubmitClicked = false,
 }: ValidTextInputProps) => {
   const errors = validation(value);
-
   const [shouldShowErrors, setShouldShowErrors] = useState(false);
 
   return (
@@ -35,11 +36,11 @@ export const ValidatedTextInput = ({
         value={value}
         isNumber={isNumber}
         onChange={onChange}
-        isError={shouldShowErrors && isIErrorList(errors)}
+        isError={(isSubmitClicked || shouldShowErrors) && isIErrorList(errors)}
         onBlur={() => setShouldShowErrors(true)}
         onLightBackground={onLightBackground}
       />
-      {shouldShowErrors && isIErrorList(errors) && (
+      {(isSubmitClicked || shouldShowErrors) && isIErrorList(errors) && (
         <ValidationResult
           validationResult={errors}
           onLightBackground={onLightBackground}

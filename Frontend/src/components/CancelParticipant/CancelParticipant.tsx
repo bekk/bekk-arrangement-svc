@@ -77,6 +77,11 @@ export const CancelParticipant = () => {
         Da er du avmeldt {event.title} den {stringifyDate(event.start.date)} kl{' '}
         {stringifyTime(event.start.time)} - {stringifyTime(event.end.time)}
       </div>
+      <div className={style.buttonContainer}>
+        <BlockLink onLightBackground to={viewEventRoute(eventId)}>
+          Tilbake til arrangement
+        </BlockLink>
+      </div>
     </>
   );
 
@@ -92,7 +97,7 @@ export const CancelParticipant = () => {
       <div className={style.buttonContainer}>
         <Button onClick={cancelParticipant}>Meld av</Button>
         <BlockLink onLightBackground to={viewEventRoute(eventId)}>
-          Se arrangement
+          Tilbake til arrangement
         </BlockLink>
       </div>
     </>

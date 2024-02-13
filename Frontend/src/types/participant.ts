@@ -9,7 +9,7 @@ import {
   cancelParticipationUrlTemplate,
   createViewUrlTemplate,
 } from '../routing';
-import { IEvent } from './event';
+import { IEvent, IQuestion } from './event';
 
 export interface IQuestionAndAnswerWriteModel {
   questionId: number;
@@ -24,10 +24,12 @@ export interface IQuestionAndAnswerViewModel {
   email: string;
   question: string;
   answer: string;
+  required: boolean;
 }
 
 export interface IParticipantWriteModel {
   name: string;
+  department: string;
   participantAnswers: IQuestionAndAnswerWriteModel[];
   viewUrlTemplate: string;
   cancelUrlTemplate: string;
@@ -76,10 +78,16 @@ export const toParticipantWriteModel = (
   event: IEvent
 ): IParticipantWriteModel => {
   return {
-    ...participant,
-    participantAnswers: participant.participantAnswers.filter(
-      (a) => a.questionId !== undefined
-    ),
+    name: participant.name,
+    department: participant.department,
+    participantAnswers: participant.participantAnswers
+      .filter((a) => a.questionId !== undefined && a.questionId !== 0)
+      .map((a) => ({
+        questionId: a.questionId,
+        eventId: a.eventId,
+        email: a.email,
+        answer: a.answer,
+      })),
     viewUrlTemplate: createViewUrlTemplate(event),
     cancelUrlTemplate: cancelParticipationUrlTemplate,
   };
@@ -109,7 +117,7 @@ export const parseParticipantViewModel = (
   return participant;
 };
 
-export const parseEditParticipant = ({
+export const validateParticipation = ({
   name,
   email,
   department,
@@ -151,12 +159,10 @@ export const parseName = (value: string): string | IError[] => {
   return validator.resolve(value);
 };
 
-export const parseAnswerString = (value: string): string | IError[] => {
-  if (value.length === 0) {
-    return value;
-  }
+export const parseAnswerString = (value: string, required: boolean): string | IError[] => {
   const validator = validate<string>({
     'Svar kan ha maks 500 tegn': value.length > 500,
+    'Spørsmålet er obligatorisk': required && value.trim().length === 0,
   });
   return validator.resolve(value);
 };
@@ -164,17 +170,15 @@ export const parseAnswerString = (value: string): string | IError[] => {
 export const parseAnswers = (
   value: IQuestionAndAnswerViewModel[]
 ): IQuestionAndAnswerViewModel[] | IError[] => {
-  if (value.length === 0) {
-    return value;
-  }
   const validator = validate<IQuestionAndAnswerViewModel[]>({
     'Svar kan ha maks 500 tegn': value.some((s) => s && s.answer.length > 500),
+    'Du har ikke besvart alle obligatoriske spørsmål': value.some((s) => s.required && s.answer.trim().length === 0),
   });
   return validator.resolve(value);
 };
 
 export function initalParticipant(
-  numberOfParticipantQuestions: number,
+  questions: IQuestion[],
   email?: string,
   name?: string,
   department?: string
@@ -183,12 +187,13 @@ export function initalParticipant(
     email: { email: email ?? '' },
     name: name ?? '',
     department: department ?? '',
-    participantAnswers: Array(numberOfParticipantQuestions).fill({
-      questionId: undefined,
+    participantAnswers: questions.map(question => ({
+      questionId: 0,
       eventId: '',
       email: '',
       question: '',
       answer: '',
-    }),
+      required: question.required,
+    })),
   };
 }

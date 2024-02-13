@@ -26,7 +26,7 @@ export const TextInput = ({
   const [hasVisited, setVisited] = useState(false);
   const inputStyle = classNames(style.textInput, {
     [style.visited]: hasVisited,
-    [style.error]: hasVisited && isError,
+    [style.error]: isError,
     [style.onLightBackground]: onLightBackground,
     [style.onDarkBackground]: !onLightBackground,
   });

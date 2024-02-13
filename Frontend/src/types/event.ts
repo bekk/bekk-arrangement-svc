@@ -134,6 +134,7 @@ export const maxParticipantsLimit = <t>(prop: LimitedParticipants<t>): t =>
 export interface IQuestion {
   id: number | undefined; // Denne er undefined dersom man ikke har opprettet arrangementet enda
   question: string;
+  required: boolean;
 }
 
 export interface IEvent {

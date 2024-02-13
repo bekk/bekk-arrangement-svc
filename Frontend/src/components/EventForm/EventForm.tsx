@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import {
-  IEditEvent,
+  IEditEvent, IQuestion,
   isMaxParticipantsLimited,
   maxParticipantsLimit,
   urlFromShortname,
@@ -332,7 +332,7 @@ export const EventForm = ({ eventResult: event, updateEvent }: IProps) => {
             color="Secondary"
             displayAsLink
             onLightBackground
-            className={style.participantQuestion}
+            className={style.alignLeft}
             onClick={() => setHasProgram(true)}>
             {buttonText.addProgram}
           </Button>
@@ -582,29 +582,44 @@ export const EventForm = ({ eventResult: event, updateEvent }: IProps) => {
 
         <div>
           {event.participantQuestions.map((q, i) => (
-            <ValidatedTextArea
-              key={i}
-              label={labels.participantQuestion}
-              placeholder={placeholders.participantQuestion}
-              value={q.question}
-              validation={(s) =>
-                parseQuestions([{ id: undefined, question: s }])
-              }
-              onLightBackground
-              onChange={(participantQuestion) =>
-                updateEvent({
-                  ...event,
-                  participantQuestions: event.participantQuestions.map(
-                    (oldQ, oldI) => {
-                      if (i === oldI) {
-                        return { id: undefined, question: participantQuestion };
-                      }
-                      return oldQ;
-                    }
-                  ),
-                })
-              }
-            />
+            <div className={style.participantQuestion}>
+              <ValidatedTextArea
+                key={i}
+                label={labels.participantQuestion(i)}
+                placeholder={placeholders.participantQuestion}
+                value={q.question}
+                validation={(s) =>
+                  parseQuestions([{ ...q, question: s }])
+                }
+                onLightBackground
+                onChange={(participantQuestion) =>
+                  updateEvent({
+                    ...event,
+                    participantQuestions: event.participantQuestions.map(
+                      (oldQ, oldI) =>
+                        i === oldI
+                          ? { ...oldQ, id: undefined, question: participantQuestion }
+                          : oldQ
+                    ),
+                  })
+                }
+              />
+              <CheckBox
+                label={labels.mandatoryQuestion}
+                isChecked={q.required}
+                onChange={(required) => {
+                  updateEvent({
+                    ...event,
+                    participantQuestions: event.participantQuestions.map(
+                      (oldQ, oldI) =>
+                        i === oldI
+                          ? { ...oldQ, id: undefined, required }
+                          : oldQ
+                      )
+                  })
+                }}
+              />
+            </div>
           ))}
           {event.participantQuestions.length > 0 && (
             <Button
@@ -614,10 +629,7 @@ export const EventForm = ({ eventResult: event, updateEvent }: IProps) => {
               onClick={() =>
                 updateEvent({
                   ...event,
-                  participantQuestions: event.participantQuestions
-                    .reverse()
-                    .slice(1)
-                    .reverse(),
+                  participantQuestions: event.participantQuestions.slice(0, -1),
                 })
               }>
               {buttonText.removeParticipantQuestion}
@@ -628,12 +640,12 @@ export const EventForm = ({ eventResult: event, updateEvent }: IProps) => {
           color="Secondary"
           displayAsLink
           onLightBackground
-          className={style.participantQuestion}
+          className={style.alignLeft}
           onClick={() =>
             updateEvent({
               ...event,
               participantQuestions: event.participantQuestions.concat([
-                { id: undefined, question: '' },
+                { id: undefined, question: '', required: false },
               ]),
             })
           }>
@@ -801,7 +813,8 @@ const labels = {
   hiddenEventForEveryone: 'Skjult arrangement',
   hiddenEventForPublic: 'Skjul fra arrangementer på bekk.no',
   eventType: 'Hvilken type arrangement er dette?',
-  participantQuestion: 'Spørsmål til deltakerne*',
+  participantQuestion: (id: number) => `Spørsmål #${id+1} til deltakerne*`,
+  mandatoryQuestion: 'Obligatorisk spørsmål',
   shortname: 'Lag en penere URL for arrangementet',
   program: 'Program',
 };

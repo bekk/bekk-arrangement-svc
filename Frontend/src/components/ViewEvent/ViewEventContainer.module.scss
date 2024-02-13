@@ -108,3 +108,8 @@
   font-family: $fontLight;
   margin-bottom: 10px;
 }
+
+.multipleChoiceHeading {
+  display: block;
+  @include labelText;
+}

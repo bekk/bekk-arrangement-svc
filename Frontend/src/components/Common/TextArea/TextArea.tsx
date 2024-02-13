@@ -26,7 +26,7 @@ export const TextArea = ({
   const [hasVisited, setVisited] = useState(false);
   const inputStyle = classNames(style.textArea, className, {
     [style.visited]: hasVisited,
-    [style.error]: hasVisited && isError,
+    [style.error]: isError,
     [style.onLightBackground]: onLightBackground,
     [style.onDarkBackground]: !onLightBackground,
   });
