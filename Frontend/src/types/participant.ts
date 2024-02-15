@@ -81,7 +81,7 @@ export const toParticipantWriteModel = (
     name: participant.name,
     department: participant.department,
     participantAnswers: participant.participantAnswers
-      .filter((a) => a.questionId !== undefined && a.questionId !== 0)
+      .filter((a) => a.questionId !== 0)
       .map((a) => ({
         questionId: a.questionId,
         eventId: a.eventId,

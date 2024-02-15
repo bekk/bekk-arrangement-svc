@@ -126,6 +126,8 @@ export const AddParticipant = ({
       : question;
 
   return (
+    <>
+    <div className={style.mandatoryText}>* Obligatorisk</div>
     <div className={style.addParticipantContainer}>
       <div>
         <ValidatedTextInput
@@ -225,5 +227,6 @@ export const AddParticipant = ({
         <ValidationResult validationResult={validatedParticipant} />
       )}
     </div>
+    </>
   );
 };
