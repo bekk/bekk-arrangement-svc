@@ -1,11 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { CheckBox } from '../Common/Checkbox/CheckBox';
+import { IError, isValid } from 'src/types/validation';
+import { ValidationResult } from 'src/components/Common/ValidationResult/ValidationResult';
+import style from './ViewEventContainer.module.scss';
 
 interface Props {
   question: string;
   alternatives: string[];
   value: string;
   onChange: (s: string) => void;
+  validation: (value: string) => string | IError[];
+  isSubmitClicked: boolean;
 }
 
 export const MultipleChoiceQuestion = ({
@@ -13,11 +18,16 @@ export const MultipleChoiceQuestion = ({
   alternatives,
   value,
   onChange,
+  validation,
+  isSubmitClicked,
 }: Props) => {
+  const validationResult = validation(value);
+  const [isEdited, setIsEdited] = useState(false);
+
   const currentlySelectedAlternatives = parseAlternatives(value);
   return (
     <div key={question}>
-      <div>{question}</div>
+      <div className={style.multipleChoiceHeading}>{question}</div>
       {alternatives.map((alternative) => (
         <CheckBox
           key={alternative}
@@ -35,10 +45,14 @@ export const MultipleChoiceQuestion = ({
                 currentlySelectedAlternatives.filter((x) => x !== alternative);
               onChange(serializeAlternatives(newlySelectedAlternatives));
             }
+            setIsEdited(true);
           }}
           isChecked={currentlySelectedAlternatives.includes(alternative)}
         />
       ))}
+      {(isSubmitClicked || isEdited) && !isValid(validationResult) && (
+        <ValidationResult validationResult={validationResult} />
+      )}
     </div>
   );
 };

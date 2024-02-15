@@ -65,3 +65,4 @@ module ResponseMessages =
     let cannotDeleteParticipation: HttpStatus = "Du kan ikke slette din deltagelse usen ditt cancellation token" |> Forbidden
     let mustBeAuthorizedOrEventMustBeExternal: HttpStatus = "Du må enten være innlogget eller arrangementet må være eksternt for at du skal få tilgang" |> Forbidden
     let emailAlreadyRegistered email: HttpStatus = $"Denne emailen er allerede registrert på arrangementet: '{email}'" |> Forbidden
+    let unansweredQuestions: HttpStatus = "Du har ikke besvart alle obligatoriske spørsmål" |> BadRequest

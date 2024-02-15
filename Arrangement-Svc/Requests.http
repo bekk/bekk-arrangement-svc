@@ -15,6 +15,10 @@ Content-Type: application/json
 GET localhost:5000/api/events/id?shortname=<Enter a shortname here>
 Authorization: Bearer {{token}}
 
+### Get forside events
+GET localhost:5000/api/events/forside/trond.tenfjord@bekk.no
+Authorization: Bearer {{token}}
+
 ### Get event by ID
 GET localhost:5000/api/events/<Enter a GUID here>
 

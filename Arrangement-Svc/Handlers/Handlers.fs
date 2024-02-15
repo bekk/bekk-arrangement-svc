@@ -110,6 +110,14 @@ let private participateEvent isBekker numberOfParticipants (event: Models.Event)
     else
         CanParticipate
 
+let allRequiredQuestionsAnswered (questions: ParticipantQuestion list) (answers: ParticipantAnswer list) =
+    questions
+    |> List.filter (fun question -> question.Required)
+    |> List.forall (fun question ->
+        answers
+        |> List.exists (fun answer -> answer.QuestionId = question.Id && not (String.IsNullOrWhiteSpace answer.Answer))
+    )
+
 let registerParticipation (eventId: Guid, email): HttpHandler =
     fun (next: HttpFunc) (context: HttpContext) ->
         let result =
@@ -141,6 +149,9 @@ let registerParticipation (eventId: Guid, email): HttpHandler =
                     |> TaskResult.mapError InternalError
                 do! duplicateEmail
                     |> Result.requireFalse (emailAlreadyRegistered email)
+                    
+                do! allRequiredQuestionsAnswered eventAndQuestions.Questions writeModel.ParticipantAnswers
+                    |> Result.requireTrue unansweredQuestions
 
                 // Verdien blir ignorert da vi nå kun bruker dette til å returnere riktig feil til brukeren.
                 // Om arrangemenet har plass eller man er ventelista henter vi ut fra databasen lenger ned.
@@ -480,12 +491,12 @@ let private canUpdateNumberOfParticipants (oldEvent: Models.Event) (newEvent: Mo
 let private canUpdateQuestions (newEventQuestions: ParticipantQuestionWriteModel list) (oldEventQuestions: ParticipantQuestion list) oldEventParticipants =
     let newEventQuestions =
         newEventQuestions
-        |> List.map (fun question -> question.Question)
+        |> List.map (fun question -> $"{question.Question}:{question.Required}")
         |> List.sort
 
     let oldEventQuestions =
         oldEventQuestions
-        |> List.map (fun question -> question.Question)
+        |> List.map (fun question -> $"{question.Question}:{question.Required}")
         |> List.sort
 
     let shouldChangeQuestions = newEventQuestions <> oldEventQuestions

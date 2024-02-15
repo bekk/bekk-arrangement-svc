@@ -144,7 +144,8 @@
   flex-grow: 1;
   margin-left: 2px;
 }
-.participantQuestion {
+
+.alignLeft {
   align-self: flex-start;
 }
 
@@ -183,4 +184,8 @@
 
 .subField {
   margin-left: 28px;
+}
+
+.participantQuestion {
+  margin-bottom: 20px;
 }

@@ -33,6 +33,11 @@
   gap: 20px;
 }
 
+.mandatoryText {
+  text-align: right;
+  font-size: 14px;
+}
+
 .attendeesTitleContainer {
   display: flex;
   justify-content: space-between;
@@ -107,4 +112,9 @@
 .answer {
   font-family: $fontLight;
   margin-bottom: 10px;
+}
+
+.multipleChoiceHeading {
+  display: block;
+  @include labelText;
 }

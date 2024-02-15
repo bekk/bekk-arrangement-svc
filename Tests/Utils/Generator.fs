@@ -53,7 +53,7 @@ let private generateDateTimeCustomSoon () : DateTimeCustom.DateTimeCustom =
 
 let generateQuestions numberOfQuestions =
   [ 0 .. numberOfQuestions ]
-  |> List.map (fun _ -> { Id = None; Question = faker.Lorem.Sentence()})
+  |> List.map (fun _ -> { Id = None; Question = faker.Lorem.Sentence(); Required = faker.Random.Bool() })
 
 let generateEvent () : Models.EventWriteModel =
     let start = DateTime.Now.AddDays(-1)
@@ -91,7 +91,7 @@ let generateEvent () : Models.EventWriteModel =
               )
       ParticipantQuestions =
           [ 0 .. faker.Random.Number(0, 5) ]
-          |> List.map (fun _ -> { Id = None; Question = faker.Lorem.Sentence()})
+          |> List.map (fun _ -> { Id = None; Question = faker.Lorem.Sentence(); Required = faker.Random.Bool() })
       Program =
           if faker.Random.Number(0, 5) <> 0 then
               None

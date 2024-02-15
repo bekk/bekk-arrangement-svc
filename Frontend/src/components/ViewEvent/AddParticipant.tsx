@@ -3,7 +3,7 @@ import {
   IEditParticipant,
   toEditParticipant,
   initalParticipant,
-  parseEditParticipant,
+  validateParticipation,
   parseName,
   IQuestionAndAnswerViewModel,
   parseAnswerString,
@@ -26,6 +26,7 @@ import {
   multipleChoiceAlternatives,
   MultipleChoiceQuestion,
 } from 'src/components/ViewEvent/MultipleChoiceQuestion';
+import { ValidationResult } from 'src/components/Common/ValidationResult/ValidationResult';
 
 interface Props {
   eventId: string;
@@ -48,7 +49,7 @@ export const AddParticipant = ({
   const [participant, setParticipant] = useState<IEditParticipant>(
     toEditParticipant(
       initalParticipant(
-        event.participantQuestions.length,
+        event.participantQuestions,
         email,
         name,
         department
@@ -56,21 +57,25 @@ export const AddParticipant = ({
     )
   );
 
+  const [isSubmitClicked, setIsSubmitClicked] = useState(false);
   const [waitingOnParticipation, setWaitingOnParticipation] = useState(false);
 
-  const validParticipant = validateParticipation(participant);
+  const validatedParticipant = validateParticipation(participant);
 
   const timeLeft = useTimeLeft(event.openForRegistrationTime);
 
   const { saveParticipation } = useSavedParticipations();
+
   const participate = catchAndNotify(async () => {
-    if (validParticipant) {
+    setIsSubmitClicked(true);
+
+    if (isValid(validatedParticipant)) {
       setWaitingOnParticipation(true);
 
       const response = await postParticipant(
         event,
         eventId,
-        validParticipant
+        validatedParticipant
       ).catch((e) => {
         setWaitingOnParticipation(false);
         throw e;
@@ -98,7 +103,8 @@ export const AddParticipant = ({
     question: string,
     answer: string,
     i: number,
-    oldI: number
+    oldI: number,
+    required: boolean
   ) => {
     if (i === oldI) {
       const newAnswer: IQuestionAndAnswerViewModel = {
@@ -106,21 +112,30 @@ export const AddParticipant = ({
         eventId: eventId,
         email: participant.email,
         question,
-        answer,
+        answer: answer,
+        required
       };
       return newAnswer;
     }
     return a;
   };
 
+  const labelForQuestion = (question: string, required: boolean) =>
+    required ?
+      `${question} *`
+      : question;
+
   return (
+    <>
+    <div className={style.mandatoryText}>* Obligatorisk</div>
     <div className={style.addParticipantContainer}>
       <div>
         <ValidatedTextInput
-          label={'Navn'}
-          placeholder={'Ola Nordmann'}
+          label={labelForQuestion("Navn", true)}
+          placeholder="Ola Nordmann"
           value={participant.name}
           validation={parseName}
+          isSubmitClicked={isSubmitClicked}
           onChange={(name: string) =>
             setParticipant({
               ...participant,
@@ -134,10 +149,11 @@ export const AddParticipant = ({
       </div>
       <div>
         <ValidatedTextInput
-          label={'E-post'}
-          placeholder={'ola.nordmann@bekk.no'}
+          label={labelForQuestion("E-post", true)}
+          placeholder="ola.nordmann@bekk.no"
           value={participant.email}
           validation={parseEditEmail}
+          isSubmitClicked={isSubmitClicked}
           onChange={(email: string) =>
             setParticipant({
               ...participant,
@@ -162,15 +178,18 @@ export const AddParticipant = ({
         );
         return isMultipleChoiceQuestion ? (
           <MultipleChoiceQuestion
-            question={actualQuestion}
+            key={q.id}
+            question={labelForQuestion(actualQuestion, q.required)}
             alternatives={alternatives}
             value={foundAnswer?.answer || ''}
+            validation={(answer) => parseAnswerString(answer, q.required)}
+            isSubmitClicked={isSubmitClicked}
             onChange={(s) =>
               setParticipant({
                 ...participant,
                 participantAnswers: participant.participantAnswers.map(
                   (a, oldI) =>
-                    updateQuestion(a, questionId, q.question, s, i, oldI)
+                    updateQuestion(a, questionId, q.question, s, i, oldI, q.required)
                 ),
               })
             }
@@ -178,16 +197,17 @@ export const AddParticipant = ({
         ) : (
           <div key={q.id}>
             <ValidatedTextArea
-              label={q.question}
+              label={labelForQuestion(q.question, q.required)}
               placeholder={''}
               value={foundAnswer?.answer || ''}
-              validation={(answer) => parseAnswerString(answer)}
+              validation={(answer) => parseAnswerString(answer, q.required)}
+              isSubmitClicked={isSubmitClicked}
               onChange={(s) =>
                 setParticipant({
                   ...participant,
                   participantAnswers: participant.participantAnswers.map(
                     (a, oldI) =>
-                      updateQuestion(a, questionId, q.question, s, i, oldI)
+                      updateQuestion(a, questionId, q.question, s, i, oldI, q.required)
                   ),
                 })
               }
@@ -203,13 +223,10 @@ export const AddParticipant = ({
         disabled={timeLeft.difference > 0 || waitingOnParticipation}>
         {!waitingOnParticipation ? 'Meld meg på' : 'Melder på...'}
       </Button>
+      {isSubmitClicked && !isValid(validatedParticipant) && (
+        <ValidationResult validationResult={validatedParticipant} />
+      )}
     </div>
+    </>
   );
-};
-
-const validateParticipation = (participant: IEditParticipant) => {
-  const vParticipant = parseEditParticipant(participant);
-  if (isValid(vParticipant)) {
-    return vParticipant;
-  }
 };

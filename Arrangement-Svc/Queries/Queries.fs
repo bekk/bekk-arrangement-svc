@@ -224,6 +224,7 @@ let getFutureEvents (employeeId: int) (db: DatabaseContext) =
                    P.Id,
                    P.EventId,
                    P.Question,
+                   P.Required,
                    PN.isPaameldt
             FROM Events E
                      LEFT JOIN ParticipantQuestions P ON E.Id = P.EventId
@@ -295,6 +296,7 @@ let getPastEvents (employeeId: int) (db: DatabaseContext) =
                    P.Id,
                    P.EventId,
                    P.Question,
+                   P.Required,
                    PN.isPaameldt
             FROM Events E
                      LEFT JOIN ParticipantQuestions P ON E.Id = P.EventId
@@ -354,7 +356,8 @@ let getEventsOrganizedById (id: int) (db: DatabaseContext) =
                    E.Offices,
                    P.Id,
                    P.EventId,
-                   P.Question
+                   P.Question,
+                   P.Required
             FROM Events E
                      LEFT JOIN ParticipantQuestions P ON E.Id = P.EventId
             WHERE E.OrganizerId = @id
@@ -484,7 +487,8 @@ let getEvent (eventId: Guid) (db: DatabaseContext) =
                    E.Offices,
                    P.Id,
                    P.EventId,
-                   P.Question
+                   P.Question,
+                   P.Required
             FROM Events E
                      LEFT JOIN ParticipantQuestions P ON E.Id = P.EventId
             WHERE E.Id = @eventId
@@ -821,13 +825,17 @@ let createParticipantQuestions (eventId: Guid) (participantQuestions: Models.Par
         else
             let insertQuery =
                 "
-                INSERT INTO ParticipantQuestions (EventId, Question)
-                VALUES (@eventId, @question)
+                INSERT INTO ParticipantQuestions (EventId, Question, Required)
+                VALUES (@eventId, @question, @required)
                 "
 
             let insertParameters =
                 participantQuestions
-                |> Seq.map (fun question -> {| EventId = eventId; Question = question.Question |})
+                |> Seq.map (fun question ->
+                    {| EventId = eventId
+                       Question = question.Question
+                       Required = question.Required
+                    |})
 
             let selectQuery =
                 "

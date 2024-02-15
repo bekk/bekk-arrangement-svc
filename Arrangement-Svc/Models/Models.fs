@@ -8,6 +8,7 @@ type ParticipantQuestion = {
   Id: int
   EventId: Guid
   Question: string
+  Required: bool
 }
 
 [<CLIMutable>]
@@ -24,7 +25,7 @@ module ParticipantAnswer =
           QuestionId = get.Required.Field "questionId" Decode.int
           EventId = get.Required.Field "eventId" Decode.guid
           Email = get.Required.Field "email" Decode.string
-          Answer = get.Required.Field "answer" Decode.string
+          Answer = get.Required.Field "answer" Decode.string |> (fun answer -> answer.Trim())
         })
 
     let validate (questions: ParticipantAnswer list) =
@@ -155,13 +156,15 @@ module EventType =
 
 type ParticipantQuestionWriteModel =
     { Id: int option
-      Question: string }
+      Question: string
+      Required: bool }
 
 module ParticipantQuestionWriteModel =
     let decoder : Decoder<ParticipantQuestionWriteModel> =
         Decode.object (fun get -> {
            Id = get.Optional.Field "id" Decode.int
            Question = get.Required.Field "question" Decode.string
+           Required = get.Required.Field "required" Decode.bool
         })
 
     let validateParticipantQuestions (questions: ParticipantQuestionWriteModel list) =
@@ -354,6 +357,7 @@ module Event =
                         Encode.object [
                             "id", Encode.int q.Id
                             "question", Encode.string q.Question
+                            "required", Encode.bool q.Required
                         ])
                     |> Encode.list
                 if event.Program.IsSome then

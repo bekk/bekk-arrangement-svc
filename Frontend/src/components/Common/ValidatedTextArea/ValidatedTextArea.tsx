@@ -11,7 +11,7 @@ interface ValidTextAreaProps {
   validation: (value: string) => unknown | IError[];
   onChange: (value: string) => void;
   onLightBackground?: boolean;
-  isError?: boolean;
+  isSubmitClicked?: boolean;
   className?: string;
 }
 
@@ -22,12 +22,11 @@ export const ValidatedTextArea = ({
   validation,
   onChange,
   onLightBackground = false,
-  isError,
+  isSubmitClicked = false,
   className = '',
 }: ValidTextAreaProps) => {
-  const [showError, setShowError] = useState(isError);
   const validationResult = validation(value);
-  isError = !isValid(validationResult);
+  const [isEdited, setIsEdited] = useState(false);
 
   return (
     <>
@@ -37,11 +36,11 @@ export const ValidatedTextArea = ({
         placeholder={placeholder}
         value={value}
         onChange={onChange}
-        isError={showError && isError}
-        onBlur={() => setShowError(true)}
+        isError={(isSubmitClicked || isEdited) && !isValid(validationResult)}
+        onBlur={() => setIsEdited(true)}
         onLightBackground={onLightBackground}
       />
-      {showError && !isValid(validationResult) && (
+      {(isSubmitClicked || isEdited) && !isValid(validationResult) && (
         <ValidationResult
           validationResult={validationResult}
           onLightBackground={onLightBackground}

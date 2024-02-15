@@ -112,13 +112,13 @@ export const ViewEvent = ({
       </WavySubHeader>
       <div className={style.contentContainer}>
         <div className={style.infoContainer}>
-          <p className={style.description}>
+          <div className={style.description}>
             <Description description={event.description} />
-          </p>
+          </div>
           {event.program && (
-            <p className={style.program}>
+            <div className={style.program}>
               <Program program={event.program} />
-            </p>
+            </div>
           )}
         </div>
         <p>—</p>
