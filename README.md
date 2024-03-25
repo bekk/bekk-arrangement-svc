@@ -13,7 +13,7 @@ An F# service and frontend for collecting and maintaining data about events.
   graph TD;
       arr-app(arrangement-app) --> emp-svc(employee-svc);
       arr-app(arrangement-app) --> arr-svc(arrangement-svc);
-      arr-svc(arrangement-svc) <--> arr-db[(arrangement-db)];
+      arr-svc(arrangement-svc) --> arr-db[(arrangement-db)];
 ```
 
 ## Requirements
