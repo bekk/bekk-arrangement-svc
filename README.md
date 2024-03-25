@@ -7,6 +7,15 @@ An F# service and frontend for collecting and maintaining data about events.
 - Development = https://skjer.bekk.dev/
 - Production = https://skjer.bekk.no/
 
+## Dependency graph
+
+```mermaid
+  graph TD;
+      arr-app(arrangement-app) --> emp-svc(employee-svc);
+      arr-app(arrangement-app) --> arr-svc(arrangement-svc);
+      arr-svc(arrangement-svc) --> arr-db[(arrangement-db)];
+```
+
 ## Requirements
 
 - .NET Core SDK 6.0
